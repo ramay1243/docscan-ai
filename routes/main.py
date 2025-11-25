@@ -991,109 +991,11 @@ Sitemap: https://docscan-ekjj.onrender.com/sitemap.xml""", 200, {'Content-Type':
 @main_bp.route('/articles')
 def articles():
     """Страница со списком всех статей"""
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Статьи - DocScan AI</title>
-        <meta charset="utf-8">
-        <style>
-            body { font-family: Arial; margin: 40px; background: #f7fafc; line-height: 1.6; }
-            .container { max-width: 800px; margin: 0 auto; }
-            .header { text-align: center; margin-bottom: 40px; }
-            .article-card { 
-                background: white; padding: 25px; margin: 20px 0; 
-                border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                border-left: 4px solid #667eea;
-            }
-            .article-card h2 { color: #2d3748; margin-top: 0; }
-            .read-more { 
-                background: #667eea; color: white; padding: 10px 20px; 
-                text-decoration: none; border-radius: 5px; display: inline-block;
-                margin-top: 10px;
-            }
-            .read-more:hover { background: #5a67d8; }
-            .back-link { display: inline-block; margin-top: 20px; color: #667eea; text-decoration: none; }
-            .back-link:hover { text-decoration: underline; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>📚 Статьи о DocScan AI</h1>
-                <p>Узнайте больше о нашем сервисе анализа документов</p>
-            </div>
-            
-            <div class="article-card">
-                <h2>📖 О проекте DocScan AI</h2>
-                <p>Умный анализ документов с использованием искусственного интеллекта. Узнайте о целях проекта и его возможностях.</p>
-                <a href="/articles/about" class="read-more">Читать статью</a>
-            </div>
-            
-            <div class="article-card">
-                <h2>🛠️ Как пользоваться сервисом</h2>
-                <p>Пошаговая инструкция по работе с DocScan AI. От загрузки документа до получения анализа.</p>
-                <a href="/articles/guide" class="read-more">Читать статью</a>
-            </div>
-            
-            <div class="article-card">
-                <h2>🔬 Технологии и AI</h2>
-                <p>Как работает искусственный интеллект в анализе документов. YandexGPT и компьютерное зрение.</p>
-                <a href="/articles/tech" class="read-more">Читать статью</a>
-            </div>
-            
-            <div class="article-card">
-                <h2>💡 Кейсы использования</h2>
-                <p>Примеры применения сервиса в бизнесе и повседневной жизни. Для кого полезен DocScan AI.</p>
-                <a href="/articles/cases" class="read-more">Читать статью</a>
-            </div>
-            
-            <a href="/" class="back-link">← На главную</a>
-        </div>
-    </body>
-    </html>
-    """
+    return render_template('articles.html')
 
 @main_bp.route('/articles/about')
 def article_about():
     """Статья 'О проекте'"""
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>О проекте - DocScan AI</title>
-        <meta charset="utf-8">
-        <style>
-            body { font-family: Arial; margin: 40px; background: #f7fafc; line-height: 1.6; }
-            .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-            h1 { color: #2d3748; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
-            .back-link { display: inline-block; margin-top: 30px; color: #667eea; text-decoration: none; }
-            .back-link:hover { text-decoration: underline; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>📖 О проекте DocScan AI</h1>
-            
-            <h2>🎯 Наша миссия</h2>
-            <p>DocScan AI создан, чтобы сделать юридический анализ документов доступным для каждого. Мы используем искусственный интеллект для быстрой проверки договоров на потенциальные риски.</p>
-            
-            <h2>🚀 Что мы делаем</h2>
-            <p>Наш сервис анализирует документы с помощью YandexGPT и выявляет:</p>
-            <ul>
-                <li>✅ Юридические риски и несоответствия</li>
-                <li>✅ Финансовые опасности</li>
-                <li>✅ Операционные проблемы</li>
-                <li>✅ Скрытые условия</li>
-            </ul>
-            
-            <h2>💡 Почему это важно</h2>
-            <p>Ежедневно люди и компании подписывают договоры, не понимая всех последствий. Наш AI помогает предотвратить дорогостоящие ошибки до их совершения.</p>
-            
-            <a href="/articles" class="back-link">← Назад к статьям</a>
-        </div>
-    </body>
-    </html>
-    """
+    return render_template('article_about.html')
 
 

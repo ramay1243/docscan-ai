@@ -231,8 +231,6 @@ def home():
         </div>
         <div class="menu-dropdown" id="menuDropdown">
             <a href="/articles">📚 Статьи</a>
-            <a href="#" onclick="showProfile()">👤 Профиль</a>
-            <a href="#" onclick="showSettings()">⚙️ Настройки</a>
         </div>
     </div>
 
@@ -642,15 +640,6 @@ function getRiskMeterWidth(riskLevel) {
                 }
             });
 
-            function showProfile() {
-                alert('Профиль - в разработке 📝');
-                toggleMenu();
-            }
-
-            function showSettings() {
-                alert('Настройки - в разработке ⚙️');
-                toggleMenu();
-            }
     </script>
                                               <!-- How it Works Section -->
             <div style="background: white; padding: 80px 0; text-align: center;">

@@ -217,10 +217,12 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
+       <script>
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            // Останавливаем стандартную отправку формы
             e.preventDefault();
             
+            // Собираем данные из формы
             const formData = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
@@ -228,10 +230,43 @@
                 message: document.getElementById('message').value
             };
             
-            // Здесь будет отправка формы на сервер
-            alert('✅ Сообщение отправлено! Мы ответим вам в ближайшее время.');
-            this.reset();
+            // Находим кнопку отправки
+            const submitBtn = this.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            
+            // Показываем загрузку
+            submitBtn.textContent = '📤 Отправка...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Отправляем запрос на сервер
+                const response = await fetch('/send-telegram', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                // Получаем ответ от сервера
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Успешная отправка
+                    alert('✅ Сообщение отправлено! Мы ответим вам в ближайшее время.');
+                    this.reset(); // Очищаем форму
+                } else {
+                    // Ошибка отправки
+                    alert('❌ Ошибка отправки: ' + result.error);
+                }
+                
+            } catch (error) {
+                // Ошибка сети
+                alert('❌ Ошибка сети: ' + error.message);
+            } finally {
+                // Всегда восстанавливаем кнопку
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
     </script>
-</body>
-</html>

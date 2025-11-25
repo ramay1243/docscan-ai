@@ -1003,4 +1003,9 @@ def article_guide():
     """Статья 'Как пользоваться сервисом'"""
     return render_template('article_guide.html')
 
+@main_bp.route('/articles/tech')
+def article_tech():
+    """Статья 'Технологии и AI'"""
+    return render_template('article_tech.html')
+
 

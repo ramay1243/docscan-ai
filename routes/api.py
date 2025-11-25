@@ -110,8 +110,9 @@ def analyze_document():
         app.user_manager.record_usage(user_id)
         
         # Для бесплатных пользователей записываем использование IP
+        # Для бесплатных пользователей записываем использование IP
         if user['plan'] == 'free':
-            app.ip_limit_manager.record_ip_usage(request)
+        app.ip_limit_manager.record_ip_usage(request, user_id)  # ← ДОБАВЬ user_id
         
         # Добавляем информацию о лимитах в ответ
         user = app.user_manager.get_user(user_id)

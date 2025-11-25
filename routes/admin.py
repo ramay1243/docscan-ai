@@ -4,6 +4,7 @@ from datetime import datetime
 from functools import wraps
 from config import ADMINS
 import logging
+from models.limits import IPLimitManager
 
 logger = logging.getLogger(__name__)
 
@@ -191,6 +192,7 @@ def admin_panel():
                                     <strong>Использовано сегодня:</strong> ${userData.used_today}/${getPlanLimit(userData.plan)}<br>
                                     <strong>Всего анализов:</strong> ${userData.total_used}<br>
                                     <strong>Создан:</strong> ${userData.created_at || 'Неизвестно'}<br>
+                                    <strong>IP-адрес:</strong> ${userData.ip_address || 'Не определен'}<br>
                                     <button onclick="setUserPlanQuick('${userId}', 'basic')">Выдать Базовый</button>
                                     <button onclick="setUserPlanQuick('${userId}', 'premium')">Выдать Премиум</button>
                                     <button onclick="setUserPlanQuick('${userId}', 'unlimited')">Выдать Безлимитный</button>
@@ -283,7 +285,28 @@ def get_all_users():
     """Получить всех пользователей"""
     from app import app
     
-    return jsonify(app.user_manager.get_all_users())
+    # Получаем обычных пользователей
+    users = app.user_manager.get_all_users()
+    
+    # Создаем менеджер IP-лимитов
+    ip_manager = IPLimitManager()
+    
+    # Добавляем IP-адреса к каждому пользователю
+    for user_id, user_data in users.items():
+        user_ip = "Не определен"
+        
+        # Ищем IP пользователя в данных IP-лимитов
+        for ip, ip_data in ip_manager.ip_limits.items():
+            # Проверяем различные способы связи пользователя с IP
+            if (ip_data.get('user_id') == user_id or 
+                ip_data.get('last_user') == user_id):
+                user_ip = ip
+                break
+        
+        # Добавляем IP в данные пользователя
+        user_data['ip_address'] = user_ip
+    
+    return jsonify(users)
 
 @admin_bp.route('/set-plan', methods=['POST'])
 @require_admin_auth

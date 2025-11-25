@@ -998,4 +998,9 @@ def article_about():
     """Статья 'О проекте'"""
     return render_template('article_about.html')
 
+@main_bp.route('/articles/guide')
+def article_guide():
+    """Статья 'Как пользоваться сервисом'"""
+    return render_template('article_guide.html')
+
 

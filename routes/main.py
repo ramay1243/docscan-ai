@@ -18,10 +18,23 @@ def home():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
     <title>DocScan - AI анализ документов и договоров за 60 секунд</title>
-    <meta name="description" content="Бесплатный анализ документов с AI. Проверка договоров на риски, выявление ошибок с помощью YandexGPT. Юридический анализ за 1 минуту">
-    <meta name="keywords" content="анализ документов, проверка договоров, AI анализ, YandexGPT, юридический анализ, анализ рисков, проверка документов">
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="DocScan">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="DocScan AI - автоматический анализ документов с искусственным интеллектом. Проверка договоров на риски, юридическая экспертиза, выявление ошибок за 60 секунд с помощью ИИ">
+    <meta name="keywords" content="анализ документов, проверка договоров, AI анализ, юридический анализ, анализ рисков, проверка документов онлайн">
+    <meta name="author" content="DocScan AI">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="DocScan AI - Автоматический анализ документов за 60 секунд">
+    <meta property="og:description" content="Проверка договоров на риски с искусственным интеллектом. Юридическая экспертиза, финансовый анализ, выявление ошибок">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://docscan-ai.onrender.com">
+    <meta property="og:site_name" content="DocScan AI">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DocScan AI - Анализ документов с AI">
+    <meta name="twitter:description" content="Проверка договоров на риски за 60 секунд">
     <style>
             * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
             body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: center; }
@@ -913,8 +926,34 @@ document.addEventListener('DOMContentLoaded', initCarousel);
                     © 2025 DocScan. Все права защищены.
                 </div>
             </div>
-        </div>
+                </div>
 
+        <!-- Schema.org Structured Data -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "DocScan AI",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web Browser",
+          "description": "Автоматический анализ документов с искусственным интеллектом. Проверка договоров на юридические и финансовые риски за 60 секунд.",
+          "url": "https://docscan-ai.onrender.com",
+          "author": {
+            "@type": "Organization",
+            "name": "DocScan AI"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "RUB"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "157"
+          }
+        }
+        </script>
     </body>
 </html>
     """

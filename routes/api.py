@@ -51,6 +51,8 @@ def analyze_document():
             'upgrade_required': True
         }), 402
 
+# Получаем данные пользователя ДО проверки IP-лимитов
+    user = app.user_manager.get_user(user_id)
     # Проверяем IP-лимиты для бесплатных пользователей
     if user['plan'] == 'free':
         if not app.ip_limit_manager.can_analyze_by_ip(request):

@@ -50,6 +50,15 @@ def analyze_document():
             'error': f'❌ Бесплатный лимит исчерпан! Сегодня использовано {user["used_today"]}/{plan["daily_limit"]} анализов.',
             'upgrade_required': True
         }), 402
+        
+# Проверяем IP-лимиты для бесплатных пользователей
+if user['plan'] == 'free':
+    if not app.ip_limit_manager.can_analyze_by_ip(request):
+        return jsonify({
+            'success': False,
+            'error': '❌ Бесплатный лимит по IP исчерпан! Можно сделать только 1 анализ в день с одного IP-адреса.',
+            'ip_limit_exceeded': True
+        }), 402
     
     temp_path = None
     try:

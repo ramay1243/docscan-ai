@@ -997,4 +997,9 @@ def article_tech():
     """Статья 'Технологии и AI'"""
     return render_template('article_tech.html')
 
+@main_bp.route('/contact')
+def contact():
+    """Страница контактов"""
+    return render_template('contact.html')
+
 

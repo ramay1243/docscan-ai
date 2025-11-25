@@ -13,7 +13,7 @@ class IPLimitManager:
 
     def load_ip_limits(self):
     """Загружает лимиты по IP из файла"""
-    try:
+        try:
         if os.path.exists("docscan_ip_limits.json"):
             with open("docscan_ip_limits.json", 'r', encoding='utf-8') as f:  # ← 'r' вместо 'w'
                 data = json.load(f)

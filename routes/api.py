@@ -61,7 +61,7 @@ if user['plan'] == 'free':
         }), 402
 
 temp_path = None
-    try:
+try:
         if 'file' not in request.files:
             return jsonify({'error': 'Файл не загружен'}), 400
         

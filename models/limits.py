@@ -35,7 +35,7 @@ class IPLimitManager:
     def save_ip_limits(self):
         """Сохраняет лимиты по IP в файл"""
         try:
-            with open(IP_LIMITS_FILE, 'w', encoding='utf-8') as f:
+            with open("docscan_ip_limits.json", 'w') as f:  # ← ПРАВИЛЬНО!
                 json.dump(self.ip_limits, f, ensure_ascii=False, indent=2)
             logger.info("💾 IP-лимиты сохранены")
         except Exception as e:

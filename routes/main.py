@@ -140,10 +140,103 @@ def home():
     border-radius: 4px;
     transition: width 0.5s ease;
 }
+/* Бургер-меню с тремя полосками */
+        .burger-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .burger-icon {
+            background: white;
+            padding: 15px 12px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .burger-icon:hover {
+            background: #667eea;
+            transform: scale(1.1);
+        }
+
+        .burger-line {
+            width: 20px;
+            height: 2px;
+            background: #2d3748;
+            transition: all 0.3s ease;
+        }
+
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 15px 0;
+            min-width: 200px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-dropdown a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #2d3748;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f7fafc;
+        }
+
+        .menu-dropdown a:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .menu-dropdown.show {
+            display: block;
+        }
         </style>
     </head>
     <body>
-<div class="container">
+    <!-- Бургер-меню -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/articles">📚 Статьи</a>
+            <a href="#" onclick="showProfile()">👤 Профиль</a>
+            <a href="#" onclick="showSettings()">⚙️ Настройки</a>
+        </div>
+    </div>
+
+    <div class="container">
     <div class="header">
         <div class="logo">🔍</div>
         <h1>DocScan - AI анализ документов</h1>
@@ -533,6 +626,31 @@ function getRiskMeterWidth(riskLevel) {
                 alert('Ошибка соединения: ' + error.message);
             }
         }
+        // Функции для бургер-меню
+            function toggleMenu() {
+                const dropdown = document.getElementById('menuDropdown');
+                dropdown.classList.toggle('show');
+            }
+
+            // Закрывать меню при клике вне его
+            document.addEventListener('click', function(event) {
+                const menu = document.querySelector('.burger-menu');
+                const dropdown = document.getElementById('menuDropdown');
+                
+                if (!menu.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+
+            function showProfile() {
+                alert('Профиль - в разработке 📝');
+                toggleMenu();
+            }
+
+            function showSettings() {
+                alert('Настройки - в разработке ⚙️');
+                toggleMenu();
+            }
     </script>
                                               <!-- How it Works Section -->
             <div style="background: white; padding: 80px 0; text-align: center;">
@@ -869,3 +987,113 @@ Disallow: /admin
 Disallow: /admin-login
 
 Sitemap: https://docscan-ekjj.onrender.com/sitemap.xml""", 200, {'Content-Type': 'text/plain'}
+
+@main_bp.route('/articles')
+def articles():
+    """Страница со списком всех статей"""
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Статьи - DocScan AI</title>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial; margin: 40px; background: #f7fafc; line-height: 1.6; }
+            .container { max-width: 800px; margin: 0 auto; }
+            .header { text-align: center; margin-bottom: 40px; }
+            .article-card { 
+                background: white; padding: 25px; margin: 20px 0; 
+                border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                border-left: 4px solid #667eea;
+            }
+            .article-card h2 { color: #2d3748; margin-top: 0; }
+            .read-more { 
+                background: #667eea; color: white; padding: 10px 20px; 
+                text-decoration: none; border-radius: 5px; display: inline-block;
+                margin-top: 10px;
+            }
+            .read-more:hover { background: #5a67d8; }
+            .back-link { display: inline-block; margin-top: 20px; color: #667eea; text-decoration: none; }
+            .back-link:hover { text-decoration: underline; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📚 Статьи о DocScan AI</h1>
+                <p>Узнайте больше о нашем сервисе анализа документов</p>
+            </div>
+            
+            <div class="article-card">
+                <h2>📖 О проекте DocScan AI</h2>
+                <p>Умный анализ документов с использованием искусственного интеллекта. Узнайте о целях проекта и его возможностях.</p>
+                <a href="/articles/about" class="read-more">Читать статью</a>
+            </div>
+            
+            <div class="article-card">
+                <h2>🛠️ Как пользоваться сервисом</h2>
+                <p>Пошаговая инструкция по работе с DocScan AI. От загрузки документа до получения анализа.</p>
+                <a href="/articles/guide" class="read-more">Читать статью</a>
+            </div>
+            
+            <div class="article-card">
+                <h2>🔬 Технологии и AI</h2>
+                <p>Как работает искусственный интеллект в анализе документов. YandexGPT и компьютерное зрение.</p>
+                <a href="/articles/tech" class="read-more">Читать статью</a>
+            </div>
+            
+            <div class="article-card">
+                <h2>💡 Кейсы использования</h2>
+                <p>Примеры применения сервиса в бизнесе и повседневной жизни. Для кого полезен DocScan AI.</p>
+                <a href="/articles/cases" class="read-more">Читать статью</a>
+            </div>
+            
+            <a href="/" class="back-link">← На главную</a>
+        </div>
+    </body>
+    </html>
+    """
+
+@main_bp.route('/articles/about')
+def article_about():
+    """Статья 'О проекте'"""
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>О проекте - DocScan AI</title>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial; margin: 40px; background: #f7fafc; line-height: 1.6; }
+            .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+            h1 { color: #2d3748; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+            .back-link { display: inline-block; margin-top: 30px; color: #667eea; text-decoration: none; }
+            .back-link:hover { text-decoration: underline; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📖 О проекте DocScan AI</h1>
+            
+            <h2>🎯 Наша миссия</h2>
+            <p>DocScan AI создан, чтобы сделать юридический анализ документов доступным для каждого. Мы используем искусственный интеллект для быстрой проверки договоров на потенциальные риски.</p>
+            
+            <h2>🚀 Что мы делаем</h2>
+            <p>Наш сервис анализирует документы с помощью YandexGPT и выявляет:</p>
+            <ul>
+                <li>✅ Юридические риски и несоответствия</li>
+                <li>✅ Финансовые опасности</li>
+                <li>✅ Операционные проблемы</li>
+                <li>✅ Скрытые условия</li>
+            </ul>
+            
+            <h2>💡 Почему это важно</h2>
+            <p>Ежедневно люди и компании подписывают договоры, не понимая всех последствий. Наш AI помогает предотвратить дорогостоящие ошибки до их совершения.</p>
+            
+            <a href="/articles" class="back-link">← Назад к статьям</a>
+        </div>
+    </body>
+    </html>
+    """
+
+

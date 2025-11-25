@@ -154,7 +154,11 @@ def validate_file(file):
         return False, "Неподдерживаемый формат файла. Используйте PDF, DOCX, TXT, JPG, PNG"
     
     # Проверка размера (10MB)
-    if file.size > 10 * 1024 * 1024:
-        return False, "Файл слишком большой. Максимальный размер: 10MB"
+    # Проверка размера (10MB)
+    file.seek(0, 2)  # Перемещаемся в конец файла
+    file_size = file.tell()  # Получаем размер
+    file.seek(0)  # Возвращаемся в начало
     
+    if file_size > 10 * 1024 * 1024:
+        return False, "Файл слишком большой. Максимальный размер: 10MB"
     return True, "Файл валиден"

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Контакты - DocScan AI</title>
+    <meta charset="utf-8">
+    <meta name="description" content="Свяжитесь с DocScan AI - поддержка пользователей, техническая помощь, сотрудничество">
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 50px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        h1 { 
+            color: #2d3748; 
+            border-bottom: 4px solid #667eea; 
+            padding-bottom: 15px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+        .back-link { 
+            display: inline-block; 
+            margin-top: 30px; 
+            color: #667eea; 
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 25px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover { 
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        .contact-card {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            text-align: center;
+        }
+        .contact-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .contact-form {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        .faq-section {
+            margin-top: 40px;
+        }
+        .faq-item {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #48bb78;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📞 Контакты</h1>
+        <p style="text-align: center; color: #718096; font-size: 1.1em;">Мы всегда готовы помочь вам с любыми вопросами</p>
+
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-icon">📧</div>
+                <h3>Электронная почта</h3>
+                <p><strong>Техподдержка:</strong><br>
+                <a href="mailto:support@docscan.ai">support@docscan.ai</a></p>
+                <p><strong>Сотрудничество:</strong><br>
+                <a href="mailto:partnership@docscan.ai">partnership@docscan.ai</a></p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-icon">🕒</div>
+                <h3>Время работы</h3>
+                <p><strong>Поддержка:</strong><br>
+                Пн-Пт: 9:00-18:00</p>
+                <p><strong>Экстренные случаи:</strong><br>
+                Круглосуточно</p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-icon">🌐</div>
+                <h3>Онлайн-помощь</h3>
+                <p><strong>Чат-бот:</strong><br>
+                Доступен 24/7</p>
+                <p><strong>База знаний:</strong><br>
+                <a href="/articles">Статьи и инструкции</a></p>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <h2 style="text-align: center; margin-bottom: 30px;">📨 Написать нам</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="name">Ваше имя *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">Тема обращения *</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">Выберите тему</option>
+                        <option value="technical">Техническая проблема</option>
+                        <option value="billing">Вопросы по оплате</option>
+                        <option value="feature">Предложение по улучшению</option>
+                        <option value="partnership">Сотрудничество</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Сообщение *</label>
+                    <textarea id="message" name="message" placeholder="Опишите ваш вопрос подробно..." required></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">📤 Отправить сообщение</button>
+            </form>
+        </div>
+
+        <div class="faq-section">
+            <h2>❓ Частые вопросы</h2>
+            
+            <div class="faq-item">
+                <h3>🤔 Сколько времени занимает ответ на email?</h3>
+                <p>Обычно мы отвечаем в течение 2-4 часов в рабочее время. В выходные ответ может занять до 24 часов.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>🔧 Нужна срочная техническая помощь?</h3>
+                <p>Для срочных технических проблем используйте чат-бот на главной странице - он доступен круглосуточно.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>💳 Проблемы с оплатой?</h3>
+                <p>Если у вас возникли проблемы с оплатой тарифа, напишите на billing@docscan.ai - мы решим вопрос в приоритетном порядке.</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/articles" class="back-link">📚 К статьям</a>
+            <a href="/" class="back-link" style="margin-left: 15px;">🎯 На главную</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+            
+            // Здесь будет отправка формы на сервер
+            alert('✅ Сообщение отправлено! Мы ответим вам в ближайшее время.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>

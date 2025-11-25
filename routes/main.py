@@ -1004,4 +1004,45 @@ def contact():
     """Страница контактов"""
     return render_template('contact.html')
 
+@main_bp.route('/send-telegram', methods=['POST'])
+def send_telegram():
+    """Отправка сообщения в Telegram"""
+    import requests
+    import json
+    
+    data = request.json
+    
+    # ⚠️ ЗАМЕНИ ЭТИ ДАННЫЕ НА СВОИ!
+    bot_token = "8372564853:AAEKSid1yGVB2v5tNfT5ms7Qzt0xIWwZKxY"
+    chat_id = "8037837239"
+    
+    text = f"""
+📨 *НОВОЕ СООБЩЕНИЕ С САЙТА*
+
+*👤 Имя:* {data['name']}
+*📧 Email:* {data['email']}
+*🎯 Тема:* {data['subject']}
+
+*💬 Сообщение:*
+{data['message']}
+    """
+    
+    try:
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        payload = {
+            'chat_id': chat_id,
+            'text': text,
+            'parse_mode': 'Markdown'
+        }
+        
+        response = requests.post(url, json=payload)
+        
+        if response.status_code == 200:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'Ошибка отправки в Telegram'})
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 

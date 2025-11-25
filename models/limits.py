@@ -87,7 +87,7 @@ class IPLimitManager:
         
         return can_analyze
 
-def record_ip_usage(self, request, user_id=None):
+    def record_ip_usage(self, request, user_id=None):
         """Записывает использование для IP"""
         real_ip = self.get_client_ip(request)
         
@@ -110,8 +110,3 @@ def record_ip_usage(self, request, user_id=None):
         self.ip_limits[real_ip]['used_today'] += 1
         self.save_ip_limits()
         logger.info(f"📡 Записано использование для IP {real_ip}: {self.ip_limits[real_ip]['used_today']}/1 (user: {user_id})")
-        
-        
-        
-        
-        

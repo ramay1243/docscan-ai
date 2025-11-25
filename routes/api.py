@@ -42,15 +42,15 @@ def analyze_document():
     user_id = request.form.get('user_id', 'default')
     
     # Проверяем лимиты
-    if not app.user_manager.can_analyze(user_id):
-        user = app.user_manager.get_user(user_id)
-        plan = PLANS[user['plan']]
-        return jsonify({
-            'success': False,
-            'error': f'❌ Бесплатный лимит исчерпан! Сегодня использовано {user["used_today"]}/{plan["daily_limit"]} анализов.',
-            'upgrade_required': True
-        }), 402
-        
+if not app.user_manager.can_analyze(user_id):
+    user = app.user_manager.get_user(user_id)
+    plan = PLANS[user['plan']]
+    return jsonify({
+        'success': False,
+        'error': f'❌ Бесплатный лимит исчерпан! Сегодня использовано {user["used_today"]}/{plan["daily_limit"]} анализов.',
+        'upgrade_required': True
+    }), 402
+
 # Проверяем IP-лимиты для бесплатных пользователей
 if user['plan'] == 'free':
     if not app.ip_limit_manager.can_analyze_by_ip(request):
@@ -59,8 +59,8 @@ if user['plan'] == 'free':
             'error': '❌ Бесплатный лимит по IP исчерпан! Можно сделать только 1 анализ в день с одного IP-адреса.',
             'ip_limit_exceeded': True
         }), 402
-    
-    temp_path = None
+
+temp_path = None
     try:
         if 'file' not in request.files:
             return jsonify({'error': 'Файл не загружен'}), 400

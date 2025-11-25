@@ -231,6 +231,7 @@ def home():
         </div>
         <div class="menu-dropdown" id="menuDropdown">
             <a href="/articles">📚 Статьи</a>
+            <a href="/contact">📞 Контакты</a>
         </div>
     </div>
 

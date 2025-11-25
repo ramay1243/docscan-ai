@@ -11,31 +11,31 @@ class IPLimitManager:
         self.ip_limits = self.load_ip_limits()
         logger.info(f"🌐 Менеджер IP-лимитов загружен: {len(self.ip_limits)} IP-адресов")
 
-def load_ip_limits(self):
-    """Загружает лимиты по IP из файла"""
-    try:
-        if os.path.exists("docscan_ip_limits.json"):
-            with open("docscan_ip_limits.json", 'r', encoding='utf-8') as f:  # ← 'r' вместо 'w'
-                data = json.load(f)
-                
-                # Очищаем старые записи (старше 1 дня)
-                today = date.today().isoformat()
-                clean_data = {}
-                for ip, ip_data in data.items():
-                    if ip_data.get('last_reset', today) >= today:
-                        clean_data[ip] = ip_data
-                
-                logger.info(f"✅ Загружено {len(clean_data)} IP-адресов")
-                return clean_data
-    except Exception as e:
-        logger.error(f"❌ Ошибка загрузки IP-лимитов: {e}")
-    
-    return {}
+    def load_ip_limits(self):
+        """Загружает лимиты по IP из файла"""
+        try:
+            if os.path.exists("docscan_ip_limits.json"):
+                with open("docscan_ip_limits.json", 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    
+                    # Очищаем старые записи (старше 1 дня)
+                    today = date.today().isoformat()
+                    clean_data = {}
+                    for ip, ip_data in data.items():
+                        if ip_data.get('last_reset', today) >= today:
+                            clean_data[ip] = ip_data
+                    
+                    logger.info(f"✅ Загружено {len(clean_data)} IP-адресов")
+                    return clean_data
+        except Exception as e:
+            logger.error(f"❌ Ошибка загрузки IP-лимитов: {e}")
+        
+        return {}
 
     def save_ip_limits(self):
         """Сохраняет лимиты по IP в файл"""
         try:
-            with open("docscan_ip_limits.json", 'w') as f:  # ← ПРАВИЛЬНО!
+            with open("docscan_ip_limits.json", 'w') as f:
                 json.dump(self.ip_limits, f, ensure_ascii=False, indent=2)
             logger.info("💾 IP-лимиты сохранены")
         except Exception as e:

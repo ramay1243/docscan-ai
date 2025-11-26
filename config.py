@@ -16,7 +16,7 @@ class Config:
     # YooMoney
     YOOMONEY_CLIENT_ID = os.getenv('YOOMONEY_CLIENT_ID')
     YOOMONEY_CLIENT_SECRET = os.getenv('YOOMONEY_CLIENT_SECRET')
-    YOOMONEY_REDIRECT_URI = os.getenv('YOOMONEY_REDIRECT_URI', 'https://docscan-ekjj.onrender.com/payment-success')
+    YOOMONEY_REDIRECT_URI = os.getenv('YOOMONEY_REDIRECT_URI', 'https://docscan-ai.ru/payment-success')
     
     # Пути к файлам
     USER_DB_FILE = 'docscan_users.json'

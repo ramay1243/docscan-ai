@@ -979,35 +979,64 @@ def offer():
 @main_bp.route('/sitemap.xml')
 def sitemap():
     """Sitemap для SEO"""
-    base_url = "https://docscan-ekjj.onrender.com"
+    base_url = "https://docscan-ai-lmkc.onrender.com"
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>{base_url}/</loc>
-        <lastmod>2024-11-22</lastmod>
+        <lastmod>2024-11-25</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>{base_url}/terms</loc>
-        <lastmod>2024-11-22</lastmod>
+        <loc>{base_url}/articles</loc>
+        <lastmod>2024-11-25</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>{base_url}/articles/about</loc>
+        <lastmod>2024-11-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>{base_url}/articles/guide</loc>
+        <lastmod>2024-11-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>{base_url}/articles/tech</loc>
+        <lastmod>2024-11-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>{base_url}/contact</loc>
+        <lastmod>2024-11-25</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>{base_url}/terms</loc>
+        <lastmod>2024-11-25</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
     </url>
     <url>
         <loc>{base_url}/privacy</loc>
-        <lastmod>2024-11-22</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
+        <lastmod>2024-11-25</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
     </url>
     <url>
         <loc>{base_url}/offer</loc>
-        <lastmod>2024-11-22</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
+        <lastmod>2024-11-25</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
     </url>
 </urlset>''', 200, {'Content-Type': 'application/xml'}
-
 @main_bp.route('/robots.txt')
 def robots():
     """Robots.txt для SEO"""

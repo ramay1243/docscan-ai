@@ -28,7 +28,7 @@ def home():
     <meta property="og:title" content="DocScan AI - Автоматический анализ документов за 60 секунд">
     <meta property="og:description" content="Проверка договоров на риски с искусственным интеллектом. Юридическая экспертиза, финансовый анализ, выявление ошибок">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://docscan-ai.onrender.com">
+    <meta property="og:url" content="https://docscan-ai.ru">
     <meta property="og:site_name" content="DocScan AI">
 
     <!-- Twitter Card -->
@@ -937,7 +937,7 @@ document.addEventListener('DOMContentLoaded', initCarousel);
           "applicationCategory": "BusinessApplication",
           "operatingSystem": "Web Browser",
           "description": "Автоматический анализ документов с искусственным интеллектом. Проверка договоров на юридические и финансовые риски за 60 секунд.",
-          "url": "https://docscan-ai.onrender.com",
+          "url": "https://docscan-ai.ru",
           "author": {
             "@type": "Organization",
             "name": "DocScan AI"
@@ -979,7 +979,7 @@ def offer():
 @main_bp.route('/sitemap.xml')
 def sitemap():
     """Sitemap для SEO"""
-    base_url = "https://docscan-ai-lmkc.onrender.com"
+    base_url = "https://docscan-ai.ru"
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
@@ -1045,7 +1045,7 @@ Allow: /
 Disallow: /admin
 Disallow: /admin-login
 
-Sitemap: https://docscan-ekjj.onrender.com/sitemap.xml""", 200, {'Content-Type': 'text/plain'}
+Sitemap: https://docscan-ai.ru/sitemap.xml""", 200, {'Content-Type': 'text/plain'}
 
 @main_bp.route('/articles')
 def articles():

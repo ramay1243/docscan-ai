@@ -167,8 +167,7 @@ def admin_panel():
             }
 
             function loadUsers() {
-                function loadUsers() {
-                     fetch('/admin/users', {credentials: 'include'})
+                    fetch('/admin/users', {credentials: 'include'})
                     .then(r => r.json())
                     .then(users => {
                         let html = '';

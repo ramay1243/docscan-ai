@@ -170,7 +170,7 @@ def admin_panel():
 
             // Загружаем статистику и пользователей
             function loadStats() {
-                fetch('/admin/stats')
+                fetch('/admin/stats', {credentials: 'include'})
                     .then(r => r.json())
                     .then(stats => {
                         document.getElementById('totalUsers').textContent = stats.total_users;
@@ -180,7 +180,8 @@ def admin_panel():
             }
 
             function loadUsers() {
-                fetch('/admin/users')
+                function loadUsers() {
+                     fetch('/admin/users', {credentials: 'include'})
                     .then(r => r.json())
                     .then(users => {
                         let html = '';
@@ -233,7 +234,7 @@ def admin_panel():
             }
 
             function setUserPlanQuick(userId, plan) {
-                fetch('/admin/set-plan', {
+                fetch('/admin/set-plan', {credentials: 'include',
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({user_id: userId, plan: plan})

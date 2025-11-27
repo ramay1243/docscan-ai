@@ -20,16 +20,8 @@ class UserManager:
                     data = json.load(f)
                     print(f"DEBUG: В файле {len(data)} пользователей: {list(data.keys())}")
                     
-                    # Очищаем старые записи (старше 1 дня)
-                    today = date.today().isoformat()
-                    clean_data = {}
-                    for user_id, user_data in data.items():
-                        if user_data.get('last_reset', today) >= today:
-                            clean_data[user_id] = user_data
-                            print(f"DEBUG: После фильтрации {len(clean_data)} пользователей: {list(clean_data.keys())}")
-                    
                     logger.info(f"✅ Загружено {len(clean_data)} пользователей из файла")
-                    return clean_data
+                    return data
         except Exception as e:
             logger.error(f"❌ Ошибка загрузки пользователей: {e}")
         

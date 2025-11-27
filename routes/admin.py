@@ -31,10 +31,14 @@ def admin_login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-if username in ADMINS and ADMINS[username] == password:
-    response = jsonify({'success': True})              # ← ДОБАВИТЬ 4 ПРОБЕЛА
-    response.set_cookie('admin_auth', 'authenticated', max_age=3600)  # ← ДОБАВИТЬ 4 ПРОБЕЛА
-    return response                                     # ← ДОБАВИТЬ 4 ПРОБЕЛА
+    if request.method == 'POST':
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+        if username in ADMINS and ADMINS[username] == password:  # ← ДОБАВИТЬ 4 ПРОБЕЛА
+            response = jsonify({'success': True})
+            response.set_cookie('admin_auth', 'authenticated', max_age=3600)
+            return response                              # ← ДОБАВИТЬ 4 ПРОБЕЛА
     
     return """
     <!DOCTYPE html>

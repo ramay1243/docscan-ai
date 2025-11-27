@@ -17,7 +17,9 @@ def require_admin_auth(f):
     """Декоратор для проверки авторизации администратора"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'admin_logged_in' not in session:
+        # Проверяем специальную куку
+        admin_cookie = request.cookies.get('admin_auth')
+        if not admin_cookie or admin_cookie != 'authenticated':
             return jsonify({'error': 'Требуется авторизация'}), 401
         return f(*args, **kwargs)
     return decorated_function
@@ -30,14 +32,9 @@ def admin_login():
         password = request.form.get('password')
         
         if username in ADMINS and ADMINS[username] == password:
-            # Создаем сессию Flask
-            session['admin_logged_in'] = True
-            session['admin_username'] = username
-            logger.info(f"🔐 Администратор {username} вошел в систему")
-            return jsonify({'success': True})
-        else:
-            logger.warning(f"❌ Неудачная попытка входа администратора: {username}")
-            return jsonify({'success': False, 'error': 'Неверные учетные данные'})
+    response = jsonify({'success': True})
+    response.set_cookie('admin_auth', 'authenticated', max_age=3600)
+    return response
     
     return """
     <!DOCTYPE html>

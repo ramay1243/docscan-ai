@@ -19,8 +19,8 @@ class Config:
     YOOMONEY_REDIRECT_URI = os.getenv('YOOMONEY_REDIRECT_URI', 'https://docscan-ai.ru/payment-success')
     
     # Пути к файлам
-    USER_DB_FILE = 'docscan_users.json'
-    IP_LIMITS_FILE = 'docscan_ip_limits.json'
+    USER_DB_FILE = '/var/www/data/docscan_users.json'
+    IP_LIMITS_FILE = '/var/www/data/docscan_ip_limits.json'
 
 # Умная система анализа документов
 SMART_ANALYSIS_CONFIG = {

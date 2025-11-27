@@ -11,18 +11,14 @@ logger = logging.getLogger(__name__)
 # Создаем Blueprint для админ-панели
 admin_bp = Blueprint('admin', __name__)
 
-# Глобальная переменная для хранения сессий
-admin_sessions = {}
+
 
 def require_admin_auth(f):
     """Декоратор для проверки авторизации администратора"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        session_id = request.cookies.get('admin_session')
-        
-        if not session_id or session_id not in admin_sessions:
+        if 'admin_logged_in' not in session:
             return jsonify({'error': 'Требуется авторизация'}), 401
-        
         return f(*args, **kwargs)
     return decorated_function
 
@@ -34,16 +30,11 @@ def admin_login():
         password = request.form.get('password')
         
         if username in ADMINS and ADMINS[username] == password:
-            # Создаем сессию
-            session_id = secrets.token_hex(16)
-            admin_sessions[session_id] = {
-                'username': username,
-                'login_time': datetime.now().isoformat()
-            }
-            response = jsonify({'success': True, 'session_id': session_id})
-            response.set_cookie('admin_session', session_id, httponly=True)
+            # Создаем сессию Flask
+            session['admin_logged_in'] = True
+            session['admin_username'] = username
             logger.info(f"🔐 Администратор {username} вошел в систему")
-            return response
+            return jsonify({'success': True})
         else:
             logger.warning(f"❌ Неудачная попытка входа администратора: {username}")
             return jsonify({'success': False, 'error': 'Неверные учетные данные'})
@@ -100,8 +91,7 @@ def admin_login():
 @require_admin_auth
 def admin_panel():
     """Защищенная админ-панель"""
-    session_id = request.cookies.get('admin_session')
-    admin_info = admin_sessions.get(session_id, {})
+    admin_info = {'username': session.get('admin_username', 'Unknown')}
     
     return """
     <!DOCTYPE html>

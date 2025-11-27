@@ -31,10 +31,6 @@ def admin_login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-    if request.method == 'POST':
-    username = request.form.get('username')
-    password = request.form.get('password')
-    
         if username in ADMINS and ADMINS[username] == password:  # ← ДОБАВИТЬ 4 ПРОБЕЛА
             response = jsonify({'success': True})
             response.set_cookie('admin_auth', 'authenticated', max_age=3600)

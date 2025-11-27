@@ -12,6 +12,10 @@ logger = RussianLogger.setup_logging()
 def create_app():
     """Фабрика для создания приложения Flask"""
     app = Flask(__name__, template_folder='static/templates')
+    # Настройки сессий
+    app.config['SECRET_KEY'] = 'docscan-super-secret-key-2024'
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['PERMANENT_SESSION_LIFETIME'] = 3600
     
     # Конфигурация
     from config import Config

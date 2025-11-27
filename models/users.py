@@ -20,7 +20,7 @@ class UserManager:
                     data = json.load(f)
                     print(f"DEBUG: В файле {len(data)} пользователей: {list(data.keys())}")
                     
-                    logger.info(f"✅ Загружено {len(clean_data)} пользователей из файла")
+                    logger.info(f"✅ Загружено {len(data)} пользователей из файла")
                     return data
         except Exception as e:
             logger.error(f"❌ Ошибка загрузки пользователей: {e}")

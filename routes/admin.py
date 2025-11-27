@@ -293,6 +293,11 @@ def get_all_users():
         
         # Добавляем IP в данные пользователя
         user_data['ip_address'] = user_ip
+        
+        # ОТЛАДКА - добавить эти 3 строки
+    print(f"DEBUG admin route: Всего пользователей {len(users)}")
+    for user_id in users.keys():
+        print(f"DEBUG: Пользователь {user_id}")
     
     return jsonify(users)
 

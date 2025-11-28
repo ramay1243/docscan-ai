@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify
 from utils.logger import RussianLogger
 import logging
+from flask import send_file
 
 logger = logging.getLogger(__name__)
 
@@ -1113,4 +1114,7 @@ def send_telegram():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-
+@main_bp.route('/favicon.ico')
+def favicon():
+    """Отдает фавикон для браузеров и поисковых систем"""
+    return send_file('static/favicon.ico', mimetype='image/x-icon')

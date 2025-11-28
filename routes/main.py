@@ -985,55 +985,55 @@ def sitemap():
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>{base_url}/</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
         <loc>{base_url}/articles</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
         <loc>{base_url}/articles/about</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>{base_url}/articles/guide</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>{base_url}/articles/tech</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>{base_url}/contact</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
         <loc>{base_url}/terms</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
     <url>
         <loc>{base_url}/privacy</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
     <url>
         <loc>{base_url}/offer</loc>
-        <lastmod>2024-11-25</lastmod>
+        <lastmod>2025-11-28</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>

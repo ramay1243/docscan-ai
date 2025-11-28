@@ -12,4 +12,11 @@ document.addEventListener('click', function(event) {
     if (!menu.contains(event.target)) {
         dropdown.classList.remove('show');
     }
+    // Добавляем активный класс текущей странице
+const currentPath = window.location.pathname;
+document.querySelectorAll('.menu-dropdown a').forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+        link.style.background = '#667eea';
+        link.style.color = 'white';
+    }
 });

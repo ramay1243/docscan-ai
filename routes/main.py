@@ -247,6 +247,7 @@ def home():
         <div class="menu-dropdown" id="menuDropdown">
             <a href="/articles">📚 Статьи</a>
             <a href="/contact">📞 Контакты</a>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
         </div>
     </div>
 

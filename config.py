@@ -21,6 +21,10 @@ class Config:
     # Пути к файлам
     USER_DB_FILE = '/var/www/data/docscan_users.json'
     IP_LIMITS_FILE = '/var/www/data/docscan_ip_limits.json'
+    
+    # НОВЫЕ НАСТРОЙКИ ДЛЯ SQLite
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.path.dirname(__file__), 'docscan.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Умная система анализа документов
 SMART_ANALYSIS_CONFIG = {

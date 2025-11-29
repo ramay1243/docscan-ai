@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Как пользоваться DocScan AI - Подробная инструкция</title>
+    <meta charset="utf-8">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Полное руководство по работе с DocScan AI. Пошаговая инструкция от загрузки документа до получения анализа рисков. Форматы файлов, тарифы, советы">
+    <meta name="keywords" content="инструкция DocScan, как пользоваться, руководство пользователя, пошаговая инструкция, работа с сервисом">
+    <meta name="author" content="DocScan AI">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Как пользоваться DocScan AI - Полная инструкция">
+    <meta property="og:description" content="Пошаговое руководство по работе с сервисом анализа документов. От загрузки файла до получения отчета">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://docscan-ai.ru/articles/guide">
+    <meta property="og:site_name" content="DocScan AI">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Инструкция по использованию DocScan AI">
+    <meta name="twitter:description" content="Полное руководство по работе с сервисом анализа документов">
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 50px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        h1 { 
+            color: #2d3748; 
+            border-bottom: 4px solid #667eea; 
+            padding-bottom: 15px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #2d3748;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+            margin-top: 40px;
+        }
+        .back-link { 
+            display: inline-block; 
+            margin-top: 40px; 
+            color: #667eea; 
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 25px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover { 
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+        }
+        .step-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 30px;
+            align-items: start;
+            margin: 30px 0;
+            padding: 25px;
+            background: #f7fafc;
+            border-radius: 15px;
+        }
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .step-content h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+        .tip-box {
+            background: #e6fffa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid #38a169;
+        }
+        .warning-box {
+            background: #fed7d7;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid #e53e3e;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+        .file-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .file-type {
+            background: #edf2f7;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .file-type.premium {
+            background: #fed7d7;
+            color: #c53030;
+        }
+        .screenshot {
+            text-align: center;
+            margin: 25px 0;
+        }
+        .screenshot img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+        }
+    </style>
+    <link rel="stylesheet" href="/static/templates/burger.css">
+</head>
+<body>
+    {% include 'burger.html' %}
+    <div class="container">
+        <h1>🛠️ Как пользоваться DocScan AI</h1>
+        <p style="text-align: center; font-size: 1.2em; color: #718096;">Полное руководство от загрузки документа до получения детального анализа рисков</p>
+
+        <div class="step-container">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>📄 Подготовка документа</h3>
+                <p>Подготовьте документ для анализа. Мы поддерживаем следующие форматы:</p>
+                
+                <div class="file-types">
+                    <div class="file-type">📋 PDF</div>
+                    <div class="file-type">📝 DOCX</div>
+                    <div class="file-type">📄 TXT</div>
+                    <div class="file-type premium">🖼️ JPG/PNG (платно)</div>
+                    <div class="file-type premium">📸 WEBP (платно)</div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>💡 Совет:</strong> Для лучшего результата убедитесь, что документ:
+                    <ul>
+                        <li>Имеет читаемый текст (не сканы низкого качества)</li>
+                        <li>Не превышает 10MB</li>
+                        <li>Содержит весь необходимый текст (не обрезан)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>🎯 Загрузка документа</h3>
+                <p>На главной странице нажмите на зону загрузки или перетащите файл в выделенную область.</p>
+                
+                <div class="screenshot">
+                    <!-- Замени на реальный скриншот когда будет -->
+                    <div style="background: #f7fafc; padding: 60px; border-radius: 12px; border: 2px dashed #cbd5e0; text-align: center;">
+                        <div style="font-size: 3em;">📄</div>
+                        <p><strong>Зона загрузки документа</strong></p>
+                        <p style="color: #718096;">Нажмите или перетащите файл сюда</p>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Важно:</strong> Бесплатные пользователи могут анализировать только PDF, DOCX и TXT файлы. Для работы с фото документами необходим платный тариф.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>👤 Автоматическая регистрация</h3>
+                <p>Система автоматически создает уникальный ID пользователя и сохраняет его в вашем браузере.</p>
+                
+                <div class="tip-box">
+                    <strong>🔐 Без регистрации:</strong> Вам не нужно:
+                    <ul>
+                        <li>Создавать аккаунт</li>
+                        <li>Запоминать пароли</li>
+                        <li>Подтверждать email</li>
+                    </ul>
+                    Просто загружайте документы и получайте анализ!
+                </div>
+
+                <div class="code-block">
+                    // Пример ID пользователя<br>
+                    user_id: "c36e61e5"<br>
+                    // Сохраняется автоматически в localStorage
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>🤖 Запуск AI-анализа</h3>
+                <p>Нажмите кнопку "Начать анализ" и подождите 30-60 секунд пока YandexGPT обрабатывает документ.</p>
+
+                <div class="screenshot">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                        <p><strong>Начать анализ</strong></p>
+                    </div>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔍 Извлечение текста</h4>
+                        <p>AI извлекает текст из документа независимо от формата</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⚖️ Юридический анализ</h4>
+                        <p>Проверка на соответствие законодательству</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💰 Финансовые риски</h4>
+                        <p>Выявление невыгодных финансовых условий</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 Структурная проверка</h4>
+                        <p>Анализ полноты и структуры документа</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                <h3>📊 Получение результатов</h3>
+                <p>После завершения анализа вы получите детальный отчет с:</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card" style="border-left: 4px solid #e53e3e;">
+                        <h4>🚨 Критические риски</h4>
+                        <p>Самые опасные условия, требующие немедленного внимания</p>
+                    </div>
+                    <div class="feature-card" style="border-left: 4px solid #dd6b20;">
+                        <h4>⚠️ Высокие риски</h4>
+                        <p>Серьезные проблемы, которые нужно исправить</p>
+                    </div>
+                    <div class="feature-card" style="border-left: 4px solid #d69e2e;">
+                        <h4>📝 Средние риски</h4>
+                        <p>Рекомендуемые улучшения документа</p>
+                    </div>
+                    <div class="feature-card" style="border-left: 4px solid #38a169;">
+                        <h4>💡 Рекомендации</h4>
+                        <p>Конкретные советы по улучшению</p>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>🎯 Пример анализа:</strong>
+                    <ul>
+                        <li><strong>Тип документа:</strong> Договор аренды</li>
+                        <li><strong>Уровень риска:</strong> СРЕДНИЙ</li>
+                        <li><strong>Ключевые проблемы:</strong> Не указана ответственность за коммунальные платежи</li>
+                        <li><strong>Рекомендации:</strong> Добавить раздел о распределении расходов</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h2>📈 Тарифы и лимиты</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>🆓 Бесплатный</h4>
+                <p><strong>1 анализ в день</strong></p>
+                <ul>
+                    <li>PDF, DOCX, TXT</li>
+                    <li>Полный AI-анализ</li>
+                    <li>Детальный отчет</li>
+                </ul>
+            </div>
+            <div class="feature-card" style="border: 2px solid #38a169;">
+                <h4>💎 Базовый</h4>
+                <p><strong>199₽/месяц</strong></p>
+                <ul>
+                    <li>10 анализов в день</li>
+                    <li>Все форматы + фото</li>
+                    <li>Приоритетная обработка</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>❓ Частые вопросы</h2>
+        
+        <div class="tip-box">
+            <strong>🤔 Сколько времени занимает анализ?</strong>
+            <p>Обычно 30-60 секунд. Зависит от размера документа и загрузки серверов YandexGPT.</p>
+        </div>
+
+        <div class="tip-box">
+            <strong>🔒 Конфиденциальны ли мои документы?</strong>
+            <p>Да! Документы не сохраняются на серверах и удаляются сразу после анализа.</p>
+        </div>
+
+        <div class="tip-box">
+            <strong>🎯 Насколько точен AI-анализ?</strong>
+            <p>YandexGPT хорошо справляется с типовыми рисками, но для сложных случаев рекомендуем консультацию юриста.</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="/articles" class="back-link">← Назад к статьям</a>
+            <a href="/" class="back-link" style="margin-left: 15px;">🚀 Начать анализ</a>
+        </div>
+    </div>
+    <script src="/static/templates/burger.js"></script>
+    <!-- ФУТЕР -->
+<div style="width: 100%; text-align: center; padding: 30px 0; color: #718096; border-top: 1px solid #e2e8f0; margin-top: 50px; background: white;">
+    <div style="max-width: 1000px; margin: 0 auto; padding: 0 20px;">
+        <div style="margin-bottom: 15px;">
+            <a href="/terms" style="color: #718096; text-decoration: none; margin: 0 15px; font-size: 14px;">Пользовательское соглашение</a>
+            <a href="/privacy" style="color: #718096; text-decoration: none; margin: 0 15px; font-size: 14px;">Политика конфиденциальности</a>
+            <a href="/offer" style="color: #718096; text-decoration: none; margin: 0 15px; font-size: 14px;">Публичная оферта</a>
+            <a href="/contact" style="color: #718096; text-decoration: none; margin: 0 15px; font-size: 14px;">Техподдержка</a>
+        </div>
+        <div style="font-size: 14px;">
+            © 2025 DocScan. Все права защищены.
+        </div>
+    </div>
+</div>
+    <!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105562312', 'ym');
+    ym(105562312, 'init', {ssr:true, webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</body>
+</html>

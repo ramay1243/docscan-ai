@@ -99,3 +99,57 @@ class SQLiteUserManager:
             'total_analyses': total_analyses,
             'today_analyses': today_analyses
         }
+        
+        def can_analyze(self, user_id):
+        """Проверяет может ли пользователь сделать анализ"""
+        user = self.get_user(user_id)
+        if not user:
+            return False
+        
+        # Импортируем здесь чтобы избежать циклических импортов
+        from config import PLANS
+        
+        # Проверяем просрочку тарифа
+        if user.plan != 'free' and user.plan_expires:
+            from datetime import date
+            if user.plan_expires < date.today().isoformat():
+                user.plan = 'free'
+                user.plan_expires = None
+                self.db.session.commit()
+        
+        can_analyze = user.used_today < PLANS[user.plan]['daily_limit']
+        return can_analyze
+
+    def record_usage(self, user_id):
+        """Записывает использование для пользователя"""
+        user = self.get_user(user_id)
+        if user:
+            user.used_today += 1
+            user.total_used += 1
+            self.db.session.commit()
+
+    def set_user_plan(self, user_id, plan_type):
+        """Устанавливает тариф пользователю"""
+        from config import PLANS
+        from datetime import date, timedelta
+        
+        if plan_type not in PLANS:
+            return {'success': False, 'error': 'Неверный тариф'}
+        
+        user = self.get_user(user_id)
+        if not user:
+            return {'success': False, 'error': 'Пользователь не найден'}
+        
+        user.plan = plan_type
+        user.used_today = 0  # Сбрасываем дневной лимит
+        
+        # Устанавливаем срок действия (30 дней)
+        expire_date = date.today() + timedelta(days=30)
+        user.plan_expires = expire_date.isoformat()
+        
+        self.db.session.commit()
+        
+        return {
+            'success': True,
+            'message': f'Пользователю {user_id} выдан тариф: {PLANS[plan_type]["name"]}'
+        }

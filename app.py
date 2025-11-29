@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import logging
 import sys
+from models.sqlite_users import db
 
 # Настройка логирования
 # Настройка логирования на русском
@@ -20,6 +21,9 @@ def create_app():
     # Конфигурация
     from config import Config
     app.config.from_object(Config)
+    
+    # Инициализация базы данных
+    db.init_app(app)
     
     # CORS
     CORS(app, resources={r"/*": {"origins": "*"}})

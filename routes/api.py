@@ -18,8 +18,8 @@ def create_user():
     """Создает нового пользователя"""
     try:
         from app import app
-        user_id = app.user_manager.generate_user_id()
-        user = app.user_manager.get_user(user_id)
+        user_id = str(uuid.uuid4())[:8]
+        user = app.user_manager.get_or_create_user(user_id)
         
         return jsonify({
             'success': True,
@@ -44,17 +44,17 @@ def analyze_document():
     # Проверяем лимиты
     if not app.user_manager.can_analyze(user_id):
         user = app.user_manager.get_user(user_id)
-        plan = PLANS[user['plan']]
+        plan = PLANS[user.plan]
         return jsonify({
             'success': False,
-            'error': f'❌ Бесплатный лимит исчерпан! Сегодня использовано {user["used_today"]}/{plan["daily_limit"]} анализов.',
+            'error': f'❌ Бесплатный лимит исчерпан! Сегодня использовано {user.used_today}/{plan["daily_limit"]} анализов.',
             'upgrade_required': True
         }), 402
 
-# Получаем данные пользователя ДО проверки IP-лимитов
+    # Получаем данные пользователя ДО проверки IP-лимитов
     user = app.user_manager.get_user(user_id)
     # Проверяем IP-лимиты для бесплатных пользователей
-    if user['plan'] == 'free':
+    if user.plan == 'free':
         if not app.ip_limit_manager.can_analyze_by_ip(request):
             return jsonify({
                 'success': False,
@@ -83,7 +83,7 @@ def analyze_document():
         # Проверяем тариф для фото
         user = app.user_manager.get_user(user_id)
         if file.filename.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
-            if user['plan'] == 'free':
+            if user.plan == 'free':
                 logger.info(f"❌ Отказано в анализе фото для бесплатного пользователя {user_id}")
                 return jsonify({
                     'success': False,
@@ -92,7 +92,7 @@ def analyze_document():
                     'message': '💎 Перейдите на Базовый тариф (199₽/мес) для анализа фото документов'
                 }), 402
             
-            logger.info(f"✅ Разрешено распознавание фото для пользователя {user_id} (тариф: {user['plan']})")
+            logger.info(f"✅ Разрешено распознавание фото для пользователя {user_id} (тариф: {user.plan})")
         
         # Извлекаем текст
         text = extract_text_from_file(temp_path, file.filename)
@@ -102,7 +102,7 @@ def analyze_document():
             return jsonify({'error': 'Не удалось извлечь текст из файла'}), 400
         
         # Анализируем текст
-        analysis_result = analyze_text(text, user['plan'])
+        analysis_result = analyze_text(text, user.plan)
         
         logger.info(f"✅ АНАЛИЗ УСПЕШЕН для {user_id}, IP: {real_ip}")
         
@@ -110,18 +110,17 @@ def analyze_document():
         app.user_manager.record_usage(user_id)
         
         # Для бесплатных пользователей записываем использование IP
-        # Для бесплатных пользователей записываем использование IP
-        if user['plan'] == 'free':
-            app.ip_limit_manager.record_ip_usage(request, user_id)  # ← ДОБАВЬ user_id
+        if user.plan == 'free':
+            app.ip_limit_manager.record_ip_usage(request, user_id)
         
         # Добавляем информацию о лимитах в ответ
         user = app.user_manager.get_user(user_id)
-        plan = PLANS[user['plan']]
+        plan = PLANS[user.plan]
         analysis_result['usage_info'] = {
-            'used_today': user['used_today'],
+            'used_today': user.used_today,
             'daily_limit': plan['daily_limit'],
             'plan_name': plan['name'],
-            'remaining': plan['daily_limit'] - user['used_today']
+            'remaining': plan['daily_limit'] - user.used_today
         }
         
         return jsonify({
@@ -151,16 +150,16 @@ def get_usage():
     user_id = request.args.get('user_id', 'default')
     RussianLogger.log_request(request, user_id)
     user = app.user_manager.get_user(user_id)
-    plan = PLANS[user['plan']]
+    plan = PLANS[user.plan]
     
     return jsonify({
         'user_id': user_id,
-        'plan': user['plan'],
+        'plan': user.plan,
         'plan_name': plan['name'],
-        'used_today': user['used_today'],
+        'used_today': user.used_today,
         'daily_limit': plan['daily_limit'],
-        'remaining': plan['daily_limit'] - user['used_today'],
-        'total_used': user['total_used']
+        'remaining': plan['daily_limit'] - user.used_today,
+        'total_used': user.total_used
     })
 
 @api_bp.route('/plans', methods=['GET'])
@@ -192,16 +191,14 @@ def upgrade_plan():
         
         logger.info(f"🔄 СМЕНА ТАРИФА: user_id={user_id}, новый план={new_plan}")
         
-        user = app.user_manager.get_user(user_id)
-        user['plan'] = new_plan
+        result = app.user_manager.set_user_plan(user_id, new_plan)
         
-        logger.info(f"✅ ТАРИФ ИЗМЕНЕН: user_id={user_id}, теперь план={user['plan']}")
-        
-        return jsonify({
-            'success': True, 
-            'message': f'Тариф изменен на {new_plan}',
-            'plan': new_plan
-        })
+        if result['success']:
+            logger.info(f"✅ ТАРИФ ИЗМЕНЕН: user_id={user_id}, теперь план={new_plan}")
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+            
     except Exception as e:
         logger.error(f"❌ Ошибка смены тарифа: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500

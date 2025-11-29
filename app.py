@@ -38,11 +38,11 @@ def create_app():
 def init_services(app):
     """Инициализация сервисов"""
     # Импортируем здесь чтобы избежать циклических импортов
-    from models.users import UserManager
+    from models.sqlite_users import SQLiteUserManager, User
     from models.limits import IPLimitManager
     
     # Инициализируем менеджеры
-    app.user_manager = UserManager()
+    app.user_manager = SQLiteUserManager(db, User)
     app.ip_limit_manager = IPLimitManager()
     
     logger.info("✅ Сервисы инициализированы")

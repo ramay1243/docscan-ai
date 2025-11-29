@@ -100,7 +100,7 @@ class SQLiteUserManager:
             'today_analyses': today_analyses
         }
         
-        def can_analyze(self, user_id):
+    def can_analyze(self, user_id):
         """Проверяет может ли пользователь сделать анализ"""
         user = self.get_user(user_id)
         if not user:

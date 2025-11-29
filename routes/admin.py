@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 import secrets
+import uuid
 from datetime import datetime
 from functools import wraps
 from config import ADMINS
@@ -272,33 +273,31 @@ def get_all_users():
     """Получить всех пользователей"""
     from app import app
     
-    # Получаем обычных пользователей
-    users = app.user_manager.get_all_users()
+    # Получаем пользователей из SQLite
+    users_list = app.user_manager.get_all_users()
+    
+    # Конвертируем в dict для совместимости
+    users_dict = {}
+    for user in users_list:
+        users_dict[user.user_id] = user.to_dict()
     
     # Создаем менеджер IP-лимитов
     ip_manager = IPLimitManager()
     
     # Добавляем IP-адреса к каждому пользователю
-    for user_id, user_data in users.items():
+    for user_id, user_data in users_dict.items():
         user_ip = "Не определен"
         
         # Ищем IP пользователя в данных IP-лимитов
         for ip, ip_data in ip_manager.ip_limits.items():
-            # Проверяем различные способы связи пользователя с IP
             if (ip_data.get('user_id') == user_id or 
                 ip_data.get('last_user') == user_id):
                 user_ip = ip
                 break
         
-        # Добавляем IP в данные пользователя
         user_data['ip_address'] = user_ip
-        
-        # ОТЛАДКА - добавить эти 3 строки
-    print(f"DEBUG admin route: Всего пользователей {len(users)}")
-    for user_id in users.keys():
-        print(f"DEBUG: Пользователь {user_id}")
     
-    return jsonify(users)
+    return jsonify(users_dict)
 
 @admin_bp.route('/set-plan', methods=['POST'])
 @require_admin_auth
@@ -333,22 +332,25 @@ def admin_create_user():
         
         # Если ID не указан, генерируем случайный
         if not user_id:
-            user_id = app.user_manager.generate_user_id()
+            user_id = str(uuid.uuid4())[:8]
         
-        if user_id in app.user_manager.users_db:
+        # Проверяем существует ли пользователь
+        existing_user = app.user_manager.get_user(user_id)
+        if existing_user:
             return jsonify({'success': False, 'error': 'Пользователь уже существует'})
         
-        # Создаем пользователя
-        app.user_manager.users_db[user_id] = {
+        # Создаем пользователя через SQLite
+        user_data = {
             'user_id': user_id,
             'plan': 'free',
             'used_today': 0,
             'last_reset': datetime.now().date().isoformat(),
             'total_used': 0,
-            'created_at': datetime.now().isoformat()
+            'created_at': datetime.now().isoformat(),
+            'plan_expires': None,
+            'ip_address': 'Не определен'
         }
-        
-        app.user_manager.save_users()
+        app.user_manager.create_user(user_data)
         
         logger.info(f"👤 Администратор создал пользователя: {user_id}")
         

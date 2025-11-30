@@ -1095,6 +1095,11 @@ def article_rent_check():
 def article_labor():
     """Статья 'Топ-5 ошибок в трудовых договорах'"""
     return render_template('article_labor.html')
+    
+@main_bp.route('/articles/tax')
+def article_tax():
+    """Статья 'Финансовые риски в договорах'"""
+    return render_template('article_tax.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

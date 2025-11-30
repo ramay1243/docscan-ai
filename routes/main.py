@@ -1090,6 +1090,11 @@ def contact():
 def article_rent_check():
     """Статья 'Как проверить договор аренды'"""
     return render_template('article_rent.html')
+    
+@main_bp.route('/articles/labor')
+def article_labor():
+    """Статья 'Топ-5 ошибок в трудовых договорах'"""
+    return render_template('article_labor.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

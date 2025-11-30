@@ -1085,6 +1085,11 @@ def article_tech():
 def contact():
     """Страница контактов"""
     return render_template('contact.html')
+    
+@main_bp.route('/articles/rent-check')
+def article_rent_check():
+    """Статья 'Как проверить договор аренды'"""
+    return render_template('article_rent.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

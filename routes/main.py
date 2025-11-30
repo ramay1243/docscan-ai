@@ -257,7 +257,7 @@ def home():
         <h1>DocScan - AI анализ документов</h1>
         <p class="subtitle" style="font-size: 1.3em; line-height: 1.5; max-width: 800px; margin: 20px auto 0 auto;">
             <strong>Проверяйте договоры, контракты и юридические документы на риски за 60 секунд</strong><br>
-            🤖 YandexGPT анализирует текст и находит скрытые проблемы до того, как они станут дорогостоящими ошибками
+            🤖 ИИ анализирует текст и находит скрытые проблемы до того, как они станут дорогостоящими ошибками
         </p>
     </div>
 
@@ -305,7 +305,7 @@ def home():
                         <div style="font-size: 2em; font-weight: bold; color: #e53e3e; margin-bottom: 15px;">0₽</div>
                         <ul style="list-style: none; margin-bottom: 20px; text-align: left;">
                             <li style="padding: 5px 0;">✅ 1 анализ в день</li>
-                            <li style="padding: 5px 0;">✅ AI-анализ YandexGPT</li>
+                            <li style="padding: 5px 0;">✅ AI-анализ</li>
                             <li style="padding: 5px 0;">✅ Все форматы файлов</li>
                         </ul>
                         <button class="btn" disabled style="background: #e53e3e;">Текущий тариф</button>
@@ -671,7 +671,7 @@ function getRiskMeterWidth(riskLevel) {
                         <div class="step">
                             <div class="step-icon">🤖</div>
                             <h3>AI анализирует риски</h3>
-                            <p>YandexGPT проверяет каждую строку документа на потенциальные риски</p>
+                            <p>ИИ проверяет каждую строку документа на потенциальные риски</p>
                         </div>
                         <div class="step">
                             <div class="step-icon">📊</div>
@@ -886,7 +886,7 @@ document.addEventListener('DOMContentLoaded', initCarousel);
                                 <span class="faq-icon">+</span>
                             </div>
                             <div class="faq-answer" id="faq-answer-3">
-                                <p>Да! Документы не сохраняются на наших серверах. После анализа файлы автоматически удаляются. Текст передается в Yandex Cloud API по защищенному соединению.</p>
+                                <p>Да! Документы не сохраняются на наших серверах. После анализа файлы автоматически удаляются. Текст передается в API по защищенному соединению.</p>
                             </div>
                         </div>
                         
@@ -897,7 +897,7 @@ document.addEventListener('DOMContentLoaded', initCarousel);
                                 <span class="faq-icon">+</span>
                             </div>
                             <div class="faq-answer" id="faq-answer-4">
-                                <p>Обычно анализ занимает 30-60 секунд. Скорость зависит от размера документа и загрузки сервера YandexGPT.</p>
+                                <p>Обычно анализ занимает 30-60 секунд. Скорость зависит от размера документа и загрузки сервера.</p>
                             </div>
                         </div>
                         
@@ -908,7 +908,7 @@ document.addEventListener('DOMContentLoaded', initCarousel);
                                 <span class="faq-icon">+</span>
                             </div>
                             <div class="faq-answer" id="faq-answer-5">
-                                <p>YandexGPT хорошо справляется с выявлением типовых рисков в договорах. Однако это инструмент для первичной проверки - для важных документов рекомендуем консультацию с юристом.</p>
+                                <p>ИИ хорошо справляется с выявлением типовых рисков в договорах. Однако это инструмент для первичной проверки - для важных документов рекомендуем консультацию с юристом.</p>
                             </div>
                         </div>
                     </div>

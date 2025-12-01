@@ -1160,8 +1160,8 @@ def contact():
     """Страница контактов"""
     return render_template('contact.html')
     
-@main_bp.route('/articles/rent-check')
-def article_rent_check():
+@main_bp.route('/articles/rent')
+def article_rent():
     """Статья 'Как проверить договор аренды'"""
     return render_template('article_rent.html')
     

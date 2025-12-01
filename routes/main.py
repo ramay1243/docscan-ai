@@ -1130,6 +1130,13 @@ def sitemap():
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>{base_url}/analiz-dokumentov</loc>
+        <lastmod>2025-12-01</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+</urlset>''', 200, {'Content-Type': 'application/xml'}
 </urlset>''', 200, {'Content-Type': 'application/xml'}
 @main_bp.route('/robots.txt')
 def robots():

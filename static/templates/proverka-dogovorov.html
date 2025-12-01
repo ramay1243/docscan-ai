@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка договоров с ИИ онлайн — анализ рисков за 60 секунд | DocScan AI</title>
+    <meta name="description" content="Автоматическая проверка договоров с искусственным интеллектом. Анализ юридических, финансовых и операционных рисков. Бесплатная проверка договоров аренды, трудовых, поставки.">
+    <meta name="keywords" content="проверка договоров, анализ договоров онлайн, проверка договоров ИИ, договор аренды, трудовой договор, договор поставки, юридическая проверка договоров">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Проверка договоров с ИИ онлайн — анализ за 60 секунд">
+    <meta property="og:description" content="Автоматическая проверка договоров с искусственным интеллектом. Анализ рисков за 60 секунд.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://docscan-ai.ru/proverka-dogovorov">
+    <meta property="og:image" content="https://docscan-ai.ru/static/og-dogovor.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            padding: 80px 0;
+            background: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            text-align: center;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--success), #4cc9f0);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        /* Features */
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 60px;
+            color: var(--dark);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-icon.legal { background: linear-gradient(135deg, #4361ee, #3a56d4); color: white; }
+        .feature-icon.financial { background: linear-gradient(135deg, #4cc9f0, #3aa8d4); color: white; }
+        .feature-icon.operational { background: linear-gradient(135deg, #f8961e, #e0871a); color: white; }
+        .feature-icon.automated { background: linear-gradient(135deg, #7209b7, #6409a5); color: white; }
+        
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        /* Contract Types */
+        .contract-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .contract-type {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+        }
+        
+        .contract-type:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+        
+        .contract-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* Process */
+        .process-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 60px 0;
+            position: relative;
+        }
+        
+        .process-steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: var(--border);
+            z-index: 1;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            padding: 0 15px;
+        }
+        
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 3px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        /* FAQ */
+        .faq-section {
+            margin: 80px 0;
+        }
+        
+        .faq-item {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        
+        .faq-question {
+            padding: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--dark);
+        }
+        
+        .faq-answer {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s, padding 0.3s;
+        }
+        
+        .faq-answer.open {
+            padding: 0 25px 25px;
+            max-height: 500px;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 80px 0;
+            border-radius: 30px;
+            text-align: center;
+            margin: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .section-title { font-size: 2rem; }
+            .process-steps { flex-direction: column; gap: 40px; }
+            .process-steps::before { display: none; }
+            .nav-links { display: none; }
+        }
+    </style>
+    <link rel="stylesheet" href="/static/templates/burger.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
+                    <a href="/proverka-dogovorov" class="nav-link active">Проверка договоров</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+                
+                <a href="/" class="cta-button">🚀 Проверить договор</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">🤖 Искусственный интеллект</span>
+                <h1 class="hero-title">Проверка договоров с ИИ онлайн</h1>
+                <p class="hero-subtitle">
+                    Автоматический анализ договоров на юридические, финансовые и операционные риски. 
+                    Получите детальный отчет за 60 секунд без регистрации.
+                </p>
+                
+                <a href="/" class="cta-button" style="padding: 16px 40px; font-size: 1.1rem;">
+                    📄 Бесплатно проверить договор
+                </a>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">60</span>
+                        <span>секунд на анализ</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">99%</span>
+                        <span>точность проверки</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">25+</span>
+                        <span>типов договоров</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">50+</span>
+                        <span>параметров риска</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What We Check -->
+    <section class="container">
+        <h2 class="section-title">Что проверяет наш ИИ в договорах?</h2>
+        <p class="section-subtitle">
+            Искусственный интеллект анализирует каждое условие договора по 50+ параметрам
+        </p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon legal">⚖️</div>
+                <h3>Юридические риски</h3>
+                <p>Соответствие законодательству РФ, некорректные формулировки, отсутствие обязательных условий, противоречия в тексте.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon financial">💰</div>
+                <h3>Финансовые риски</h3>
+                <p>Невыгодные условия оплаты, скрытые комиссии, необоснованные штрафы, риски налоговых претензий.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon operational">⚙️</div>
+                <h3>Операционные риски</h3>
+                <p>Невыполнимые обязательства, нечеткие сроки, проблемы с расторжением, отсутствие механизмов разрешения споров.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon automated">🤖</div>
+                <h3>Автоматизированный анализ</h3>
+                <p>ИИ учится на тысячах договоров, постоянно улучшая точность проверки. Объективный анализ без эмоций.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contract Types -->
+    <section class="container">
+        <h2 class="section-title">Какие договоры можно проверить?</h2>
+        <p class="section-subtitle">
+            Поддерживаются все основные типы договоров, используемые в бизнесе и личных делах
+        </p>
+        
+        <div class="contract-types">
+            <div class="contract-type">
+                <span class="contract-icon">🏠</span>
+                <h4>Договоры аренды</h4>
+                <p>Квартиры, офисы, склады, оборудование</p>
+            </div>
+            
+            <div class="contract-type">
+                <span class="contract-icon">💼</span>
+                <h4>Трудовые договоры</h4>
+                <p>ТК РФ, ГПХ, удаленная работа, совместительство</p>
+            </div>
+            
+            <div class="contract-type">
+                <span class="contract-icon">🚚</span>
+                <h4>Договоры поставки</h4>
+                <p>Товары, материалы, оборудование, сырье</p>
+            </div>
+            
+            <div class="contract-type">
+                <span class="contract-icon">🔧</span>
+                <h4>Договоры подряда</h4>
+                <p>Строительные, ремонтные, монтажные работы</p>
+            </div>
+            
+            <div class="contract-type">
+                <span class="contract-icon">👨‍💼</span>
+                <h4>Договоры услуг</h4>
+                <p>Юридические, консалтинговые, IT, маркетинг</p>
+            </div>
+            
+            <div class="contract-type">
+                <span class="contract-icon">📄</span>
+                <h4>Лицензионные соглашения</h4>
+                <p>ПО, франшизы, авторские права, патенты</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="container">
+        <h2 class="section-title">Как работает проверка договоров?</h2>
+        
+        <div class="process-steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Загрузите договор</h3>
+                <p>PDF, Word, изображение или отсканированный документ. До 100 МБ.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>ИИ анализирует текст</h3>
+                <p>Искусственный интеллект проверяет каждую статью договора по 50+ параметрам риска.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Получите отчет</h3>
+                <p>Детальный анализ с рекомендациями по исправлению. Все за 60 секунд.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Example -->
+    <section class="container">
+        <h2 class="section-title">Пример выявленных рисков</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card" style="border-left: 4px solid var(--danger);">
+                <h3 style="color: var(--danger);">🚨 Критический риск</h3>
+                <p><strong>Проблема:</strong> "Сторона вправе в одностороннем порядке изменить условия договора"</p>
+                <p><strong>Риск:</strong> Позволяет контрагенту менять условия без вашего согласия</p>
+                <p><strong>Решение:</strong> Убрать или добавить "по взаимному согласию сторон"</p>
+            </div>
+            
+            <div class="feature-card" style="border-left: 4px solid var(--warning);">
+                <h3 style="color: var(--warning);">⚠️ Высокий риск</h3>
+                <p><strong>Проблема:</strong> "Штраф за просрочку оплаты — 1% в день"</p>
+                <p><strong>Риск:</strong> 365% годовых — незаконно высокий процент</p>
+                <p><strong>Решение:</strong> Снизить до 0.1% в день или ключевой ставки ЦБ</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="container faq-section">
+        <h2 class="section-title">Частые вопросы о проверке договоров</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(1)">
+                <span>Насколько надежен ИИ-анализ договоров?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-1">
+                <p>Наш ИИ выявляет 99% типовых рисков в договорах, основываясь на анализе тысяч реальных документов. Однако для особо сложных или уникальных сделок рекомендуем дополнительную проверку у юриста.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(2)">
+                <span>Какие законы учитывает система?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-2">
+                <p>Гражданский кодекс РФ, Трудовой кодекс, Налоговый кодекс, Закон о защите прав потребителей, ФЗ-214 (долевое строительство) и другие нормативные акты РФ.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(3)">
+                <span>Сохраняются ли мои договоры?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-3">
+                <p>Нет! Все документы автоматически удаляются после анализа. Мы не храним ваши договоры и не имеем к ним доступа. Текст передается по защищенному соединению.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(4)">
+                <span>Сколько стоит проверка договоров?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-4">
+                <p>1 проверка в день — бесплатно. Платные тарифы: Базовый (10 проверок/день) — 199₽/мес, Бизнес (50 проверок/день) — 499₽/мес. Дешевле одной консультации юриста.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Начните проверку договоров прямо сейчас</h2>
+            <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto 40px;">
+                Загрузите договор и получите анализ рисков через 60 секунд. 
+                Без регистрации, первый анализ бесплатно.
+            </p>
+            <a href="/" class="cta-button" style="background: white; color: var(--primary); padding: 18px 50px; font-size: 1.2rem;">
+                🚀 Проверить договор бесплатно
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Автоматическая проверка документов и договоров с искусственным интеллектом.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:support@docscan-ai.ru" class="footer-link">support@docscan-ai.ru</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Toggle
+        function toggleFAQ(id) {
+            const answer = document.getElementById(`faq-${id}`);
+            const isOpen = answer.classList.contains('open');
+            
+            // Close all FAQs
+            document.querySelectorAll('.faq-answer').forEach(faq => {
+                faq.classList.remove('open');
+            });
+            
+            // Toggle current FAQ
+            if (!isOpen) {
+                answer.classList.add('open');
+            }
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+    
+    <!-- Yandex.Metrika -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+        ym(105562312, 'init', {ssr:true, webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+</body>
+</html>

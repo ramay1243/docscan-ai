@@ -1199,6 +1199,11 @@ def article_freelance_gph():
 @main_bp.route('/analiz-dokumentov')
 def analiz_dokumentov():
     return render_template('analiz-dokumentov.html')
+    
+@main_bp.route('/proverka-dogovorov')
+def proverka_dogovorov():
+    """Страница проверки договоров"""
+    return render_template('proverka-dogovorov.html')
 
 
 @main_bp.route('/send-telegram', methods=['POST'])

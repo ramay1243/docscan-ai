@@ -1137,7 +1137,7 @@ def sitemap():
         <priority>0.9</priority>
     </url>
 </urlset>''', 200, {'Content-Type': 'application/xml'}
-</urlset>''', 200, {'Content-Type': 'application/xml'}
+
 @main_bp.route('/robots.txt')
 def robots():
     """Robots.txt для SEO"""

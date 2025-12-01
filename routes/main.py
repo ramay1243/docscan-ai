@@ -1178,6 +1178,11 @@ def article_tax():
 @main_bp.route('/articles/business-protection')
 def article_business_protection():
     return render_template('article_business_protection.html')
+    
+@main_bp.route('/articles/freelance-gph')
+def article_freelance_gph():
+    return render_template('article_freelance_gph.html')
+
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

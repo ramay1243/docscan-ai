@@ -36,6 +36,8 @@ def home():
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="DocScan AI - Анализ документов с AI">
     <meta name="twitter:description" content="Проверка договоров на риски за 60 секунд">
+    
+    
     <style>
             * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
             body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: center; }
@@ -930,32 +932,80 @@ document.addEventListener('DOMContentLoaded', initCarousel);
             </div>
                 </div>
 
-        <!-- Schema.org Structured Data -->
-        <script type="application/ld+json">
+<!-- Schema.org Structured Data for Search Engines & Yandex Alice -->
+    <script type="application/ld+json">
+    [
         {
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          "name": "DocScan AI",
-          "applicationCategory": "BusinessApplication",
-          "operatingSystem": "Web Browser",
-          "description": "Автоматический анализ документов с искусственным интеллектом. Проверка договоров на юридические и финансовые риски за 60 секунд.",
-          "url": "https://docscan-ai.ru",
-          "author": {
-            "@type": "Organization",
-            "name": "DocScan AI"
-          },
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "RUB"
-          },
-          "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "ratingCount": "157"
-          }
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "DocScan AI",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web Browser",
+            "description": "Автоматический анализ документов с искусственным интеллектом. Проверка договоров на юридические и финансовые риски за 60 секунд.",
+            "url": "https://docscan-ai.ru",
+            "author": {
+                "@type": "Organization",
+                "name": "DocScan AI"
+            },
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "RUB"
+            },
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "ratingCount": "157"
+            }
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "Какой максимальный размер файла?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Максимальный размер файла - 10MB. Поддерживаются форматы: PDF, DOCX, TXT."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Сколько стоит анализ документов?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "1 анализ в день - бесплатно. Платные тарифы: Базовый (10 анализов в день) - 199₽/мес, Премиум (50 анализов) - 399₽/мес."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Конфиденциальны ли мои документы?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Да! Документы не сохраняются на наших серверах. После анализа файлы автоматически удаляются. Текст передается в API по защищенному соединению."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Сколько времени занимает анализ документа?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Обычно анализ занимает 30-60 секунд. Скорость зависит от размера документа и загрузки сервера."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Насколько точен AI-анализ?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "ИИ хорошо справляется с выявлением типовых рисков в договорах. Однако это инструмент для первичной проверки - для важных документов рекомендуем консультацию с юристом."
+                    }
+                }
+            ]
         }
-        </script>
+    ]
+    </script>
         <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){

@@ -1120,7 +1120,13 @@ def sitemap():
     </url>
     <url>
         <loc>{base_url}/articles/business_protection</loc>
-        <lastmod>2025-11-28</lastmod>
+        <lastmod>2025-12-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>{base_url}/articles/article_freelance_gph</loc>
+        <lastmod>2025-12-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>

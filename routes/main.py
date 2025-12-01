@@ -1100,6 +1100,10 @@ def article_labor():
 def article_tax():
     """Статья 'Финансовые риски в договорах'"""
     return render_template('article_tax.html')
+    
+@app.route('/articles/business-protection')
+def article_business_protection():
+    return render_template('article_business_protection.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

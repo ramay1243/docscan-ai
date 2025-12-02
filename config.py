@@ -82,15 +82,15 @@ RISK_LEVELS = {
 # Тарифы
 PLANS = {
     'free': {
-        'daily_limit': 1,
+        'daily_limit': 3,
         'ai_access': True,
         'price': 0,
         'name': 'Бесплатный'
     },
     'basic': {
-        'daily_limit': 10,
+        'daily_limit': 1000,
         'ai_access': True, 
-        'price': 199,
+        'price': 490,
         'name': 'Базовый'
     },
     'premium': {

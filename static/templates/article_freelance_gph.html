@@ -1,189 +1,312 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Как фрилансеру работать с договорами ГПХ и не потерять деньги | DocScan AI</title>
-    <meta charset="utf-8">
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="Полное руководство для фрилансеров: как проверять договоры ГПХ, избегать рисков и автоматизировать финансы. Бесплатный чек-лист + инструменты.">
     <meta name="keywords" content="договор ГПХ для фрилансера, самозанятый договор, проверка договора, фриланс безопасность, DocScan AI">
     <meta name="author" content="DocScan AI">
-
+    
     <!-- Open Graph -->
     <meta property="og:title" content="Выживание фрилансера: договор ГПХ без ошибок">
     <meta property="og:description" content="Как проверять договоры, считать налоги и спать спокойно — полное руководство">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://docscan-ai.ru/articles/freelance-gph">
-    <meta property="og:site_name" content="DocScan AI">
-
+    <meta property="og:image" content="https://docscan-ai.ru/static/og-freelance.jpg">
+    
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Договор ГПХ для фрилансера: полный гид">
     <meta name="twitter:description" content="Пошаговая инструкция по защите доходов">
     
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* Базовые стили */
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            min-height: 100vh;
-            line-height: 1.6;
-            color: #2d3748;
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
         }
         
-        .container { 
-            max-width: 900px; 
-            margin: 0 auto; 
-            background: white; 
-            padding: 60px; 
-            border-radius: 24px; 
-            box-shadow: 0 20px 80px rgba(0,0,0,0.08);
-            margin-top: 60px;
-            margin-bottom: 60px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-size: 15px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        /* Article Container */
+        .article-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin: 30px 0 40px;
             position: relative;
             overflow: hidden;
         }
         
-        .container::before {
+        .article-container::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #4CAF50 100%);
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), #48bb78);
         }
         
-        /* Заголовки */
-        h1 { 
-            color: #1a202c; 
-            padding-bottom: 20px;
+        /* Breadcrumbs */
+        .breadcrumbs {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 25px;
+        }
+        
+        .breadcrumb-link {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Article Title */
+        .article-title {
+            color: var(--dark);
             text-align: center;
-            font-size: 2.8em;
-            font-weight: 800;
-            margin-top: 10px;
-            line-height: 1.2;
-            background: linear-gradient(90deg, #2d3748 0%, #667eea 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        h2 {
-            color: #2d3748;
-            border-left: 5px solid #4CAF50;
-            padding-left: 20px;
-            margin-top: 60px;
-            font-size: 1.8em;
+            font-size: 1.8rem;
             font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
         }
         
-        h3 {
-            color: #2d3748;
+        .article-meta {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        /* Story Block */
+        .story-block {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 4px solid #38a169;
+        }
+        
+        /* Section Titles */
+        .section-title {
+            color: var(--dark);
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
             margin-top: 40px;
-            font-size: 1.4em;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .subsection-title {
+            color: var(--dark);
+            margin-top: 25px;
+            font-size: 1.2rem;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
-        h3::before {
-            content: '▸';
-            color: #4CAF50;
-            font-size: 1.2em;
-        }
-        
-        /* Навигация */
-        .back-link { 
-            display: inline-block; 
-            margin-top: 40px; 
-            color: #667eea; 
-            text-decoration: none;
-            font-weight: 600;
-            padding: 14px 30px;
-            border: 2px solid #667eea;
-            border-radius: 30px;
-            transition: all 0.3s ease;
-            font-size: 16px;
-        }
-        
-        .back-link:hover { 
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        /* Элементы статьи */
-        .story-block {
-            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
-            padding: 30px;
-            border-radius: 16px;
-            margin: 30px 0;
-            border-left: 5px solid #38a169;
-            position: relative;
-        }
-        
-        .story-block::before {
-            content: '📖';
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            font-size: 24px;
-            opacity: 0.2;
-        }
-        
-        .checklist {
-            background: #f7fafc;
+        /* Warning Block */
+        .warning-block {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
             padding: 25px;
             border-radius: 12px;
             margin: 25px 0;
-            border: 2px solid #e2e8f0;
+            border-left: 4px solid var(--danger);
+        }
+        
+        /* Checklist */
+        .checklist {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--border);
         }
         
         .checklist-item {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 15px;
         }
         
         .checklist-item::before {
             content: '✅';
             flex-shrink: 0;
+            margin-top: 2px;
         }
         
-        .warning-block {
-            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
-            padding: 25px;
+        /* Partner Blocks */
+        .partner-block {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+        }
+        
+        .partner-cta {
+            display: inline-block;
+            background: white;
+            color: var(--primary);
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        
+        .partner-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .grid-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
             border-radius: 12px;
-            margin: 25px 0;
-            border-left: 5px solid #e53e3e;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
         }
         
-        /* Списки */
-        ul {
-            padding-left: 25px;
-        }
-        
-        li {
-            margin-bottom: 12px;
-            padding-left: 10px;
-        }
-        
-        li::marker {
-            color: #667eea;
-        }
-        
-        /* Цитаты */
+        /* Quote */
         blockquote {
-            border-left: 4px solid #667eea;
-            padding: 25px;
-            margin: 40px 0;
-            background: #f7fafc;
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            margin: 30px 0;
+            background: var(--light);
             border-radius: 0 12px 12px 0;
             font-style: italic;
             position: relative;
@@ -192,336 +315,572 @@
         blockquote::before {
             content: '"';
             position: absolute;
-            top: -15px;
-            left: 20px;
-            font-size: 60px;
-            color: #cbd5e0;
+            top: -10px;
+            left: 15px;
+            font-size: 3rem;
+            color: var(--border);
             font-family: Georgia, serif;
         }
         
-        /* Адаптивность */
+        /* Lists */
+        ul, ol {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        /* Paragraphs */
+        p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: var(--dark);
+        }
+        
+        strong {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* Action Box */
+        .action-box {
+            font-size: 1rem;
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px dashed var(--border);
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        /* Links */
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .back-link:hover {
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .cta-link {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .cta-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0 25px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+        }
+        
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .burger-line {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 12px 0;
+            min-width: 180px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 30px 20px;
-                margin-top: 30px;
-                margin-bottom: 30px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
-            
-            .freelance-shield {
-                grid-template-columns: 1fr;
+            .article-container {
                 padding: 25px;
+            }
+            
+            .article-title {
+                font-size: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .burger-menu {
+                display: block;
+            }
+            
+            .partner-block {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .article-container {
+                padding: 20px;
+                border-radius: 15px;
             }
         }
     </style>
-    
-    <!-- Стили для интеграции (уже включены выше) -->
-    <link rel="stylesheet" href="/static/templates/burger.css">
 </head>
 <body>
-    {% include 'burger.html' %}
-    
-    <div class="container">
-        <!-- Хлебные крошки -->
-        <div style="font-size: 14px; color: #718096; margin-bottom: 30px;">
-            <a href="/" style="color: #667eea; text-decoration: none;">Главная</a> / 
-            <a href="/articles" style="color: #667eea; text-decoration: none;">Статьи</a> / 
-            <span style="color: #4a5568;">Фрилансерам</span>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
+                    <a href="/proverka-dogovorov" class="nav-link">Проверка договоров</a>
+                    <a href="/articles" class="nav-link active">Статьи</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+            </div>
         </div>
-        
-        <!-- Заголовок статьи -->
-        <h1>💼 Выживание фрилансера: <br>Договор ГПХ без ошибок и потерянных денег</h1>
-        
-        <div style="text-align: center; color: #718096; margin-bottom: 40px; font-size: 18px;">
-            <span style="color: #4CAF50;">•</span> Автор: Команда DocScan AI | Обновлено: 01.12.2024 | Время чтения: 8 мин
-        </div>
-        
-        <!-- Введение -->
-        <div class="story-block">
-            <h3 style="margin-top: 0; color: #2f855a;">История Марии, дизайнера из Москвы</h3>
-            <p>"Я думала, что договор — это формальность. Работала 3 месяца над сайтом, сдала проект, а заказчик исчез. 
-            В договоре не было ни сроков оплаты, ни этапов, ни штрафов за просрочку. 120 000 рублей я так и не увидела."</p>
-        </div>
-        
-        <p style="font-size: 18px; color: #4a5568; margin-bottom: 30px;">
-            <strong>Каждый третий фрилансер теряет деньги из-за ошибок в договорах.</strong> 
-            В этом руководстве вы узнаете, как защитить свои доходы, проверить договор ГПХ за 5 минут 
-            и настроить автоматическую финансовую защиту.
-        </p>
+    </header>
 
-        <!-- Раздел 1 -->
-        <h2>🔍 Почему фрилансеры теряют деньги</h2>
-        <p>Работа без договора или с плохим договором — это игра в русскую рулетку. Вот главные опасности:</p>
-        
-        <div class="warning-block">
-            <h3 style="margin-top: 0; color: #c53030;">3 смертельных ошибки</h3>
+    <!-- Main Content -->
+    <main class="container">
+        <div class="article-container">
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs">
+                <a href="/" class="breadcrumb-link">Главная</a> / 
+                <a href="/articles" class="breadcrumb-link">Статьи</a> / 
+                <span style="color: var(--gray);">Фрилансерам</span>
+            </div>
+            
+            <!-- Title -->
+            <h1 class="article-title">💼 Выживание фрилансера: Договор ГПХ без ошибок и потерянных денег</h1>
+            
+            <div class="article-meta">
+                <span style="color: #48bb78;">•</span> Автор: Команда DocScan AI | Обновлено: 01.12.2024 | Время чтения: 8 мин
+            </div>
+            
+            <!-- Introduction -->
+            <div class="story-block">
+                <h3 class="subsection-title" style="margin-top: 0; color: #2f855a;">История Марии, дизайнера из Москвы</h3>
+                <p>"Я думала, что договор — это формальность. Работала 3 месяца над сайтом, сдала проект, а заказчик исчез. 
+                В договоре не было ни сроков оплаты, ни этапов, ни штрафов за просрочку. 120 000 рублей я так и не увидела."</p>
+            </div>
+            
+            <p>
+                <strong>Каждый третий фрилансер теряет деньги из-за ошибок в договорах.</strong> 
+                В этом руководстве вы узнаете, как защитить свои доходы, проверить договор ГПХ за 5 минут 
+                и настроить автоматическую финансовую защиту.
+            </p>
+            
+            <!-- Why freelancers lose money -->
+            <h2 class="section-title">🔍 Почему фрилансеры теряют деньги</h2>
+            <p>Работа без договора или с плохим договором — это игра в русскую рулетку. Вот главные опасности:</p>
+            
+            <div class="warning-block">
+                <h3 class="subsection-title" style="margin-top: 0; color: #c53030;">3 смертельных ошибки</h3>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div>
+                            <strong>Работа по ТЗ вместо договора</strong>
+                            <p style="margin: 5px 0 0 0; color: var(--gray);">Техническое задание не защищает ваши права, только описывает работу.</p>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>
+                            <strong>"Устные договоренности"</strong>
+                            <p style="margin: 5px 0 0 0; color: var(--gray);">80% споров фрилансеров — это "а мы же договаривались по-другому".</p>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>
+                            <strong>Шаблонный договор из интернета</strong>
+                            <p style="margin: 5px 0 0 0; color: var(--gray);">Устаревшие формулировки, отсутствие важных пунктов, несоответствие закону.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Critical points -->
+            <h2 class="section-title">📝 Критические пункты договора ГПХ</h2>
+            <p>Проверьте эти 5 пунктов в каждом договоре:</p>
+            
             <div class="checklist">
                 <div class="checklist-item">
                     <div>
-                        <strong>Работа по ТЗ вместо договора</strong>
-                        <p style="margin: 5px 0 0 0; color: #718096;">Техническое задание не защищает ваши права, только описывает работу.</p>
+                        <strong>1. Предмет договора</strong>
+                        <p>Должен быть четким и измеримым. Не "разработка сайта", а "создание 5 страниц сайта с адаптивной версткой".</p>
                     </div>
                 </div>
                 <div class="checklist-item">
                     <div>
-                        <strong>"Устные договоренности"</strong>
-                        <p style="margin: 5px 0 0 0; color: #718096;">80% споров фрилансеров — это "а мы же договаривались по-другому".</p>
+                        <strong>2. Сроки и этапы</strong>
+                        <p>Конкретные даты сдачи этапов + условия переноса сроков.</p>
                     </div>
                 </div>
                 <div class="checklist-item">
                     <div>
-                        <strong>Шаблонный договор из интернета</strong>
-                        <p style="margin: 5px 0 0 0; color: #718096;">Устаревшие формулировки, отсутствие важных пунктов, несоответствие закону.</p>
+                        <strong>3. Оплата и акты</strong>
+                        <p>Суммы, сроки оплаты (не более 5 рабочих дней после акта), форма актов.</p>
+                    </div>
+                </div>
+                <div class="checklist-item">
+                    <div>
+                        <strong>4. Ответственность сторон</strong>
+                        <p>Штрафы за просрочку оплаты, условия расторжения.</p>
+                    </div>
+                </div>
+                <div class="checklist-item">
+                    <div>
+                        <strong>5. Права на результат</strong>
+                        <p>Когда права переходят к заказчику (после полной оплаты!).</p>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Раздел 2 -->
-        <h2>📝 Критические пункты договора ГПХ</h2>
-        <p>Проверьте эти 5 пунктов в каждом договоре:</p>
-        
-        <div class="checklist">
-            <div class="checklist-item">
-                <div>
-                    <strong>1. Предмет договора</strong>
-                    <p>Должен быть четким и измеримым. Не "разработка сайта", а "создание 5 страниц сайта с адаптивной версткой".</p>
-                </div>
-            </div>
-            <div class="checklist-item">
-                <div>
-                    <strong>2. Сроки и этапы</strong>
-                    <p>Конкретные даты сдачи этапов + условия переноса сроков.</p>
-                </div>
-            </div>
-            <div class="checklist-item">
-                <div>
-                    <strong>3. Оплата и акты</strong>
-                    <p>Суммы, сроки оплаты (не более 5 рабочих дней после акта), форма актов.</p>
-                </div>
-            </div>
-            <div class="checklist-item">
-                <div>
-                    <strong>4. Ответственность сторон</strong>
-                    <p>Штрафы за просрочку оплаты, условия расторжения.</p>
-                </div>
-            </div>
-            <div class="checklist-item">
-                <div>
-                    <strong>5. Права на результат</strong>
-                    <p>Когда права переходят к заказчику (после полной оплаты!).</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ИНТЕГРАЦИЯ КОНТУРА -->
-        <!-- Финансовый щит фрилансера -->
-        <div class="freelance-shield" style="
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 24px;
-            padding: 40px;
-            margin: 50px 0;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        ">
             
-            <!-- Декоративные элементы -->
-            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; 
-                        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-                        border-radius: 50%;"></div>
-            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; 
-                        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%);
-                        border-radius: 50%;"></div>
-            
-            <!-- Иконка и заголовок -->
-            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; position: relative;">
-                <div style="font-size: 48px; background: rgba(255,255,255,0.1); width: 80px; height: 80px; 
-                            border-radius: 20px; display: flex; align-items: center; justify-content: center;
-                            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-                    🛡️
-                </div>
-                <div>
-                    <h3 style="margin: 0; font-size: 28px; font-weight: 800; color: white;">Финансовый щит фрилансера</h3>
-                    <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 16px;">
-                        Автоматизируйте рутину — сосредоточьтесь на творчестве
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Основной контент -->
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; position: relative;">
-                <!-- Левая часть: Описание -->
-                <div>
-                    <p style="font-size: 18px; line-height: 1.6; margin-bottom: 25px;">
-                        <strong>Проверили договор?</strong> Теперь настройте автоматическую финансовую защиту. 
-                        Больше никаких забытых налогов, просроченных отчетов и ручных расчетов.
-                    </p>
-                    
-                    <!-- Преимущества в стиле карточек -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
-                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; 
-                                    backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.15);">
-                            <div style="font-size: 24px; margin-bottom: 8px;">⏱️</div>
-                            <div style="font-weight: 600; font-size: 14px;">Экономия 20+ часов в месяц</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px;
-                                    backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.15);">
-                            <div style="font-size: 24px; margin-bottom: 8px;">📅</div>
-                            <div style="font-weight: 600; font-size: 14px;">Авто-напоминания о сроках</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px;
-                                    backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.15);">
-                            <div style="font-size: 24px; margin-bottom: 8px;">🧮</div>
-                            <div style="font-weight: 600; font-size: 14px;">Точный расчет налогов</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px;
-                                    backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.15);">
-                            <div style="font-size: 24px; margin-bottom: 8px;">⚡</div>
-                            <div style="font-weight: 600; font-size: 14px;">Отчетность в 1 клик</div>
-                        </div>
+            <!-- Partner Block -->
+            <div class="partner-block">
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                    <div style="font-size: 2.5rem; background: rgba(255,255,255,0.1); width: 60px; height: 60px; 
+                                border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                        🛡️
                     </div>
-                    
-                    <!-- Партнерская метка -->
-                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); 
-                                padding: 8px 16px; border-radius: 20px; font-size: 14px; margin-top: 10px;">
-                        <span style="opacity: 0.8;">Рекомендовано</span>
-                        <span style="font-weight: 600;">Контур.Эльба</span>
+                    <div>
+                        <h3 class="subsection-title" style="margin: 0; color: white;">Финансовый щит фрилансера</h3>
+                        <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 0.9rem;">
+                            Автоматизируйте рутину — сосредоточьтесь на творчестве
+                        </p>
                     </div>
                 </div>
                 
-                <!-- Правая часть: Призыв к действию -->
-                <div style="display: flex; flex-direction: column; justify-content: center;">
-                    <div style="background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; text-align: center;
-                                box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                        <div style="font-size: 14px; color: #667eea; font-weight: 600; margin-bottom: 10px;">
-                            СПЕЦИАЛЬНО ДЛЯ ФРИЛАНСЕРОВ
-                        </div>
-                        <div style="font-size: 32px; color: #2d3748; font-weight: 800; line-height: 1;">
-                            14 дней
-                        </div>
-                        <div style="font-size: 16px; color: #718096; margin-bottom: 25px;">
-                            полного доступа бесплатно
-                        </div>
-                        
-                        <a href="https://kontur.ru/elba?p=f66536" 
-                           target="_blank"
-                           style="display: block; background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); 
-                                  color: white; padding: 18px; border-radius: 12px; text-decoration: none; 
-                                  font-weight: 700; font-size: 18px; border: none; cursor: pointer;
-                                  transition: transform 0.3s ease, box-shadow 0.3s ease;
-                                  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);">
-                            🚀 Запустить финансовый автопилот
-                        </a>
-                        
-                        <div style="margin-top: 15px; font-size: 12px; color: #a0aec0; line-height: 1.4;">
-                            📌 250 000+ фрилансеров уже автоматизировали финансы<br>
-                            ⚡ Настройка за 15 минут • Первые 14 дней — бесплатно
-                        </div>
+                <p style="font-size: 1rem; line-height: 1.6; margin-bottom: 20px;">
+                    <strong>Проверили договор?</strong> Теперь настройте автоматическую финансовую защиту. 
+                    Больше никаких забытых налогов, просроченных отчетов и ручных расчетов.
+                </p>
+                
+                <div class="grid-2">
+                    <div class="grid-item">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">⏱️</div>
+                        <div style="font-weight: 600; font-size: 0.85rem;">Экономия 20+ часов в месяц</div>
+                    </div>
+                    <div class="grid-item">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">📅</div>
+                        <div style="font-weight: 600; font-size: 0.85rem;">Авто-напоминания о сроках</div>
+                    </div>
+                    <div class="grid-item">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">🧮</div>
+                        <div style="font-weight: 600; font-size: 0.85rem;">Точный расчет налогов</div>
+                    </div>
+                    <div class="grid-item">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">⚡</div>
+                        <div style="font-weight: 600; font-size: 0.85rem;">Отчетность в 1 клик</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 25px;">
+                    <a href="https://kontur.ru/elba?p=f66536" 
+                       target="_blank"
+                       class="partner-cta"
+                       style="background: #4CAF50; color: white; padding: 14px 30px; font-size: 1rem;">
+                        🚀 Запустить финансовый автопилот
+                    </a>
+                    <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.8;">
+                        📌 250 000+ фрилансеров уже автоматизировали финансы • Настройка за 15 минут
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Checklist -->
+            <h2 class="section-title">📊 Чек-лист перед подписанием</h2>
+            <p>Распечатайте и проверяйте каждый договор по этому списку:</p>
+            
+            <div style="background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%); 
+                        padding: 25px; border-radius: 15px; margin: 25px 0;">
+                <h3 class="subsection-title" style="color: var(--dark); margin-top: 0;">✅ 7 пунктов для проверки</h3>
+                <ol>
+                    <li><strong>Реквизиты полные</strong> — ИНН, ОГРНИП, адрес, расчетный счет</li>
+                    <li><strong>Предмет конкретный</strong> — можно измерить и проверить</li>
+                    <li><strong>Сроки с датами</strong> — не "в течение месяца", а "до 15.12.2024"</li>
+                    <li><strong>Оплата поэтапная</strong> — аванс + промежуточные платежи</li>
+                    <li><strong>Акты приема-передачи</strong> — форма и сроки подписания</li>
+                    <li><strong>Ответственность прописана</strong> — штрафы за просрочку оплаты</li>
+                    <li><strong>Подписи и печати</strong> — на всех страницах, все реквизиты</li>
+                </ol>
+            </div>
+            
+            <!-- What to do -->
+            <h2 class="section-title">🎯 Что делать если уже попал в плохой договор</h2>
+            
+            <blockquote>
+                "Лучший способ решить проблему — не создавать ее. Но если попал — действуй быстро и грамотно."
+                <div style="margin-top: 10px; font-style: normal; font-weight: 600;">— Иван Петров, юрист по защите фрилансеров</div>
+            </blockquote>
+
+            <div class="checklist">
+                <div class="checklist-item">
+                    <div>
+                        <strong>Шаг 1: Фиксация нарушений</strong>
+                        <p>Собирайте всю переписку, ТЗ, подтверждения отправки работы.</p>
+                    </div>
+                </div>
+                <div class="checklist-item">
+                    <div>
+                        <strong>Шаг 2: Досудебная претензия</strong>
+                        <p>Официальное письмо с требованием оплаты и ссылками на договор.</p>
+                    </div>
+                </div>
+                <div class="checklist-item">
+                    <div>
+                        <strong>Шаг 3: Обращение в суд</strong>
+                        <p>Для ИП — арбитражный суд, для физлиц — мировой суд.</p>
                     </div>
                 </div>
             </div>
             
-            <!-- Нижний декоративный элемент -->
-            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 4px; 
-                        background: linear-gradient(90deg, #4CAF50 0%, #667eea 50%, #764ba2 100%);"></div>
-        </div>
-
-        <!-- Раздел 3 -->
-        <h2>📊 Чек-лист перед подписанием</h2>
-        <p>Распечатайте и проверяйте каждый договор по этому списку:</p>
-        
-        <div style="background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%); 
-                    padding: 30px; border-radius: 16px; margin: 30px 0;">
-            <h3 style="color: #4a5568; margin-top: 0;">✅ 7 пунктов для проверки</h3>
-            <ol style="padding-left: 25px;">
-                <li><strong>Реквизиты полные</strong> — ИНН, ОГРНИП, адрес, расчетный счет</li>
-                <li><strong>Предмет конкретный</strong> — можно измерить и проверить</li>
-                <li><strong>Сроки с датами</strong> — не "в течение месяца", а "до 15.12.2024"</li>
-                <li><strong>Оплата поэтапная</strong> — аванс + промежуточные платежи</li>
-                <li><strong>Акты приема-передачи</strong> — форма и сроки подписания</li>
-                <li><strong>Ответственность прописана</strong> — штрафы за просрочку оплаты</li>
-                <li><strong>Подписи и печати</strong> — на всех страницах, все реквизиты</li>
-            </ol>
-        </div>
-
-        <!-- Раздел 4 -->
-        <h2>🎯 Что делать если уже попал в плохой договор</h2>
-        
-        <blockquote>
-            "Лучший способ решить проблему — не создавать ее. Но если попал — действуй быстро и грамотно."
-            <div style="margin-top: 10px; font-style: normal; font-weight: 600;">— Иван Петров, юрист по защите фрилансеров</div>
-        </blockquote>
-
-        <div class="checklist">
-            <div class="checklist-item">
-                <div>
-                    <strong>Шаг 1: Фиксация нарушений</strong>
-                    <p>Собирайте всю переписку, ТЗ, подтверждения отправки работы.</p>
-                </div>
+            <!-- Conclusion -->
+            <h2 class="section-title">💎 Главное правило фрилансера</h2>
+            <div class="action-box">
+                <strong>Доверяй, но проверяй. Любой договор — перед подписанием. Любая оплата — перед сдачей работы.</strong><br>
+                Современные инструменты позволяют проверять договоры за минуты и автоматизировать всю финансовую рутину.
             </div>
-            <div class="checklist-item">
-                <div>
-                    <strong>Шаг 2: Досудебная претензия</strong>
-                    <p>Официальное письмо с требованием оплаты и ссылками на договор.</p>
-                </div>
-            </div>
-            <div class="checklist-item">
-                <div>
-                    <strong>Шаг 3: Обращение в суд</strong>
-                    <p>Для ИП — арбитражный суд, для физлиц — мировой суд.</p>
-                </div>
+            
+            <!-- Action Buttons -->
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="/articles" class="back-link">📚 Все статьи для бизнеса</a>
+                <a href="/" class="cta-link" style="margin-left: 15px;">
+                    🎯 Проверить договор бесплатно
+                </a>
             </div>
         </div>
+    </main>
 
-        <!-- Заключение -->
-        <h2>💎 Главное правило фрилансера</h2>
-        <p style="font-size: 18px; background: #f7fafc; padding: 25px; border-radius: 16px; 
-                  border: 2px dashed #cbd5e0; text-align: center;">
-            <strong>Доверяй, но проверяй. Любой договор — перед подписанием. Любая оплата — перед сдачей работы.</strong><br>
-            Современные инструменты позволяют проверять договоры за минуты и автоматизировать всю финансовую рутину.
-        </p>
-
-        <!-- Кнопки навигации -->
-        <div style="text-align: center; margin-top: 60px;">
-            <a href="/articles" class="back-link">📚 Все статьи для бизнеса</a>
-            <a href="/" class="back-link" style="margin-left: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
-                🎯 Проверить договор бесплатно
-            </a>
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/contact">📞 Контакты</a>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
         </div>
     </div>
 
-    <!-- ФУТЕР -->
-    <div style="width: 100%; text-align: center; padding: 40px 0; color: #718096; border-top: 1px solid #e2e8f0; margin-top: 50px; background: white;">
-        <div style="max-width: 1000px; margin: 0 auto; padding: 0 20px;">
-            <div style="margin-bottom: 20px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px;">
-                <a href="/terms" style="color: #4a5568; text-decoration: none; font-weight: 500;">Пользовательское соглашение</a>
-                <a href="/privacy" style="color: #4a5568; text-decoration: none; font-weight: 500;">Политика конфиденциальности</a>
-                <a href="/offer" style="color: #4a5568; text-decoration: none; font-weight: 500;">Публичная оферта</a>
-                <a href="/contact" style="color: #4a5568; text-decoration: none; font-weight: 500;">Техподдержка</a>
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Автоматическая проверка документов и договоров с искусственным интеллектом.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
             </div>
-            <div style="font-size: 14px; margin-top: 20px;">
-                © 2024 DocScan AI. Все права защищены.<br>
-                <span style="font-size: 12px; color: #a0aec0;">Инструменты для безопасного фриланса</span>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
             </div>
         </div>
-    </div>
+    </footer>
 
-    <script src="/static/templates/burger.js"></script>
-    <!-- Яндекс.Метрика -->
+    <script>
+        // Burger menu toggle
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+    
+    <!-- Yandex.Metrika -->
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){
             m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
             m[i].l=1*new Date();
             for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
             k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105562312', 'ym');
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
         ym(105562312, 'init', {ssr:true, webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
     </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 </body>
 </html>

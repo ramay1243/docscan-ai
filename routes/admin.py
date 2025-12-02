@@ -138,8 +138,8 @@ def admin_panel():
             <h3>Выдать тариф пользователю:</h3>
             <input type="text" id="userId" placeholder="ID пользователя">
             <select id="planSelect">
-                <option value="free">Бесплатный (1 анализ)</option>
-                <option value="basic">Базовый (10 анализов)</option>
+                <option value="free">Бесплатный (3 анализа)</option>
+                <option value="basic">Базовый (Неограниченное количество анализов)</option>
                 <option value="premium">Премиум (50 анализов)</option>
                 <option value="unlimited">Безлимитный</option>
             </select>

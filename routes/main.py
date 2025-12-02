@@ -992,6 +992,32 @@ def home():
     </script>
 
     <!-- Upload Section -->
+
+    <script>
+    function showDemoAnalysis() {
+        const demoResult = document.getElementById('demoAnalysisResult');
+        const button = event.target;
+        
+        if (demoResult.style.display === 'none' || !demoResult.style.display) {
+            demoResult.style.display = 'block';
+            // Плавное появление
+            demoResult.style.opacity = '0';
+            demoResult.style.transition = 'opacity 0.5s';
+            setTimeout(() => { demoResult.style.opacity = '1'; }, 10);
+            
+            // Изменяем текст кнопки
+            button.innerHTML = '<span>▼</span> Скрыть демо-анализ';
+            
+            // Прокрутка к результату
+            demoResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            demoResult.style.display = 'none';
+            button.innerHTML = '<span>▶️</span> Показать демо-анализ';
+        }
+    }
+    </script>
+
+    <!-- Upload Section -->
     <section class="upload-section" id="upload">
         <div class="container">
             <div class="user-info" id="userInfo">

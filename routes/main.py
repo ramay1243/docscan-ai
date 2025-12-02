@@ -788,7 +788,6 @@ def home():
                     <a href="/contact" class="nav-link">Контакты</a>
                 </nav>
                 
-                <a href="#upload" class="cta-button">🚀 Начать анализ</a>
             </div>
         </div>
     </header>
@@ -841,9 +840,6 @@ def home():
                 <div>
                     <button onclick="copyUserId()" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem; margin: 5px;">
                         📋 Копировать ID
-                    </button>
-                    <button onclick="generateNewId()" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem; margin: 5px; background: var(--gray);">
-                        🔄 Новый ID
                     </button>
                 </div>
             </div>

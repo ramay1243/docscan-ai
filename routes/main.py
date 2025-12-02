@@ -917,20 +917,52 @@ document.addEventListener('DOMContentLoaded', initCarousel);
                 </div>
             </div>
             
-        <!-- ФУТЕР -->
-        <div style="width: 100%; text-align: center; padding: 30px 0; color: #718096; border-top: 1px solid #e2e8f0; margin-top: 50px; background: white;">
-            <div style="max-width: 1000px; margin: 0 auto; padding: 0 20px;">
-                <div style="margin-bottom: 15px;">
-                    <a href="/terms" style="color: #718096; text-decoration: none; margin: 0 15px; font-size: 14px;">Пользовательское соглашение</a>
-                    <a href="/privacy" style="color: #718096; text-decoration: none; margin: 0 15px; font-size: 14px;">Политика конфиденциальности</a>
-                    <a href="/offer" style="color: #718096; text-decoration: none; margin: 0 15px; font-size: 14px;">Публичная оферта</a>
-                    <a href="/contact" style="color: #718096; text-decoration: none; margin: 0 15px; font-size: 14px;">Техподдержка</a>
+<!-- Footer -->
+        <footer style="background: #2d3748; color: white; padding: 60px 0 30px; margin-top: 80px;">
+            <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px;">
+                    <div>
+                        <a href="/" style="color: white; text-decoration: none; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; display: inline-block;">
+                            🤖 DocScan AI
+                        </a>
+                        <p style="opacity: 0.7; max-width: 300px;">
+                            Автоматическая проверка документов и договоров с искусственным интеллектом.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 20px; color: white;">Сервисы</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="/analiz-dokumentov" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Анализ документов</a>
+                            <a href="/proverka-dogovorov" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Проверка договоров</a>
+                            <a href="/articles" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">База знаний</a>
+                            <a href="/contact" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Техподдержка</a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 20px; color: white;">Документы</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="/terms" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Пользовательское соглашение</a>
+                            <a href="/privacy" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Политика конфиденциальности</a>
+                            <a href="/offer" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Публичная оферта</a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 20px; color: white;">Контакты</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="mailto:support@docscan-ai.ru" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">support@docscan-ai.ru</a>
+                            <a href="https://t.me/docscan_ai" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Telegram: @docscan_ai</a>
+                        </div>
+                    </div>
                 </div>
-                <div style="font-size: 14px;">
-                    © 2025 DocScan. Все права защищены.
+                
+                <div style="text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);">
+                    © 2025 DocScan AI. Все права защищены.
                 </div>
             </div>
-                </div>
+        </footer>
 
 <!-- Schema.org Structured Data for Search Engines & Yandex Alice -->
     <script type="application/ld+json">

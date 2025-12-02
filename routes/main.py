@@ -988,19 +988,6 @@ def home():
                 <button class="cta-button" onclick="buyPlan('basic')" style="background: white; color: var(--primary);">Купить за 199₽</button>
             </div>
             
-            <div class="pricing-card">
-                <div class="plan-name" style="color: var(--secondary);">Премиум</div>
-                <div class="price" style="color: var(--secondary);">399₽/мес</div>
-                <ul class="features">
-                    <li>💎 50 анализов в день</li>
-                    <li>💎 Продвинутый AI-анализ</li>
-                    <li>💎 Экспорт отчетов в PDF</li>
-                    <li>💎 История анализов</li>
-                    <li>👑 Персональный менеджер</li>
-                </ul>
-                <button class="cta-button" onclick="buyPlan('premium')" style="background: var(--secondary);">Купить за 399₽</button>
-            </div>
-        </div>
     </section>
 
     <!-- FAQ -->

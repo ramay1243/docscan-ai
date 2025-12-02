@@ -967,7 +967,7 @@ def home():
                 <div class="plan-name" style="color: var(--danger);">Бесплатный</div>
                 <div class="price" style="color: var(--danger);">0₽</div>
                 <ul class="features">
-                    <li>✅ 1 анализ в день</li>
+                    <li>✅ 3 анализа в день</li>
                     <li>✅ Базовый AI-анализ</li>
                     <li>✅ Основные форматы файлов</li>
                     <li>✅ PDF, DOCX, TXT</li>
@@ -977,15 +977,15 @@ def home():
             
             <div class="pricing-card featured">
                 <div class="plan-name">Базовый</div>
-                <div class="price">199₽/мес</div>
+                <div class="price">490₽/мес</div>
                 <ul class="features">
-                    <li>🚀 10 анализов в день</li>
+                    <li>🚀 Неограниченное количество анализов</li>
                     <li>🚀 Приоритетный AI-анализ</li>
                     <li>🚀 Быстрая обработка</li>
                     <li>📸 Распознавание фото документов</li>
                     <li>⚡ Приоритетная поддержка</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('basic')" style="background: white; color: var(--primary);">Купить за 199₽</button>
+                <button class="cta-button" onclick="buyPlan('basic')" style="background: white; color: var(--primary);">Купить за 490₽</button>
             </div>
             
     </section>
@@ -1010,7 +1010,7 @@ def home():
                 <span>+</span>
             </div>
             <div class="faq-answer" id="faq-2">
-                <p>1 анализ в день - бесплатно. Платные тарифы: Базовый (10 анализов в день) - 199₽/мес, Премиум (50 анализов) - 399₽/мес.</p>
+                <p>3 анализа в день - бесплатно. Платные тарифы: Базовый (Неограниченное количество анализов в день) - 490₽/мес.</p>
             </div>
         </div>
         
@@ -1451,7 +1451,7 @@ def home():
                     "name": "Сколько стоит анализ документов?",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "1 анализ в день - бесплатно. Платные тарифы: Базовый (10 анализов в день) - 199₽/мес, Премиум (50 анализов) - 399₽/мес."
+                        "text": "3 анализ в день - бесплатно. Платные тарифы: Базовый (Неограниченное количество анализов) - 490₽/мес."
                     }
                 },
                 {

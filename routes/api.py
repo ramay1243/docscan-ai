@@ -58,7 +58,7 @@ def analyze_document():
         if not app.ip_limit_manager.can_analyze_by_ip(request):
             return jsonify({
                 'success': False,
-                'error': '❌ Бесплатный лимит по IP исчерпан! Можно сделать только 1 анализ в день с одного IP-адреса.',
+                'error': '❌ Бесплатный лимит по IP исчерпан! Можно сделать только 3 анализа в день с одного IP-адреса.',
                 'ip_limit_exceeded': True
             }), 402
 
@@ -89,7 +89,7 @@ def analyze_document():
                     'success': False,
                     'error': '📸 Распознавание фото доступно только для платных тарифов!',
                     'upgrade_required': True,
-                    'message': '💎 Перейдите на Базовый тариф (199₽/мес) для анализа фото документов'
+                    'message': '💎 Перейдите на Базовый тариф (490₽/мес) для анализа фото документов'
                 }), 402
             
             logger.info(f"✅ Разрешено распознавание фото для пользователя {user_id} (тариф: {user.plan})")

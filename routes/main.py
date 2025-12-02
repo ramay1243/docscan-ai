@@ -1134,7 +1134,7 @@ def home():
                 <div>
                     <h4 style="margin-bottom: 20px;">Контакты</h4>
                     <div class="footer-links">
-                        <a href="mailto:support@docscan-ai.ru" class="footer-link">support@docscan-ai.ru</a>
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
                         <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
                     </div>
                 </div>

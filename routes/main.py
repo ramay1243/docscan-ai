@@ -1068,8 +1068,6 @@ def home():
         </div>
         <div class="menu-dropdown" id="menuDropdown">
             <a href="/">🏠 Главная</a>
-            <a href="/analiz-dokumentov">📄 Анализ документов</a>
-            <a href="/proverka-dogovorov">📝 Проверка договоров</a>
             <a href="/articles">📚 Статьи</a>
             <a href="/contact">📞 Контакты</a>
             <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>

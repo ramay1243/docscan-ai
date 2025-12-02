@@ -27,6 +27,9 @@ def home():
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docscan-ai.ru">
     <meta property="og:image" content="https://docscan-ai.ru/static/og-main.jpg">
+    <!-- Yandex.RTB -->
+    <script>window.yaContextCb=window.yaContextCb||[]</script>
+    <script src="https://yandex.ru/ads/system/context.js" async></script>
     
     <!-- Favicon -->
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
@@ -824,7 +827,22 @@ def home():
             </div>
         </div>
     </section>
-
+<!-- Яндекс.Директ РСЯ -->
+    <section class="container">
+        <div style="text-align: center; margin: 40px 0; padding: 20px;">
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Реклама</p>
+            <!-- Yandex.RTB R-A-17923061-1 -->
+            <div id="yandex_rtb_R-A-17923061-1"></div>
+            <script>
+            window.yaContextCb.push(() => {
+                Ya.Context.AdvManager.render({
+                    "blockId": "R-A-17923061-1",
+                    "renderTo": "yandex_rtb_R-A-17923061-1"
+                })
+            })
+            </script>
+        </div>
+    </section>
     <!-- Upload Section -->
     <section class="upload-section" id="upload">
         <div class="container">

@@ -1,387 +1,914 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Анализ документов с ИИ онлайн — проверка за 60 секунд | DocScan AI</title>
-    <meta charset="utf-8">
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="Автоматический анализ документов с искусственным интеллектом. Проверка договоров, отчетов, писем на ошибки и риски. Результат за 60 секунд.">
     <meta name="keywords" content="анализ документов, проверка договоров, ИИ анализ документов, анализ договоров онлайн, юридическая проверка документов">
     <meta name="author" content="DocScan AI">
-
+    
     <!-- Open Graph -->
     <meta property="og:title" content="Анализ документов с ИИ онлайн — проверка за 60 секунд">
     <meta property="og:description" content="Автоматический анализ документов с искусственным интеллектом. Проверка договоров, отчетов, писем на ошибки и риски">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docscan-ai.ru/analiz-dokumentov">
-    <meta property="og:site_name" content="DocScan AI">
-
+    <meta property="og:image" content="https://docscan-ai.ru/static/og-analysis.jpg">
+    
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Анализ документов с ИИ онлайн">
     <meta name="twitter:description" content="Проверка документов на ошибки и риски за 60 секунд">
     
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
+            font-size: 15px;
         }
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            background: white; 
-            padding: 50px; 
-            border-radius: 20px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            margin-top: 40px;
-            margin-bottom: 40px;
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
-        h1 { 
-            color: #1e3c72; 
-            border-bottom: 4px solid #4CAF50; 
-            padding-bottom: 15px;
-            text-align: center;
-            font-size: 2.8em;
-            margin-bottom: 40px;
+        
+        /* Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        h2 {
-            color: #1e3c72;
-            border-left: 4px solid #4CAF50;
-            padding-left: 15px;
-            margin-top: 50px;
-            font-size: 2em;
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
         }
-        h3 {
-            color: #2d3748;
-            font-size: 1.4em;
-        }
-        .cta-button { 
-            display: inline-block; 
-            margin: 30px auto; 
-            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); 
-            color: white; 
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
             text-decoration: none;
-            font-weight: bold;
-            padding: 18px 40px;
-            border-radius: 30px;
-            transition: all 0.3s ease;
-            font-size: 1.2em;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.95rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            padding: 60px 0;
+            background: white;
+            border-radius: 0 0 25px 25px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            max-width: 800px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
-        .cta-button:hover { 
-            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--success), #4cc9f0);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
         }
-        .feature-grid {
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
+        
+        /* Stats Section */
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
             margin: 40px 0;
         }
-        .feature-card {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            border-top: 4px solid #4CAF50;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
+        
+        .stat-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: transform 0.3s, border-color 0.3s;
         }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        /* Section Styles */
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--dark);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        
+        /* Document Types Grid */
+        .doc-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .doc-type-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        
+        .doc-type-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .doc-icon {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid var(--primary);
+        }
+        
         .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
         }
-        .doc-type-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-        .doc-type {
-            background: #e8f5e9;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            border: 2px solid #c8e6c9;
-        }
+        
+        /* Process Steps */
         .process-steps {
             display: flex;
             justify-content: space-between;
-            margin: 40px 0;
-            flex-wrap: wrap;
-        }
-        .step {
-            flex: 1;
-            min-width: 250px;
-            text-align: center;
-            padding: 20px;
+            margin: 60px 0;
             position: relative;
         }
+        
+        .process-steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: var(--border);
+            z-index: 1;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            padding: 0 15px;
+        }
+        
         .step-number {
-            width: 50px;
-            height: 50px;
-            background: #4CAF50;
-            color: white;
+            width: 70px;
+            height: 70px;
+            background: white;
+            border: 3px solid var(--primary);
+            color: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5em;
-            font-weight: bold;
+            font-size: 1.5rem;
+            font-weight: 700;
             margin: 0 auto 20px;
-        }
-        .benefits-list {
-            background: #f1f8e9;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px 0;
-        }
-        .benefits-list li {
-            margin: 15px 0;
-            padding-left: 30px;
             position: relative;
         }
-        .benefits-list li:before {
-            content: "✓";
-            color: #4CAF50;
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        .stats-section {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 50px;
+        
+        /* Benefits List */
+        .benefits-section {
+            background: white;
+            padding: 40px;
             border-radius: 20px;
-            margin: 50px 0;
-            text-align: center;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
         }
-        .stat-item {
-            display: inline-block;
-            margin: 0 30px;
+        
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
-        .stat-number {
-            font-size: 3em;
-            font-weight: bold;
-            display: block;
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 12px;
+            border-left: 4px solid var(--success);
         }
+        
+        .benefit-icon {
+            color: var(--success);
+            font-size: 1.2rem;
+            margin-top: 3px;
+        }
+        
+        /* FAQ */
         .faq-section {
-            margin: 50px 0;
+            margin: 60px 0;
         }
+        
         .faq-item {
-            border-bottom: 1px solid #e0e0e0;
-            padding: 20px 0;
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }
+        
         .faq-question {
-            font-weight: bold;
-            color: #1e3c72;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: var(--dark);
         }
+        
         .faq-answer {
-            padding-top: 15px;
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s, padding 0.3s;
+        }
+        
+        .faq-answer.open {
+            padding: 0 20px 20px;
+            max-height: 500px;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 60px 0;
+            border-radius: 25px;
+            text-align: center;
+            margin: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0 25px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+        }
+        
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
             display: none;
         }
-        .text-center {
-            text-align: center;
+        
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
         }
-        .section-icon {
-            font-size: 2.5em;
-            margin-bottom: 20px;
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .burger-line {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 12px 0;
+            min-width: 180px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-dropdown.show {
             display: block;
         }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .section-title { font-size: 1.7rem; }
+            .process-steps { flex-direction: column; gap: 40px; }
+            .process-steps::before { display: none; }
+            .nav-links { display: none; }
+            .burger-menu { display: block; }
+            .features-grid { grid-template-columns: 1fr; }
+            .doc-types-grid { grid-template-columns: repeat(2, 1fr); }
+            .benefits-list { grid-template-columns: 1fr; }
+            .hero-section { padding: 40px 0; }
+            .hero-subtitle { font-size: 1rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .doc-types-grid { grid-template-columns: 1fr; }
+            .step-number { width: 60px; height: 60px; font-size: 1.3rem; }
+            .benefits-section { padding: 25px; }
+            .cta-section { padding: 40px 20px; }
+        }
     </style>
-    <link rel="stylesheet" href="/static/templates/burger.css">
 </head>
 <body>
-    {% include 'burger.html' %}
-    <div class="container">
-        <h1>📄 Анализ документов с искусственным интеллектом</h1>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link active">Анализ документов</a>
+                    <a href="/proverka-dogovorov" class="nav-link">Проверка договоров</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+                
+                <a href="/" class="cta-button">🚀 Начать анализ</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">🤖 Искусственный интеллект</span>
+                <h1 class="hero-title">Анализ документов с ИИ за 60 секунд</h1>
+                <p class="hero-subtitle">
+                    Быстрая проверка документов на ошибки, риски и соответствие требованиям с помощью искусственного интеллекта. 
+                    Результат за 60 секунд.
+                </p>
+                
+                <a href="/" class="cta-button" style="padding: 14px 35px; font-size: 1.1rem;">
+                    📄 Начать анализ документа
+                </a>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">60</span>
+                        <span>секунд на анализ</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">99%</span>
+                        <span>точность проверки</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">24/7</span>
+                        <span>доступность сервиса</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">50+</span>
+                        <span>типов документов</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Document Types -->
+    <section class="container">
+        <h2 class="section-title">📋 Какие документы можно анализировать?</h2>
+        <p class="section-subtitle">
+            Поддерживаются все основные форматы документов, используемые в бизнесе и личных делах
+        </p>
         
-        <div class="text-center">
-            <p style="font-size: 1.3em; color: #555; max-width: 800px; margin: 0 auto 30px;">
-                Быстрая проверка документов на ошибки, риски и соответствие требованиям с помощью искусственного интеллекта. Результат за 60 секунд.
-            </p>
-            <a href="/" class="cta-button">🚀 Начать анализ документа</a>
-        </div>
-
-        <div class="stats-section">
-            <div class="stat-item">
-                <span class="stat-number">60</span>
-                <span>секунд на анализ</span>
+        <div class="doc-types-grid">
+            <div class="doc-type-card">
+                <span class="doc-icon">📄</span>
+                <h3 style="margin-bottom: 10px;">Договоры</h3>
+                <p style="color: var(--gray); font-size: 0.9rem;">Аренды, поставки, оказания услуг, подряда</p>
             </div>
-            <div class="stat-item">
-                <span class="stat-number">99%</span>
-                <span>точность проверки</span>
+            
+            <div class="doc-type-card">
+                <span class="doc-icon">💰</span>
+                <h3 style="margin-bottom: 10px;">Финансовые</h3>
+                <p style="color: var(--gray); font-size: 0.9rem;">Отчеты, счета, акты, накладные</p>
             </div>
-            <div class="stat-item">
-                <span class="stat-number">24/7</span>
-                <span>доступность сервиса</span>
+            
+            <div class="doc-type-card">
+                <span class="doc-icon">⚖️</span>
+                <h3 style="margin-bottom: 10px;">Юридические</h3>
+                <p style="color: var(--gray); font-size: 0.9rem;">Исковые заявления, претензии, соглашения</p>
             </div>
-            <div class="stat-item">
-                <span class="stat-number">50+</span>
-                <span>типов документов</span>
+            
+            <div class="doc-type-card">
+                <span class="doc-icon">📝</span>
+                <h3 style="margin-bottom: 10px;">Деловые</h3>
+                <p style="color: var(--gray); font-size: 0.9rem;">Письма, обращения, служебные записки</p>
             </div>
-        </div>
-
-        <h2>📋 Какие документы можно анализировать?</h2>
-        <div class="doc-type-grid">
-            <div class="doc-type">
-                <div class="section-icon">📄</div>
-                <h3>Договоры</h3>
-                <p>Аренды, поставки, оказания услуг, подряда</p>
+            
+            <div class="doc-type-card">
+                <span class="doc-icon">🔧</span>
+                <h3 style="margin-bottom: 10px;">Технические</h3>
+                <p style="color: var(--gray); font-size: 0.9rem;">Технические задания, спецификации</p>
             </div>
-            <div class="doc-type">
-                <div class="section-icon">💰</div>
-                <h3>Финансовые</h3>
-                <p>Отчеты, счета, акты, накладные</p>
-            </div>
-            <div class="doc-type">
-                <div class="section-icon">⚖️</div>
-                <h3>Юридические</h3>
-                <p>Исковые заявления, претензии, соглашения</p>
-            </div>
-            <div class="doc-type">
-                <div class="section-icon">📝</div>
-                <h3>Деловые</h3>
-                <p>Письма, обращения, служебные записки</p>
-            </div>
-            <div class="doc-type">
-                <div class="section-icon">🔧</div>
-                <h3>Технические</h3>
-                <p>Технические задания, спецификации</p>
-            </div>
-            <div class="doc-type">
-                <div class="section-icon">📊</div>
-                <h3>Отчетные</h3>
-                <p>Бухгалтерские, налоговые отчеты</p>
+            
+            <div class="doc-type-card">
+                <span class="doc-icon">📊</span>
+                <h3 style="margin-bottom: 10px;">Отчетные</h3>
+                <p style="color: var(--gray); font-size: 0.9rem;">Бухгалтерские, налоговые отчеты</p>
             </div>
         </div>
+    </section>
 
-        <h2>🔄 Как работает анализ документов?</h2>
+    <!-- Process -->
+    <section class="container">
+        <h2 class="section-title">🔄 Как работает анализ документов?</h2>
+        
         <div class="process-steps">
             <div class="step">
                 <div class="step-number">1</div>
-                <h3>Загрузите документ</h3>
-                <p>PDF, Word, Excel, изображения — любой формат. До 100 МБ.</p>
+                <h3 style="margin-bottom: 10px;">Загрузите документ</h3>
+                <p style="color: var(--gray);">PDF, Word, Excel, изображения — любой формат. До 100 МБ.</p>
             </div>
+            
             <div class="step">
                 <div class="step-number">2</div>
-                <h3>ИИ анализирует текст</h3>
-                <p>Проверка на ошибки, риски, несоответствия, скрытые условия.</p>
+                <h3 style="margin-bottom: 10px;">ИИ анализирует текст</h3>
+                <p style="color: var(--gray);">Проверка на ошибки, риски, несоответствия, скрытые условия.</p>
             </div>
+            
             <div class="step">
                 <div class="step-number">3</div>
-                <h3>Получите отчет</h3>
-                <p>Детальный отчет с рекомендациями за 60 секунд.</p>
+                <h3 style="margin-bottom: 10px;">Получите отчет</h3>
+                <p style="color: var(--gray);">Детальный отчет с рекомендациями за 60 секунд.</p>
             </div>
         </div>
+    </section>
 
-        <h2>🎯 Преимущества автоматического анализа</h2>
+    <!-- Benefits -->
+    <section class="benefits-section container">
+        <h2 class="section-title">🎯 Преимущества автоматического анализа</h2>
+        
         <div class="benefits-list">
-            <ul>
-                <li><strong>Экономия времени</strong> — 60 секунд вместо часов ручной проверки</li>
-                <li><strong>Выявление скрытых рисков</strong> — ИИ находит то, что может пропустить человек</li>
-                <li><strong>Объективность</strong> — анализ без эмоций и предвзятости</li>
-                <li><strong>Круглосуточная доступность</strong> — работаем 24/7 без выходных</li>
-                <li><strong>Конфиденциальность</strong> — документы не сохраняются на серверах</li>
-                <li><strong>Доступная цена</strong> — дешевле услуг юриста</li>
-                <li><strong>Постоянное обучение</strong> — ИИ улучшается с каждым анализом</li>
-                <li><strong>Подробные рекомендации</strong> — конкретные советы по улучшению</li>
-            </ul>
-        </div>
-
-        <h2>🛡️ Что проверяет искусственный интеллект?</h2>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h3>📝 Юридические ошибки</h3>
-                <p>Некорректные формулировки, противоречия с законодательством</p>
-            </div>
-            <div class="feature-card">
-                <h3>💰 Финансовые риски</h3>
-                <p>Невыгодные условия оплаты, скрытые комиссии, штрафные санкции</p>
-            </div>
-            <div class="feature-card">
-                <h3>⚖️ Неполные условия</h3>
-                <p>Отсутствие обязательных разделов, нечеткие формулировки</p>
-            </div>
-            <div class="feature-card">
-                <h3>🚨 Критические риски</h3>
-                <p>Условия, которые могут привести к существенным потерям</p>
-            </div>
-            <div class="feature-card">
-                <h3>🔍 Внутренние противоречия</h3>
-                <p>Конфликтующие положения внутри документа</p>
-            </div>
-            <div class="feature-card">
-                <h3>📊 Структурные проблемы</h3>
-                <p>Неправильная структура документа, логические ошибки</p>
-            </div>
-        </div>
-
-        <h2>❓ Частые вопросы</h2>
-        <div class="faq-section">
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Какой формат документов поддерживается?</span>
-                    <span>+</span>
-                </div>
-                <div class="faq-answer">
-                    <p>PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, TXT. Максимальный размер — 100 МБ.</p>
+            <div class="benefit-item">
+                <span class="benefit-icon">⏱️</span>
+                <div>
+                    <strong>Экономия времени</strong>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--gray);">60 секунд вместо часов ручной проверки</p>
                 </div>
             </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Насколько точен анализ?</span>
-                    <span>+</span>
-                </div>
-                <div class="faq-answer">
-                    <p>Точность анализа — более 99% по основным типам документов. ИИ постоянно обучается и улучшается.</p>
-                </div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Сохраняются ли мои документы?</span>
-                    <span>+</span>
-                </div>
-                <div class="faq-answer">
-                    <p>Нет, все документы автоматически удаляются после анализа. Мы не имеем доступа к содержимому.</p>
+            
+            <div class="benefit-item">
+                <span class="benefit-icon">🔍</span>
+                <div>
+                    <strong>Выявление скрытых рисков</strong>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--gray);">ИИ находит то, что может пропустить человек</p>
                 </div>
             </div>
-            <div class="faq-item">
-                <div class="faq-question">
-                    <span>Нужна ли регистрация?</span>
-                    <span>+</span>
+            
+            <div class="benefit-item">
+                <span class="benefit-icon">⚖️</span>
+                <div>
+                    <strong>Объективность</strong>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--gray);">Анализ без эмоций и предвзятости</p>
                 </div>
-                <div class="faq-answer">
-                    <p>Для разового анализа регистрация не требуется. Для постоянного использования рекомендуем создать аккаунт.</p>
+            </div>
+            
+            <div class="benefit-item">
+                <span class="benefit-icon">🌙</span>
+                <div>
+                    <strong>Круглосуточная доступность</strong>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--gray);">Работаем 24/7 без выходных</p>
+                </div>
+            </div>
+            
+            <div class="benefit-item">
+                <span class="benefit-icon">🔒</span>
+                <div>
+                    <strong>Конфиденциальность</strong>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--gray);">Документы не сохраняются на серверах</p>
+                </div>
+            </div>
+            
+            <div class="benefit-item">
+                <span class="benefit-icon">💎</span>
+                <div>
+                    <strong>Доступная цена</strong>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--gray);">Дешевле услуг юриста</p>
+                </div>
+            </div>
+            
+            <div class="benefit-item">
+                <span class="benefit-icon">📚</span>
+                <div>
+                    <strong>Постоянное обучение</strong>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--gray);">ИИ улучшается с каждым анализом</p>
+                </div>
+            </div>
+            
+            <div class="benefit-item">
+                <span class="benefit-icon">✅</span>
+                <div>
+                    <strong>Подробные рекомендации</strong>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--gray);">Конкретные советы по улучшению</p>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="text-center" style="margin-top: 60px;">
-            <h2 style="color: #1e3c72;">🚀 Начните анализ прямо сейчас</h2>
-            <p style="font-size: 1.2em; margin-bottom: 30px;">Загрузите документ и получите результат через 60 секунд</p>
-            <a href="/" class="cta-button" style="padding: 20px 50px; font-size: 1.3em;">📄 Загрузить документ для анализа</a>
-            <p style="margin-top: 20px; color: #666;">Без регистрации • Первый анализ бесплатно • Конфиденциально</p>
+    <!-- Features -->
+    <section class="container">
+        <h2 class="section-title">🛡️ Что проверяет искусственный интеллект?</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">📝 Юридические ошибки</h3>
+                <p style="color: var(--gray);">Некорректные формулировки, противоречия с законодательством</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">💰 Финансовые риски</h3>
+                <p style="color: var(--gray);">Невыгодные условия оплаты, скрытые комиссии, штрафные санкции</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">⚖️ Неполные условия</h3>
+                <p style="color: var(--gray);">Отсутствие обязательных разделов, нечеткие формулировки</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 style="margin-bottom: 15px; color: var(--danger);">🚨 Критические риски</h3>
+                <p style="color: var(--gray);">Условия, которые могут привести к существенным потерям</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">🔍 Внутренние противоречия</h3>
+                <p style="color: var(--gray);">Конфликтующие положения внутри документа</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">📊 Структурные проблемы</h3>
+                <p style="color: var(--gray);">Неправильная структура документа, логические ошибки</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="container faq-section">
+        <h2 class="section-title">❓ Частые вопросы</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(1)">
+                <span>Какой формат документов поддерживается?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-1">
+                <p>PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, TXT. Максимальный размер — 100 МБ.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(2)">
+                <span>Насколько точен анализ?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-2">
+                <p>Точность анализа — более 99% по основным типам документов. ИИ постоянно обучается и улучшается.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(3)">
+                <span>Сохраняются ли мои документы?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-3">
+                <p>Нет, все документы автоматически удаляются после анализа. Мы не имеем доступа к содержимому.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(4)">
+                <span>Нужна ли регистрация?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-4">
+                <p>Для разового анализа регистрация не требуется. Для постоянного использования рекомендуем создать аккаунт.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">🚀 Начните анализ прямо сейчас</h2>
+            <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto 40px;">
+                Загрузите документ и получите результат через 60 секунд
+            </p>
+            <a href="/" class="cta-button" style="background: white; color: var(--primary); padding: 16px 45px; font-size: 1.2rem;">
+                📄 Загрузить документ для анализа
+            </a>
+            <p style="margin-top: 20px; opacity: 0.8; font-size: 0.95rem;">
+                Без регистрации • Первый анализ бесплатно • Конфиденциально
+            </p>
+        </div>
+    </section>
+
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/contact">📞 Контакты</a>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
         </div>
     </div>
 
-<!-- Footer -->
-    <footer style="background: #2d3748; color: white; padding: 60px 0 30px; margin-top: 80px;">
-        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px;">
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
                 <div>
-                    <a href="/" style="color: white; text-decoration: none; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; display: inline-block;">
-                        🤖 DocScan AI
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
                     </a>
                     <p style="opacity: 0.7; max-width: 300px;">
                         Автоматическая проверка документов и договоров с искусственным интеллектом.
@@ -389,73 +916,92 @@
                 </div>
                 
                 <div>
-                    <h4 style="margin-bottom: 20px; color: white;">Сервисы</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <a href="/analiz-dokumentov" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Анализ документов</a>
-                        <a href="/proverka-dogovorov" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Проверка договоров</a>
-                        <a href="/articles" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">База знаний</a>
-                        <a href="/contact" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Техподдержка</a>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
                     </div>
                 </div>
                 
                 <div>
-                    <h4 style="margin-bottom: 20px; color: white;">Документы</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <a href="/terms" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Пользовательское соглашение</a>
-                        <a href="/privacy" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Политика конфиденциальности</a>
-                        <a href="/offer" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Публичная оферта</a>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
                     </div>
                 </div>
                 
                 <div>
-                    <h4 style="margin-bottom: 20px; color: white;">Контакты</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <a href="mailto:support@docscan-ai.ru" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">support@docscan-ai.ru</a>
-                        <a href="https://t.me/docscan_ai" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.3s;">Telegram: @docscan_ai</a>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
                     </div>
                 </div>
             </div>
             
-            <div style="text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);">
+            <div class="copyright">
                 © 2025 DocScan AI. Все права защищены.
             </div>
         </div>
     </footer>
 
-    <script src="/static/templates/burger.js"></script>
     <script>
-        // FAQ скрипт
-        document.querySelectorAll('.faq-question').forEach(question => {
-            question.addEventListener('click', () => {
-                const answer = question.nextElementSibling;
-                const isVisible = answer.style.display === 'block';
-                
-                // Скрываем все ответы
-                document.querySelectorAll('.faq-answer').forEach(ans => {
-                    ans.style.display = 'none';
-                    ans.previousElementSibling.querySelector('span:last-child').textContent = '+';
-                });
-                
-                // Показываем/скрываем текущий
-                if (!isVisible) {
-                    answer.style.display = 'block';
-                    question.querySelector('span:last-child').textContent = '−';
+        // FAQ Toggle
+        function toggleFAQ(id) {
+            const answer = document.getElementById(`faq-${id}`);
+            const isOpen = answer.classList.contains('open');
+            
+            document.querySelectorAll('.faq-answer').forEach(faq => {
+                faq.classList.remove('open');
+            });
+            
+            if (!isOpen) {
+                answer.classList.add('open');
+            }
+        }
+        
+        // Burger menu toggle
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
                 }
             });
         });
     </script>
     
-    <!-- Yandex.Metrika counter -->
+    <!-- Yandex.Metrika -->
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){
             m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
             m[i].l=1*new Date();
             for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
             k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105562312', 'ym');
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
         ym(105562312, 'init', {ssr:true, webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
 </body>
 </html>

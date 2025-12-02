@@ -825,72 +825,6 @@ def home():
         </div>
     </section>
     
-    </section>
-
-    <!-- Интерактивный демо-анализ -->
-    <section class="container">
-        <div style="text-align: center; margin: 40px 0; padding: 30px; background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); border-radius: 15px;">
-            <h3 style="color: var(--primary); margin-bottom: 20px;">🎯 Посмотрите, как работает анализ</h3>
-            <p style="margin-bottom: 25px; color: #555; max-width: 600px; margin-left: auto; margin-right: auto;">
-                Нажмите кнопку ниже, чтобы увидеть пример анализа типичного договора аренды. Без загрузки файлов.
-            </p>
-            
-            <button onclick="showDemoAnalysis()" 
-                    style="background: var(--primary); color: white; border: none; padding: 14px 35px; border-radius: 10px; cursor: pointer; font-size: 1.1rem; font-weight: 600; display: inline-flex; align-items: center; gap: 10px;">
-                <span>▶️</span> Показать демо-анализ
-            </button>
-            
-            <div id="demoAnalysisResult" style="display: none; margin-top: 30px; text-align: left; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
-                <h4 style="color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid #f0f7ff; padding-bottom: 10px;">📄 Анализ договора аренды помещения</h4>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4CAF50;">
-                        <h5 style="color: #2E7D32; margin-bottom: 10px;">✅ Безопасные пункты</h5>
-                        <ul style="margin: 0; padding-left: 20px;">
-                            <li><strong>Пункт 2.1:</strong> Четкие сроки действия договора</li>
-                            <li><strong>Пункт 3.2:</strong> Определенная сумма арендной платы</li>
-                            <li><strong>Пункт 4.3:</strong> Права и обязанности сторон</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #FF9800;">
-                        <h5 style="color: #EF6C00; margin-bottom: 10px;">⚠️ Требуют внимания</h5>
-                        <ul style="margin: 0; padding-left: 20px;">
-                            <li><strong>Пункт 5.1:</strong> Нечеткая процедура оплаты</li>
-                            <li><strong>Пункт 6.3:</strong> Расплывчатые условия расторжения</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; border-left: 4px solid #F44336;">
-                        <h5 style="color: #C62828; margin-bottom: 10px;">❌ Опасные пункты</h5>
-                        <ul style="margin: 0; padding-left: 20px;">
-                            <li><strong>Пункт 7.2:</strong> Одностороннее изменение условий арендодателем</li>
-                            <li><strong>Пункт 8.4:</strong> Отсутствие ответственности за скрытые дефекты помещения</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                    <p style="margin: 0; color: #666; font-size: 0.95rem;">
-                        <strong>💡 Рекомендация:</strong> Перед подписанием договора обсудите пункты 7.2 и 8.4 с арендодателем. 
-                        Уточните процедуру оплаты в пункте 5.1.
-                    </p>
-                </div>
-                
-                <div style="text-align: center; margin-top: 25px;">
-                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
-                        Это пример анализа. Загрузите свой документ для персонализированного отчета.
-                    </p>
-                    <a href="#upload" style="background: white; color: var(--primary); border: 2px solid var(--primary); padding: 10px 25px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">
-                        📤 Загрузить свой документ
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-</section>
-
     <!-- Интерактивный демо-анализ -->
     <section class="container">
         <div style="text-align: center; margin: 40px auto; padding: 30px; background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); border-radius: 15px; max-width: 1000px;">
@@ -899,7 +833,9 @@ def home():
                 Нажмите кнопку ниже, чтобы увидеть пример анализа типичного договора аренды. Без загрузки файлов.
             </p>
             
+            <!-- ОДНА кнопка здесь -->
             <button onclick="showDemoAnalysis()" 
+                    id="demoButton"
                     style="background: var(--primary); color: white; border: none; padding: 15px 40px; border-radius: 10px; cursor: pointer; font-size: 1.1rem; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 20px;">
                 <span>▶️</span> Показать демо-анализ
             </button>
@@ -908,7 +844,6 @@ def home():
                 <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
                     <h4 style="color: var(--primary); margin-bottom: 25px; border-bottom: 2px solid #f0f7ff; padding-bottom: 15px; font-size: 1.5rem;">📄 Анализ договора аренды помещения</h4>
                     
-                    <!-- Три колонки в ряд на ПК, вертикально на мобильных -->
                     <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; justify-content: center;">
                         <!-- Колонка 1: Безопасные -->
                         <div style="flex: 1; min-width: 300px; background: #e8f5e9; padding: 20px; border-radius: 10px; border-left: 5px solid #4CAF50;">
@@ -949,18 +884,8 @@ def home():
                     <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-top: 20px;">
                         <p style="margin: 0; color: #666; font-size: 1.05rem; line-height: 1.6;">
                             <strong style="color: var(--primary);">💡 Рекомендация:</strong> Перед подписанием договора обсудите пункты 7.2 и 8.4 с арендодателем. 
-                            Уточните процедуру оплаты в пункте 5.1. Рекомендуем добавить в договор штрафные санкции за нарушение сроков.
+                            Уточните процедуру оплаты в пункте 5.1.
                         </p>
-                    </div>
-                    
-                    <!-- Кнопка загрузки -->
-                    <div style="text-align: center; margin-top: 30px;">
-                        <p style="color: #666; font-size: 1rem; margin-bottom: 20px;">
-                            Это пример анализа. Загрузите свой документ для персонализированного отчета.
-                        </p>
-                        <a href="#upload" style="background: var(--primary); color: white; border: none; padding: 14px 35px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-block; cursor: pointer;">
-                            📤 Загрузить свой документ
-                        </a>
                     </div>
                 </div>
             </div>
@@ -970,45 +895,15 @@ def home():
     <script>
     function showDemoAnalysis() {
         const demoResult = document.getElementById('demoAnalysisResult');
-        const button = event.target;
+        const button = document.getElementById('demoButton');
         
         if (demoResult.style.display === 'none' || !demoResult.style.display) {
             demoResult.style.display = 'block';
-            // Плавное появление
             demoResult.style.opacity = '0';
             demoResult.style.transition = 'opacity 0.5s';
             setTimeout(() => { demoResult.style.opacity = '1'; }, 10);
             
-            // Изменяем текст кнопки
             button.innerHTML = '<span>▼</span> Скрыть демо-анализ';
-            
-            // Прокрутка к результату
-            demoResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } else {
-            demoResult.style.display = 'none';
-            button.innerHTML = '<span>▶️</span> Показать демо-анализ';
-        }
-    }
-    </script>
-
-    <!-- Upload Section -->
-
-    <script>
-    function showDemoAnalysis() {
-        const demoResult = document.getElementById('demoAnalysisResult');
-        const button = event.target;
-        
-        if (demoResult.style.display === 'none' || !demoResult.style.display) {
-            demoResult.style.display = 'block';
-            // Плавное появление
-            demoResult.style.opacity = '0';
-            demoResult.style.transition = 'opacity 0.5s';
-            setTimeout(() => { demoResult.style.opacity = '1'; }, 10);
-            
-            // Изменяем текст кнопки
-            button.innerHTML = '<span>▼</span> Скрыть демо-анализ';
-            
-            // Прокрутка к результату
             demoResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
             demoResult.style.display = 'none';

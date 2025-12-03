@@ -435,6 +435,88 @@
             font-size: 0.85rem;
         }
         
+        /* Burger Menu (Mobile) */
+        .burger-menu {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .burger-line {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 12px 0;
+            min-width: 180px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .article-container { padding: 25px; margin: 20px auto; }
@@ -443,6 +525,8 @@
             .ai-cta-box { padding: 25px; }
             .article-content h2 { font-size: 1.4rem; }
             .article-content h3 { font-size: 1.2rem; }
+            .nav-links { display: none; }
+            .burger-menu { display: block; }
         }
         
         @media (max-width: 480px) {
@@ -470,7 +554,6 @@
                     <a href="/contact" class="nav-link">Контакты</a>
                 </nav>
                 
-                <a href="#check-now" class="cta-button">📄 Проверить договор</a>
             </div>
         </div>
     </header>
@@ -745,6 +828,21 @@
         </article>
     </div>
 
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/contact">📞 Контакты</a>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="main-footer">
         <div class="container">
@@ -760,12 +858,12 @@
                 </div>
                 
                 <div>
-                    <h4 style="margin-bottom: 20px;">Статьи по договорам</h4>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
                     <div class="footer-links">
-                        <a href="/articles/dogovor-arendy-riski" class="footer-link">Риски договора аренды</a>
-                        <a href="/articles/trudovoy-dogovor-lovushki" class="footer-link">Ловушки трудового договора</a>
-                        <a href="/articles/dogovor-podryada-2024" class="footer-link">Договор подряда 2024</a>
-                        <a href="/articles/proverka-dogovora-uslug" class="footer-link">Проверка договора услуг</a>
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
                     </div>
                 </div>
                 
@@ -808,7 +906,23 @@
             }
         }
         
-        // Smooth scroll
+        // Burger menu toggle
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -819,5 +933,17 @@
             });
         });
     </script>
+    
+    <!-- Yandex.Metrika -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+        ym(105562312, 'init', {ssr:true, webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 </body>
 </html>

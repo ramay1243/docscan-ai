@@ -1730,6 +1730,12 @@ def sitemap():
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
+        <url>
+        <loc>{base_url}/riski-dogovora-zayma</loc>
+        <lastmod>2025-12-03</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
 </urlset>''', 200, {'Content-Type': 'application/xml'}
 
 @main_bp.route('/robots.txt')
@@ -1798,6 +1804,11 @@ def analiz_dokumentov():
 def proverka_dogovorov():
     """Страница проверки договоров"""
     return render_template('proverka-dogovorov.html')
+
+@main_bp.route('/riski-dogovora-zayma')
+def riski_dogovora_zayma():
+    """Страница с статьей о рисках договора займа"""
+    return render_template('riski-dogovora-zayma.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

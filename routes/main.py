@@ -1819,7 +1819,7 @@ def riski_dogovora_zayma():
 @main_bp.route('/avtokredit-skrytye-usloviya')
 def avtokredit_skrytye_usloviya():
     """Статья про скрытые условия в автокредитах"""
-    return render_template('articles/avtokredit-skrytye-usloviya.html')
+    return render_template('avtokredit-skrytye-usloviya.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

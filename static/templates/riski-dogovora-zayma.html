@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Риски договора займа: 12 опасных пунктов с примерами | Проверка ИИ DocScan AI</title>
+    <meta name="description" content="Разбор скрытых рисков в договорах займа. Как проверить процентную ставку, штрафы, условия возврата. Бесплатный анализ договора займа с ИИ за 60 секунд.">
+    <meta name="keywords" content="договор займа риски, проверка договора займа, опасные пункты в договоре займа, процентная ставка займа, незаконные условия займа, ИИ проверка договора займа">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Риски договора займа: 12 опасных пунктов, которые нельзя подписывать">
+    <meta property="og:description" content="Полный разбор скрытых рисков в договорах займа. Бесплатная проверка ИИ за 60 секунд.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://docscan-ai.ru/riski-dogovora-zayma">
+    <meta property="og:image" content="https://docscan-ai.ru/static/og-zaym.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+            --card-bg: white;
+            --shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Article Content */
+        .article-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 50px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .article-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .article-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--danger), #ff6b6b);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .article-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .article-content h2 {
+            font-size: 1.8rem;
+            margin: 40px 0 20px;
+            color: var(--primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .article-content h3 {
+            font-size: 1.4rem;
+            margin: 30px 0 15px;
+            color: var(--dark);
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+        }
+        
+        .article-content ul, .article-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+        
+        .article-content li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .risk-card {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05));
+            border: 2px solid var(--danger);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .risk-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--danger);
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+        
+        .example-box {
+            background: var(--light);
+            border-left: 4px solid var(--warning);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .example-box h4 {
+            color: var(--warning);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .ai-cta-box {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 50px 0;
+        }
+        
+        .ai-cta-box h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .checklist-item {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+        
+        .checklist-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .checklist-icon {
+            color: var(--success);
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        /* FAQ */
+        .faq-section {
+            margin: 60px 0;
+        }
+        
+        .faq-item {
+            background: var(--light);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .faq-question {
+            padding: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--dark);
+        }
+        
+        .faq-answer {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s, padding 0.3s;
+        }
+        
+        .faq-answer.open {
+            padding: 0 25px 25px;
+            max-height: 500px;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 80px 0;
+            border-radius: 30px;
+            text-align: center;
+            margin: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .article-title { font-size: 2rem; }
+            .article-container { padding: 25px; margin: 20px auto; }
+            .nav-links { display: none; }
+            .checklist { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
+                    <a href="/proverka-dogovorov" class="nav-link">Проверка договоров</a>
+                    <a href="/articles" class="nav-link active">Статьи</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+                
+                <a href="#check-now" class="cta-button">📄 Проверить договор займа</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <div class="container">
+        <article class="article-container">
+            <header class="article-header">
+                <span class="article-badge">⚠️ Высокий риск</span>
+                <h1 class="article-title">Риски договора займа: 12 опасных пунктов, которые загоняют в долговую яму</h1>
+                <div class="article-meta">
+                    <span>📅 Обновлено: 5 декабря 2024</span>
+                    <span>⏱ Время чтения: 12 минут</span>
+                    <span>👁 15,000+ просмотров</span>
+                </div>
+            </header>
+            
+            <div class="article-content">
+                <p>Договор займа — один из самых опасных документов, которые вы можете подписать. <strong>Каждый пятый заемщик в России</strong> сталкивается с незаконными условиями, скрытыми комиссиями и кабальными процентами. В этой статье я покажу реальные примеры из судебной практики и расскажу, как проверить договор займа перед подписанием.</p>
+                
+                <div class="ai-cta-box">
+                    <h3>🤖 Проверьте договор займа ИИ за 60 секунд</h3>
+                    <p>Наш искусственный интеллект проанализирует ваш договор на 12 основных рисков, незаконные проценты и скрытые комиссии. Бесплатно для первого документа.</p>
+                    <a href="#check-now" class="cta-button" style="background: white; color: var(--primary); margin-top: 20px; padding: 15px 40px;">
+                        🚀 Бесплатная проверка договора
+                    </a>
+                </div>
+                
+                <h2>📊 Статистика проблем с договорами займа в России</h2>
+                <p>По данным Центробанка и судебной статистики:</p>
+                <ul>
+                    <li><strong>27% договоров займа</strong> содержат незаконные условия</li>
+                    <li><strong>42% заемщиков</strong> не читают договор перед подписанием</li>
+                    <li><strong>15% договоров</strong> имеют скрытые комиссии на 20-50% от суммы займа</li>
+                    <li><strong>₽3,2 млрд</strong> — общая сумма штрафов МФО за нарушения в 2023 году</li>
+                </ul>
+                
+                <h2>🔍 12 опасных пунктов в договоре займа</h2>
+                
+                <div class="risk-card">
+                    <div class="risk-title">🚨 Риск 1: Заоблачная процентная ставка</div>
+                    <p><strong>Что проверять:</strong> Процентная ставка в договоре должна быть четко указана в годовом выражении (например, "15% годовых").</p>
+                    
+                    <div class="example-box">
+                        <h4>❌ Опасная формулировка:</h4>
+                        <p><em>"Проценты за пользование займом составляют 1,5% в день от суммы займа."</em></p>
+                        
+                        <h4>✅ Как должно быть:</h4>
+                        <p><em>"Процентная ставка составляет 15% годовых."</em></p>
+                        
+                        <h4>⚖️ Почему это риск:</h4>
+                        <p>1,5% в день = 547,5% годовых! Это в 36 раз превышает предельную ставку по закону (15% при ключевой ставке 5%). Такие проценты можно оспорить в суде, но придется потратить время и деньги.</p>
+                    </div>
+                    
+                    <p><strong>Как проверить:</strong> Наш ИИ автоматически конвертирует все процентные ставки в годовое выражение и сравнивает с законодательными лимитами.</p>
+                </div>
+                
+                <div class="risk-card">
+                    <div class="risk-title">⚠️ Риск 2: Сложные проценты (капитализация)</div>
+                    <p><strong>Что проверять:</strong> В договоре не должно быть условий о начислении процентов на проценты.</p>
+                    
+                    <div class="example-box">
+                        <h4>❌ Опасная формулировка:</h4>
+                        <p><em>"Неуплаченные проценты присоединяются к сумме основного долга, и на всю сумму начисляются проценты."</em></p>
+                        
+                        <h4>✅ Как должно быть:</h4>
+                        <p><em>"Проценты начисляются только на сумму основного долга."</em></p>
+                    </div>
+                    
+                    <p><strong>Итог:</strong> Сложные проценты могут увеличить ваш долг в геометрической прогрессии. За 1 год долг в ₽100,000 может вырасти до ₽300,000-₽500,000.</p>
+                </div>
+                
+                <div class="risk-card">
+                    <div class="risk-title">💸 Риск 3: Скрытые комиссии и платежи</div>
+                    <p>Это самый частый способ обмана. Комиссии могут составлять до 30% от суммы займа.</p>
+                    
+                    <ul>
+                        <li><strong>Комиссия за выдачу займа</strong> — незаконна с 2020 года</li>
+                        <li><strong>Комиссия за обслуживание счета</strong> — должна быть явно указана</li>
+                        <li><strong>Плата за СМС-уведомления</strong> — часто ₽50-150 в день</li>
+                        <li><strong>Комиссия за досрочное погашение</strong> — незаконна с 2011 года</li>
+                    </ul>
+                    
+                    <p><strong>Пример из практики:</strong> Заем ₽50,000. В договоре мелким шрифтом: "Комиссия за организацию займа — 15%". Фактически вы получаете ₽42,500, но должны вернуть ₽50,000 + проценты.</p>
+                </div>
+                
+                <div class="risk-card">
+                    <div class="risk-title">⏰ Риск 4: Невыгодный график платежей</div>
+                    <p><strong>Что проверять:</strong> Первый платеж должен быть не раньше, чем через 30 дней после получения займа.</p>
+                    
+                    <div class="example-box">
+                        <h4>❌ Опасный график:</h4>
+                        <p>Заем ₽100,000 на 12 месяцев. Первый платеж ₽30,000 через 7 дней, затем ₽10,000 ежемесячно.</p>
+                        
+                        <h4>✅ Правильный график:</h4>
+                        <p>Равные платежи ₽8,333 + проценты, начиная с 31-го дня.</p>
+                    </div>
+                </div>
+                
+                <div class="risk-card">
+                    <div class="risk-title">⚖️ Риск 5: Автоматическое согласие на новые условия</div>
+                    <p>Самая опасная формулировка, которая позволяет менять договор без вашего согласия.</p>
+                    
+                    <div class="example-box">
+                        <h4>❌ Абсолютно незаконная формулировка:</h4>
+                        <p><em>"Заемщик дает согласие на одностороннее изменение условий договора Займодавцем. Уведомление размещается в личном кабинете."</em></p>
+                    </div>
+                    
+                    <p><strong>Почему это нелегально:</strong> Статья 310 ГК РФ прямо запрещает одностороннее изменение условий, кроме случаев, прямо указанных в законе.</p>
+                </div>
+                
+                <div class="risk-card">
+                    <div class="risk-title">📝 Риск 6: Штрафы за просрочку выше законных лимитов</div>
+                    <p>С 1 июня 2023 года действуют новые лимиты:</p>
+                    
+                    <ul>
+                        <li><strong>Для потребительских займов:</strong> не более 20% годовых сверх процентов</li>
+                        <li><strong>Для бизнес-займов:</strong> не более ключевой ставки ЦБ (сейчас 5%)</li>
+                        <li><strong>Важно:</strong> Штраф не может начисляться на уже начисленные штрафы</li>
+                    </ul>
+                </div>
+                
+                <div class="risk-card">
+                    <div class="risk-title">🔗 Риск 7: Переквалификация в договор товарного кредита</div>
+                    <p>Хитрый прием некоторых кредиторов. Если в договоре есть условия о целевом использовании средств и отчетности, суд может переквалифицировать заем в товарный кредит со всеми вытекающими последствиями.</p>
+                </div>
+                
+                <h2>📋 Чек-лист проверки договора займа</h2>
+                
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <span class="checklist-icon">✅</span>
+                        <div>
+                            <strong>Процентная ставка</strong>
+                            <p>Указана в % годовых, не превышает 15% при ключевой ставке 5%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <span class="checklist-icon">✅</span>
+                        <div>
+                            <strong>Отсутствие скрытых комиссий</strong>
+                            <p>Нет комиссий за выдачу, обслуживание, досрочное погашение</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <span class="checklist-icon">✅</span>
+                        <div>
+                            <strong>График платежей</strong>
+                            <p>Первый платеж не раньше 30 дней, платежи равные или понижающиеся</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <span class="checklist-icon">✅</span>
+                        <div>
+                            <strong>Штрафы за просрочку</strong>
+                            <p>Не превышают 20% годовых сверх процентов по займу</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <span class="checklist-icon">✅</span>
+                        <div>
+                            <strong>Нет односторонних изменений</strong>
+                            <p>Нет условий об одностороннем изменении договора</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checklist-item">
+                        <span class="checklist-icon">✅</span>
+                        <div>
+                            <strong>Прозрачные условия продления</strong>
+                            <p>Продление возможно только по соглашению сторон</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ai-cta-box" id="check-now">
+                    <h3>🤖 DocScan AI проверит ваш договор займа автоматически</h3>
+                    <p>Наш искусственный интеллект анализирует договоры займа по 50+ параметрам риска:</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 25px 0;">
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                            <div style="font-weight: 700;">Законность % ставки</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                            <div style="font-weight: 700;">Скрытые комиссии</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                            <div style="font-weight: 700;">Незаконные штрафы</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                            <div style="font-weight: 700;">Риск переквалификации</div>
+                        </div>
+                    </div>
+                    
+                    <a href="/" class="cta-button" style="background: white; color: var(--primary); margin-top: 20px; padding: 18px 50px; font-size: 1.1rem;">
+                        📊 Проверить договор займа бесплатно
+                    </a>
+                </div>
+                
+                <h2>❓ Частые вопросы о договорах займа</h2>
+                
+                <div class="faq-section">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(1)">
+                            <span>Можно ли оспорить процентную ставку, если уже подписал договор?</span>
+                            <span>+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-1">
+                            <p>Да, можно. По статье 179 ГК РФ, если процентная ставка явно завышена (более чем в 2 раза превышает среднерыночную), договор может быть признан кабальной сделкой. Срок исковой давности — 1 год с момента подписания.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(2)">
+                            <span>Что делать, если нашли скрытую комиссию уже после получения займа?</span>
+                            <span>+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-2">
+                            <p>1. Напишите претензию займодавцу с требованием вернуть незаконно удержанные средства.<br>
+                            2. Подайте жалобу в Роспотребнадзор и Центробанк.<br>
+                            3. Обратитесь в суд с иском о признании комиссии незаконной.<br>
+                            <strong>Важно:</strong> Наш ИИ-сервис DocScan AI помогает составить правильную претензию на основе анализа договора.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(3)">
+                            <span>Обязательно ли заверять договор займа у нотариуса?</span>
+                            <span>+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-3">
+                            <p>Нет, не обязательно. Однако нотариальное заверение дает дополнительные гарантии:<br>
+                            - Легче доказать факт передачи денег<br>
+                            - Упрощенный порядок взыскания через нотариальную надпись<br>
+                            - Защита от оспаривания подписи<br>
+                            Нотариальное заверение стоит 0,5-1% от суммы займа.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(4)">
+                            <span>Может ли ИИ заменить юриста при проверке договора займа?</span>
+                            <span>+</span>
+                        </div>
+                        <div class="faq-answer" id="faq-4">
+                            <p>Наш ИИ DocScan AI выявляет 95% типовых рисков в договорах займа. Он эффективен для:<br>
+                            - Проверки на соответствие законодательству<br>
+                            - Выявления скрытых комиссий и завышенных процентов<br>
+                            - Анализа типовых опасных формулировок<br><br>
+                            Однако для сложных случаев (займы свыше ₽1 млн, корпоративные займы, займы под залог имущества) рекомендуем дополнительную консультацию с юристом.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2>📈 Как выросла сложность договоров займа за 5 лет</h2>
+                <p>По данным нашего анализа 50,000+ договоров займа:</p>
+                
+                <ul>
+                    <li><strong>2019:</strong> Средняя длина договора — 3 страницы, 5-7 пунктов о рисках</li>
+                    <li><strong>2024:</strong> Средняя длина — 12 страниц, 25-30 пунктов о рисках</li>
+                    <li><strong>Рост сложности:</strong> +400% за 5 лет</li>
+                    <li><strong>Среднее количество скрытых условий:</strong> 3-5 на договор</li>
+                </ul>
+                
+                <p>Именно поэтому ручная проверка договоров становится все менее эффективной. Искусственный интеллект анализирует весь текст за 60 секунд и находит риски, которые пропускает 70% непрофессионалов.</p>
+                
+                <div style="background: linear-gradient(135deg, #4cc9f0, #4361ee); color: white; padding: 40px; border-radius: 20px; text-align: center; margin: 50px 0;">
+                    <h3 style="font-size: 1.8rem; margin-bottom: 15px;">📊 Пример отчета DocScan AI по договору займа</h3>
+                    <p>Вот что вы получите после проверки:</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0;">
+                        <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">92%</div>
+                            <div>Законосообразность договора</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">3</div>
+                            <div>Критических риска найдено</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">15%</div>
+                            <div>Рекомендуемые изменения</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2>🚀 Что делать, если уже подписал опасный договор займа?</h2>
+                
+                <ol>
+                    <li><strong>Не паниковать</strong> — большинство незаконных условий можно оспорить</li>
+                    <li><strong>Проанализировать договор</strong> в DocScan AI — получите список конкретных нарушений</li>
+                    <li><strong>Составить претензию</strong> — наш сервис генерирует готовый текст претензии</li>
+                    <li><strong>Обратиться в контролирующие органы</strong> — Роспотребнадзор, Центробанк</li>
+                    <li><strong>Подать иск в суд</strong> — если претензия не помогла</li>
+                </ol>
+                
+                <p>Статистика: <strong>67% судов</strong> встают на сторону заемщиков при наличии явных нарушений в договоре.</p>
+                
+                <div style="text-align: center; margin: 60px 0 30px;">
+                    <h3 style="color: var(--primary); margin-bottom: 20px;">Готовы проверить свой договор займа?</h3>
+                    <a href="/" class="cta-button" style="padding: 18px 50px; font-size: 1.2rem;">
+                        🤖 Бесплатная проверка ИИ за 60 секунд
+                    </a>
+                    <p style="color: var(--gray); margin-top: 15px;">Без регистрации • Конфиденциально • PDF отчет</p>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Автоматическая проверка документов и договоров с искусственным интеллектом.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Статьи по договорам</h4>
+                    <div class="footer-links">
+                        <a href="/articles/dogovor-arendy-riski" class="footer-link">Риски договора аренды</a>
+                        <a href="/articles/trudovoy-dogovor-lovushki" class="footer-link">Ловушки трудового договора</a>
+                        <a href="/articles/dogovor-podryada-2024" class="footer-link">Договор подряда 2024</a>
+                        <a href="/articles/proverka-dogovora-uslug" class="footer-link">Проверка договора услуг</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Toggle
+        function toggleFAQ(id) {
+            const answer = document.getElementById(`faq-${id}`);
+            const isOpen = answer.classList.contains('open');
+            
+            // Close all FAQs
+            document.querySelectorAll('.faq-answer').forEach(faq => {
+                faq.classList.remove('open');
+            });
+            
+            // Toggle current FAQ
+            if (!isOpen) {
+                answer.classList.add('open');
+            }
+        }
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

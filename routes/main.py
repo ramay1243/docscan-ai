@@ -13,25 +13,41 @@ def home():
     """Главная страница с интерфейсом"""
     return '''
 <!DOCTYPE html>
-<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Проверка документов онлайн с ИИ — анализ договоров за 60 секунд | DocScan AI</title>
-    <meta name="description" content="DocScan AI - проверка договоров и анализ документов с искусственным интеллектом. Юридическая экспертиза, финансовый анализ, выявление ошибок и рисков за 60 секунд">
-    <meta name="keywords" content="анализ документов, проверка договоров, AI анализ, юридический анализ, анализ рисков, проверка документов онлайн, ИИ проверка">
+    
+    <!-- Улучшенный заголовок -->
+    <title>DocScan AI: Проверка договоров онлайн бесплатно с ИИ | Анализ документов за 60 секунд</title>
+    
+    <!-- Оптимизированное описание -->
+    <meta name="description" content="✅ 3 проверки договоров в день бесплатно! DocScan AI анализирует договоры аренды, трудовые, кредитные документы за 60 секунд. Нейросень для проверки юридических рисков. Бесплатная онлайн проверка документов.">
+    
+    <!-- Расширенные ключевые слова -->
+    <meta name="keywords" content="проверка договоров онлайн, анализ документов ИИ, бесплатная проверка договоров, нейросеть для проверки документов, проверка договоров аренды, анализ договора с искусственным интеллектом, проверка юридических рисков, расшифровка документов, проверка договоров бесплатно, ИИ для анализа договоров">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://docscan-ai.ru">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="DocScan AI — Анализ документов с ИИ за 60 секунд">
-    <meta property="og:description" content="Автоматическая проверка договоров и документов с искусственным интеллектом. Найди скрытые риски до того, как они станут проблемой">
+    <meta property="og:title" content="Проверка договоров онлайн бесплатно: 3 анализа в день | DocScan AI">
+    <meta property="og:description" content="Анализируйте договоры с ИИ за 60 секунд. Находите скрытые юридические риски. Первые 3 проверки — бесплатно каждый день!">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docscan-ai.ru">
     <meta property="og:image" content="https://docscan-ai.ru/static/og-main.jpg">
+    <meta property="og:locale" content="ru_RU">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="3 проверки договоров в день бесплатно | DocScan AI">
+    <meta name="twitter:description" content="Проверьте договор с ИИ за 60 секунд. Анализ юридических рисков онлайн.">
     
     <!-- Favicon -->
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     
-    <!-- Fonts -->
+    <!-- Preconnect для шрифтов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>

@@ -1621,6 +1621,40 @@ def home():
         ym(105562312, 'init', {ssr:true, webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    
+    <!-- Скрытый SEO-текст для дополнительных ключевых слов -->
+    <div style="display: none;" aria-hidden="true">
+        <h2>DocScan AI: Ключевые запросы</h2>
+        <p>
+            Проверка договоров онлайн бесплатно, анализ документов ИИ, нейросеть для проверки документов, 
+            бесплатная проверка договоров онлайн, ИИ анализ договоров, проверка юридической грамотности, 
+            расшифровка документов с ИИ, анализ договора аренды, проверка трудового договора, 
+            проверка кредитного договора, сервис проверки договоров, онлайн анализ документов, 
+            искусственный интеллект для проверки договоров, проверка договоров на риски, 
+            юридический анализ договоров, проверка документов на ошибки, ИИ помощник для договоров.
+        </p>
+        <h3>Популярные типы документов для проверки:</h3>
+        <p>
+            Договор аренды квартиры проверка онлайн, трудовой договор анализ ИИ, кредитный договор проверка, 
+            договор оказания услуг анализ, договор поставки проверка, договор подряда анализ, 
+            ипотечный договор проверка, договор займа анализ, договор купли-продажи проверка, 
+            лицензионный договор анализ, договор аренды автомобиля проверка.
+        </p>
+    </div>
+    
+    <!-- Yandex.Metrika -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+        ym(105562312, 'init', {ssr:true, webvisor:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+</body>
+</html>
 </body>
 </html>
     '''

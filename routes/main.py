@@ -1724,13 +1724,13 @@ def sitemap():
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>{base_url}/articles/business_protection</loc>
+        <loc>{base_url}/articles/business-protection</loc>
         <lastmod>2025-12-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>{base_url}/articles/article_freelance_gph</loc>
+        <loc>{base_url}/articles/article-freelance-gph</loc>
         <lastmod>2025-12-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>

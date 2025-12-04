@@ -1738,7 +1738,13 @@ def sitemap():
     </url>
     <url>
         <loc>https://docscan-ai.ru/avtokredit-skrytye-usloviya</loc>
-        <lastmod>2024-12-06</lastmod>
+        <lastmod>2025-12-03</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://docscan-ai.ru/ii-dlya-proverki-dogovorov-onlayn-besplatno</loc>
+        <lastmod>2025-12-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -1820,6 +1826,10 @@ def riski_dogovora_zayma():
 def avtokredit_skrytye_usloviya():
     """Статья про скрытые условия в автокредитах"""
     return render_template('avtokredit-skrytye-usloviya.html')
+    
+@main_bp.route('/ii-dlya-proverki-dogovorov-onlayn-besplatno')
+def ii_dlya_proverki_dogovorov():
+    return render_template('ii-dlya-proverki-dogovorov-onlayn-besplatno.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

@@ -884,68 +884,267 @@
                     </ul>
                 </div>
                 
-                <h2>📈 Сравнительная таблица сервисов</h2>
-                
-                <table class="comparison-table">
-                    <thead>
-                        <tr>
-                            <th>Сервис</th>
-                            <th>Точность</th>
-                            <th>Бесплатный лимит</th>
-                            <th>Скорость</th>
-                            <th>Типов договоров</th>
-                            <th>Стоимость</th>
-                            <th>Оценка</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>DocScan AI</strong></td>
-                            <td>98%</td>
-                            <td>3 в день</td>
-                            <td>60 сек</td>
-                            <td>25+</td>
-                            <td>Бесплатно/от 499₽</td>
-                            <td><span class="rating-stars">★★★★★</span> 4.9</td>
-                        </tr>
-                        <tr>
-                            <td>Юрист AI</td>
-                            <td>95%</td>
-                            <td>Нет</td>
-                            <td>3-5 мин</td>
-                            <td>12</td>
-                            <td>От 199₽/док</td>
-                            <td><span class="rating-stars">★★★★☆</span> 4.3</td>
-                        </tr>
-                        <tr>
-                            <td>Contract Guardian</td>
-                            <td>90%*</td>
-                            <td>1 в месяц</td>
-                            <td>90 сек</td>
-                            <td>50+</td>
-                            <td>$29/мес</td>
-                            <td><span class="rating-stars">★★★★☆</span> 4.1</td>
-                        </tr>
-                        <tr>
-                            <td>Договорёр</td>
-                            <td>75%</td>
-                            <td>Бесплатно</td>
-                            <td>45 сек</td>
-                            <td>5</td>
-                            <td>Бесплатно</td>
-                            <td><span class="rating-stars">★★★☆☆</span> 3.5</td>
-                        </tr>
-                        <tr>
-                            <td>LegalBot Pro</td>
-                            <td>80%</td>
-                            <td>1 в день</td>
-                            <td>30 сек</td>
-                            <td>8</td>
-                            <td>От 299₽/док</td>
-                            <td><span class="rating-stars">★★★☆☆</span> 3.2</td>
-                        </tr>
-                    </tbody>
-                </table>
+<h2>📈 Сравнение сервисов на мобильных и десктопе</h2>
+<p style="margin-bottom: 20px; color: var(--gray);">Вот как выглядят ключевые показатели на разных устройствах:</p>
+
+<div class="mobile-comparison">
+    <!-- DocScan AI -->
+    <div class="comparison-card">
+        <div class="comp-header" style="background: linear-gradient(135deg, var(--primary), var(--secondary));">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>DocScan AI</h3>
+                <div class="comp-badge" style="background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; font-size: 0.85rem;">#1</div>
+            </div>
+            <div class="comp-rating">
+                <span class="rating-stars">★★★★★</span> 4.9/5
+            </div>
+        </div>
+        <div class="comp-details">
+            <div class="comp-row">
+                <span>🎯 Точность:</span>
+                <strong style="color: var(--success);">98%</strong>
+            </div>
+            <div class="comp-row">
+                <span>🆓 Бесплатно:</span>
+                <strong>3 в день</strong>
+            </div>
+            <div class="comp-row">
+                <span>⚡ Скорость:</span>
+                <strong>60 сек</strong>
+            </div>
+            <div class="comp-row">
+                <span>📄 Типов договоров:</span>
+                <strong>25+</strong>
+            </div>
+            <div class="comp-row">
+                <span>💰 Стоимость:</span>
+                <strong>Бесплатно/от 499₽</strong>
+            </div>
+            <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
+                <a href="/" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem;">Попробовать</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Юрист AI -->
+    <div class="comparison-card">
+        <div class="comp-header" style="background: linear-gradient(135deg, #6c757d, #495057);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Юрист AI</h3>
+                <div class="comp-badge" style="background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; font-size: 0.85rem;">#2</div>
+            </div>
+            <div class="comp-rating">
+                <span class="rating-stars">★★★★☆</span> 4.3/5
+            </div>
+        </div>
+        <div class="comp-details">
+            <div class="comp-row">
+                <span>🎯 Точность:</span>
+                <strong style="color: var(--warning);">95%</strong>
+            </div>
+            <div class="comp-row">
+                <span>🆓 Бесплатно:</span>
+                <strong style="color: var(--danger);">Нет</strong>
+            </div>
+            <div class="comp-row">
+                <span>⚡ Скорость:</span>
+                <strong>3-5 мин</strong>
+            </div>
+            <div class="comp-row">
+                <span>📄 Типов договоров:</span>
+                <strong>12</strong>
+            </div>
+            <div class="comp-row">
+                <span>💰 Стоимость:</span>
+                <strong>От 199₽/док</strong>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contract Guardian -->
+    <div class="comparison-card">
+        <div class="comp-header" style="background: linear-gradient(135deg, #20c997, #0ca678);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Contract Guardian</h3>
+                <div class="comp-badge" style="background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; font-size: 0.85rem;">#3</div>
+            </div>
+            <div class="comp-rating">
+                <span class="rating-stars">★★★★☆</span> 4.1/5
+            </div>
+        </div>
+        <div class="comp-details">
+            <div class="comp-row">
+                <span>🎯 Точность:</span>
+                <strong style="color: var(--warning);">90%*</strong>
+            </div>
+            <div class="comp-row">
+                <span>🆓 Бесплатно:</span>
+                <strong>1 в месяц</strong>
+            </div>
+            <div class="comp-row">
+                <span>⚡ Скорость:</span>
+                <strong>90 сек</strong>
+            </div>
+            <div class="comp-row">
+                <span>📄 Типов договоров:</span>
+                <strong>50+</strong>
+            </div>
+            <div class="comp-row">
+                <span>💰 Стоимость:</span>
+                <strong>$29/мес</strong>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Договорёр -->
+    <div class="comparison-card">
+        <div class="comp-header" style="background: linear-gradient(135deg, #adb5bd, #6c757d);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Договорёр</h3>
+                <div class="comp-badge" style="background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; font-size: 0.85rem;">#4</div>
+            </div>
+            <div class="comp-rating">
+                <span class="rating-stars">★★★☆☆</span> 3.5/5
+            </div>
+        </div>
+        <div class="comp-details">
+            <div class="comp-row">
+                <span>🎯 Точность:</span>
+                <strong style="color: var(--danger);">75%</strong>
+            </div>
+            <div class="comp-row">
+                <span>🆓 Бесплатно:</span>
+                <strong style="color: var(--success);">Полностью</strong>
+            </div>
+            <div class="comp-row">
+                <span>⚡ Скорость:</span>
+                <strong>45 сек</strong>
+            </div>
+            <div class="comp-row">
+                <span>📄 Типов договоров:</span>
+                <strong>5</strong>
+            </div>
+            <div class="comp-row">
+                <span>💰 Стоимость:</span>
+                <strong>Бесплатно</strong>
+            </div>
+        </div>
+    </div>
+    
+    <!-- LegalBot Pro -->
+    <div class="comparison-card">
+        <div class="comp-header" style="background: linear-gradient(135deg, #6f42c1, #5a32a3);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>LegalBot Pro</h3>
+                <div class="comp-badge" style="background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 20px; font-size: 0.85rem;">#5</div>
+            </div>
+            <div class="comp-rating">
+                <span class="rating-stars">★★★☆☆</span> 3.2/5
+            </div>
+        </div>
+        <div class="comp-details">
+            <div class="comp-row">
+                <span>🎯 Точность:</span>
+                <strong style="color: var(--danger);">80%</strong>
+            </div>
+            <div class="comp-row">
+                <span>🆓 Бесплатно:</span>
+                <strong>1 в день</strong>
+            </div>
+            <div class="comp-row">
+                <span>⚡ Скорость:</span>
+                <strong>30 сек</strong>
+            </div>
+            <div class="comp-row">
+                <span>📄 Типов договоров:</span>
+                <strong>8</strong>
+            </div>
+            <div class="comp-row">
+                <span>💰 Стоимость:</span>
+                <strong>От 299₽/док</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p style="font-size: 0.9rem; color: var(--gray); margin-top: 10px; text-align: center;">
+    * — точность для англоязычных договоров; для русскоязычных — около 70%
+</p>
+
+<style>
+    .mobile-comparison {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 25px 0;
+    }
+    
+    .comparison-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: 1px solid var(--border);
+        transition: all 0.3s;
+    }
+    
+    .comparison-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+    }
+    
+    .comparison-card.first-place {
+        border: 2px solid var(--primary);
+    }
+    
+    .comp-header {
+        color: white;
+        padding: 20px;
+    }
+    
+    .comp-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+    
+    .comp-rating {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-top: 8px;
+    }
+    
+    .rating-stars {
+        color: #ffc107;
+    }
+    
+    .comp-details {
+        padding: 20px;
+    }
+    
+    .comp-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.95rem;
+    }
+    
+    .comp-row:last-child {
+        border-bottom: none;
+    }
+    
+    @media (max-width: 768px) {
+        .mobile-comparison {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .comparison-card {
+            margin-bottom: 0;
+        }
+    }
+</style>
                 <p style="font-size: 0.9rem; color: var(--gray); margin-top: 10px;">* — точность для англоязычных договоров; для русскоязычных — около 70%</p>
                 
                 <h2>📋 Как выбрать сервис для своих задач?</h2>

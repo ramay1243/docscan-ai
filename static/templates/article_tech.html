@@ -350,15 +350,22 @@
         }
         
         /* Comparison Table */
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 25px 0;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    overflow-x: auto; /* ← ДОБАВЛЯЕМ ЭТУ СТРОЧКУ */
+    display: block; /* ← И ЭТУ СТРОЧКУ */
+}
+
+.comparison-table table {
+    min-width: 600px; /* ← И ЭТУ СТРОЧКУ */
+    width: 100%; /* ← И ЭТУ СТРОЧКУ */
+}
         
         .comparison-table th {
             background: linear-gradient(135deg, var(--primary), var(--secondary));

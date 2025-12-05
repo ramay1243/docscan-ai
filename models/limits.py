@@ -78,12 +78,12 @@ class IPLimitManager:
             logger.info(f"🔄 Сброшен лимит для IP {real_ip}")
         
         # МАКСИМУМ 1 БЕСПЛАТНЫЙ АНАЛИЗ В ДЕНЬ С ОДНОГО IP
-        can_analyze = ip_data['used_today'] < 1
+        can_analyze = ip_data['used_today'] < 3
         
         if can_analyze:
-            logger.info(f"📡 IP {real_ip} может сделать анализ ({ip_data['used_today']}/1)")
+            logger.info(f"📡 IP {real_ip} может сделать анализ ({ip_data['used_today']}/3)")
         else:
-            logger.info(f"🚫 IP {real_ip} уже использовал бесплатный анализ сегодня ({ip_data['used_today']}/1)")
+            logger.info(f"🚫 IP {real_ip} уже использовал бесплатный анализ сегодня ({ip_data['used_today']}/3)")
         
         return can_analyze
 
@@ -109,4 +109,4 @@ class IPLimitManager:
         
         self.ip_limits[real_ip]['used_today'] += 1
         self.save_ip_limits()
-        logger.info(f"📡 Записано использование для IP {real_ip}: {self.ip_limits[real_ip]['used_today']}/1 (user: {user_id})")
+        logger.info(f"📡 Записано использование для IP {real_ip}: {self.ip_limits[real_ip]['used_today']}/3 (user: {user_id})")

@@ -937,7 +937,7 @@ def home():
                         <strong>👤 Ваш ID:</strong> <span id="userId">Загрузка...</span>
                     </div>
                     <div>
-                        <strong>📊 Анализов сегодня:</strong> <span id="usageInfo">0/1</span>
+                        <strong>📊 Анализов сегодня:</strong> <span id="usageInfo">0/3</span>
                     </div>
                 </div>
                 <div>

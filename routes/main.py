@@ -1178,7 +1178,7 @@ def home():
             <h2 class="cta-title">Начните анализ документов прямо сейчас</h2>
             <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto 40px;">
                 Загрузите документ и получите анализ рисков через 60 секунд. 
-                Без регистрации, первый анализ бесплатно.
+                Без регистрации, 3 анализа бесплатно.
             </p>
             <a href="#upload" class="cta-button" style="background: white; color: var(--primary); padding: 18px 50px; font-size: 1.2rem;">
                 🚀 Начать бесплатный анализ

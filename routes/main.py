@@ -1765,6 +1765,12 @@ def sitemap():
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>https://docscan-ai.ru/medicinskie-dokumenty-analiz</loc>
+        <lastmod>2025-12-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
 </urlset>''', 200, {'Content-Type': 'application/xml'}
 
 @main_bp.route('/robots.txt')
@@ -1847,6 +1853,10 @@ def avtokredit_skrytye_usloviya():
 @main_bp.route('/ii-dlya-proverki-dogovorov-onlayn-besplatno')
 def ii_dlya_proverki_dogovorov():
     return render_template('ii-dlya-proverki-dogovorov-onlayn-besplatno.html')
+
+@main_bp.route('/medicinskie-dokumenty-analiz')
+def medicinskie_dokumenty_analiz():
+    return render_template('medicinskie-dokumenty-analiz.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

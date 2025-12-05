@@ -197,7 +197,7 @@ def admin_panel():
             }
 
             function getPlanLimit(plan) {
-                const limits = {free: 1, basic: 10, premium: 50, unlimited: 1000};
+                const limits = {free: 3, basic: 10, premium: 50, unlimited: 1000};
                 return limits[plan] || 0;
             }
 

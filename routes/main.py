@@ -1869,6 +1869,11 @@ def medicinskie_dokumenty_analiz():
 @main_bp.route('/faq')
 def faq_page():
     return render_template('faq.html')
+    
+
+@main_bp.route('/articles/rent-check')
+def redirect_rent_check():
+    return redirect(url_for('main_bp.article_rent'), code=301)
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

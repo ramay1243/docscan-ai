@@ -1874,6 +1874,40 @@ def faq_page():
 def redirect_rent_check():
     return redirect('/articles/rent', code=301)
     
+    # ============================================
+# НОВЫЕ СТАТЬИ В /articles/...
+# ============================================
+
+@main_bp.route('/articles/analiz-dokumentov')
+def article_analiz_dokumentov():
+    """Статья 'Анализ документов с ИИ'"""
+    return render_template('analiz-dokumentov.html')
+
+@main_bp.route('/articles/proverka-dogovorov')
+def article_proverka_dogovorov():
+    """Статья 'Проверка договоров с ИИ'"""
+    return render_template('proverka-dogovorov.html')
+
+@main_bp.route('/articles/riski-dogovora-zayma')
+def article_riski_dogovora_zayma():
+    """Статья 'Риски договора займа'"""
+    return render_template('riski-dogovora-zayma.html')
+
+@main_bp.route('/articles/avtokredit-skrytye-usloviya')
+def article_avtokredit_skrytye_usloviya():
+    """Статья 'Автокредит: скрытые условия'"""
+    return render_template('avtokredit-skrytye-usloviya.html')
+
+@main_bp.route('/articles/ii-dlya-proverki-dogovorov-onlayn-besplatno')
+def article_ii_dlya_proverki_dogovorov():
+    """Статья 'ИИ для проверки договоров онлайн'"""
+    return render_template('ii-dlya-proverki-dogovorov-onlayn-besplatno.html')
+
+@main_bp.route('/articles/medicinskie-dokumenty-analiz')
+def article_medicinskie_dokumenty():
+    """Статья 'Анализ медицинских документов'"""
+    return render_template('medicinskie-dokumenty-analiz.html')
+    
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():
     """Отправка сообщения в Telegram"""

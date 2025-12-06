@@ -1771,6 +1771,12 @@ def sitemap():
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+        <url>
+        <loc>https://docscan-ai.ru/faq</loc>
+        <lastmod>2025-12-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
 </urlset>''', 200, {'Content-Type': 'application/xml'}
 
 @main_bp.route('/robots.txt')
@@ -1857,6 +1863,10 @@ def ii_dlya_proverki_dogovorov():
 @main_bp.route('/medicinskie-dokumenty-analiz')
 def medicinskie_dokumenty_analiz():
     return render_template('medicinskie-dokumenty-analiz.html')
+    
+@main_bp.route('/faq')
+def faq_page():
+    return render_template('faq.html')
 
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

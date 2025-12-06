@@ -1908,6 +1908,40 @@ def article_medicinskie_dokumenty():
     """Статья 'Анализ медицинских документов'"""
     return render_template('medicinskie-dokumenty-analiz.html')
     
+    # ============================================
+# РЕДИРЕКТЫ 301 СО СТАРЫХ URL
+# ============================================
+
+@main_bp.route('/analiz-dokumentov')
+def redirect_analiz_dokumentov():
+    """Редирект на новую версию статьи"""
+    return redirect('/articles/analiz-dokumentov', code=301)
+
+@main_bp.route('/proverka-dogovorov')
+def redirect_proverka_dogovorov():
+    """Редирект на новую версию статьи"""
+    return redirect('/articles/proverka-dogovorov', code=301)
+
+@main_bp.route('/riski-dogovora-zayma')
+def redirect_riski_dogovora_zayma():
+    """Редирект на новую версию статьи"""
+    return redirect('/articles/riski-dogovora-zayma', code=301)
+
+@main_bp.route('/avtokredit-skrytye-usloviya')
+def redirect_avtokredit_skrytye_usloviya():
+    """Редирект на новую версию статьи"""
+    return redirect('/articles/avtokredit-skrytye-usloviya', code=301)
+
+@main_bp.route('/ii-dlya-proverki-dogovorov-onlayn-besplatno')
+def redirect_ii_dlya_proverki_dogovorov():
+    """Редирект на новую версию статьи"""
+    return redirect('/articles/ii-dlya-proverki-dogovorov-onlayn-besplatno', code=301)
+
+@main_bp.route('/medicinskie-dokumenty-analiz')
+def redirect_medicinskie_dokumenty_analiz():
+    """Редирект на новую версию статьи"""
+    return redirect('/articles/medicinskie-dokumenty-analiz', code=301)
+    
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():
     """Отправка сообщения в Telegram"""

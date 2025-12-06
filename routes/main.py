@@ -1197,6 +1197,7 @@ def home():
             <a href="/">🏠 Главная</a>
             <a href="/articles">📚 Статьи</a>
             <a href="/contact">📞 Контакты</a>
+            <a href="/faq">❓FAQ</a>
             <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
         </div>
     </div>
@@ -1222,6 +1223,7 @@ def home():
                         <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
                         <a href="/articles" class="footer-link">База знаний</a>
                         <a href="/contact" class="footer-link">Техподдержка</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
                     </div>
                 </div>
                 

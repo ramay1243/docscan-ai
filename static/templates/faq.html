@@ -866,7 +866,6 @@
                                 <strong>⏱️ Статистика по времени:</strong><br>
                                 • 85% документов анализируются за <strong>менее 60 секунд</strong><br>
                                 • 95% документов — за <strong>менее 2 минут</strong><br>
-                                • Максимальное время анализа: <strong>5 минут</strong>
                             </div>
                             
                             <p><strong>Как ускорить анализ:</strong></p>
@@ -901,8 +900,7 @@
                             <p><strong>🗑️ Временное хранение:</strong></p>
                             <ul>
                                 <li>Документы <strong>не сохраняются</strong> на серверах постоянно</li>
-                                <li>Автоматическое удаление через <strong>24 часа</strong> после анализа</li>
-                                <li>Возможность ручного удаления сразу после получения отчета</li>
+                                <li>Автоматическое удаление после анализа</li>
                             </ul>
                             
                             <p><strong>👤 Анонимность:</strong></p>
@@ -930,17 +928,16 @@
                                 <li><strong>Обработка:</strong> Документ анализируется нашими серверами</li>
                                 <li><strong>Анализ:</strong> ИИ проверяет документ и готовит отчет</li>
                                 <li><strong>Отправка:</strong> Вы получаете результат в браузере</li>
-                                <li><strong>Удаление:</strong> Документ удаляется с серверов (макс. через 24 часа)</li>
+                                <li><strong>Удаление:</strong> Документ удаляется с серверов после анализа</li>
                             </ol>
                             
                             <div class="warning-note">
-                                <strong>⚠️ Важно:</strong> Мы НЕ используем ваши документы для обучения наших моделей без вашего явного согласия. Каждый документ обрабатывается изолированно.
+                                <strong>⚠️ Важно:</strong>Каждый документ обрабатывается изолированно.
                             </div>
                             
                             <p><strong>География серверов:</strong></p>
                             <ul>
                                 <li>Основные серверы: <strong>Россия, Москва</strong></li>
-                                <li>Резервные серверы: <strong>Финляндия, Хельсинки</strong></li>
                                 <li>Все данные остаются в юрисдикции страны загрузки</li>
                             </ul>
                         </div>
@@ -1052,7 +1049,7 @@
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <p><strong>Три тарифа на выбор:</strong></p>
+                            <p><strong>Два тарифа на выбор:</strong></p>
                             
                             <div class="stats-grid">
                                 <div class="stat-card">
@@ -1063,11 +1060,6 @@
                                 <div class="stat-card">
                                     <div class="stat-number">💎 490₽</div>
                                     <div>Базовый</div>
-                                    <p>в месяц</p>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-number">🚀 1490₽</div>
-                                    <div>Про</div>
                                     <p>в месяц</p>
                                 </div>
                             </div>
@@ -1116,22 +1108,12 @@
                         <div class="faq-answer">
                             <p><strong>Отмена в любой момент:</strong></p>
                             <ol>
-                                <li><strong>Войдите</strong> в ваш аккаунт (если создавали)</li>
-                                <li>Перейдите в <strong>Настройки аккаунта</strong></li>
-                                <li>Найдите раздел <strong>"Подписка"</strong></li>
-                                <li>Нажмите <strong>"Отменить подписку"</strong></li>
+                                <li>Напишите нам любым удобным способом</li>
                             </ol>
                             
                             <div class="feature-highlight">
                                 <strong>✅ Важно:</strong> После отмены подписка будет активна до конца оплаченного периода. Деньги за неиспользованный период не возвращаются.
                             </div>
-                            
-                            <p><strong>Если нет доступа к аккаунту:</strong></p>
-                            <ul>
-                                <li>Напишите на <a href="mailto:docscanhelp@gmail.com">docscanhelp@gmail.com</a></li>
-                                <li>Укажите email, который использовали при оплате</li>
-                                <li>Мы отменим подписку вручную в течение 24 часов</li>
-                            </ul>
                             
                             <div class="warning-note">
                                 <strong>⚠️ Возвраты:</strong> Возврат средств возможен только в случае технических проблем с сервисом, которые мы не смогли решить в течение 72 часов.
@@ -1150,39 +1132,7 @@
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <p><strong>Да, есть REST API!</strong> Доступно в тарифе "Про".</p>
-                            
-                            <p><strong>Основные возможности API:</strong></p>
-                            <ul>
-                                <li><strong>Асинхронная обработка</strong> документов</li>
-                                <li><strong>Поддержка всех форматов</strong> (PDF, DOCX, JPG, PNG)</li>
-                                <li><strong>Детальные отчеты</strong> в JSON формате</li>
-                                <li><strong>Webhook уведомления</strong> о завершении анализа</li>
-                                <li><strong>Статистика использования</strong> и лимиты</li>
-                            </ul>
-                            
-                            <p><strong>Пример запроса:</strong></p>
-                            <pre style="background: var(--light); padding: 15px; border-radius: 8px; overflow-x: auto; margin: 15px 0;">
-POST https://api.docscan-ai.ru/v1/analyze
-Content-Type: multipart/form-data
-Authorization: Bearer YOUR_API_KEY
-
-{
-  "file": "document.pdf",
-  "document_type": "contract",
-  "callback_url": "https://your-site.com/webhook"
-}</pre>
-                            
-                            <p><strong>Стоимость API:</strong></p>
-                            <ul>
-                                <li>Тариф "Про": 1490₽/месяц (включено 1000 запросов)</li>
-                                <li>Дополнительные запросы: 1.5₽ за документ</li>
-                                <li>Корпоративные тарифы: от 5000₽/месяц</li>
-                            </ul>
-                            
-                            <div class="feature-highlight">
-                                <strong>📚 Документация:</strong> Полная документация API доступна после регистрации в тарифе "Про".
-                            </div>
+                            <p><strong>НЕТ, но мы работаем над этим</strong> Следите за новостями.</p>
                         </div>
                     </div>
                 </div>

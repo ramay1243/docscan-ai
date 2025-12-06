@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ DocScan AI: ответы на вопросы по проверке документов нейросетью онлайн</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="❓ Часто задаваемые вопросы о DocScan AI. Как проверить договор бесплатно без регистрации, безопасность данных, точность ИИ, поддержка форматов, тарифы, API доступ.">
+    <meta name="keywords" content="faq docscan ai, часто задаваемые вопросы, проверка документов вопросы, нейросеть для документов вопросы, безопасность загрузки документов, бесплатная проверка договоров, api доступ docscan">
+    <meta name="author" content="DocScan AI">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="FAQ: все вопросы о проверке документов нейросетью DocScan AI">
+    <meta property="og:description" content="Полные ответы на вопросы о работе DocScan AI. Безопасность, тарифы, точность анализа, API, поддержка.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://docscan-ai.ru/faq">
+    <meta property="og:image" content="https://docscan-ai.ru/static/og-faq.jpg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FAQ DocScan AI: ответы на все вопросы">
+    <meta name="twitter:description" content="Как пользоваться сервисом проверки документов нейросетью. Ответы от команды DocScan AI.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-size: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .main-header {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        /* FAQ Container */
+        .faq-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin: 30px 0 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .faq-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        /* Breadcrumbs */
+        .breadcrumbs {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 25px;
+        }
+        
+        .breadcrumb-link {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* FAQ Header */
+        .faq-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .faq-title {
+            color: var(--dark);
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        
+        .faq-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Search */
+        .search-container {
+            max-width: 600px;
+            margin: 30px auto 40px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: var(--light);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            background: white;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 1.2rem;
+        }
+        
+        /* FAQ Categories */
+        .categories-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        
+        .category-btn {
+            padding: 10px 20px;
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .category-btn:hover {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* FAQ Items */
+        .faq-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            color: var(--dark);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .faq-item {
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .faq-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.1);
+        }
+        
+        .faq-question {
+            width: 100%;
+            padding: 20px;
+            background: var(--light);
+            border: none;
+            text-align: left;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .faq-question:hover {
+            background: #e9ecef;
+        }
+        
+        .faq-question.active {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .faq-icon {
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+            color: var(--gray);
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .faq-question.active .faq-icon {
+            transform: rotate(45deg);
+            color: var(--primary);
+        }
+        
+        .faq-answer {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .faq-answer.active {
+            padding: 20px;
+            max-height: 1000px;
+        }
+        
+        .faq-answer p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .faq-answer ul, .faq-answer ol {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .faq-answer li {
+            margin-bottom: 8px;
+        }
+        
+        /* Feature Highlight */
+        .feature-highlight {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6f7ff 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .warning-note {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid var(--danger);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .cta-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid white;
+        }
+        
+        .btn-primary:hover {
+            background: transparent;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .quick-link-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--dark);
+        }
+        
+        .quick-link-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+        
+        .quick-link-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .quick-link-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0 25px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+        }
+        
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .burger-line {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 12px 0;
+            min-width: 180px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .faq-container {
+                padding: 25px;
+            }
+            
+            .faq-title {
+                font-size: 1.8rem;
+            }
+            
+            .categories-nav {
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 10px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .burger-menu {
+                display: block;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .faq-container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            .faq-title {
+                font-size: 1.5rem;
+            }
+            
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .faq-item {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .search-container,
+            .categories-nav,
+            .cta-section,
+            .main-footer,
+            .burger-menu {
+                display: none;
+            }
+            
+            .faq-answer {
+                max-height: none !important;
+                padding: 20px !important;
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
+                    <a href="/proverka-dogovorov" class="nav-link">Проверка договоров</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/faq" class="nav-link active">❓ FAQ</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="faq-container">
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs">
+                <a href="/" class="breadcrumb-link">Главная</a> / 
+                <span style="color: var(--gray);">Часто задаваемые вопросы</span>
+            </div>
+            
+            <!-- Header -->
+            <div class="faq-header">
+                <h1 class="faq-title">❓ Часто задаваемые вопросы</h1>
+                <p class="faq-subtitle">Ответы на самые популярные вопросы о DocScan AI. Не нашли ответ? Напишите нам в поддержку!</p>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Поиск по вопросам... (например: 'бесплатно', 'безопасность', 'форматы')" id="searchInput">
+                <div class="search-icon">🔍</div>
+            </div>
+            
+            <!-- Categories Navigation -->
+            <div class="categories-nav" id="categoriesNav">
+                <button class="category-btn active" data-category="all">📋 Все вопросы</button>
+                <button class="category-btn" data-category="general">🤖 Общие</button>
+                <button class="category-btn" data-category="usage">⚙️ Использование</button>
+                <button class="category-btn" data-category="security">🔒 Безопасность</button>
+                <button class="category-btn" data-category="accuracy">⚖️ Точность</button>
+                <button class="category-btn" data-category="pricing">💰 Тарифы</button>
+                <button class="category-btn" data-category="api">🔧 API</button>
+                <button class="category-btn" data-category="support">📞 Поддержка</button>
+            </div>
+            
+            <!-- FAQ Sections -->
+            <div class="faq-content">
+                
+                <!-- General Questions -->
+                <div class="faq-section" data-category="general">
+                    <h2 class="section-title">🤖 Общие вопросы</h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Что такое DocScan AI и для чего он нужен?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>DocScan AI — это онлайн-сервис для автоматической проверки документов с помощью искусственного интеллекта. Мы помогаем:</p>
+                            <ul>
+                                <li><strong>Бизнесу:</strong> Проверять договоры поставки, аренды, трудовые договоры</li>
+                                <li><strong>Фрилансерам:</strong> Анализировать договоры ГПХ и соглашения</li>
+                                <li><strong>Частным лицам:</strong> Проверять договоры займа, аренды квартир, автокредиты</li>
+                                <li><strong>Юристам:</strong> Ускорять рутинную проверку документов</li>
+                            </ul>
+                            <div class="feature-highlight">
+                                <strong>🎯 Ключевая особенность:</strong> Анализ документа за <strong>60 секунд</strong> без регистрации.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Как работает нейросеть для проверки документов?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Наш ИИ работает в несколько этапов:</p>
+                            <ol>
+                                <li><strong>Извлечение текста:</strong> OCR-система читает текст из PDF, DOCX или изображений</li>
+                                <li><strong>Понимание контекста:</strong> NLP-модель анализирует смысл и структуру документа</li>
+                                <li><strong>Проверка на риски:</strong> Сравнение с базой нормативных актов и типовых нарушений</li>
+                                <li><strong>Формирование отчета:</strong> Детальный анализ с оценкой рисков и рекомендациями</li>
+                            </ol>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-number">93%</div>
+                                    <div>Точность распознавания</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">60 сек</div>
+                                    <div>Среднее время анализа</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">50+</div>
+                                    <div>Типов документов</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Usage Questions -->
+                <div class="faq-section" data-category="usage">
+                    <h2 class="section-title">⚙️ Использование сервиса</h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Как проверить договор бесплатно без регистрации?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Просто 3 шага:</p>
+                            <ol>
+                                <li><strong>Загрузите документ</strong> на <a href="/">главной странице</a> (PDF, DOCX, TXT)</li>
+                                <li><strong>Нажмите "Начать анализ"</strong> — регистрация не требуется</li>
+                                <li><strong>Получите результат</strong> через 60 секунд с детальным отчетом</li>
+                            </ol>
+                            <div class="feature-highlight">
+                                <strong>✅ Бесплатно:</strong> 3 анализа в день для каждого пользователя.
+                            </div>
+                            <div class="warning-note">
+                                <strong>⚠️ Ограничения:</strong> Бесплатный тариф работает только с текстовыми форматами (PDF, DOCX, TXT). Для работы с фото документов нужен платный тариф.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Какие форматы документов поддерживаются?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Бесплатные форматы:</strong></p>
+                            <ul>
+                                <li>📄 <strong>PDF</strong> — текстовые PDF и сканы с текстовым слоем</li>
+                                <li>📝 <strong>DOCX</strong> — документы Microsoft Word</li>
+                                <li>📃 <strong>TXT</strong> — простые текстовые файлы</li>
+                            </ul>
+                            
+                            <p><strong>Платные форматы (доступны в тарифах Базовый и Про):</strong></p>
+                            <ul>
+                                <li>🖼️ <strong>JPG/PNG</strong> — фотографии документов</li>
+                                <li>📸 <strong>WEBP</strong> — современный формат изображений</li>
+                                <li>📑 <strong>RTF</strong> — форматированный текст</li>
+                            </ul>
+                            
+                            <p><strong>Технические ограничения:</strong></p>
+                            <ul>
+                                <li>Максимальный размер файла: <strong>10 MB</strong></li>
+                                <li>Максимальное количество страниц: <strong>50 страниц</strong></li>
+                                <li>Поддерживаемые языки: <strong>Русский, Английский</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Сколько времени занимает анализ документа?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Среднее время анализа зависит от:</p>
+                            <ul>
+                                <li><strong>Размера документа:</strong> 1-5 страниц — 30-60 секунд</li>
+                                <li><strong>Формат документа:</strong> PDF/DOCX быстрее, чем изображения</li>
+                                <li><strong>Сложности документа:</strong> Простые договоры быстрее, чем сложные юридические документы</li>
+                                <li><strong>Загрузки серверов:</strong> В пиковые часы может быть дольше</li>
+                            </ul>
+                            
+                            <div class="feature-highlight">
+                                <strong>⏱️ Статистика по времени:</strong><br>
+                                • 85% документов анализируются за <strong>менее 60 секунд</strong><br>
+                                • 95% документов — за <strong>менее 2 минут</strong><br>
+                                • Максимальное время анализа: <strong>5 минут</strong>
+                            </div>
+                            
+                            <p><strong>Как ускорить анализ:</strong></p>
+                            <ol>
+                                <li>Используйте текстовые форматы (PDF/DOCX вместо JPG)</li>
+                                <li>Убедитесь, что документ четкий и читаемый</li>
+                                <li>Анализируйте в непиковое время (утром или вечером)</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Questions -->
+                <div class="faq-section" data-category="security">
+                    <h2 class="section-title">🔒 Безопасность и конфиденциальность</h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Безопасно ли загружать документы на ваш сайт?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Да, абсолютно безопасно!</strong> Мы используем многоуровневую защиту:</p>
+                            
+                            <p><strong>🔐 Шифрование данных:</strong></p>
+                            <ul>
+                                <li>Все документы передаются по защищенному протоколу <strong>HTTPS</strong></li>
+                                <li>Данные шифруются по стандарту <strong>AES-256</strong></li>
+                                <li>Сертификат SSL от Let's Encrypt</li>
+                            </ul>
+                            
+                            <p><strong>🗑️ Временное хранение:</strong></p>
+                            <ul>
+                                <li>Документы <strong>не сохраняются</strong> на серверах постоянно</li>
+                                <li>Автоматическое удаление через <strong>24 часа</strong> после анализа</li>
+                                <li>Возможность ручного удаления сразу после получения отчета</li>
+                            </ul>
+                            
+                            <p><strong>👤 Анонимность:</strong></p>
+                            <ul>
+                                <li>Не требуем регистрацию и личные данные</li>
+                                <li>Не отслеживаем пользователей между сессиями</li>
+                                <li>Не передаем данные третьим лицам</li>
+                            </ul>
+                            
+                            <div class="feature-highlight">
+                                <strong>✅ Соответствие законам:</strong> Мы соблюдаем требования 152-ФЗ "О персональных данных" и GDPR.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Куда попадают мои документы после анализа?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Краткий путь документа:</strong></p>
+                            <ol>
+                                <li><strong>Загрузка:</strong> Вы загружаете документ → он шифруется</li>
+                                <li><strong>Обработка:</strong> Документ анализируется нашими серверами</li>
+                                <li><strong>Анализ:</strong> ИИ проверяет документ и готовит отчет</li>
+                                <li><strong>Отправка:</strong> Вы получаете результат в браузере</li>
+                                <li><strong>Удаление:</strong> Документ удаляется с серверов (макс. через 24 часа)</li>
+                            </ol>
+                            
+                            <div class="warning-note">
+                                <strong>⚠️ Важно:</strong> Мы НЕ используем ваши документы для обучения наших моделей без вашего явного согласия. Каждый документ обрабатывается изолированно.
+                            </div>
+                            
+                            <p><strong>География серверов:</strong></p>
+                            <ul>
+                                <li>Основные серверы: <strong>Россия, Москва</strong></li>
+                                <li>Резервные серверы: <strong>Финляндия, Хельсинки</strong></li>
+                                <li>Все данные остаются в юрисдикции страны загрузки</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Accuracy Questions -->
+                <div class="faq-section" data-category="accuracy">
+                    <h2 class="section-title">⚖️ Точность и возможности</h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Насколько точен AI-анализ документов?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Точность нашего ИИ по категориям:</p>
+                            
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-number">92%</div>
+                                    <div>Юридические ошибки</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">87%</div>
+                                    <div>Финансовые риски</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">95%</div>
+                                    <div>Структурные проблемы</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">89%</div>
+                                    <div>Некорректные формулировки</div>
+                                </div>
+                            </div>
+                            
+                            <p><strong>Что ИИ проверяет хорошо:</strong></p>
+                            <ul>
+                                <li>Типовые юридические ошибки в договорах</li>
+                                <li>Финансовые риски (невыгодные условия, скрытые комиссии)</li>
+                                <li>Отсутствие обязательных разделов</li>
+                                <li>Некорректные формулировки и противоречия</li>
+                            </ul>
+                            
+                            <p><strong>Ограничения ИИ:</strong></p>
+                            <ul>
+                                <li>Сложные юридические нюансы и прецеденты</li>
+                                <li>Контекстные ситуации, требующие человеческого понимания</li>
+                                <li>Очень специфичные отраслевые документы</li>
+                            </ul>
+                            
+                            <div class="feature-highlight">
+                                <strong>💡 Рекомендация:</strong> Используйте DocScan AI для <strong>первичной проверки</strong> и <strong>выявления очевидных рисков</strong>. Для сложных случаев рекомендуем консультацию профессионального юриста.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Какие типы документов можно проверять?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Основные категории:</strong></p>
+                            
+                            <div class="quick-links">
+                                <a href="/proverka-dogovorov" class="quick-link-card">
+                                    <div class="quick-link-icon">⚖️</div>
+                                    <div class="quick-link-title">Договоры</div>
+                                    <p>Аренды, поставки, трудовые, займа, подряда</p>
+                                </a>
+                                
+                                <a href="/articles" class="quick-link-card">
+                                    <div class="quick-link-icon">📝</div>
+                                    <div class="quick-link-title">Соглашения</div>
+                                    <p>Информированные согласия, оферты, дополнительные соглашения</p>
+                                </a>
+                                
+                                <a href="/analiz-dokumentov" class="quick-link-card">
+                                    <div class="quick-link-icon">📋</div>
+                                    <div class="quick-link-title">Юридические документы</div>
+                                    <p>Исковые заявления, претензии, доверенности</p>
+                                </a>
+                            </div>
+                            
+                            <p><strong>Специализированные документы:</strong></p>
+                            <ul>
+                                <li>🏥 <strong>Медицинские:</strong> Договоры на услуги, информированные согласия</li>
+                                <li>🏠 <strong>Недвижимость:</strong> Договоры купли-продажи, аренды, ДДУ</li>
+                                <li>🚗 <strong>Авто:</strong> Договоры купли-продажи, автокредиты, страховки</li>
+                                <li>💼 <strong>Бизнес:</strong> Уставы, решения, протоколы собраний</li>
+                            </ul>
+                            
+                            <div class="warning-note">
+                                <strong>⚠️ Не проверяем:</strong> Документы с государственной тайной, нотариально заверенные оригиналы, документы на иностранных языках (кроме английского).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pricing Questions -->
+                <div class="faq-section" data-category="pricing">
+                    <h2 class="section-title">💰 Тарифы и оплата</h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Сколько стоит проверка документов?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Три тарифа на выбор:</strong></p>
+                            
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-number">🆓 0₽</div>
+                                    <div>Бесплатный</div>
+                                    <p>3 анализа в день</p>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">💎 490₽</div>
+                                    <div>Базовый</div>
+                                    <p>в месяц</p>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">🚀 1490₽</div>
+                                    <div>Про</div>
+                                    <p>в месяц</p>
+                                </div>
+                            </div>
+                            
+                            <p><strong>Сравнение тарифов:</strong></p>
+                            <table style="width:100%; border-collapse: collapse; margin: 15px 0;">
+                                <tr>
+                                    <th style="text-align: left; padding: 10px; border-bottom: 1px solid var(--border);">Функция</th>
+                                    <th style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">Бесплатный</th>
+                                    <th style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">Базовый</th>
+                                    <th style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">Про</th>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid var(--border);">Анализов в день</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">3</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">∞</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">∞</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid var(--border);">Форматы</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">PDF/DOCX/TXT</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">Все</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">Все</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid var(--border);">Приоритет обработки</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">-</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">✅</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">✅</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid var(--border);">API доступ</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">-</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">-</td>
+                                    <td style="text-align: center; padding: 10px; border-bottom: 1px solid var(--border);">✅</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Как отменить платную подписку?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Отмена в любой момент:</strong></p>
+                            <ol>
+                                <li><strong>Войдите</strong> в ваш аккаунт (если создавали)</li>
+                                <li>Перейдите в <strong>Настройки аккаунта</strong></li>
+                                <li>Найдите раздел <strong>"Подписка"</strong></li>
+                                <li>Нажмите <strong>"Отменить подписку"</strong></li>
+                            </ol>
+                            
+                            <div class="feature-highlight">
+                                <strong>✅ Важно:</strong> После отмены подписка будет активна до конца оплаченного периода. Деньги за неиспользованный период не возвращаются.
+                            </div>
+                            
+                            <p><strong>Если нет доступа к аккаунту:</strong></p>
+                            <ul>
+                                <li>Напишите на <a href="mailto:docscanhelp@gmail.com">docscanhelp@gmail.com</a></li>
+                                <li>Укажите email, который использовали при оплате</li>
+                                <li>Мы отменим подписку вручную в течение 24 часов</li>
+                            </ul>
+                            
+                            <div class="warning-note">
+                                <strong>⚠️ Возвраты:</strong> Возврат средств возможен только в случае технических проблем с сервисом, которые мы не смогли решить в течение 72 часов.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- API Questions -->
+                <div class="faq-section" data-category="api">
+                    <h2 class="section-title">🔧 API и интеграции</h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Есть ли API для интеграции?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Да, есть REST API!</strong> Доступно в тарифе "Про".</p>
+                            
+                            <p><strong>Основные возможности API:</strong></p>
+                            <ul>
+                                <li><strong>Асинхронная обработка</strong> документов</li>
+                                <li><strong>Поддержка всех форматов</strong> (PDF, DOCX, JPG, PNG)</li>
+                                <li><strong>Детальные отчеты</strong> в JSON формате</li>
+                                <li><strong>Webhook уведомления</strong> о завершении анализа</li>
+                                <li><strong>Статистика использования</strong> и лимиты</li>
+                            </ul>
+                            
+                            <p><strong>Пример запроса:</strong></p>
+                            <pre style="background: var(--light); padding: 15px; border-radius: 8px; overflow-x: auto; margin: 15px 0;">
+POST https://api.docscan-ai.ru/v1/analyze
+Content-Type: multipart/form-data
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "file": "document.pdf",
+  "document_type": "contract",
+  "callback_url": "https://your-site.com/webhook"
+}</pre>
+                            
+                            <p><strong>Стоимость API:</strong></p>
+                            <ul>
+                                <li>Тариф "Про": 1490₽/месяц (включено 1000 запросов)</li>
+                                <li>Дополнительные запросы: 1.5₽ за документ</li>
+                                <li>Корпоративные тарифы: от 5000₽/месяц</li>
+                            </ul>
+                            
+                            <div class="feature-highlight">
+                                <strong>📚 Документация:</strong> Полная документация API доступна после регистрации в тарифе "Про".
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Support Questions -->
+                <div class="faq-section" data-category="support">
+                    <h2 class="section-title">📞 Поддержка и контакты</h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Как связаться с технической поддержкой?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Несколько способов:</strong></p>
+                            
+                            <div class="quick-links">
+                                <a href="mailto:docscanhelp@gmail.com" class="quick-link-card">
+                                    <div class="quick-link-icon">📧</div>
+                                    <div class="quick-link-title">Email</div>
+                                    <p>docscanhelp@gmail.com</p>
+                                    <small>Ответ в течение 24 часов</small>
+                                </a>
+                                
+                                <a href="https://t.me/docscan_ai" target="_blank" class="quick-link-card">
+                                    <div class="quick-link-icon">💬</div>
+                                    <div class="quick-link-title">Telegram</div>
+                                    <p>@docscan_ai</p>
+                                    <small>Быстрые ответы</small>
+                                </a>
+                                
+                                <a href="/contact" class="quick-link-card">
+                                    <div class="quick-link-icon">📝</div>
+                                    <div class="quick-link-title">Форма обратной связи</div>
+                                    <p>На странице контактов</p>
+                                </a>
+                            </div>
+                            
+                            <p><strong>Что указывать в обращении:</strong></p>
+                            <ol>
+                                <li>Ваш email для ответа</li>
+                                <li>Суть проблемы или вопрос</li>
+                                <li>Скриншоты или примеры ошибок</li>
+                                <li>ID документа (если есть)</li>
+                            </ol>
+                            
+                            <p><strong>Время ответа:</strong></p>
+                            <ul>
+                                <li>Понедельник-Пятница: 10:00-19:00 МСК</li>
+                                <li>Суббота: 11:00-16:00 МСК</li>
+                                <li>Воскресенье: выходной</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Предоставляете ли вы юридические консультации?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Нет, мы не предоставляем юридические консультации.</strong></p>
+                            
+                            <p>DocScan AI — это <strong>технологический сервис</strong>, который:</p>
+                            <ul>
+                                <li>Автоматически анализирует документы на типовые риски</li>
+                                <li>Выдает рекомендации на основе алгоритмов</li>
+                                <li>Помогает выявить очевидные проблемы</li>
+                            </ul>
+                            
+                            <p><strong>Чем мы НЕ занимаемся:</strong></p>
+                            <ul>
+                                <li>Не даем юридических заключений</li>
+                                <li>Не консультируем по конкретным ситуациям</li>
+                                <li>Не представляем интересы в суде</li>
+                                <li>Не составляем документы с нуля</li>
+                            </ul>
+                            
+                            <div class="feature-highlight">
+                                <strong>💡 Рекомендация:</strong> Для сложных юридических вопросов обратитесь к профессиональному юристу. Наш сервис поможет <strong>предварительно проверить</strong> документ и выявить основные риски.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <h2 class="cta-title">Не нашли ответ на свой вопрос?</h2>
+                <p>Наша поддержка ответит в течение 24 часов. Задайте вопрос напрямую!</p>
+                
+                <div class="cta-buttons">
+                    <a href="mailto:docscanhelp@gmail.com" class="btn-primary">📧 Написать на email</a>
+                    <a href="https://t.me/docscan_ai" target="_blank" class="btn-secondary">💬 Telegram-чат</a>
+                </div>
+                
+                <p style="margin-top: 20px; opacity: 0.9; font-size: 0.9rem;">
+                    Среднее время ответа: <strong>2 часа</strong> в рабочее время
+                </p>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="quick-links">
+                <a href="/" class="quick-link-card">
+                    <div class="quick-link-icon">🚀</div>
+                    <div class="quick-link-title">Проверить документ</div>
+                    <p>Бесплатный анализ за 60 секунд</p>
+                </a>
+                
+                <a href="/articles" class="quick-link-card">
+                    <div class="quick-link-icon">📚</div>
+                    <div class="quick-link-title">Все статьи</div>
+                    <p>Полезные гайды и инструкции</p>
+                </a>
+                
+                <a href="/contact" class="quick-link-card">
+                    <div class="quick-link-icon">📞</div>
+                    <div class="quick-link-title">Контакты</div>
+                    <p>Все способы связи</p>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/faq">❓ FAQ</a>
+            <a href="/contact">📞 Контакты</a>
+            <a href="https://t.me/docscan_ai" target="_blank">💬 Telegram</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.9; max-width: 300px; color: rgba(255,255,255,0.9);">
+                        Автоматическая проверка документов и договоров с искусственным интеллектом. Бесплатно, без регистрации, за 60 секунд.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                        <a href="/contact" class="footer-link">Форма обратной связи</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JSON-LD для SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Как проверить договор бесплатно без регистрации?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Загрузите документ на главной странице DocScan AI (PDF, DOCX, TXT), нажмите 'Начать анализ' и получите результат через 60 секунд. Регистрация не требуется, первые 3 анализа в день бесплатные."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Безопасно ли загружать документы на сайт?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Да, абсолютно безопасно. Документы передаются по HTTPS, шифруются по стандарту AES-256, не сохраняются на серверах и удаляются через 24 часа. Мы соблюдаем 152-ФЗ и GDPR."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Насколько точен анализ нейросети?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Наш ИИ обнаруживает 92% юридических ошибок, 87% финансовых рисков и 95% структурных проблем в документах. Для сложных случаев рекомендуем консультацию юриста."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Какие форматы документов поддерживаются?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Бесплатно: PDF, DOCX, TXT. В платных тарифах: JPG, PNG, WEBP, RTF. Максимальный размер: 10MB, до 50 страниц. Поддерживаемые языки: русский, английский."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Сколько стоит проверка документов?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Бесплатный тариф: 3 анализа в день. Базовый тариф: 490₽/месяц, неограниченное количество анализов, все форматы. Про тариф: 1490₽/месяц, включает API доступ."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <script>
+        // FAQ Accordion
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const answer = button.nextElementSibling;
+                const isActive = answer.classList.contains('active');
+                
+                // Close all other answers in same category
+                const category = button.closest('.faq-section').dataset.category;
+                document.querySelectorAll(`.faq-section[data-category="${category}"] .faq-answer`).forEach(ans => {
+                    ans.classList.remove('active');
+                    ans.previousElementSibling.classList.remove('active');
+                });
+                
+                // Toggle current
+                if (!isActive) {
+                    answer.classList.add('active');
+                    button.classList.add('active');
+                }
+            });
+        });
+        
+        // Category Filter
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active button
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const category = btn.dataset.category;
+                
+                // Show/hide sections
+                document.querySelectorAll('.faq-section').forEach(section => {
+                    if (category === 'all' || section.dataset.category === category) {
+                        section.style.display = 'block';
+                        // Show all items in section
+                        section.querySelectorAll('.faq-item').forEach(item => {
+                            item.style.display = 'block';
+                        });
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Search Functionality
+        document.getElementById('searchInput')?.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            if (searchTerm.length < 2) {
+                // Show all if search term too short
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.style.display = 'block';
+                });
+                document.querySelectorAll('.faq-section').forEach(section => {
+                    section.style.display = 'block';
+                });
+                return;
+            }
+            
+            let foundAny = false;
+            
+            document.querySelectorAll('.faq-section').forEach(section => {
+                let sectionHasMatches = false;
+                
+                section.querySelectorAll('.faq-item').forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        item.style.display = 'block';
+                        sectionHasMatches = true;
+                        foundAny = true;
+                        
+                        // Auto-expand matching items
+                        const answer = item.querySelector('.faq-answer');
+                        const question = item.querySelector('.faq-question');
+                        if (answer && question) {
+                            answer.classList.add('active');
+                            question.classList.add('active');
+                        }
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                section.style.display = sectionHasMatches ? 'block' : 'none';
+            });
+            
+            // Update categories nav
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.category-btn[data-category="all"]').classList.add('active');
+        });
+        
+        // Burger Menu
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Print FAQ
+        const printButton = document.createElement('button');
+        printButton.innerHTML = '🖨️ Печать FAQ';
+        printButton.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        printButton.onclick = () => window.print();
+        document.body.appendChild(printButton);
+        
+        // Auto-expand first item in each category
+        document.querySelectorAll('.faq-section').forEach(section => {
+            const firstItem = section.querySelector('.faq-item');
+            if (firstItem) {
+                firstItem.querySelector('.faq-answer')?.classList.add('active');
+                firstItem.querySelector('.faq-question')?.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

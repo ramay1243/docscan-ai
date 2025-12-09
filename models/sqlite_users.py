@@ -28,7 +28,7 @@ class User(db.Model):
             'total_used': self.total_used,
             'created_at': self.created_at,
             'plan_expires': self.plan_expires,
-            'ip_address': self.ip_address
+            'ip_address': self.ip_address,
             'calculator_uses': self.calculator_uses,
             'last_calculator_use': self.last_calculator_use
         }

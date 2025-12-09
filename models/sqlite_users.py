@@ -16,6 +16,8 @@ class User(db.Model):
     created_at = db.Column(db.String(30), nullable=False)
     plan_expires = db.Column(db.String(10), nullable=True)
     ip_address = db.Column(db.String(50), default='Не определен')
+    calculator_uses = db.Column(db.Integer, default=0)
+    last_calculator_use = db.Column(db.String(30), nullable=True)
 
     def to_dict(self):
         return {
@@ -27,6 +29,8 @@ class User(db.Model):
             'created_at': self.created_at,
             'plan_expires': self.plan_expires,
             'ip_address': self.ip_address
+            'calculator_uses': self.calculator_uses,
+            'last_calculator_use': self.last_calculator_use
         }
 
 class SQLiteUserManager:
@@ -153,3 +157,13 @@ class SQLiteUserManager:
             'success': True,
             'message': f'Пользователю {user_id} выдан тариф: {PLANS[plan_type]["name"]}'
         }
+        
+    def record_calculator_use(self, user_id):
+        """Увеличивает счетчик использования калькулятора"""
+        user = self.get_user(user_id)
+        if user:
+            user.calculator_uses += 1
+            user.last_calculator_use = datetime.now().isoformat()
+            self.db.session.commit()
+            return True
+        return False

@@ -1901,6 +1901,11 @@ def redirect_root_equals():
 def article_ipoteka():
     return render_template('article_ipoteka_2025.html')
     
+@main_bp.route('/calculator-penalty')
+def calculator_penalty():
+    """Страница калькулятора неустойки"""
+    return render_template('calculator_penalty.html')
+    
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():
     """Отправка сообщения в Telegram"""

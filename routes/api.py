@@ -213,3 +213,29 @@ def api_info():
         'pdf_export': False,
         'version': '1.0.0'
     })
+    
+    
+@api_bp.route('/calculator-click', methods=['POST'])
+def calculator_click():
+    """Увеличиваем счетчик использования калькулятора"""
+    try:
+        from app import app
+        
+        data = request.json
+        user_id = data.get('user_id') if data else None
+        
+        if user_id:
+            # Используем менеджер для обновления счетчика
+            success = app.user_manager.record_calculator_use(user_id)
+            if success:
+                logger.info(f"✅ Calculator used by user {user_id}")
+            else:
+                logger.info(f"⚠️ Unknown user {user_id} used calculator")
+        else:
+            logger.info(f"🔸 Anonymous calculator use")
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        logger.error(f"❌ Calculator click error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

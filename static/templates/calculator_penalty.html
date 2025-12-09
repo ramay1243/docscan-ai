@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор неустойки (пени) онлайн — бесплатный расчет 2025 | DocScan AI</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Бесплатный калькулятор неустойки по договору. Рассчитайте пени, штрафы за просрочку по ст. 395 ГК РФ онлайн. Формула расчета неустойки за 1 минуту.">
+    <meta name="keywords" content="калькулятор неустойки, расчет пени онлайн, калькулятор штрафов, неустойка по договору, формула неустойки, пени за просрочку, ст 395 ГК РФ">
+    <meta name="author" content="DocScan AI">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Калькулятор неустойки онлайн — бесплатный расчет пени 2025">
+    <meta property="og:description" content="Рассчитайте неустойку по договору онлайн. Формула расчета по ст. 395 ГК РФ. Бесплатно, без регистрации.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://docscan-ai.ru/calculator-penalty">
+    <meta property="og:image" content="https://docscan-ai.ru/static/calculator-og.jpg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Калькулятор неустойки онлайн бесплатно">
+    <meta name="twitter:description" content="Расчет пени, штрафов за просрочку по договору">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-size: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.95rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            padding: 60px 0;
+            background: white;
+            border-radius: 0 0 25px 25px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            text-align: center;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--success), #4cc9f0);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
+        
+        /* Calculator Container */
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            margin: 40px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .calculator-form {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        
+        .calculator-result {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 100px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-with-unit input {
+            flex: 1;
+        }
+        
+        .unit {
+            color: var(--gray);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .radio-label {
+            display: block;
+            padding: 12px;
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .radio-label:hover {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+        
+        .radio-label.selected {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .radio-label input {
+            display: none;
+        }
+        
+        .result-box {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .result-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .result-details {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: var(--gray);
+        }
+        
+        .detail-value {
+            font-weight: 600;
+        }
+        
+        /* Section Styles */
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--dark);
+        }
+        
+        /* Formula Section */
+        .formula-section {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        
+        .formula-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .info-card h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        /* FAQ */
+        .faq-section {
+            margin: 60px 0;
+        }
+        
+        .faq-item {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        
+        .faq-question {
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--dark);
+        }
+        
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s, padding 0.3s;
+        }
+        
+        .faq-answer.open {
+            padding: 0 20px 20px;
+            max-height: 500px;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 60px 0;
+            border-radius: 25px;
+            text-align: center;
+            margin: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0 25px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+        }
+        
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .burger-line {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 12px 0;
+            min-width: 180px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .section-title { font-size: 1.7rem; }
+            .nav-links { display: none; }
+            .burger-menu { display: block; }
+            .calculator-form { padding: 20px; }
+            .calculator-result { position: static; }
+            .formula-section { padding: 25px; }
+            .info-cards { grid-template-columns: 1fr; }
+            .radio-group { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 480px) {
+            .radio-group { grid-template-columns: 1fr; }
+            .cta-section { padding: 40px 20px; }
+            .hero-section { padding: 40px 0; }
+            .hero-subtitle { font-size: 1rem; }
+        }
+        
+        /* Calculator specific */
+        .custom-rate-input {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, rgba(67, 97, 238, 0.1) 0%, rgba(67, 97, 238, 0.05) 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid var(--primary);
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
+                    <a href="/proverka-dogovorov" class="nav-link">Проверка договоров</a>
+                    <a href="/calculator-penalty" class="nav-link active">Калькулятор неустойки</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">🧮 Онлайн калькулятор</span>
+                <h1 class="hero-title">Калькулятор неустойки онлайн</h1>
+                <p class="hero-subtitle">
+                    Бесплатный расчет пени, штрафов и неустоек по договору. Рассчитайте сумму взыскания 
+                    за просрочку по статьям 395, 330 ГК РФ за 1 минуту.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator -->
+    <section class="container">
+        <div class="calculator-container">
+            <!-- Форма калькулятора -->
+            <div class="calculator-form">
+                <h2 style="margin-bottom: 30px; color: var(--primary);">Параметры расчета</h2>
+                
+                <!-- Сумма договора -->
+                <div class="form-group">
+                    <label class="form-label">💰 Сумма договора (основной долг)</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="amount" class="form-input" placeholder="Например, 100000" min="0" step="1000">
+                        <span class="unit">₽ (рублей)</span>
+                    </div>
+                </div>
+                
+                <!-- Срок просрочки -->
+                <div class="form-group">
+                    <label class="form-label">📅 Срок просрочки</label>
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px;">
+                        <div class="input-with-unit">
+                            <input type="number" id="delay" class="form-input" placeholder="Например, 30" min="1">
+                            <span class="unit" id="delay-unit">дней</span>
+                        </div>
+                        <select id="period-type" class="form-input" style="width: auto;">
+                            <option value="days">Дней</option>
+                            <option value="months">Месяцев</option>
+                            <option value="years">Лет</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Тип договора -->
+                <div class="form-group">
+                    <label class="form-label">📄 Тип договора</label>
+                    <div class="radio-group">
+                        <label class="radio-label" onclick="selectContractType('general')">
+                            <input type="radio" name="contract_type" value="general" checked> Общий
+                        </label>
+                        <label class="radio-label" onclick="selectContractType('consumer')">
+                            <input type="radio" name="contract_type" value="consumer"> Потребительский
+                        </label>
+                        <label class="radio-label" onclick="selectContractType('construction')">
+                            <input type="radio" name="contract_type" value="construction"> Долевое строительство
+                        </label>
+                        <label class="radio-label" onclick="selectContractType('labor')">
+                            <input type="radio" name="contract_type" value="labor"> Трудовой
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Процент неустойки -->
+                <div class="form-group">
+                    <label class="form-label">📊 Процент неустойки</label>
+                    <div class="radio-group">
+                        <label class="radio-label" onclick="selectRate('cb')">
+                            <input type="radio" name="rate_type" value="cb" checked> 0.033% (Ключевая ставка ЦБ)
+                        </label>
+                        <label class="radio-label" onclick="selectRate('standard')">
+                            <input type="radio" name="rate_type" value="standard"> 0.1% (Стандартная)
+                        </label>
+                        <label class="radio-label" onclick="selectRate('consumer')">
+                            <input type="radio" name="rate_type" value="consumer"> 0.5% (Потребительская)
+                        </label>
+                        <label class="radio-label" onclick="selectRate('custom')">
+                            <input type="radio" name="rate_type" value="custom"> Свой процент
+                        </label>
+                    </div>
+                    
+                    <!-- Поле для ввода своего процента -->
+                    <div class="custom-rate-input" id="custom-rate-input">
+                        <div class="input-with-unit" style="margin-top: 15px;">
+                            <input type="number" id="custom-rate" class="form-input" placeholder="Например, 0.3" step="0.01" min="0">
+                            <span class="unit">% в день</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопка расчета -->
+                <button class="cta-button" onclick="calculatePenalty()" style="width: 100%; padding: 16px; font-size: 1.1rem; margin-top: 20px;">
+                    🧮 Рассчитать неустойку
+                </button>
+                
+                <!-- Дополнительные параметры -->
+                <div class="highlight" style="margin-top: 40px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">⚖️ Правовая база:</h3>
+                    <p style="color: var(--gray); margin-bottom: 10px;">• Статья 395 ГК РФ - Проценты за пользование чужими денежными средствами</p>
+                    <p style="color: var(--gray); margin-bottom: 10px;">• Статья 330 ГК РФ - Понятие неустойки</p>
+                    <p style="color: var(--gray);">• Статья 333 ГК РФ - Уменьшение неустойки</p>
+                </div>
+            </div>
+            
+            <!-- Результат калькулятора -->
+            <div class="calculator-result" id="result-section" style="display: none;">
+                <h2 style="margin-bottom: 30px; color: var(--primary);">📊 Результаты расчета</h2>
+                
+                <div class="result-box">
+                    <div style="opacity: 0.9; font-size: 0.95rem;">Общая сумма к взысканию</div>
+                    <div class="result-amount" id="total-amount">0 ₽</div>
+                    <div style="opacity: 0.8;">включая неустойку</div>
+                </div>
+                
+                <div class="result-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Основной долг:</span>
+                        <span class="detail-value" id="principal-amount">0 ₽</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Неустойка:</span>
+                        <span class="detail-value" id="penalty-amount">0 ₽</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Процентная ставка:</span>
+                        <span class="detail-value" id="rate-value">0%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Период просрочки:</span>
+                        <span class="detail-value" id="period-value">0 дней</span>
+                    </div>
+                    <div class="detail-row" style="border-top: 2px solid var(--primary); padding-top: 15px;">
+                        <span class="detail-label" style="font-weight: 600;">Итого к взысканию:</span>
+                        <span class="detail-value" style="font-size: 1.2rem; color: var(--primary);" id="total-result">0 ₽</span>
+                    </div>
+                </div>
+                
+                <!-- Действия с результатом -->
+                <div style="margin-top: 25px;">
+                    <button class="cta-button" onclick="shareResult()" style="width: 100%; margin-bottom: 10px; background: var(--success);">
+                        📤 Поделиться результатом
+                    </button>
+                    <button class="cta-button" onclick="printResult()" style="width: 100%; margin-bottom: 10px; background: var(--gray);">
+                        🖨️ Распечатать расчет
+                    </button>
+                    <button class="cta-button" onclick="resetCalculator()" style="width: 100%; background: var(--danger);">
+                        🔄 Сбросить калькулятор
+                    </button>
+                </div>
+                
+                <!-- Информация для пользователя -->
+                <div class="highlight" style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 10px; color: var(--primary);">💡 Что дальше?</h3>
+                    <p style="color: var(--gray); margin-bottom: 10px; font-size: 0.9rem;">1. Отправьте претензию с этим расчетом</p>
+                    <p style="color: var(--gray); margin-bottom: 10px; font-size: 0.9rem;">2. При отказе - готовьте иск в суд</p>
+                    <p style="color: var(--gray); font-size: 0.9rem;">3. Получите исполнительный лист</p>
+                </div>
+            </div>
+            
+            <!-- Место для первого отображения результатов -->
+            <div class="calculator-result" id="initial-placeholder">
+                <h2 style="margin-bottom: 30px; color: var(--primary);">📊 Результаты расчета</h2>
+                <div style="text-align: center; padding: 50px 0; color: var(--gray);">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">🧮</div>
+                    <h3 style="margin-bottom: 10px;">Введите данные для расчета</h3>
+                    <p>Заполните параметры слева и нажмите "Рассчитать"</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formula Explanation -->
+    <section class="formula-section container">
+        <h2 class="section-title">🧮 Формула расчета неустойки</h2>
+        
+        <div class="formula-box">
+            <strong>НЕУСТОЙКА</strong> = (СУММА ДОГОВОРА × ПРОЦЕНТ НЕУСТОЙКИ × ДНИ ПРОСРОЧКИ) / 100
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px;">
+            <div>
+                <h4 style="color: var(--primary); margin-bottom: 10px;">📈 Пример 1:</h4>
+                <p>100,000₽ × 0.1% × 30 дней = 3,000₽</p>
+            </div>
+            <div>
+                <h4 style="color: var(--primary); margin-bottom: 10px;">📈 Пример 2:</h4>
+                <p>500,000₽ × 0.033% × 60 дней = 9,900₽</p>
+            </div>
+            <div>
+                <h4 style="color: var(--primary); margin-bottom: 10px;">📈 Пример 3:</h4>
+                <p>1,000,000₽ × 0.5% × 15 дней = 7,500₽</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Cards -->
+    <section class="container">
+        <h2 class="section-title">📚 Виды неустоек и особенности</h2>
+        
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>💰 Проценты по ст. 395 ГК РФ</h3>
+                <p style="color: var(--gray); margin-top: 10px;">Применяются, если в договоре не указана неустойка. Ставка - ключевая ставка ЦБ (сейчас 0.033% в день).</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>⚖️ Договорная неустойка</h3>
+                <p style="color: var(--gray); margin-top: 10px;">Устанавливается договором. Не может быть явно несоразмерной последствиям нарушения.</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>🛡️ Законная неустойка</h3>
+                <p style="color: var(--gray); margin-top: 10px;">Установлена законом (например, Закон о защите прав потребителей). Не требует указания в договоре.</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>⚡ Уменьшение неустойки</h3>
+                <p style="color: var(--gray); margin-top: 10px;">Суд может уменьшить неустойку, если она явно несоразмерна последствиям нарушения (ст. 333 ГК РФ).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="container faq-section">
+        <h2 class="section-title">❓ Частые вопросы о неустойке</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(1)">
+                <span>Какой максимальный размер неустойки?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-1">
+                <p>По общему правилу неустойка не может превышать сумму основного долга. Однако есть исключения для потребительских договоров.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(2)">
+                <span>С какого дня начисляется неустойка?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-2">
+                <p>Со дня, следующего за днем, когда обязательство должно было быть исполнено, и до дня фактического исполнения.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(3)">
+                <span>Можно ли взыскать неустойку через суд?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-3">
+                <p>Да, если должник отказывается добровольно выплатить неустойку, нужно обращаться в суд с иском.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(4)">
+                <span>Нужно ли платить госпошлину за взыскание неустойки?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-4">
+                <p>Да, госпошлина рассчитывается от суммы иска (неустойки). Для физических лиц есть льготы и рассрочка.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(5)">
+                <span>Как составить претензию о взыскании неустойки?</span>
+                <span>+</span>
+            </div>
+            <div class="faq-answer" id="faq-5">
+                <p>В претензии нужно указать: реквизиты сторон, сумму долга, расчет неустойки, срок для добровольной выплаты.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Services -->
+    <section class="container" style="margin: 60px 0;">
+        <h2 class="section-title">🔗 Дополнительные сервисы</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+            <a href="/proverka-dogovorov" 
+               style="display: block; padding: 30px; background: white; border-radius: 20px; 
+                      text-decoration: none; color: var(--dark); box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+                      transition: transform 0.3s; border: 2px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+                                color: white; width: 60px; height: 60px; border-radius: 12px; 
+                                display: flex; align-items: center; justify-content: center; 
+                                font-size: 1.5rem;">
+                        📄
+                    </div>
+                    <div>
+                        <h3 style="color: var(--primary); margin-bottom: 5px;">Проверка договоров</h3>
+                        <p style="color: var(--gray); font-size: 0.9rem;">ИИ-анализ договоров на риски</p>
+                    </div>
+                </div>
+                <p style="color: var(--gray);">Проверьте договор на скрытые условия и юридические риски</p>
+            </a>
+            
+            <a href="/articles" 
+               style="display: block; padding: 30px; background: white; border-radius: 20px; 
+                      text-decoration: none; color: var(--dark); box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+                      transition: transform 0.3s; border: 2px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, var(--success), #4cc9f0); 
+                                color: white; width: 60px; height: 60px; border-radius: 12px; 
+                                display: flex; align-items: center; justify-content: center; 
+                                font-size: 1.5rem;">
+                        📚
+                    </div>
+                    <div>
+                        <h3 style="color: var(--primary); margin-bottom: 5px;">Юридические статьи</h3>
+                        <p style="color: var(--gray); font-size: 0.9rem;">База знаний о договорах</p>
+                    </div>
+                </div>
+                <p style="color: var(--gray);">Узнайте больше о правах и обязанностях по договорам</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">🚀 Нужна помощь с реальным договором?</h2>
+            <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto 40px;">
+                Загрузите договор и получите полный анализ рисков с помощью ИИ
+            </p>
+            <a href="/" class="cta-button" style="background: white; color: var(--primary); padding: 16px 45px; font-size: 1.2rem;">
+                🤖 Проверить договор с ИИ
+            </a>
+        </div>
+    </section>
+
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/analiz-dokumentov">📄 Анализ документов</a>
+            <a href="/calculator-penalty">🧮 Калькулятор</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Автоматическая проверка документов и договоров с искусственным интеллектом.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Инициализация переменных
+        let selectedContractType = 'general';
+        let selectedRateType = 'cb';
+        
+        // Выбор типа договора
+        function selectContractType(type) {
+            selectedContractType = type;
+            document.querySelectorAll('.radio-label').forEach(label => {
+                label.classList.remove('selected');
+            });
+            event.target.closest('.radio-label').classList.add('selected');
+            updateRateByContractType();
+        }
+        
+        // Выбор процента неустойки
+        function selectRate(type) {
+            selectedRateType = type;
+            document.querySelectorAll('.radio-label').forEach(label => {
+                label.classList.remove('selected');
+            });
+            event.target.closest('.radio-label').classList.add('selected');
+            
+            // Показываем/скрываем поле для ввода своего процента
+            const customInput = document.getElementById('custom-rate-input');
+            if (type === 'custom') {
+                customInput.style.display = 'block';
+                document.getElementById('custom-rate').focus();
+            } else {
+                customInput.style.display = 'none';
+            }
+        }
+        
+        // Обновление ставки в зависимости от типа договора
+        function updateRateByContractType() {
+            if (selectedContractType === 'consumer') {
+                // Для потребительских договоров по умолчанию 0.5%
+                if (selectedRateType !== 'custom') {
+                    selectRate('consumer');
+                }
+            } else if (selectedContractType === 'construction') {
+                // Для долевого строительства по умолчанию ставка ЦБ
+                if (selectedRateType !== 'custom') {
+                    selectRate('cb');
+                }
+            }
+        }
+        
+        // Изменение единиц измерения
+        document.getElementById('period-type').addEventListener('change', function() {
+            const unit = document.getElementById('delay-unit');
+            switch(this.value) {
+                case 'days': unit.textContent = 'дней'; break;
+                case 'months': unit.textContent = 'месяцев'; break;
+                case 'years': unit.textContent = 'лет'; break;
+            }
+        });
+        
+        // Основная функция расчета
+        function calculatePenalty() {
+            // Получаем значения из формы
+            const amount = parseFloat(document.getElementById('amount').value);
+            const delay = parseFloat(document.getElementById('delay').value);
+            const periodType = document.getElementById('period-type').value;
+            
+            // Проверяем валидность ввода
+            if (!amount || amount <= 0) {
+                alert('Введите корректную сумму договора');
+                document.getElementById('amount').focus();
+                return;
+            }
+            
+            if (!delay || delay <= 0) {
+                alert('Введите корректный срок просрочки');
+                document.getElementById('delay').focus();
+                return;
+            }
+            
+            // Определяем процент неустойки
+            let ratePercent;
+            switch(selectedRateType) {
+                case 'cb':
+                    ratePercent = 0.033; // Ключевая ставка ЦБ
+                    break;
+                case 'standard':
+                    ratePercent = 0.1; // Стандартная ставка
+                    break;
+                case 'consumer':
+                    ratePercent = 0.5; // Для потребительских договоров
+                    break;
+                case 'custom':
+                    const customRate = parseFloat(document.getElementById('custom-rate').value);
+                    if (!customRate || customRate <= 0) {
+                        alert('Введите корректный процент неустойки');
+                        document.getElementById('custom-rate').focus();
+                        return;
+                    }
+                    ratePercent = customRate;
+                    break;
+            }
+            
+            // Преобразуем период в дни
+            let days = delay;
+            switch(periodType) {
+                case 'months':
+                    days = delay * 30.44; // Среднее количество дней в месяце
+                    break;
+                case 'years':
+                    days = delay * 365.25; // Учет високосных лет
+                    break;
+            }
+            
+            // Рассчитываем неустойку
+            const penalty = amount * (ratePercent / 100) * days;
+            
+            // Ограничиваем максимальный размер неустойки (не более суммы долга)
+            const maxPenalty = amount; // По общему правилу
+            const finalPenalty = Math.min(penalty, maxPenalty);
+            const total = amount + finalPenalty;
+            
+            // Форматируем числа
+            const formatCurrency = (num) => {
+                return new Intl.NumberFormat('ru-RU', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(num);
+            };
+            
+            // Форматируем период
+            let periodText = `${delay} `;
+            switch(periodType) {
+                case 'days': periodText += 'дней'; break;
+                case 'months': periodText += 'месяцев'; break;
+                case 'years': periodText += 'лет'; break;
+            }
+            
+            // Обновляем интерфейс с результатами
+            document.getElementById('principal-amount').textContent = formatCurrency(amount) + ' ₽';
+            document.getElementById('penalty-amount').textContent = formatCurrency(finalPenalty) + ' ₽';
+            document.getElementById('rate-value').textContent = ratePercent + '% в день';
+            document.getElementById('period-value').textContent = periodText;
+            document.getElementById('total-amount').textContent = formatCurrency(total) + ' ₽';
+            document.getElementById('total-result').textContent = formatCurrency(total) + ' ₽';
+            
+            // Показываем блок с результатами
+            document.getElementById('initial-placeholder').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+            
+            // Прокручиваем к результатам
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Аналитика - считаем использование калькулятора
+            logCalculatorUse(amount, finalPenalty, selectedContractType);
+        }
+        
+        // Поделиться результатом
+        function shareResult() {
+            const total = document.getElementById('total-result').textContent;
+            const penalty = document.getElementById('penalty-amount').textContent;
+            const period = document.getElementById('period-value').textContent;
+            
+            const text = `🧮 Рассчитал неустойку на DocScan AI:\n\n` +
+                        `Общая сумма к взысканию: ${total}\n` +
+                        `Неустойка: ${penalty}\n` +
+                        `Период просрочки: ${period}\n\n` +
+                        `Попробуйте сами: https://docscan-ai.ru/calculator-penalty`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Расчет неустойки на DocScan AI',
+                    text: text,
+                    url: 'https://docscan-ai.ru/calculator-penalty'
+                });
+            } else {
+                // Копируем в буфер обмена для десктопов
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Результаты скопированы в буфер обмена!');
+                });
+            }
+        }
+        
+        // Распечатать расчет
+        function printResult() {
+            const printContent = document.getElementById('result-section').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Расчет неустойки - DocScan AI</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .print-header { text-align: center; margin-bottom: 30px; }
+                        .print-result { border: 2px solid #333; padding: 20px; margin: 20px 0; }
+                        .print-footer { margin-top: 30px; font-size: 12px; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-header">
+                        <h1>Расчет неустойки</h1>
+                        <p>Сгенерировано на DocScan AI</p>
+                        <p>Дата: ${new Date().toLocaleDateString('ru-RU')}</p>
+                    </div>
+                    ${printContent}
+                    <div class="print-footer">
+                        <p>Онлайн калькулятор: https://docscan-ai.ru/calculator-penalty</p>
+                        <p>© 2025 DocScan AI. Все права защищены.</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            window.location.reload();
+        }
+        
+        // Сброс калькулятора
+        function resetCalculator() {
+            document.getElementById('amount').value = '';
+            document.getElementById('delay').value = '';
+            document.getElementById('custom-rate').value = '';
+            
+            selectContractType('general');
+            selectRate('cb');
+            
+            document.getElementById('initial-placeholder').style.display = 'block';
+            document.getElementById('result-section').style.display = 'none';
+            
+            // Прокручиваем к началу
+            document.querySelector('.calculator-form').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // FAQ Toggle
+        function toggleFAQ(id) {
+            const answer = document.getElementById(`faq-${id}`);
+            const isOpen = answer.classList.contains('open');
+            
+            document.querySelectorAll('.faq-answer').forEach(faq => {
+                faq.classList.remove('open');
+            });
+            
+            if (!isOpen) {
+                answer.classList.add('open');
+            }
+        }
+        
+        // Burger menu toggle
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Логирование использования калькулятора
+        function logCalculatorUse(amount, penalty, contractType) {
+            // Можно добавить отправку данных в Google Analytics или свой бэкенд
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculate', {
+                    'event_category': 'calculator',
+                    'event_label': contractType,
+                    'value': Math.round(amount)
+                });
+            }
+        }
+        
+        // Автофокус при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('amount').focus();
+        });
+    </script>
+    
+    <!-- Schema.org для калькулятора -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Калькулятор неустойки онлайн",
+      "description": "Бесплатный расчет пени, штрафов и неустоек по договору. Рассчитайте сумму взыскания за просрочку по статьям 395, 330 ГК РФ",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "RUB"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "DocScan AI"
+      },
+      "potentialAction": {
+        "@type": "CalculateAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://docscan-ai.ru/calculator-penalty",
+          "actionPlatform": [
+            "http://schema.org/DesktopWebPlatform",
+            "http://schema.org/MobileWebPlatform"
+          ]
+        },
+        "result": {
+          "@type": "PriceSpecification",
+          "price": "0",
+          "priceCurrency": "RUB"
+        }
+      }
+    }
+    </script>
+</body>
+</html>

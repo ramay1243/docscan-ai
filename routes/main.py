@@ -1832,6 +1832,11 @@ def article_tax():
     """Статья 'Финансовые риски в договорах'"""
     return render_template('article_tax.html')
     
+@main_bp.route('/articles/business_protection')
+def redirect_business_protection():
+    """Редирект со старого URL (с подчёркиванием) на новый (с дефисом)"""
+    return redirect('/articles/business-protection', code=301)
+    
 @main_bp.route('/articles/business-protection')
 def article_business_protection():
     return render_template('article_business_protection.html')

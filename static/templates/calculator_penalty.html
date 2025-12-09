@@ -1113,6 +1113,18 @@
             const delay = parseFloat(document.getElementById('delay').value);
             const periodType = document.getElementById('period-type').value;
             
+            // Отправляем статистику использования калькулятора
+    try {
+        const user_id = localStorage.getItem('docscan_user_id');
+        fetch('/api/calculator-click', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ user_id: user_id })
+        }).catch(e => console.log('Analytics error:', e));
+    } catch (e) {
+        console.log('Failed to send analytics:', e);
+    }
+            
             // Проверяем валидность ввода
             if (!amount || amount <= 0) {
                 alert('Введите корректную сумму договора');

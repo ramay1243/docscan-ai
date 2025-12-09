@@ -1839,7 +1839,12 @@ def article_business_protection():
 @main_bp.route('/articles/freelance-gph')
 def article_freelance_gph():
     return render_template('article_freelance_gph.html')
-    
+
+@main_bp.route('/articles/article_freelance_gph')
+def redirect_article_freelance():
+    """Редирект со старого URL на новый"""
+    return redirect('/articles/freelance-gph', code=301)
+
 @main_bp.route('/analiz-dokumentov')
 def analiz_dokumentov():
     return render_template('analiz-dokumentov.html')

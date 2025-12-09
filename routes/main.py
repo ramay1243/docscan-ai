@@ -1780,6 +1780,13 @@ def sitemap():
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+        <url>
+        <loc>https://docscan-ai.ru/articles/ipoteka-2025</loc>
+        <lastmod>2025-12-09</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
 </urlset>''', 200, {'Content-Type': 'application/xml'}
 
 @main_bp.route('/robots.txt')
@@ -1889,6 +1896,10 @@ def redirect_rent_check():
 def redirect_root_equals():
     """Редирект странного URL на главную"""
     return redirect('/', code=301)
+    
+@main_bp.route('/articles/ipoteka-2025')
+def article_ipoteka():
+    return render_template('article_ipoteka_2025.html')
     
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

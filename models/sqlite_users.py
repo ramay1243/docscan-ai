@@ -167,3 +167,25 @@ class SQLiteUserManager:
             self.db.session.commit()
             return True
         return False
+        
+    def get_calculator_stats(self):
+        """Возвращает статистику по использованию калькулятора"""
+        users = self.get_all_users()
+        
+        total_calculator_uses = sum(user.calculator_uses for user in users)
+        users_with_calculator_use = sum(1 for user in users if user.calculator_uses > 0)
+        
+        # Пользователи с наибольшим использованием
+        top_users = sorted(
+            [(user.user_id, user.calculator_uses, user.last_calculator_use) 
+             for user in users if user.calculator_uses > 0],
+            key=lambda x: x[1],
+            reverse=True
+        )[:10]
+        
+        return {
+            'total_calculator_uses': total_calculator_uses,
+            'users_with_calculator_use': users_with_calculator_use,
+            'total_users': len(users),
+            'top_users': top_users
+        }

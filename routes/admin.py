@@ -145,6 +145,10 @@ def admin_panel():
             </select>
             <button onclick="setUserPlan()">Выдать тариф</button>
             
+            <h3>Статистика калькулятора:</h3>
+            <button onclick="showCalculatorStats()">📊 Показать статистику калькулятора</button>
+            <div id="calculatorStats" style="display: none; margin-top: 20px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
+            
             <h3>Создать нового пользователя:</h3>
             <input type="text" id="newUserId" placeholder="Новый ID пользователя (опционально)">
             <button onclick="createUser()">Создать пользователя</button>
@@ -253,6 +257,39 @@ def admin_panel():
             // Загружаем при открытии
             loadStats();
             loadUsers();
+            
+            function showCalculatorStats() {
+                fetch('/admin/calculator-stats-data', {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(stats => {
+                        let html = `
+                            <h3>📊 Статистика калькулятора неустойки</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                                <div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">
+                                    <div style="font-size: 0.9rem; color: #666;">Всего использований</div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #4361ee;">${stats.total_calculator_uses}</div>
+                                </div>
+                                <div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">
+                                    <div style="font-size: 0.9rem; color: #666;">Пользователей использовали</div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #4361ee;">${stats.users_with_calculator_use}/${stats.total_users}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        if (stats.top_users && stats.top_users.length > 0) {
+                            html += `<h4>Топ пользователей:</h4><table style="width: 100%; border-collapse: collapse;"><thead><tr><th style="padding: 10px; background: #4361ee; color: white;">ID</th><th style="padding: 10px; background: #4361ee; color: white;">Использований</th><th style="padding: 10px; background: #4361ee; color: white;">Последнее</th></tr></thead><tbody>`;
+                            
+                            stats.top_users.forEach(user => {
+                                html += `<tr><td style="padding: 10px; border-bottom: 1px solid #ddd;">${user[0]}</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${user[1]}</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${user[2] || 'Нет данных'}</td></tr>`;
+                            });
+                            
+                            html += `</tbody></table>`;
+                        }
+                        
+                        document.getElementById('calculatorStats').innerHTML = html;
+                        document.getElementById('calculatorStats').style.display = 'block';
+                    });
+            }
         </script>
     </body>
     </html>
@@ -363,3 +400,13 @@ def admin_create_user():
     except Exception as e:
         logger.error(f"❌ Ошибка создания пользователя: {e}")
         return jsonify({'success': False, 'error': str(e)})
+        
+        
+@admin_bp.route('/calculator-stats-data')
+@require_admin_auth
+def calculator_stats_data():
+    """JSON данные статистики калькулятора"""
+    from app import app
+    
+    stats = app.user_manager.get_calculator_stats()
+    return jsonify(stats)

@@ -1885,7 +1885,10 @@ def faq_page():
 def redirect_rent_check():
     return redirect('/articles/rent', code=301)
     
-    
+@main_bp.route('/=')
+def redirect_root_equals():
+    """Редирект странного URL на главную"""
+    return redirect('/', code=301)
     
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

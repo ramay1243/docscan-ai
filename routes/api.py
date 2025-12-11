@@ -7,6 +7,7 @@ import logging
 from services.file_processing import extract_text_from_file, validate_file
 from services.analysis import analyze_text
 from config import PLANS
+from flask_cors import cross_origin, CORS
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ def create_user():
         return jsonify({'success': False, 'error': str(e)})
 
 @api_bp.route('/analyze', methods=['POST'])
+@cross_origin()
 def analyze_document():
     """Анализ документа"""
     from app import app

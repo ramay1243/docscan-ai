@@ -51,8 +51,12 @@ def analyze_document():
     user_id = request.form.get('user_id', 'default')
     
     # Проверяем лимиты
+    user = app.user_manager.get_user(user_id)
+    if user is None:
+        logger.info(f"🆕 Создаём нового пользователя: {user_id}")
+        user = app.user_manager.get_or_create_user(user_id)
+    
     if not app.user_manager.can_analyze(user_id):
-        user = app.user_manager.get_user(user_id)
         plan = PLANS[user.plan]
         return jsonify({
             'success': False,

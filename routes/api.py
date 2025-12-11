@@ -55,6 +55,10 @@ def analyze_document():
     if user is None:
         logger.info(f"🆕 Создаём нового пользователя: {user_id}")
         user = app.user_manager.get_or_create_user(user_id)
+        # Проверяем что пользователь создан
+        if user is None:
+            logger.error(f"❌ Не удалось создать пользователя: {user_id}")
+            return jsonify({'success': False, 'error': 'Ошибка создания пользователя'}), 500
     
     if not app.user_manager.can_analyze(user_id):
         plan = PLANS[user.plan]

@@ -55,6 +55,12 @@ def analyze_document():
 
     # Получаем данные пользователя ДО проверки IP-лимитов
     user = app.user_manager.get_user(user_id)
+    
+    # Если пользователь не существует, создаём его с бесплатным тарифом
+    if user is None:
+        logger.info(f"🆕 Создаём нового пользователя: {user_id}")
+        user = app.user_manager.get_or_create_user(user_id)
+    
     # Проверяем IP-лимиты для бесплатных пользователей
     if user.plan == 'free':
         if not app.ip_limit_manager.can_analyze_by_ip(request):

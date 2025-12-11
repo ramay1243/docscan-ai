@@ -66,6 +66,10 @@ def analyze_document():
 
     temp_path = None
     try:
+        logger.info(f"📨 Получен запрос от user_id: {user_id}")
+        logger.info(f"📨 Файлы в запросе: {request.files}")
+        logger.info(f"📨 Форма данные: {request.form}")
+        
         if 'file' not in request.files:
             return jsonify({'error': 'Файл не загружен'}), 400
         

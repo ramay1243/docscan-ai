@@ -39,6 +39,13 @@ def analyze_document():
     
     real_ip = app.ip_limit_manager.get_client_ip(request)
     logger.info(f"🔍 Анализ запущен для IP: {real_ip}")
+    logger.info(f"📨 === НОВЫЙ ЗАПРОС ===")
+    logger.info(f"📨 Метод: {request.method}")
+    logger.info(f"📨 Заголовки: {dict(request.headers)}")
+    logger.info(f"📨 Content-Type: {request.content_type}")
+    logger.info(f"📨 Данные формы: {request.form}")
+    logger.info(f"📨 Файлы: {request.files}")
+    logger.info(f"📨 Полный запрос: {request}")
     
     # Получаем user_id из формы или используем default
     user_id = request.form.get('user_id', 'default')

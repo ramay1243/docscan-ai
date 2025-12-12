@@ -34,82 +34,113 @@ def create_user():
 @api_bp.route('/analyze', methods=['POST'])
 @cross_origin()
 def analyze_document():
-    """Анализ документа"""
+    """Анализ документа - поддерживает multipart/form-data и application/json с base64"""
     from app import app
     
     real_ip = app.ip_limit_manager.get_client_ip(request)
     logger.info(f"🔍 Анализ запущен для IP: {real_ip}")
     logger.info(f"📨 === НОВЫЙ ЗАПРОС ===")
     logger.info(f"📨 Метод: {request.method}")
-    logger.info(f"📨 Заголовки: {dict(request.headers)}")
     logger.info(f"📨 Content-Type: {request.content_type}")
-    logger.info(f"📨 Данные формы: {request.form}")
-    logger.info(f"📨 Файлы: {request.files}")
     logger.info(f"📨 Полный запрос: {request}")
     
-    # Получаем user_id из формы или используем default
-    user_id = request.form.get('user_id', 'default')
+    temp_path = None
+    file = None
+    filename = ""
     
-    # Проверяем лимиты
-    user = app.user_manager.get_user(user_id)
-    if user is None:
-        logger.info(f"🆕 Создаём нового пользователя: {user_id}")
-        user = app.user_manager.get_or_create_user(user_id)
-        # Проверяем что пользователь создан
+    try:
+        # РАЗДЕЛ 1: ОПРЕДЕЛЯЕМ ФОРМАТ ЗАПРОСА
+        if request.content_type and 'application/json' in request.content_type:
+            # 🆕 РЕЖИМ 1: JSON с base64 (для мобильного приложения)
+            logger.info("📱 Режим: JSON с base64 (мобильное приложение)")
+            
+            data = request.get_json()
+            logger.info(f"📱 JSON данные: {data}")
+            
+            if not data:
+                return jsonify({'error': 'Пустой JSON'}), 400
+            
+            # Извлекаем данные из JSON
+            user_id = data.get('user_id', 'default')
+            file_base64 = data.get('file')
+            filename = data.get('filename', 'document.pdf')
+            mime_type = data.get('mimeType', 'application/octet-stream')
+            
+            if not file_base64:
+                return jsonify({'error': 'Файл не загружен (отсутствует base64)'}), 400
+            
+            # Декодируем base64 в файл
+            import base64
+            try:
+                file_content = base64.b64decode(file_base64)
+            except Exception as e:
+                logger.error(f"❌ Ошибка декодирования base64: {e}")
+                return jsonify({'error': f'Неверный формат base64: {str(e)}'}), 400
+            
+            # Сохраняем временный файл
+            temp_path = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4()}_{filename}")
+            with open(temp_path, 'wb') as f:
+                f.write(file_content)
+            
+            logger.info(f"📱 Файл сохранен: {temp_path}, размер: {len(file_content)} байт")
+            
+        else:
+            # 📄 РЕЖИМ 2: Multipart/form-data (для веб-сайта, как раньше)
+            logger.info("🌐 Режим: multipart/form-data (веб-сайт)")
+            
+            # Получаем user_id из формы или используем default
+            user_id = request.form.get('user_id', 'default')
+            
+            logger.info(f"📨 Файлы в запросе: {request.files}")
+            logger.info(f"📨 Форма данные: {request.form}")
+            
+            if 'file' not in request.files:
+                return jsonify({'error': 'Файл не загружен'}), 400
+            
+            file = request.files['file']
+            if file.filename == '':
+                return jsonify({'error': 'Файл не выбран'}), 400
+            
+            filename = file.filename
+            
+            # Валидация файла
+            is_valid, message = validate_file(file)
+            if not is_valid:
+                return jsonify({'error': message}), 400
+            
+            # Сохраняем временный файл
+            temp_path = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4()}_{filename}")
+            file.save(temp_path)
+        
+        # РАЗДЕЛ 2: ОБЩАЯ ЛОГИКА (работает для обоих режимов)
+        # Проверяем лимиты
+        user = app.user_manager.get_user(user_id)
         if user is None:
-            logger.error(f"❌ Не удалось создать пользователя: {user_id}")
-            return jsonify({'success': False, 'error': 'Ошибка создания пользователя'}), 500
-    
-    if not app.user_manager.can_analyze(user_id):
-        plan = PLANS[user.plan]
-        return jsonify({
-            'success': False,
-            'error': f'❌ Бесплатный лимит исчерпан! Сегодня использовано {user.used_today}/{plan["daily_limit"]} анализов.',
-            'upgrade_required': True
-        }), 402
-
-    # Получаем данные пользователя ДО проверки IP-лимитов
-    user = app.user_manager.get_user(user_id)
-    
-    # Если пользователь не существует, создаём его с бесплатным тарифом
-    if user is None:
-        logger.info(f"🆕 Создаём нового пользователя: {user_id}")
-        user = app.user_manager.get_or_create_user(user_id)
-    
-    # Проверяем IP-лимиты для бесплатных пользователей
-    if user.plan == 'free':
-        if not app.ip_limit_manager.can_analyze_by_ip(request):
+            logger.info(f"🆕 Создаём нового пользователя: {user_id}")
+            user = app.user_manager.get_or_create_user(user_id)
+            if user is None:
+                logger.error(f"❌ Не удалось создать пользователя: {user_id}")
+                return jsonify({'success': False, 'error': 'Ошибка создания пользователя'}), 500
+        
+        if not app.user_manager.can_analyze(user_id):
+            plan = PLANS[user.plan]
             return jsonify({
                 'success': False,
-                'error': '❌ Бесплатный лимит по IP исчерпан! Можно сделать только 3 анализа в день с одного IP-адреса.',
-                'ip_limit_exceeded': True
+                'error': f'❌ Бесплатный лимит исчерпан! Сегодня использовано {user.used_today}/{plan["daily_limit"]} анализов.',
+                'upgrade_required': True
             }), 402
-
-    temp_path = None
-    try:
-        logger.info(f"📨 Получен запрос от user_id: {user_id}")
-        logger.info(f"📨 Файлы в запросе: {request.files}")
-        logger.info(f"📨 Форма данные: {request.form}")
         
-        if 'file' not in request.files:
-            return jsonify({'error': 'Файл не загружен'}), 400
+        # Проверяем IP-лимиты для бесплатных пользователей
+        if user.plan == 'free':
+            if not app.ip_limit_manager.can_analyze_by_ip(request):
+                return jsonify({
+                    'success': False,
+                    'error': '❌ Бесплатный лимит по IP исчерпан! Можно сделать только 3 анализа в день с одного IP-адреса.',
+                    'ip_limit_exceeded': True
+                }), 402
         
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'error': 'Файл не выбран'}), 400
-        
-        # Валидация файла
-        is_valid, message = validate_file(file)
-        if not is_valid:
-            return jsonify({'error': message}), 400
-        
-        # Сохраняем временный файл
-        temp_path = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4()}_{file.filename}")
-        file.save(temp_path)
-        
-        # Проверяем тариф для фото
-        user = app.user_manager.get_user(user_id)
-        if file.filename.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
+        # Проверяем тариф для фото (только для реальных файлов, не для base64)
+        if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
             if user.plan == 'free':
                 logger.info(f"❌ Отказано в анализе фото для бесплатного пользователя {user_id}")
                 return jsonify({
@@ -122,7 +153,7 @@ def analyze_document():
             logger.info(f"✅ Разрешено распознавание фото для пользователя {user_id} (тариф: {user.plan})")
         
         # Извлекаем текст
-        text = extract_text_from_file(temp_path, file.filename)
+        text = extract_text_from_file(temp_path, filename)
         
         # Проверяем что текст извлекся
         if not text or len(text.strip()) < 10:
@@ -131,7 +162,7 @@ def analyze_document():
         # Анализируем текст
         analysis_result = analyze_text(text, user.plan)
         
-        logger.info(f"✅ АНАЛИЗ УСПЕШЕН для {user_id}, IP: {real_ip}")
+        logger.info(f"✅ АНАЛИЗ УСПЕШЕН для {user_id}, IP: {real_ip}, режим: {'JSON' if request.content_type and 'application/json' in request.content_type else 'multipart'}")
         
         # Записываем использование
         app.user_manager.record_usage(user_id)
@@ -152,7 +183,7 @@ def analyze_document():
         
         return jsonify({
             'success': True,
-            'filename': file.filename,
+            'filename': filename,
             'user_id': user_id,
             'result': analysis_result
         })

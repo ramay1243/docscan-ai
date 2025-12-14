@@ -1913,6 +1913,11 @@ def article_ipoteka():
 def calculator_penalty():
     """Страница калькулятора неустойки"""
     return render_template('calculator_penalty.html')
+
+@main_bp.route('/mobile-app')
+def mobile_app():
+    """Страница мобильного приложения"""
+    return render_template('mobile_app.html')
     
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():

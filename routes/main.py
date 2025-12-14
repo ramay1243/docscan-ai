@@ -800,10 +800,11 @@ def home():
                 <nav class="nav-links">
                     <a href="/" class="nav-link active">Главная</a>
                     <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
-                    <a href="/proverka-dogovorov" class="nav-link">Проверка договоров</a>
+                    <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
+                    <a href="/mobile-app" class="nav-link">Мобильное приложение</a>
                     <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/faq" class="nav-link">FAQ</a>
                     <a href="/contact" class="nav-link">Контакты</a>
-                    <a href="/mobile-app" class="nav-link">Приложение</a>
                 </nav>
                 
             </div>

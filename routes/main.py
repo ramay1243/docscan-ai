@@ -803,6 +803,7 @@ def home():
                     <a href="/proverka-dogovorov" class="nav-link">Проверка договоров</a>
                     <a href="/articles" class="nav-link">Статьи</a>
                     <a href="/contact" class="nav-link">Контакты</a>
+                    <a href="/mobile-app" class="nav-link">Приложение</a>
                 </nav>
                 
             </div>
@@ -1199,6 +1200,7 @@ def home():
             <a href="/articles">📚 Статьи</a>
             <a href="/contact">📞 Контакты</a>
             <a href="/calculator-penalty">🧮 Калькулятор неустойки</a>
+            <a href="/mobile-app">📱 Приложение</a>
             <a href="/faq">❓FAQ</a>
             <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
         </div>
@@ -1224,7 +1226,8 @@ def home():
                         <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
                         <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
                         <a href="/articles" class="footer-link">База знаний</a>
-                         <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/mobile-app" class="footer-link">📱 Приложение</a>
                         <a href="/contact" class="footer-link">Техподдержка</a>
                         <a href="/faq" class="footer-link">FAQ</a>
                     </div>
@@ -1792,6 +1795,12 @@ def sitemap():
         <loc>https://docscan-ai.ru/calculator-penalty</loc>
         <lastmod>2025-12-09</lastmod>
         <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://docscan-ai.ru/mobile-app.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     

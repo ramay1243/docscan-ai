@@ -1923,7 +1923,7 @@ def calculator_penalty():
     """Страница калькулятора неустойки"""
     return render_template('calculator_penalty.html')
 
-@main_bp.route('/mobile-app.html')
+@main_bp.route('/mobile-app')
 def mobile_app_page():
     return render_template('mobile_app.html')
     

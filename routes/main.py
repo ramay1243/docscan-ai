@@ -1928,6 +1928,10 @@ def calculator_penalty():
 def mobile_app_page():
     return render_template('mobile_app.html')
     
+@main_bp.route('/telderi5f932e1d02880a7a361463d87d31d143.txt')
+def telderi_verification():
+    return "Telderi", 200, {'Content-Type': 'text/plain; charset=utf-8'}
+    
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():
     """Отправка сообщения в Telegram"""

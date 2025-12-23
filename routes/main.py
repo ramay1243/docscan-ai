@@ -22,7 +22,7 @@ def home():
     <title>DocScan AI: Проверка договоров онлайн бесплатно с ИИ | Анализ документов за 60 секунд</title>
     
     <!-- Оптимизированное описание -->
-    <meta name="description" content="✅ 3 проверки договоров в день бесплатно! DocScan AI анализирует договоры аренды, трудовые, кредитные документы за 60 секунд. Нейросень для проверки юридических рисков. Бесплатная онлайн проверка документов.">
+    <meta name="description" content="Проверка договоров онлайн бесплатно: 3 анализа в день с ИИ. Анализ договоров аренды, трудовых, кредитных за 60 секунд. Попробуйте сейчас без регистрации!">
     
     <!-- Расширенные ключевые слова -->
     <meta name="keywords" content="проверка договоров онлайн, анализ документов ИИ, бесплатная проверка договоров, нейросеть для проверки документов, проверка договоров аренды, анализ договора с искусственным интеллектом, проверка юридических рисков, расшифровка документов, проверка договоров бесплатно, ИИ для анализа договоров">
@@ -816,7 +816,7 @@ def home():
         <div class="container">
             <div class="hero-content">
                 <span class="hero-badge">🤖 Искусственный интеллект</span>
-                <h1 class="hero-title">Анализ документов с ИИ за 60 секунд</h1>
+                <h1>Проверка договоров онлайн бесплатно с ИИ за 60 секунд</h1>
                 <p class="hero-subtitle">
                     Проверяйте договоры, контракты и юридические документы на риски с помощью искусственного интеллекта. 
                     Находите скрытые проблемы до того, как они станут дорогостоящими ошибками.
@@ -986,13 +986,13 @@ def home():
     <!-- SEO текст для продвижения -->
     <section class="container">
         <div class="seo-text" style="max-width: 800px; margin: 0 auto 50px; padding: 30px; background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow);">
-            <h2 style="color: var(--primary); margin-bottom: 20px;">Проверка договоров онлайн с искусственным интеллектом</h2>
+            <h2 style="color: var(--primary); margin-bottom: 20px; font-size: 1.8rem;">Проверка договоров онлайн с искусственным интеллектом</h2>
             <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Сервис <strong>DocScan AI</strong> предлагает автоматическую проверку договоров на юридические, финансовые и операционные риски. Наша система анализирует документы с помощью искусственного интеллекта и выявляет скрытые проблемы за 60 секунд.</p>
             
-            <h3 style="color: var(--text); margin: 25px 0 15px;">Бесплатная проверка договоров</h3>
+            <h3 style="color: var(--dark); margin: 25px 0 15px; font-size: 1.4rem;">Бесплатная проверка договоров</h3>
             <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Получите <strong>3 анализа документов в день бесплатно</strong>. Проверьте договор аренды, трудовой договор, договор поставки или любой другой документ. Для профессионального использования доступен тариф с неограниченным количеством проверок.</p>
             
-            <h3 style="color: var(--text); margin: 25px 0 15px;">Ключевые возможности:</h3>
+            <h3 style="color: var(--dark); margin: 25px 0 15px; font-size: 1.4rem;">Ключевые возможности:</h3>
             <ul style="font-size: 1.1rem; line-height: 1.8; padding-left: 20px;">
                 <li><strong>Проверка договоров онлайн</strong> - работает 24/7</li>
                 <li><strong>Анализ юридических рисков</strong> - выявление опасных пунктов</li>
@@ -1010,7 +1010,7 @@ def home():
 
     <!-- How It Works -->
     <section class="container">
-        <h2 class="section-title">Как это работает?</h2>
+        <h2>Как это работает?</h2>
         
         <div class="process-steps">
             <div class="step">
@@ -1035,7 +1035,7 @@ def home():
 
     <!-- Features -->
     <section class="container">
-        <h2 class="section-title">Почему DocScan AI?</h2>
+        <h2>Почему DocScan AI?</h2>
         
         <div class="features-grid">
             <div class="feature-card">
@@ -1067,7 +1067,7 @@ def home():
     <!-- Document Types -->
     <div style="background: var(--light); padding: 60px 0;">
         <div class="container">
-            <h3 class="section-title">Какие документы можно проверить?</h3>
+            <h2>Какие документы можно проверить?</h2>
             
             <div class="simple-carousel">
                 <div class="carousel-wrapper">
@@ -1087,7 +1087,7 @@ def home():
 
     <!-- Pricing -->
     <section class="container">
-        <h2 class="section-title">Выберите тариф</h2>
+        <h2>Выберите тариф</h2>
         <p class="section-subtitle">
             Начните с бесплатного анализа, переходите на платные тарифы по мере роста потребностей
         </p>
@@ -1122,7 +1122,7 @@ def home():
 
     <!-- FAQ -->
     <section class="container faq-section">
-        <h2 class="section-title">Частые вопросы</h2>
+        <h2>Частые вопросы</h2>
         
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(1)">
@@ -1549,6 +1549,23 @@ def home():
     [
         {
             "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "DocScan AI",
+            "url": "https://docscan-ai.ru",
+            "logo": "https://docscan-ai.ru/static/favicon.ico",
+            "description": "Автоматический анализ документов с искусственным интеллектом. Проверка договоров на юридические и финансовые риски за 60 секунд.",
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "email": "docscanhelp@gmail.com",
+                "contactType": "customer support",
+                "availableLanguage": "Russian"
+            },
+            "sameAs": [
+                "https://t.me/docscan_ai"
+            ]
+        },
+        {
+            "@context": "https://schema.org",
             "@type": "SoftwareApplication",
             "name": "DocScan AI",
             "applicationCategory": "BusinessApplication",
@@ -1656,156 +1673,99 @@ def offer():
 
 @main_bp.route('/sitemap.xml')
 def sitemap():
-    """Sitemap для SEO"""
+    """Sitemap для SEO с динамическими датами"""
+    from datetime import datetime
     base_url = "https://docscan-ai.ru"
-    return f'''<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-        <loc>{base_url}/</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>1.0</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles/about</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles/guide</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles/tech</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{base_url}/contact</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
-        <loc>{base_url}/terms</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>0.3</priority>
-    </url>
-    <url>
-        <loc>{base_url}/privacy</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>0.3</priority>
-    </url>
-    <url>
-        <loc>{base_url}/offer</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>yearly</changefreq>
-        <priority>0.3</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles/tax</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles/labor</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles/rent</loc>
-        <lastmod>2025-11-28</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles/business-protection</loc>
-        <lastmod>2025-12-01</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{base_url}/articles/freelance-gph</loc>
-        <lastmod>2025-12-01</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{base_url}/analiz-dokumentov</loc>
-        <lastmod>2025-12-01</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-    <url>
-        <loc>{base_url}/proverka-dogovorov</loc>
-        <lastmod>2025-12-01</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-        <url>
-        <loc>{base_url}/riski-dogovora-zayma</loc>
-        <lastmod>2025-12-03</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-    <url>
-        <loc>https://docscan-ai.ru/avtokredit-skrytye-usloviya</loc>
-        <lastmod>2025-12-03</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://docscan-ai.ru/ii-dlya-proverki-dogovorov-onlayn-besplatno</loc>
-        <lastmod>2025-12-04</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://docscan-ai.ru/medicinskie-dokumenty-analiz</loc>
-        <lastmod>2025-12-06</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-        <url>
-        <loc>https://docscan-ai.ru/faq</loc>
-        <lastmod>2025-12-06</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-        <url>
-        <loc>https://docscan-ai.ru/articles/ipoteka-2025</loc>
-        <lastmod>2025-12-09</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-        <url>
-        <loc>https://docscan-ai.ru/calculator-penalty</loc>
-        <lastmod>2025-12-09</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://docscan-ai.ru/mobile-app.html</loc>
-        <lastmod>2025-12-14</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
+    today = datetime.now().strftime('%Y-%m-%d')
     
-</urlset>''', 200, {'Content-Type': 'application/xml'}
+    # Приоритетные страницы (обновляются часто)
+    priority_pages = [
+        ('/', 'daily', '1.0'),
+        ('/analiz-dokumentov', 'weekly', '0.9'),
+        ('/proverka-dogovorov', 'weekly', '0.9'),
+        ('/articles', 'weekly', '0.9'),
+        ('/faq', 'monthly', '0.8'),
+        ('/calculator-penalty', 'monthly', '0.8'),
+        ('/mobile-app', 'weekly', '0.8'),
+    ]
+    
+    # Статьи (обновляются реже)
+    articles = [
+        '/articles/about',
+        '/articles/guide',
+        '/articles/tech',
+        '/articles/rent',
+        '/articles/labor',
+        '/articles/tax',
+        '/articles/business-protection',
+        '/articles/freelance-gph',
+        '/articles/ipoteka-2025',
+    ]
+    
+    # Дополнительные страницы
+    additional_pages = [
+        ('/riski-dogovora-zayma', 'weekly', '0.9'),
+        ('/avtokredit-skrytye-usloviya', 'monthly', '0.8'),
+        ('/ii-dlya-proverki-dogovorov-onlayn-besplatno', 'monthly', '0.8'),
+        ('/medicinskie-dokumenty-analiz', 'monthly', '0.8'),
+        ('/contact', 'monthly', '0.7'),
+    ]
+    
+    # Служебные страницы (низкий приоритет)
+    service_pages = [
+        ('/terms', 'yearly', '0.3'),
+        ('/privacy', 'yearly', '0.3'),
+        ('/offer', 'yearly', '0.3'),
+    ]
+    
+    sitemap_xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">'''
+    
+    # Приоритетные страницы
+    for url, changefreq, priority in priority_pages:
+        sitemap_xml += f'''
+    <url>
+        <loc>{base_url}{url}</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>{changefreq}</changefreq>
+        <priority>{priority}</priority>
+    </url>'''
+    
+    # Статьи
+    for article in articles:
+        sitemap_xml += f'''
+    <url>
+        <loc>{base_url}{article}</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>'''
+    
+    # Дополнительные страницы
+    for url, changefreq, priority in additional_pages:
+        sitemap_xml += f'''
+    <url>
+        <loc>{base_url}{url}</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>{changefreq}</changefreq>
+        <priority>{priority}</priority>
+    </url>'''
+    
+    # Служебные страницы
+    for url, changefreq, priority in service_pages:
+        sitemap_xml += f'''
+    <url>
+        <loc>{base_url}{url}</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>{changefreq}</changefreq>
+        <priority>{priority}</priority>
+    </url>'''
+    
+    sitemap_xml += '''
+</urlset>'''
+    
+    return sitemap_xml, 200, {'Content-Type': 'application/xml'}
 
 @main_bp.route('/robots.txt')
 def robots():

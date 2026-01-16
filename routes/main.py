@@ -962,7 +962,7 @@ def home():
                         <strong>👤 Ваш ID:</strong> <span id="userId">Загрузка...</span>
                     </div>
                     <div>
-                        <strong>📊 Анализов сегодня:</strong> <span id="usageInfo">0/1</span>
+                        <strong>📊 Анализов сегодня:</strong> <span id="usageInfo">0/3</span>
                     </div>
                 </div>
                 <div>
@@ -1012,7 +1012,7 @@ def home():
             <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Сервис <strong>DocScan AI</strong> предлагает автоматическую проверку договоров на юридические, финансовые и операционные риски. Наша система анализирует документы с помощью искусственного интеллекта и выявляет скрытые проблемы за 60 секунд.</p>
             
             <h3 style="color: var(--dark); margin: 25px 0 15px; font-size: 1.4rem;">Бесплатная проверка договоров</h3>
-            <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Получите <strong>1 бесплатный анализ без регистрации</strong>. Проверьте договор аренды, трудовой договор, договор поставки или любой другой документ. Для продолжения работы зарегистрируйтесь и выберите тариф с неограниченным количеством проверок.</p>
+            <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Получите <strong>3 анализа документов в день бесплатно</strong>. Проверьте договор аренды, трудовой договор, договор поставки или любой другой документ. Для профессионального использования доступен тариф с неограниченным количеством проверок.</p>
             
             <h3 style="color: var(--dark); margin: 25px 0 15px; font-size: 1.4rem;">Ключевые возможности:</h3>
             <ul style="font-size: 1.1rem; line-height: 1.8; padding-left: 20px;">
@@ -1119,7 +1119,7 @@ def home():
                 <div class="plan-name" style="color: var(--danger);">Бесплатный</div>
                 <div class="price" style="color: var(--danger);">0₽</div>
                 <ul class="features">
-                    <li>✅ 1 бесплатный анализ без регистрации</li>
+                    <li>✅ 3 анализа в день</li>
                     <li>✅ Базовый AI-анализ</li>
                     <li>✅ Основные форматы файлов</li>
                     <li>✅ PDF, DOCX, TXT</li>
@@ -1162,7 +1162,7 @@ def home():
                 <span>+</span>
             </div>
             <div class="faq-answer" id="faq-2">
-                <p>1 бесплатный анализ без регистрации. После регистрации доступны платные тарифы: Базовый (Неограниченное количество анализов) - 490₽/мес.</p>
+                <p>3 анализа в день - бесплатно. Платные тарифы: Базовый (Неограниченное количество анализов в день) - 490₽/мес.</p>
             </div>
         </div>
         
@@ -1203,7 +1203,7 @@ def home():
             <h2 class="cta-title">Начните анализ документов прямо сейчас</h2>
             <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto 40px;">
                 Загрузите документ и получите анализ рисков через 60 секунд. 
-                Без регистрации, 1 анализ бесплатно.
+                Без регистрации, 3 анализа бесплатно.
             </p>
             <a href="#upload" class="cta-button" style="background: white; color: var(--primary); padding: 18px 50px; font-size: 1.2rem;">
                 🚀 Начать бесплатный анализ
@@ -1459,25 +1459,25 @@ def home():
                 const response = await fetch('/api/check-auth');
                 const data = await response.json();
                 
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
+                
                 if (data.authenticated) {
-                    document.getElementById('authButtons').style.display = 'none';
-                    document.getElementById('userMenu').style.display = 'flex';
-                    // Мобильное меню
-                    const mobileAuth = document.getElementById('mobileAuthButtons');
-                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (authButtons) authButtons.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'flex';
                     if (mobileAuth) mobileAuth.style.display = 'none';
                     if (mobileUser) mobileUser.style.display = 'block';
                 } else {
-                    document.getElementById('authButtons').style.display = 'flex';
-                    document.getElementById('userMenu').style.display = 'none';
-                    // Мобильное меню
-                    const mobileAuth = document.getElementById('mobileAuthButtons');
-                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (authButtons) authButtons.style.display = 'flex';
+                    if (userMenu) userMenu.style.display = 'none';
                     if (mobileAuth) mobileAuth.style.display = 'block';
                     if (mobileUser) mobileUser.style.display = 'none';
                 }
             } catch (error) {
                 // Ошибка проверки - оставляем кнопки по умолчанию
+                console.error('Auth check error:', error);
             }
         }
         
@@ -1673,7 +1673,7 @@ def home():
                     "name": "Сколько стоит анализ документов?",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "1 бесплатный анализ без регистрации. После регистрации доступны платные тарифы: Базовый (Неограниченное количество анализов) - 490₽/мес."
+                        "text": "3 анализа в день - бесплатно. Платные тарифы: Базовый (Неограниченное количество анализов) - 490₽/мес."
                     }
                 },
                 {

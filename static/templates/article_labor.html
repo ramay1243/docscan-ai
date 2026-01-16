@@ -1044,8 +1044,11 @@
         async function checkAuth() {
             try {
                 const response = await fetch('/api/check-auth', {
-                    credentials: 'include'
+                    credentials: 'include',
+                    cache: 'no-cache'
                 });
+                
+                if (!response.ok) return;
                 const data = await response.json();
                 
                 const authButtons = document.getElementById('authButtons');
@@ -1054,24 +1057,37 @@
                 const mobileUser = document.getElementById('mobileUserMenu');
                 
                 if (data.authenticated) {
-                    if (authButtons) authButtons.style.display = 'none';
-                    if (userMenu) userMenu.style.display = 'flex';
-                    if (mobileAuth) mobileAuth.style.display = 'none';
-                    if (mobileUser) mobileUser.style.display = 'block';
+                    if (authButtons) authButtons.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                    if (userMenu) userMenu.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    if (mobileAuth) mobileAuth.setAttribute('style', 'display: none !important;');
+                    if (mobileUser) mobileUser.setAttribute('style', 'display: block !important;');
                 } else {
-                    if (authButtons) authButtons.style.display = 'flex';
-                    if (userMenu) userMenu.style.display = 'none';
-                    if (mobileAuth) mobileAuth.style.display = 'block';
-                    if (mobileUser) mobileUser.style.display = 'none';
+                    if (authButtons) authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    if (userMenu) userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                    if (mobileAuth) mobileAuth.setAttribute('style', 'display: block !important;');
+                    if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
                 }
             } catch (error) {
-                // Ошибка проверки - оставляем кнопки по умолчанию
                 console.error('Auth check error:', error);
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
+                if (authButtons) authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                if (userMenu) userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                if (mobileAuth) mobileAuth.setAttribute('style', 'display: block !important;');
+                if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
             }
         }
         
-        // Вызываем при загрузке
-        document.addEventListener('DOMContentLoaded', checkAuth);
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            setTimeout(checkAuth, 500);
+        });
+        if (document.readyState !== 'loading') {
+            checkAuth();
+            setTimeout(checkAuth, 500);
+        }
     
     <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     

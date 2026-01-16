@@ -957,15 +957,15 @@ def home():
     <section class="upload-section" id="upload">
         <div class="container">
             <div class="user-info" id="userInfo">
-                <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;">
-                    <div>
+                <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div id="userIdBlock" style="display: none;">
                         <strong>👤 Ваш ID:</strong> <span id="userId">Загрузка...</span>
                     </div>
                     <div>
-                        <strong>📊 Анализов сегодня:</strong> <span id="usageInfo">0/3</span>
+                        <strong>📊 Анализов сегодня:</strong> <span id="usageInfo">0/1</span>
                     </div>
                 </div>
-                <div>
+                <div id="copyIdButton" style="display: none;">
                     <button onclick="copyUserId()" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem; margin: 5px;">
                         📋 Копировать ID
                     </button>
@@ -1327,56 +1327,93 @@ def home():
             container.scrollLeft += distance;
         }
         
-        // Load or create user ID
-        function loadUser() {
-            let savedId = localStorage.getItem('docscan_user_id');
-            if (!savedId) {
-                fetch('/api/create-user', { method: 'POST' })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            currentUserId = data.user_id;
-                            localStorage.setItem('docscan_user_id', currentUserId);
-                            updateUserInfo();
-                        }
-                    });
-            } else {
-                currentUserId = savedId;
-                updateUserInfo();
+        // НОВАЯ ЛОГИКА: Получаем user_id только из сессии (для зарегистрированных)
+        // Для незарегистрированных user_id не используется
+        async function loadUser() {
+            // Проверяем авторизацию через /api/check-auth
+            try {
+                const authResponse = await fetch('/api/check-auth', { credentials: 'include' });
+                const authData = await authResponse.json();
+                
+                if (authData.authenticated && authData.user_id) {
+                    // Пользователь авторизован - используем user_id из сессии
+                    currentUserId = authData.user_id;
+                    updateUserInfo();
+                } else {
+                    // Пользователь не авторизован - скрываем блок с user_id
+                    currentUserId = null;
+                    updateUserInfoForGuest();
+                }
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
+                currentUserId = null;
+                updateUserInfoForGuest();
             }
         }
         
         function updateUserInfo() {
-            if (!currentUserId) return;
+            if (!currentUserId) {
+                updateUserInfoForGuest();
+                return;
+            }
             
-            document.getElementById('userId').textContent = currentUserId;
+            // Для зарегистрированных - показываем user_id и статистику
+            const userIdElement = document.getElementById('userId');
+            const userIdBlock = document.getElementById('userIdBlock');
+            const copyIdButton = document.getElementById('copyIdButton');
             
-            fetch(`/api/usage?user_id=${currentUserId}`)
+            if (userIdElement) {
+                userIdElement.textContent = currentUserId;
+            }
+            if (userIdBlock) {
+                userIdBlock.style.display = 'block';
+            }
+            if (copyIdButton) {
+                copyIdButton.style.display = 'block';
+            }
+            
+            fetch('/api/usage', { credentials: 'include' })
                 .then(r => r.json())
                 .then(data => {
-                    document.getElementById('usageInfo').textContent = 
-                        `${data.used_today}/${data.daily_limit}`;
-                });
+                    const usageInfo = document.getElementById('usageInfo');
+                    if (usageInfo) {
+                        usageInfo.textContent = `${data.used_today}/${data.daily_limit}`;
+                    }
+                })
+                .catch(err => console.error('Ошибка получения статистики:', err));
+        }
+        
+        function updateUserInfoForGuest() {
+            // Для незарегистрированных - скрываем user_id, показываем только статистику использования
+            const userIdBlock = document.getElementById('userIdBlock');
+            const copyIdButton = document.getElementById('copyIdButton');
+            
+            if (userIdBlock) {
+                userIdBlock.style.display = 'none';
+            }
+            if (copyIdButton) {
+                copyIdButton.style.display = 'none';
+            }
+            
+            // Получаем статистику для незарегистрированных
+            fetch('/api/usage', { credentials: 'include' })
+                .then(r => r.json())
+                .then(data => {
+                    const usageInfo = document.getElementById('usageInfo');
+                    if (usageInfo) {
+                        usageInfo.textContent = `${data.used_today}/${data.daily_limit}`;
+                    }
+                })
+                .catch(err => console.error('Ошибка получения статистики:', err));
         }
         
         function copyUserId() {
+            if (!currentUserId) {
+                alert('ID доступен только для зарегистрированных пользователей');
+                return;
+            }
             navigator.clipboard.writeText(currentUserId);
             alert('ID скопирован: ' + currentUserId);
-        }
-        
-        function generateNewId() {
-            if (confirm('Создать новый ID? Текущая статистика будет сброшена.')) {
-                fetch('/api/create-user', { method: 'POST' })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            currentUserId = data.user_id;
-                            localStorage.setItem('docscan_user_id', currentUserId);
-                            updateUserInfo();
-                            alert('Новый ID создан: ' + currentUserId);
-                        }
-                    });
-            }
         }
         
         function handleFileSelect(event) {
@@ -1400,7 +1437,7 @@ def home():
         }
         
         async function analyzeDocument() {
-            if (!selectedFile || !currentUserId) return;
+            if (!selectedFile) return;
             
             document.getElementById('loading').style.display = 'block';
             document.getElementById('analyzeBtn').disabled = true;
@@ -1408,10 +1445,13 @@ def home():
             try {
                 const formData = new FormData();
                 formData.append('file', selectedFile);
-                formData.append('user_id', currentUserId);
+                // НОВАЯ ЛОГИКА: user_id НЕ отправляем для незарегистрированных
+                // Сервер сам определит авторизацию через сессию
+                // Если пользователь авторизован, user_id будет в сессии на сервере
                 
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
+                    credentials: 'include', // Важно для отправки сессии
                     body: formData
                 });
                 
@@ -1421,7 +1461,12 @@ def home():
                 
                 if (data.success) {
                     showResult(data);
-                    updateUserInfo();
+                    // Обновляем статистику
+                    if (currentUserId) {
+                        updateUserInfo();
+                    } else {
+                        updateUserInfoForGuest();
+                    }
                 } else {
                     // Проверяем требуется ли регистрация
                     if (data.registration_required || response.status === 403) {
@@ -1438,7 +1483,7 @@ def home():
                 if (error.message.includes('403')) {
                     showRegistrationModal();
                 } else if (error.message.includes('402')) {
-                    alert('❌ Бесплатный лимит исчерпан!\\n\\n💎 Перейдите на платный тариф для продолжения.');
+                    alert('❌ Бесплатный лимит исчерпан!\\n\\n💎 Зарегистрируйтесь и перейдите на платный тариф для продолжения.');
                 } else {
                     alert('Ошибка соединения: ' + error.message);
                 }
@@ -1449,7 +1494,7 @@ def home():
         
         function showRegistrationModal() {
             if (confirm('Вы использовали 1 бесплатный анализ. Для продолжения необходимо зарегистрироваться. Перейти к регистрации?')) {
-                window.location.href = '/register?user_id=' + currentUserId;
+                window.location.href = '/register';
             }
         }
         

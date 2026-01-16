@@ -123,6 +123,10 @@ def admin_panel():
                     <div id="totalUsers">0</div>
                 </div>
                 <div class="stat-card">
+                    <h3>👤 Всего гостей</h3>
+                    <div id="totalGuests">0</div>
+                </div>
+                <div class="stat-card">
                     <h3>📊 Всего анализов</h3>
                     <div id="totalAnalyses">0</div>
                 </div>
@@ -132,6 +136,21 @@ def admin_panel():
                 </div>
             </div>
             
+<h2>👤 Гости (незарегистрированные пользователи)</h2>
+<p>Пользователи, которые сделали анализ без регистрации</p>
+
+<div style="margin: 15px 0;">
+    <input type="text" id="searchGuest" placeholder="🔍 Поиск по IP, браузеру..." 
+           style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
+           onkeyup="searchGuests()">
+    <button onclick="clearGuestSearch()" style="margin-left: 10px; padding: 8px 15px; border: none; background: #e2e8f0; border-radius: 5px; cursor: pointer;">Очистить</button>
+    <span id="guestSearchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
+</div>
+
+<div id="guestsList"></div>
+
+<h2>👥 Зарегистрированные пользователи</h2>
+
 <h3>Управление пользователями:</h3>
 
 <!-- ДОБАВЬТЕ ЭТОТ БЛОК -->
@@ -177,9 +196,77 @@ def admin_panel():
                     .then(r => r.json())
                     .then(stats => {
                         document.getElementById('totalUsers').textContent = stats.total_users;
+                        document.getElementById('totalGuests').textContent = stats.total_guests || 0;
                         document.getElementById('totalAnalyses').textContent = stats.total_analyses;
                         document.getElementById('todayAnalyses').textContent = stats.today_analyses;
                     });
+            }
+            
+            function loadGuests() {
+                fetch('/admin/guests', {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(guests => {
+                        let html = '';
+                        if (!guests || guests.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет незарегистрированных гостей</p>';
+                        } else {
+                            guests.forEach(guest => {
+                                const registeredLink = guest.registered_user_id 
+                                    ? `<a href="#" onclick="showUser('${guest.registered_user_id}'); return false;" style="color: #667eea; text-decoration: underline;">Перейти к пользователю ${guest.registered_user_id}</a>`
+                                    : '<span style="color: #999;">Не зарегистрирован</span>';
+                                
+                                html += `
+                                    <div class="user-card guest-card">
+                                        <strong>IP:</strong> ${guest.ip_address}<br>
+                                        <strong>Браузер:</strong> ${guest.user_agent ? (guest.user_agent.substring(0, 50) + (guest.user_agent.length > 50 ? '...' : '')) : 'Не определен'}<br>
+                                        <strong>Анализов сделано:</strong> ${guest.analyses_count}<br>
+                                        <strong>Первый визит:</strong> ${new Date(guest.first_seen).toLocaleString('ru-RU')}<br>
+                                        <strong>Последний визит:</strong> ${new Date(guest.last_seen).toLocaleString('ru-RU')}<br>
+                                        <strong>Предложение регистрации:</strong> ${guest.registration_prompted ? '✅ Да' : '❌ Нет'}<br>
+                                        <strong>Статус:</strong> ${registeredLink}
+                                    </div>
+                                `;
+                            });
+                        }
+                        document.getElementById('guestsList').innerHTML = html;
+                    });
+            }
+            
+            function searchGuests() {
+                const searchTerm = document.getElementById('searchGuest').value.toLowerCase().trim();
+                const guestCards = document.querySelectorAll('.guest-card');
+                let foundCount = 0;
+                
+                guestCards.forEach(card => {
+                    const cardText = card.textContent.toLowerCase();
+                    if (searchTerm === '' || cardText.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        foundCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                const statusEl = document.getElementById('guestSearchStatus');
+                if (searchTerm) {
+                    statusEl.textContent = `Найдено: ${foundCount}`;
+                    statusEl.style.color = '#2d3748';
+                    statusEl.style.fontWeight = 'bold';
+                } else {
+                    statusEl.textContent = '';
+                }
+            }
+            
+            function clearGuestSearch() {
+                document.getElementById('searchGuest').value = '';
+                searchGuests();
+            }
+            
+            function showUser(userId) {
+                // Прокручиваем к пользователям и подсвечиваем нужного
+                document.getElementById('usersList').scrollIntoView({ behavior: 'smooth' });
+                // Можно добавить подсветку нужной карточки пользователя
+                alert('Пользователь: ' + userId);
             }
 
             function loadUsers() {
@@ -304,6 +391,7 @@ function clearSearch() {
             // Загружаем при открытии
             loadStats();
             loadUsers();
+            loadGuests();
             
             function showCalculatorStats() {
                 fetch('/admin/calculator-stats-data', {credentials: 'include'})
@@ -341,15 +429,6 @@ function clearSearch() {
     </body>
     </html>
     """
-
-@admin_bp.route('/stats')
-@require_admin_auth
-def admin_stats():
-    """Статистика для админ-панели"""
-    from app import app
-    
-    stats = app.user_manager.get_stats()
-    return jsonify(stats)
 
 @admin_bp.route('/users')
 @require_admin_auth
@@ -449,6 +528,36 @@ def admin_create_user():
         return jsonify({'success': False, 'error': str(e)})
         
         
+@admin_bp.route('/guests')
+@require_admin_auth
+def get_all_guests():
+    """Получить всех гостей (незарегистрированных пользователей)"""
+    from app import app
+    from models.sqlite_users import Guest
+    
+    # Получаем всех гостей
+    guests_list = Guest.query.order_by(Guest.last_seen.desc()).limit(500).all()
+    
+    # Конвертируем в список словарей
+    guests_dict_list = [guest.to_dict() for guest in guests_list]
+    
+    return jsonify(guests_dict_list)
+
+@admin_bp.route('/stats')
+@require_admin_auth
+def admin_stats():
+    """Статистика для админ-панели"""
+    from app import app
+    from models.sqlite_users import Guest
+    
+    stats = app.user_manager.get_stats()
+    
+    # Добавляем статистику по гостям
+    total_guests = Guest.query.filter_by(registered_user_id=None).count()
+    stats['total_guests'] = total_guests
+    
+    return jsonify(stats)
+
 @admin_bp.route('/calculator-stats-data')
 @require_admin_auth
 def calculator_stats_data():

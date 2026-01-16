@@ -36,20 +36,25 @@ def create_user():
 def analyze_document():
     """Анализ документа - поддерживает multipart/form-data и application/json с base64"""
     from app import app
+    from flask import session
     
     real_ip = app.ip_limit_manager.get_client_ip(request)
+    user_agent = request.headers.get('User-Agent', 'Не определен')
     logger.info(f"🔍 Анализ запущен для IP: {real_ip}")
-    logger.info(f"📨 === НОВЫЙ ЗАПРОС ===")
-    logger.info(f"📨 Метод: {request.method}")
-    logger.info(f"📨 Content-Type: {request.content_type}")
-    logger.info(f"📨 Полный запрос: {request}")
+    
+    # ПРОВЕРЯЕМ АВТОРИЗАЦИЮ: получаем user_id из сессии (только для зарегистрированных)
+    user_id = session.get('user_id')
+    is_authenticated = bool(user_id)
+    
+    logger.info(f"🔐 Авторизация: {'ДА' if is_authenticated else 'НЕТ'} (user_id={user_id})")
     
     temp_path = None
     file = None
     filename = ""
+    user = None
     
     try:
-        # РАЗДЕЛ 1: ОПРЕДЕЛЯЕМ ФОРМАТ ЗАПРОСА
+        # РАЗДЕЛ 1: ОПРЕДЕЛЯЕМ ФОРМАТ ЗАПРОСА И ОБРАБАТЫВАЕМ ФАЙЛ
         if request.content_type and 'application/json' in request.content_type:
             # 🆕 РЕЖИМ 1: JSON с base64 (для мобильного приложения)
             logger.info("📱 Режим: JSON с base64 (мобильное приложение)")
@@ -60,8 +65,19 @@ def analyze_document():
             if not data:
                 return jsonify({'error': 'Пустой JSON'}), 400
             
-            # Извлекаем данные из JSON
-            user_id = data.get('user_id', 'default')
+            # Для мобильного приложения user_id должен быть в сессии или в JSON
+            if not is_authenticated:
+                # Проверяем, не передан ли user_id в JSON (для обратной совместимости)
+                user_id_from_json = data.get('user_id')
+                if user_id_from_json and user_id_from_json != 'default':
+                    # Пытаемся найти пользователя - может быть зарегистрирован
+                    user = app.user_manager.get_user(user_id_from_json)
+                    if user and user.is_registered:
+                        # Пользователь существует и зарегистрирован - используем его
+                        user_id = user_id_from_json
+                        is_authenticated = True
+                        logger.info(f"✅ Найден зарегистрированный пользователь из JSON: {user_id}")
+            
             file_base64 = data.get('file')
             filename = data.get('filename', 'document.pdf')
             mime_type = data.get('mimeType', 'application/octet-stream')
@@ -85,11 +101,12 @@ def analyze_document():
             logger.info(f"📱 Файл сохранен: {temp_path}, размер: {len(file_content)} байт")
             
         else:
-            # 📄 РЕЖИМ 2: Multipart/form-data (для веб-сайта, как раньше)
+            # 📄 РЕЖИМ 2: Multipart/form-data (для веб-сайта)
             logger.info("🌐 Режим: multipart/form-data (веб-сайт)")
             
-            # Получаем user_id из формы или используем default
-            user_id = request.form.get('user_id', 'default')
+            # НОВАЯ ЛОГИКА: для веб-сайта user_id НЕ берем из формы для незарегистрированных
+            # Если пользователь авторизован, user_id будет в сессии
+            # Если не авторизован - работаем только с IP
             
             logger.info(f"📨 Файлы в запросе: {request.files}")
             logger.info(f"📨 Форма данные: {request.form}")
@@ -112,82 +129,75 @@ def analyze_document():
             temp_path = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4()}_{filename}")
             file.save(temp_path)
         
-        # РАЗДЕЛ 2: ОБЩАЯ ЛОГИКА (работает для обоих режимов)
-        # Проверяем лимиты
-        user = app.user_manager.get_user(user_id)
-        if user is None:
-            logger.info(f"🆕 Создаём нового пользователя: {user_id}")
-            user = app.user_manager.get_or_create_user(user_id)
-            if user is None:
-                logger.error(f"❌ Не удалось создать пользователя: {user_id}")
-                return jsonify({'success': False, 'error': 'Ошибка создания пользователя'}), 500
+        # РАЗДЕЛ 2: ПРОВЕРКА ЛИМИТОВ (разная логика для зарегистрированных и незарегистрированных)
         
-        # НОВАЯ ЛОГИКА: Проверка на бесплатный анализ для незарегистрированных
-        if not user.is_registered:
-            # Если бесплатный анализ уже использован - требуем регистрацию
-            if user.free_analysis_used:
+        if is_authenticated:
+            # ========== ЗАРЕГИСТРИРОВАННЫЙ ПОЛЬЗОВАТЕЛЬ ==========
+            logger.info(f"👤 Обработка для ЗАРЕГИСТРИРОВАННОГО пользователя: {user_id}")
+            
+            # Получаем пользователя по user_id из сессии
+            user = app.user_manager.get_user(user_id)
+            if not user or not user.is_registered:
+                logger.error(f"❌ Пользователь {user_id} не найден или не зарегистрирован!")
                 return jsonify({
                     'success': False,
-                    'error': 'Вы использовали 1 бесплатный анализ. Для продолжения необходимо зарегистрироваться.',
-                    'registration_required': True
-                }), 403
+                    'error': 'Пользователь не найден. Пожалуйста, войдите заново.',
+                    'login_required': True
+                }), 401
             
-            # Первый анализ - разрешаем и отмечаем как использованный
-            user.free_analysis_used = True
-            from models.sqlite_users import db
-            db.session.commit()
-            logger.info(f"✅ Первый бесплатный анализ для незарегистрированного пользователя {user_id}")
-        
-        # Для зарегистрированных пользователей проверяем обычные лимиты
-        if user.is_registered:
+            # Проверяем лимиты тарифа
             if not app.user_manager.can_analyze(user_id):
                 plan = PLANS[user.plan]
-                if user.plan == 'free':
-                    return jsonify({
-                        'success': False,
-                        'error': f'❌ Бесплатный лимит исчерпан! Вы использовали {user.used_today}/{plan["daily_limit"]} анализов.',
-                        'upgrade_required': True
-                    }), 402
-                else:
-                    return jsonify({
-                        'success': False,
-                        'error': f'❌ Лимит исчерпан! Сегодня использовано {user.used_today}/{plan["daily_limit"]} анализов.',
-                        'upgrade_required': True
-                    }), 402
-        
-        # Проверяем IP-лимиты для незарегистрированных пользователей
-        if not user.is_registered:
+                return jsonify({
+                    'success': False,
+                    'error': f'❌ Лимит исчерпан! Сегодня использовано {user.used_today}/{plan["daily_limit"]} анализов.',
+                    'upgrade_required': True
+                }), 402
+            
+        else:
+            # ========== НЕЗАРЕГИСТРИРОВАННЫЙ ПОЛЬЗОВАТЕЛЬ (ГОСТЬ) ==========
+            logger.info(f"👥 Обработка для НЕЗАРЕГИСТРИРОВАННОГО пользователя (IP: {real_ip})")
+            
+            # Проверяем IP-лимиты (1 анализ в день)
             if not app.ip_limit_manager.can_analyze_by_ip(request):
+                # Обновляем флаг registration_prompted для гостя
+                try:
+                    app.user_manager.get_or_create_guest(real_ip, user_agent)
+                    guest = app.user_manager.get_or_create_guest(real_ip, user_agent)
+                    guest.registration_prompted = True
+                    from models.sqlite_users import db
+                    db.session.commit()
+                except:
+                    pass
+                
                 return jsonify({
                     'success': False,
                     'error': '❌ Бесплатный анализ с этого IP уже использован. Зарегистрируйтесь для продолжения.',
                     'registration_required': True,
                     'ip_limit_exceeded': True
                 }), 403
+            
+            # user остается None для незарегистрированных
         
-        # Для зарегистрированных с бесплатным тарифом тоже проверяем IP (на случай если они используют свой лимит)
-        elif user.plan == 'free' and user.is_registered:
-            if not app.ip_limit_manager.can_analyze_by_ip(request):
-                return jsonify({
-                    'success': False,
-                    'error': '❌ Бесплатный лимит по IP исчерпан! Можно сделать только 3 анализа в день с одного IP-адреса.',
-                    'ip_limit_exceeded': True,
-                    'upgrade_required': True
-                }), 402
+        # РАЗДЕЛ 3: ПРОВЕРКА ТАРИФА ДЛЯ ФОТО (только для зарегистрированных)
+        if is_authenticated:
+            plan_type = user.plan if user else 'free'
+        else:
+            plan_type = 'free'  # Для незарегистрированных - бесплатный тариф
         
-        # Проверяем тариф для фото (только для реальных файлов, не для base64)
         if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
-            if user.plan == 'free':
-                logger.info(f"❌ Отказано в анализе фото для бесплатного пользователя {user_id}")
+            if plan_type == 'free':
+                logger.info(f"❌ Отказано в анализе фото для {'пользователя' if is_authenticated else 'гостя'}")
                 return jsonify({
                     'success': False,
                     'error': '📸 Распознавание фото доступно только для платных тарифов!',
                     'upgrade_required': True,
-                    'message': '💎 Перейдите на Базовый тариф (490₽/мес) для анализа фото документов'
+                    'message': '💎 Зарегистрируйтесь и перейдите на Базовый тариф (490₽/мес) для анализа фото документов'
                 }), 402
             
-            logger.info(f"✅ Разрешено распознавание фото для пользователя {user_id} (тариф: {user.plan})")
+            logger.info(f"✅ Разрешено распознавание фото (тариф: {plan_type})")
         
+        # РАЗДЕЛ 4: ИЗВЛЕЧЕНИЕ ТЕКСТА И АНАЛИЗ
         # Извлекаем текст
         text = extract_text_from_file(temp_path, filename)
         
@@ -196,27 +206,38 @@ def analyze_document():
             return jsonify({'error': 'Не удалось извлечь текст из файла'}), 400
         
         # Анализируем текст
-        analysis_result = analyze_text(text, user.plan)
+        analysis_result = analyze_text(text, plan_type)
         
-        logger.info(f"✅ АНАЛИЗ УСПЕШЕН для {user_id}, IP: {real_ip}, режим: {'JSON' if request.content_type and 'application/json' in request.content_type else 'multipart'}")
+        logger.info(f"✅ АНАЛИЗ УСПЕШЕН для {'пользователя' if is_authenticated else 'гостя'}, IP: {real_ip}")
         
-        # Записываем использование (только для зарегистрированных)
-        if user.is_registered:
+        # РАЗДЕЛ 5: ЗАПИСЬ ИСПОЛЬЗОВАНИЯ И ИСТОРИИ
+        if is_authenticated:
+            # Для зарегистрированных: записываем использование и историю
             app.user_manager.record_usage(user_id)
+            try:
+                app.user_manager.save_analysis_history(user_id, filename, analysis_result)
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось сохранить историю анализа: {e}")
         else:
-            # Для незарегистрированных просто обновляем счетчик IP
-            app.ip_limit_manager.record_ip_usage(request, user_id)
+            # Для незарегистрированных: записываем только в guests и IP-лимиты
+            app.ip_limit_manager.record_ip_usage(request, None)  # user_id=None для незарегистрированных
+            app.user_manager.record_guest_analysis(real_ip, user_agent)
+            # История анализов НЕ сохраняется для незарегистрированных
         
-        # Сохраняем историю анализа (для всех пользователей)
-        try:
-            app.user_manager.save_analysis_history(user_id, filename, analysis_result)
-        except Exception as e:
-            logger.warning(f"⚠️ Не удалось сохранить историю анализа: {e}")
-        
+        # РАЗДЕЛ 6: ФОРМИРОВАНИЕ ОТВЕТА
         # Добавляем информацию о лимитах в ответ
-        user = app.user_manager.get_user(user_id)
-        
-        if not user.is_registered:
+        if is_authenticated:
+            # Для зарегистрированных - получаем актуальные данные пользователя
+            user = app.user_manager.get_user(user_id)
+            plan = PLANS[user.plan] if user else PLANS['free']
+            analysis_result['usage_info'] = {
+                'used_today': user.used_today if user else 0,
+                'daily_limit': plan['daily_limit'],
+                'remaining': plan['daily_limit'] - (user.used_today if user else 0),
+                'plan_name': plan['name'],
+                'is_registered': True
+            }
+        else:
             # Для незарегистрированных показываем что бесплатный анализ использован
             analysis_result['usage_info'] = {
                 'used_today': 1,
@@ -224,23 +245,22 @@ def analyze_document():
                 'plan_name': 'Пробный',
                 'remaining': 0,
                 'free_analysis_used': True,
-                'registration_required': True
-            }
-        else:
-            plan = PLANS[user.plan]
-            analysis_result['usage_info'] = {
-                'used_today': user.used_today,
-                'daily_limit': plan['daily_limit'],
-                'plan_name': plan['name'],
-                'remaining': plan['daily_limit'] - user.used_today
+                'registration_required': True,
+                'is_registered': False
             }
         
-        return jsonify({
+        # Возвращаем результат (user_id только для зарегистрированных)
+        response_data = {
             'success': True,
             'filename': filename,
-            'user_id': user_id,
             'result': analysis_result
-        })
+        }
+        
+        # Добавляем user_id только если пользователь авторизован
+        if is_authenticated:
+            response_data['user_id'] = user_id
+        
+        return jsonify(response_data)
 
     except Exception as e:
         logger.error(f"❌ Ошибка анализа документа: {e}")
@@ -258,16 +278,19 @@ def analyze_document():
 def get_usage():
     """Получить информацию об использовании"""
     from app import app
+    from flask import session
     
-    user_id = request.args.get('user_id', 'default')
-    RussianLogger.log_request(request, user_id)
-    user = app.user_manager.get_user(user_id)
+    # Проверяем авторизацию через сессию
+    user_id = session.get('user_id')
+    is_authenticated = bool(user_id)
     
-    # Для незарегистрированных показываем лимит 1
-    if not user.is_registered:
-        used = 1 if user.free_analysis_used else 0
+    if not is_authenticated:
+        # Для незарегистрированных: проверяем IP-лимиты
+        real_ip = app.ip_limit_manager.get_client_ip(request)
+        can_analyze = app.ip_limit_manager.can_analyze_by_ip(request)
+        used = 0 if can_analyze else 1
+        
         return jsonify({
-            'user_id': user_id,
             'plan': 'free',
             'plan_name': 'Пробный',
             'used_today': used,
@@ -276,6 +299,18 @@ def get_usage():
             'total_used': 0,
             'is_registered': False
         })
+    
+    # Для зарегистрированных - получаем данные пользователя
+    user = app.user_manager.get_user(user_id)
+    if not user or not user.is_registered:
+        return jsonify({
+            'plan': 'free',
+            'plan_name': 'Пробный',
+            'used_today': 0,
+            'daily_limit': 1,
+            'remaining': 1,
+            'is_registered': False
+        }), 401
     
     plan = PLANS[user.plan]
     

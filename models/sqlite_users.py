@@ -75,12 +75,39 @@ class AnalysisHistory(db.Model):
             'analysis_summary': self.analysis_summary
         }
 
+class Guest(db.Model):
+    """Таблица для незарегистрированных пользователей (гостей)"""
+    __tablename__ = 'guests'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    ip_address = db.Column(db.String(50), nullable=False, index=True)
+    user_agent = db.Column(db.String(500), nullable=True)
+    first_seen = db.Column(db.String(30), nullable=False)
+    last_seen = db.Column(db.String(30), nullable=False)
+    analyses_count = db.Column(db.Integer, default=0)
+    registration_prompted = db.Column(db.Boolean, default=False)
+    registered_user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'ip_address': self.ip_address,
+            'user_agent': self.user_agent,
+            'first_seen': self.first_seen,
+            'last_seen': self.last_seen,
+            'analyses_count': self.analyses_count,
+            'registration_prompted': self.registration_prompted,
+            'registered_user_id': self.registered_user_id
+        }
+
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""
     
     def __init__(self, db, UserModel):
         self.db = db
         self.User = UserModel
+        from models.sqlite_users import Guest
+        self.Guest = Guest
 
     def create_user(self, user_data):
         """Создает нового пользователя"""
@@ -125,7 +152,7 @@ class SQLiteUserManager:
         
         # Логируем для диагностики
         if user:
-            logger.debug(f"🔍 get_user({user_id}): plan={user.plan}, used_today={user.used_today}")
+            logger.info(f"🔍 get_user({user_id}): plan={user.plan}, used_today={user.used_today}, plan_expires={user.plan_expires}")
         
         return user
 
@@ -339,6 +366,62 @@ class SQLiteUserManager:
             logger.error(f"❌ Ошибка сохранения истории анализа: {e}")
             self.db.session.rollback()
             return None
+    
+    def get_or_create_guest(self, ip_address, user_agent=None):
+        """Получает или создает гостя по IP адресу"""
+        from models.sqlite_users import Guest
+        
+        # Ищем существующего гостя по IP
+        guest = Guest.query.filter_by(ip_address=ip_address, registered_user_id=None).first()
+        
+        if not guest:
+            # Создаем нового гостя
+            now = datetime.now().isoformat()
+            guest = Guest(
+                ip_address=ip_address,
+                user_agent=user_agent or 'Не определен',
+                first_seen=now,
+                last_seen=now,
+                analyses_count=0,
+                registration_prompted=False,
+                registered_user_id=None
+            )
+            self.db.session.add(guest)
+            self.db.session.commit()
+            logger.info(f"👤 Создан новый гость: IP={ip_address}")
+        else:
+            # Обновляем last_seen
+            guest.last_seen = datetime.now().isoformat()
+            self.db.session.commit()
+        
+        return guest
+    
+    def record_guest_analysis(self, ip_address, user_agent=None):
+        """Записывает анализ для гостя"""
+        guest = self.get_or_create_guest(ip_address, user_agent)
+        guest.analyses_count += 1
+        guest.last_seen = datetime.now().isoformat()
+        self.db.session.commit()
+        logger.info(f"📊 Записан анализ для гостя: IP={ip_address}, всего анализов={guest.analyses_count}")
+        return guest
+    
+    def link_guest_to_user(self, ip_address, user_id):
+        """Связывает гостя с зарегистрированным пользователем"""
+        from models.sqlite_users import Guest
+        
+        # Ищем всех гостей с этим IP, которые еще не зарегистрированы
+        guests = Guest.query.filter_by(ip_address=ip_address, registered_user_id=None).all()
+        
+        for guest in guests:
+            guest.registered_user_id = user_id
+            guest.registration_prompted = True
+        
+        if guests:
+            self.db.session.commit()
+            logger.info(f"🔗 Связано {len(guests)} гостей с пользователем {user_id} (IP={ip_address})")
+            return True
+        
+        return False
     
     def get_analysis_history(self, user_id, limit=50):
         """Получает историю анализов пользователя"""

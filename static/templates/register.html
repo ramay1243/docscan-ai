@@ -188,8 +188,9 @@
         const submitBtn = document.getElementById('submitBtn');
         const alert = document.getElementById('alert');
         
-        // Получаем user_id из localStorage (если был создан)
-        const currentUserId = localStorage.getItem('docscan_user_id');
+        // НОВАЯ ЛОГИКА: user_id НЕ используется для незарегистрированных
+        // При регистрации будет создан новый user_id на сервере
+        // Гость будет автоматически связан с новым пользователем по IP адресу
         
         function showAlert(message, type) {
             alert.textContent = message;
@@ -230,8 +231,7 @@
                     credentials: 'include',
                     body: JSON.stringify({
                         email: email,
-                        password: password,
-                        user_id: currentUserId
+                        password: password
                     })
                 });
                 

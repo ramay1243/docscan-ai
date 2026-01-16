@@ -20,10 +20,13 @@ def register_page():
 def register():
     """API регистрации нового пользователя"""
     try:
+        from app import app
+        
         data = request.get_json()
         email = data.get('email', '').strip().lower()
         password = data.get('password', '')
-        user_id = data.get('user_id')  # Может быть передан, если пользователь был создан ранее
+        # НОВАЯ ЛОГИКА: user_id НЕ берем из формы для незарегистрированных
+        # Всегда создаем новый user_id при регистрации
         
         # Валидация
         if not email or not validate_email(email):
@@ -37,43 +40,41 @@ def register():
         if existing_user:
             return jsonify({'success': False, 'error': 'Пользователь с таким email уже зарегистрирован'}), 400
         
-        # Получаем или создаем пользователя
-        if user_id:
-            user = User.query.filter_by(user_id=user_id).first()
-            # Если пользователь с таким user_id не найден, создаем нового
-            if not user:
-                user_id = None  # Сбросим, чтобы создать нового ниже
+        # Получаем IP адрес для связи с гостем
+        real_ip = app.ip_limit_manager.get_client_ip(request)
         
-        if not user_id:
-            import uuid
-            user_id = str(uuid.uuid4())[:8]
-            user = User(
-                user_id=user_id,
-                plan='free',
-                used_today=0,
-                last_reset=datetime.now().date().isoformat(),
-                total_used=0,
-                created_at=datetime.now().isoformat(),
-                ip_address='Не определен'
-            )
-            db.session.add(user)
-        
-        # Обновляем данные пользователя
-        user.email = email
-        user.password_hash = hash_password(password)
-        user.is_registered = True
+        # Создаем нового пользователя с новым user_id
+        import uuid
+        user_id = str(uuid.uuid4())[:8]
+        user = User(
+            user_id=user_id,
+            plan='free',
+            used_today=0,
+            last_reset=datetime.now().date().isoformat(),
+            total_used=0,
+            created_at=datetime.now().isoformat(),
+            ip_address=real_ip,
+            email=email,
+            password_hash=hash_password(password),
+            is_registered=True,
+            email_verified=False,
+            free_analysis_used=False
+        )
         
         # Генерируем токен верификации
         user.verification_token = generate_verification_token()
         user.verification_token_expires = get_token_expiry(24)  # 24 часа
-        user.email_verified = False
         
+        db.session.add(user)
         db.session.commit()
+        
+        # НОВАЯ ЛОГИКА: Связываем гостя с новым пользователем
+        app.user_manager.link_guest_to_user(real_ip, user_id)
         
         # Отправляем email для верификации
         send_verification_email(email, user.verification_token, user_id)
         
-        logger.info(f"✅ Пользователь зарегистрирован: {email}, user_id: {user_id}")
+        logger.info(f"✅ Пользователь зарегистрирован: {email}, user_id: {user_id}, IP: {real_ip}")
         
         # Создаем сессию
         session['user_id'] = user_id
@@ -290,9 +291,16 @@ def cabinet():
     from app import app
     # ВАЖНО: get_user теперь автоматически обновляет данные из БД
     # используя expire_all() и refresh() для получения актуального тарифа
+    logger.info(f"🔍 Cabinet: Получаем пользователя user_id={user_id} из сессии")
     user = app.user_manager.get_user(user_id)
     
-    if not user or not user.is_registered:
+    if not user:
+        logger.error(f"❌ Cabinet: Пользователь {user_id} не найден в БД!")
+        session.clear()
+        return redirect(url_for('auth.login_page'))
+    
+    if not user.is_registered:
+        logger.error(f"❌ Cabinet: Пользователь {user_id} не зарегистрирован!")
         session.clear()
         return redirect(url_for('auth.login_page'))
     
@@ -304,7 +312,7 @@ def cabinet():
     current_plan_type = user.plan
     plan = PLANS.get(current_plan_type, PLANS['free'])
     
-    logger.info(f"📊 Cabinet: user_id={user_id}, plan={current_plan_type}, plan_name={plan['name']}, daily_limit={plan['daily_limit']}, used_today={user.used_today}")
+    logger.info(f"📊 Cabinet: user_id={user_id}, plan={current_plan_type}, plan_name={plan['name']}, daily_limit={plan['daily_limit']}, used_today={user.used_today}, plan_expires={user.plan_expires}")
     
     return render_template('cabinet.html', 
         user=user,

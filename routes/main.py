@@ -126,8 +126,9 @@ def home():
         
         .nav-links {
             display: flex;
-            gap: 30px;
+            gap: 20px;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .nav-link {
@@ -136,6 +137,8 @@ def home():
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
         
         .nav-link:hover {
@@ -160,7 +163,7 @@ def home():
         .cta-button {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 12px 28px;
+            padding: 10px 20px;
             border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
@@ -171,6 +174,7 @@ def home():
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.85rem;
         }
         
         .cta-button:hover {
@@ -805,13 +809,13 @@ def home():
                     <a href="/articles" class="nav-link">Статьи</a>
                     <a href="/faq" class="nav-link">FAQ</a>
                     <a href="/contact" class="nav-link">Контакты</a>
-                    <span id="authButtons">
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
                         <a href="/login" class="nav-link">Войти</a>
-                        <a href="/register" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem;">Регистрация</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
                     </span>
-                    <span id="userMenu" style="display: none;">
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
                         <a href="/cabinet" class="nav-link">Личный кабинет</a>
-                        <a href="/logout" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem;">Выход</a>
+                        <a href="/logout" class="cta-button">Выход</a>
                     </span>
                 </nav>
                 
@@ -1206,11 +1210,20 @@ def home():
         </div>
         <div class="menu-dropdown" id="menuDropdown">
             <a href="/">🏠 Главная</a>
-            <a href="/articles">📚 Статьи</a>
-            <a href="/contact">📞 Контакты</a>
-            <a href="/calculator-penalty">🧮 Калькулятор неустойки</a>
+            <a href="/analiz-dokumentov">📄 Анализ документов</a>
+            <a href="/calculator-penalty">🧮 Калькулятор</a>
             <a href="/mobile-app">📱 Приложение</a>
-            <a href="/faq">❓FAQ</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/faq">❓ FAQ</a>
+            <a href="/contact">📞 Контакты</a>
+            <div id="mobileAuthButtons">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
             <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
         </div>
     </div>
@@ -1439,9 +1452,15 @@ def home():
                 if (data.authenticated) {
                     document.getElementById('authButtons').style.display = 'none';
                     document.getElementById('userMenu').style.display = 'flex';
+                    // Мобильное меню
+                    document.getElementById('mobileAuthButtons').style.display = 'none';
+                    document.getElementById('mobileUserMenu').style.display = 'block';
                 } else {
                     document.getElementById('authButtons').style.display = 'flex';
                     document.getElementById('userMenu').style.display = 'none';
+                    // Мобильное меню
+                    document.getElementById('mobileAuthButtons').style.display = 'block';
+                    document.getElementById('mobileUserMenu').style.display = 'none';
                 }
             } catch (error) {
                 // Ошибка проверки - оставляем кнопки по умолчанию

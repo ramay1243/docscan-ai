@@ -990,35 +990,60 @@
     </script>
     
     <script>
+        console.log('🔍 [checkAuth] Скрипт загружен, ждем DOMContentLoaded');
         // Проверяем авторизацию при загрузке
         async function checkAuth() {
+            console.log('🔍 [checkAuth] Функция вызвана');
             try {
+                console.log('🔍 [checkAuth] Отправляю запрос к /api/check-auth');
                 const response = await fetch('/api/check-auth', {
                     credentials: 'include',
                     cache: 'no-cache'
                 });
                 
-                if (!response.ok) return;
+                console.log('🔍 [checkAuth] Ответ получен:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    console.error('❌ [checkAuth] Ошибка ответа:', response.status);
+                    return;
+                }
+                
                 const data = await response.json();
+                console.log('🔍 [checkAuth] Данные ответа:', data);
                 
                 const authButtons = document.getElementById('authButtons');
                 const userMenu = document.getElementById('userMenu');
                 const mobileAuth = document.getElementById('mobileAuthButtons');
                 const mobileUser = document.getElementById('mobileUserMenu');
                 
+                console.log('🔍 [checkAuth] Найдены элементы:', {
+                    authButtons: !!authButtons,
+                    userMenu: !!userMenu,
+                    mobileAuth: !!mobileAuth,
+                    mobileUser: !!mobileUser
+                });
+                
                 if (data.authenticated) {
-                    if (authButtons) authButtons.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
-                    if (userMenu) userMenu.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    console.log('✅ [checkAuth] Пользователь авторизован:', data.email);
+                    if (authButtons) {
+                        authButtons.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                        console.log('✅ [checkAuth] authButtons скрыты');
+                    }
+                    if (userMenu) {
+                        userMenu.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                        console.log('✅ [checkAuth] userMenu показан, computed:', window.getComputedStyle(userMenu).display);
+                    }
                     if (mobileAuth) mobileAuth.setAttribute('style', 'display: none !important;');
                     if (mobileUser) mobileUser.setAttribute('style', 'display: block !important;');
                 } else {
+                    console.log('❌ [checkAuth] Пользователь НЕ авторизован');
                     if (authButtons) authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
                     if (userMenu) userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
                     if (mobileAuth) mobileAuth.setAttribute('style', 'display: block !important;');
                     if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
                 }
             } catch (error) {
-                console.error('Auth check error:', error);
+                console.error('❌ [checkAuth] Ошибка:', error);
                 const authButtons = document.getElementById('authButtons');
                 const userMenu = document.getElementById('userMenu');
                 const mobileAuth = document.getElementById('mobileAuthButtons');
@@ -1030,11 +1055,17 @@
             }
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            setTimeout(checkAuth, 500);
-        });
-        if (document.readyState !== 'loading') {
+        // Вызываем при загрузке и после небольшой задержки для надежности
+        if (document.readyState === 'loading') {
+            console.log('🔍 [checkAuth] DOM еще загружается');
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('🔍 [checkAuth] DOMContentLoaded - вызываю checkAuth');
+                checkAuth();
+                console.log('🔍 [checkAuth] Повторная проверка через 500ms');
+                setTimeout(checkAuth, 500);
+            });
+        } else {
+            console.log('🔍 [checkAuth] DOM уже загружен, вызываю checkAuth немедленно');
             checkAuth();
             setTimeout(checkAuth, 500);
         }

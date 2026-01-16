@@ -100,11 +100,24 @@ class SQLiteUserManager:
 
     def get_user(self, user_id):
         """Получает пользователя по ID с проверкой тарифа"""
-        # ВАЖНО: Используем expire_all() чтобы получить свежие данные из БД
-        # Это решает проблему, когда тариф изменен в админке, но не обновляется на сайте
-        self.db.session.expire_all()
+        # ВАЖНО: Используем прямой запрос из БД для получения свежих данных
+        # Чтобы избежать проблем с кешированием, используем query с явным указанием merge=False
+        # если объект уже в сессии, или делаем новый запрос
         
+        # Сначала пытаемся получить пользователя
         user = self.User.query.filter_by(user_id=user_id).first()
+        
+        # Если пользователь найден, пытаемся обновить его данные из БД
+        if user:
+            try:
+                # Принудительно обновляем данные из БД для этого объекта
+                self.db.session.refresh(user)
+            except Exception as e:
+                # Если refresh не работает (объект не отслеживается), делаем новый запрос
+                logger.debug(f"Refresh не сработал для {user_id}, делаю новый запрос: {e}")
+                # Закрываем текущую сессию и делаем новый запрос
+                self.db.session.expire_all()
+                user = self.User.query.filter_by(user_id=user_id).first()
     
         # Проверяем просроченный тариф
         if user and user.plan != 'free' and user.plan_expires:
@@ -114,10 +127,6 @@ class SQLiteUserManager:
                 user.plan_expires = None
                 self.db.session.commit()
         
-        # Принудительно обновляем данные из БД для этого объекта
-        if user:
-            self.db.session.refresh(user)
-    
         return user
 
     def get_or_create_user(self, user_id=None):
@@ -216,10 +225,14 @@ class SQLiteUserManager:
         if plan_type not in PLANS:
             return {'success': False, 'error': 'Неверный тариф'}
         
-        user = self.get_user(user_id)
+        # ВАЖНО: Прямой запрос БЕЗ get_user, чтобы избежать конфликтов с expire_all()
+        # Используем прямой query для получения пользователя
+        user = self.User.query.filter_by(user_id=user_id).first()
+        
         if not user:
             return {'success': False, 'error': 'Пользователь не найден'}
         
+        # Обновляем тариф
         user.plan = plan_type
         user.used_today = 0  # Сбрасываем дневной лимит
         
@@ -227,7 +240,20 @@ class SQLiteUserManager:
         expire_date = date.today() + timedelta(days=30)
         user.plan_expires = expire_date.isoformat()
         
+        # Сохраняем изменения в БД
         self.db.session.commit()
+        
+        # ВАЖНО: После commit() нужно убедиться, что изменения записаны
+        # Используем flush() чтобы синхронизировать с БД
+        self.db.session.flush()
+        
+        # Принудительно обновляем объект из БД (если он еще в сессии)
+        try:
+            self.db.session.refresh(user)
+        except:
+            pass  # Если объект не в сессии, это нормально
+        
+        logger.info(f"✅ Тариф изменен для {user_id}: {plan_type}, expire_date={expire_date.isoformat()}, commit выполнен")
         
         return {
             'success': True,

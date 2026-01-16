@@ -106,8 +106,9 @@
         
         .nav-links {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .nav-link {
@@ -116,7 +117,8 @@
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
         
         .nav-link:hover {
@@ -141,7 +143,7 @@
         .cta-button {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 10px 24px;
+            padding: 10px 20px;
             border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
@@ -150,9 +152,9 @@
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
         
         .cta-button:hover {
@@ -642,6 +644,14 @@
                     <a href="/articles" class="nav-link">Статьи</a>
                     <a href="/faq" class="nav-link">FAQ</a>
                     <a href="/contact" class="nav-link">Контакты</a>
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
                 </nav>
             </div>
         </div>
@@ -993,11 +1003,20 @@
         </div>
         <div class="menu-dropdown" id="menuDropdown">
             <a href="/">🏠 Главная</a>
-            <a href="/articles">📚 Статьи</a>
-            <a href="/contact">📞 Контакты</a>
-            <a href="/calculator-penalty">🧮 Калькулятор неустойки</a>
+            <a href="/analiz-dokumentov">📄 Анализ документов</a>
+            <a href="/calculator-penalty">🧮 Калькулятор</a>
             <a href="/mobile-app">📱 Приложение</a>
-            <a href="/faq">❓FAQ</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/faq">❓ FAQ</a>
+            <a href="/contact">📞 Контакты</a>
+            <div id="mobileAuthButtons" style="border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none; border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
             <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
         </div>
     </div>
@@ -1327,6 +1346,39 @@
                 dropdown.classList.remove('show');
             }
         });
+        
+        // Проверяем авторизацию при загрузке
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    const authButtons = document.getElementById('authButtons');
+                    const userMenu = document.getElementById('userMenu');
+                    const mobileAuth = document.getElementById('mobileAuthButtons');
+                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (authButtons) authButtons.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'flex';
+                    if (mobileAuth) mobileAuth.style.display = 'none';
+                    if (mobileUser) mobileUser.style.display = 'block';
+                } else {
+                    const authButtons = document.getElementById('authButtons');
+                    const userMenu = document.getElementById('userMenu');
+                    const mobileAuth = document.getElementById('mobileAuthButtons');
+                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (authButtons) authButtons.style.display = 'flex';
+                    if (userMenu) userMenu.style.display = 'none';
+                    if (mobileAuth) mobileAuth.style.display = 'block';
+                    if (mobileUser) mobileUser.style.display = 'none';
+                }
+            } catch (error) {
+                // Ошибка проверки
+            }
+        }
+        
+        // Вызываем при загрузке
+        document.addEventListener('DOMContentLoaded', checkAuth);
         
         // Логирование использования калькулятора
         function logCalculatorUse(amount, penalty, contractType) {

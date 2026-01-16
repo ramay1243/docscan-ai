@@ -84,7 +84,7 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 20px;
             font-size: 1.3rem;
             font-weight: 700;
             color: var(--primary);
@@ -107,7 +107,8 @@
             display: flex;
             gap: 25px;
             align-items: center;
-        }
+        
+            flex-wrap: wrap;}
         
         .nav-link {
             color: var(--gray);
@@ -115,7 +116,7 @@
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         
         .nav-link:hover {
@@ -570,7 +571,8 @@
             .section-title { font-size: 1.7rem; }
             .process-steps { flex-direction: column; gap: 40px; }
             .process-steps::before { display: none; }
-            .nav-links { display: none; }
+            .nav-links { display: none; 
+            flex-wrap: wrap;}
             .burger-menu { display: block; }
             .features-grid { grid-template-columns: 1fr; }
             .doc-types-grid { grid-template-columns: repeat(2, 1fr); }
@@ -605,6 +607,15 @@
                     <a href="/articles" class="nav-link">Статьи</a>
                     <a href="/faq" class="nav-link">FAQ</a>
                     <a href="/contact" class="nav-link">Контакты</a>
+                
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
                 </nav>
                 
             </div>
@@ -1191,6 +1202,39 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
             ]
         }
     ]
+    
+        // Проверяем авторизацию при загрузке
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    const authButtons = document.getElementById('authButtons');
+                    const userMenu = document.getElementById('userMenu');
+                    const mobileAuth = document.getElementById('mobileAuthButtons');
+                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (authButtons) authButtons.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'flex';
+                    if (mobileAuth) mobileAuth.style.display = 'none';
+                    if (mobileUser) mobileUser.style.display = 'block';
+                } else {
+                    const authButtons = document.getElementById('authButtons');
+                    const userMenu = document.getElementById('userMenu');
+                    const mobileAuth = document.getElementById('mobileAuthButtons');
+                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (authButtons) authButtons.style.display = 'flex';
+                    if (userMenu) userMenu.style.display = 'none';
+                    if (mobileAuth) mobileAuth.style.display = 'block';
+                    if (mobileUser) mobileUser.style.display = 'none';
+                }
+            } catch (error) {
+                // Ошибка проверки
+            }
+        }
+        
+        // Вызываем при загрузке
+        document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 </body>
 </html>

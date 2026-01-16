@@ -106,7 +106,7 @@
         
         .nav-links {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             align-items: center;
         }
         
@@ -116,7 +116,8 @@
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
-            font-size: 0.95rem;
+            font-size: 0.9rem
+            white-space: nowrap;
         }
         
         .nav-link:hover {
@@ -136,6 +137,28 @@
             height: 2px;
             background: var(--primary);
             border-radius: 2px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.85rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
         }
         
         /* Article Container */
@@ -632,6 +655,15 @@
                     <a href="/articles" class="nav-link">Статьи</a>
                     <a href="/faq" class="nav-link">FAQ</a>
                     <a href="/contact" class="nav-link">Контакты</a>
+                
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
                 </nav>
             </div>
         </div>
@@ -997,6 +1029,14 @@
             <a href="/calculator-penalty">🧮 Калькулятор неустойки</a>
             <a href="/mobile-app">📱 Приложение</a>
             <a href="/faq">❓FAQ</a>
+                        <div id="mobileAuthButtons">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
             <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
         </div>
     </div>
@@ -1079,6 +1119,36 @@
         })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
         ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
     </script>
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    document.getElementById('authButtons').style.display = 'none';
+                    document.getElementById('userMenu').style.display = 'flex';
+                    // Мобильное меню
+                    const mobileAuth = document.getElementById('mobileAuthButtons');
+                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (mobileAuth) mobileAuth.style.display = 'none';
+                    if (mobileUser) mobileUser.style.display = 'block';
+                } else {
+                    document.getElementById('authButtons').style.display = 'flex';
+                    document.getElementById('userMenu').style.display = 'none';
+                    // Мобильное меню
+                    const mobileAuth = document.getElementById('mobileAuthButtons');
+                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (mobileAuth) mobileAuth.style.display = 'block';
+                    if (mobileUser) mobileUser.style.display = 'none';
+                }
+            } catch (error) {
+                // Ошибка проверки - оставляем кнопки по умолчанию
+            }
+        }
+        
+        // Вызываем при загрузке
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    
     <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     
     <!-- Schema.org Structured Data -->

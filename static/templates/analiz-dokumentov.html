@@ -1038,12 +1038,21 @@
         </div>
         <div class="menu-dropdown" id="menuDropdown">
             <a href="/">🏠 Главная</a>
+            <a href="/analiz-dokumentov">📄 Анализ документов</a>
             <a href="/articles">📚 Статьи</a>
             <a href="/contact">📞 Контакты</a>
             <a href="/calculator-penalty">🧮 Калькулятор неустойки</a>
             <a href="/mobile-app">📱 Приложение</a>
             <a href="/faq">❓FAQ</a>
             <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+            <span id="mobileAuthButtons" style="display: block; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <a href="/login" style="display: block; padding: 10px; color: white; text-decoration: none; margin-bottom: 5px;">Войти</a>
+                <a href="/register" style="display: block; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px; color: white; text-decoration: none; text-align: center;">Регистрация</a>
+            </span>
+            <span id="mobileUserMenu" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <a href="/cabinet" style="display: block; padding: 10px; color: white; text-decoration: none; margin-bottom: 5px;">Личный кабинет</a>
+                <a href="/logout" style="display: block; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px; color: white; text-decoration: none; text-align: center;">Выход</a>
+            </span>
         </div>
     </div>
 
@@ -1204,38 +1213,56 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
         }
     ]
     
-        // Проверяем авторизацию при загрузке
-        async function checkAuth() {
-            try {
-                const response = await fetch('/api/check-auth', {
-                    credentials: 'include'
-                });
-                const data = await response.json();
-                
-                const authButtons = document.getElementById('authButtons');
-                const userMenu = document.getElementById('userMenu');
-                const mobileAuth = document.getElementById('mobileAuthButtons');
-                const mobileUser = document.getElementById('mobileUserMenu');
-                
-                if (data.authenticated) {
-                    if (authButtons) authButtons.style.display = 'none';
-                    if (userMenu) userMenu.style.display = 'flex';
-                    if (mobileAuth) mobileAuth.style.display = 'none';
-                    if (mobileUser) mobileUser.style.display = 'block';
-                } else {
-                    if (authButtons) authButtons.style.display = 'flex';
-                    if (userMenu) userMenu.style.display = 'none';
-                    if (mobileAuth) mobileAuth.style.display = 'block';
-                    if (mobileUser) mobileUser.style.display = 'none';
-                }
-            } catch (error) {
-                // Ошибка проверки - оставляем кнопки по умолчанию
-                console.error('Auth check error:', error);
+    // Проверяем авторизацию при загрузке
+    async function checkAuth() {
+        try {
+            const response = await fetch('/api/check-auth', {
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                console.error('Auth check failed:', response.status);
+                return;
             }
+            
+            const data = await response.json();
+            
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const mobileAuth = document.getElementById('mobileAuthButtons');
+            const mobileUser = document.getElementById('mobileUserMenu');
+            
+            if (data.authenticated) {
+                if (authButtons) authButtons.style.display = 'none';
+                if (userMenu) userMenu.style.display = 'flex';
+                if (mobileAuth) mobileAuth.style.display = 'none';
+                if (mobileUser) mobileUser.style.display = 'block';
+            } else {
+                if (authButtons) authButtons.style.display = 'flex';
+                if (userMenu) userMenu.style.display = 'none';
+                if (mobileAuth) mobileAuth.style.display = 'block';
+                if (mobileUser) mobileUser.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Auth check error:', error);
+            // При ошибке показываем кнопки авторизации
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const mobileAuth = document.getElementById('mobileAuthButtons');
+            const mobileUser = document.getElementById('mobileUserMenu');
+            if (authButtons) authButtons.style.display = 'flex';
+            if (userMenu) userMenu.style.display = 'none';
+            if (mobileAuth) mobileAuth.style.display = 'block';
+            if (mobileUser) mobileUser.style.display = 'none';
         }
-        
-        // Вызываем при загрузке
-        document.addEventListener('DOMContentLoaded', checkAuth);
+    }
+    
+    // Вызываем при загрузке и после небольшой задержки для надежности
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuth();
+        // Дополнительная проверка через 500ms на случай, если элементы еще не готовы
+        setTimeout(checkAuth, 500);
+    });
     </script>
 </body>
 </html>

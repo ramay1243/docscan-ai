@@ -1120,38 +1120,100 @@
         })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
         ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
     </script>
-        // Проверяем авторизацию при загрузке
-        async function checkAuth() {
-            try {
-                const response = await fetch('/api/check-auth', {
-                    credentials: 'include'
-                });
-                const data = await response.json();
-                
-                const authButtons = document.getElementById('authButtons');
-                const userMenu = document.getElementById('userMenu');
-                const mobileAuth = document.getElementById('mobileAuthButtons');
-                const mobileUser = document.getElementById('mobileUserMenu');
-                
-                if (data.authenticated) {
-                    if (authButtons) authButtons.style.display = 'none';
-                    if (userMenu) userMenu.style.display = 'flex';
-                    if (mobileAuth) mobileAuth.style.display = 'none';
-                    if (mobileUser) mobileUser.style.display = 'block';
-                } else {
-                    if (authButtons) authButtons.style.display = 'flex';
-                    if (userMenu) userMenu.style.display = 'none';
-                    if (mobileAuth) mobileAuth.style.display = 'block';
-                    if (mobileUser) mobileUser.style.display = 'none';
-                }
-            } catch (error) {
-                // Ошибка проверки - оставляем кнопки по умолчанию
-                console.error('Auth check error:', error);
+    // Проверяем авторизацию при загрузке
+    async function checkAuth() {
+        console.log('🔍 [checkAuth] Функция вызвана');
+        try {
+            console.log('🔍 [checkAuth] Отправляю запрос к /api/check-auth');
+            const response = await fetch('/api/check-auth', {
+                credentials: 'include',
+                cache: 'no-cache'
+            });
+            
+            console.log('🔍 [checkAuth] Ответ получен:', response.status, response.statusText);
+            
+            if (!response.ok) {
+                console.error('❌ [checkAuth] Ошибка ответа:', response.status);
+                return;
             }
+            
+            const data = await response.json();
+            console.log('🔍 [checkAuth] Данные ответа:', data);
+            
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const mobileAuth = document.getElementById('mobileAuthButtons');
+            const mobileUser = document.getElementById('mobileUserMenu');
+            
+            console.log('🔍 [checkAuth] Найдены элементы:', {
+                authButtons: !!authButtons,
+                userMenu: !!userMenu,
+                mobileAuth: !!mobileAuth,
+                mobileUser: !!mobileUser
+            });
+            
+            if (data.authenticated) {
+                console.log('✅ [checkAuth] Пользователь авторизован:', data.email);
+                if (authButtons) {
+                    authButtons.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                    console.log('✅ [checkAuth] authButtons скрыты, display:', authButtons.style.display);
+                }
+                if (userMenu) {
+                    userMenu.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    console.log('✅ [checkAuth] userMenu показан, display:', userMenu.style.display, 'computed:', window.getComputedStyle(userMenu).display);
+                }
+                if (mobileAuth) {
+                    mobileAuth.setAttribute('style', 'display: none !important;');
+                }
+                if (mobileUser) {
+                    mobileUser.setAttribute('style', 'display: block !important;');
+                }
+            } else {
+                console.log('❌ [checkAuth] Пользователь НЕ авторизован');
+                if (authButtons) {
+                    authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                }
+                if (userMenu) {
+                    userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                }
+                if (mobileAuth) {
+                    mobileAuth.setAttribute('style', 'display: block !important;');
+                }
+                if (mobileUser) {
+                    mobileUser.setAttribute('style', 'display: none !important;');
+                }
+            }
+        } catch (error) {
+            console.error('❌ [checkAuth] Ошибка:', error);
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const mobileAuth = document.getElementById('mobileAuthButtons');
+            const mobileUser = document.getElementById('mobileUserMenu');
+            if (authButtons) authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+            if (userMenu) userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+            if (mobileAuth) mobileAuth.setAttribute('style', 'display: block !important;');
+            if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
         }
-        
-        // Вызываем при загрузке
-        document.addEventListener('DOMContentLoaded', checkAuth);
+    }
+    
+    // Вызываем при загрузке и после небольшой задержки для надежности
+    console.log('🔍 [checkAuth] Скрипт загружен, ждем DOMContentLoaded');
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔍 [checkAuth] DOMContentLoaded - вызываю checkAuth');
+        checkAuth();
+        setTimeout(function() {
+            console.log('🔍 [checkAuth] Повторная проверка через 500ms');
+            checkAuth();
+        }, 500);
+    });
+    
+    if (document.readyState === 'loading') {
+        console.log('🔍 [checkAuth] DOM еще загружается');
+    } else {
+        console.log('🔍 [checkAuth] DOM уже загружен, вызываю checkAuth немедленно');
+        checkAuth();
+        setTimeout(checkAuth, 500);
+    }
     
     <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     

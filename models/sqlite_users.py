@@ -100,6 +100,10 @@ class SQLiteUserManager:
 
     def get_user(self, user_id):
         """Получает пользователя по ID с проверкой тарифа"""
+        # ВАЖНО: Используем expire_all() чтобы получить свежие данные из БД
+        # Это решает проблему, когда тариф изменен в админке, но не обновляется на сайте
+        self.db.session.expire_all()
+        
         user = self.User.query.filter_by(user_id=user_id).first()
     
         # Проверяем просроченный тариф
@@ -109,6 +113,10 @@ class SQLiteUserManager:
                 user.plan = 'free'
                 user.plan_expires = None
                 self.db.session.commit()
+        
+        # Принудительно обновляем данные из БД для этого объекта
+        if user:
+            self.db.session.refresh(user)
     
         return user
 

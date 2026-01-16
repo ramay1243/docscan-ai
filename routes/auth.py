@@ -288,6 +288,8 @@ def cabinet():
         return redirect(url_for('auth.login_page'))
     
     from app import app
+    # ВАЖНО: get_user теперь автоматически обновляет данные из БД
+    # используя expire_all() и refresh() для получения актуального тарифа
     user = app.user_manager.get_user(user_id)
     
     if not user or not user.is_registered:
@@ -297,9 +299,12 @@ def cabinet():
     # Получаем историю анализов
     history = app.user_manager.get_analysis_history(user_id, limit=50)
     
-    # Получаем статистику
+    # Получаем статистику - используем актуальный план из БД
     from config import PLANS
-    plan = PLANS.get(user.plan, PLANS['free'])
+    current_plan_type = user.plan
+    plan = PLANS.get(current_plan_type, PLANS['free'])
+    
+    logger.info(f"📊 Cabinet: user_id={user_id}, plan={current_plan_type}, plan_name={plan['name']}, daily_limit={plan['daily_limit']}, used_today={user.used_today}")
     
     return render_template('cabinet.html', 
         user=user,

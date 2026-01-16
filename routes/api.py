@@ -208,10 +208,22 @@ def analyze_document():
             app.ip_limit_manager.record_ip_usage(request, user_id)
         
         # Сохраняем историю анализа (для всех пользователей)
+        # Убеждаемся что все изменения пользователя сохранены
         try:
-            app.user_manager.save_analysis_history(user_id, filename, analysis_result)
+            from models.sqlite_users import db
+            # Коммитим изменения пользователя (free_analysis_used и т.д.)
+            db.session.commit()
+            
+            # Сохраняем историю
+            history = app.user_manager.save_analysis_history(user_id, filename, analysis_result)
+            if history:
+                logger.info(f"✅ История анализа сохранена для {user_id}, файл: {filename}")
+            else:
+                logger.warning(f"⚠️ Не удалось сохранить историю для {user_id}")
         except Exception as e:
-            logger.warning(f"⚠️ Не удалось сохранить историю анализа: {e}")
+            logger.error(f"❌ Ошибка сохранения истории анализа: {e}", exc_info=True)
+            import traceback
+            logger.error(traceback.format_exc())
         
         # Добавляем информацию о лимитах в ответ
         user = app.user_manager.get_user(user_id)
@@ -262,6 +274,21 @@ def get_usage():
     user_id = request.args.get('user_id', 'default')
     RussianLogger.log_request(request, user_id)
     user = app.user_manager.get_user(user_id)
+    
+    # Для незарегистрированных показываем лимит 1
+    if not user.is_registered:
+        used_today = 1 if user.free_analysis_used else 0
+        return jsonify({
+            'user_id': user_id,
+            'plan': 'free',
+            'plan_name': 'Пробный',
+            'used_today': used_today,
+            'daily_limit': 1,
+            'remaining': 1 - used_today,
+            'total_used': user.total_used,
+            'is_registered': False
+        })
+    
     plan = PLANS[user.plan]
     
     return jsonify({
@@ -271,7 +298,8 @@ def get_usage():
         'used_today': user.used_today,
         'daily_limit': plan['daily_limit'],
         'remaining': plan['daily_limit'] - user.used_today,
-        'total_used': user.total_used
+        'total_used': user.total_used,
+        'is_registered': True
     })
 
 @api_bp.route('/plans', methods=['GET'])

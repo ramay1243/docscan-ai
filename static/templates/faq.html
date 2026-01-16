@@ -106,9 +106,8 @@
         
         .nav-links {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             align-items: center;
-            flex-wrap: wrap;
         }
         
         .nav-link {
@@ -117,23 +116,7 @@
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        
-        .cta-button {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 0.85rem;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
+            font-size: 0.95rem;
         }
         
         .nav-link:hover {
@@ -687,7 +670,8 @@
             .search-container,
             .categories-nav,
             .cta-section,
-            .main-footer {
+            .main-footer,
+            .burger-menu {
                 display: none;
             }
             
@@ -719,11 +703,11 @@
                     <a href="/contact" class="nav-link">Контакты</a>
                     <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
                         <a href="/login" class="nav-link">Войти</a>
-                        <a href="/register" class="cta-button">Регистрация</a>
+                        <a href="/register" class="cta-button" style="padding: 10px 20px; font-size: 0.85rem;">Регистрация</a>
                     </span>
                     <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
                         <a href="/cabinet" class="nav-link">Личный кабинет</a>
-                        <a href="/logout" class="cta-button">Выход</a>
+                        <a href="/logout" class="cta-button" style="padding: 10px 20px; font-size: 0.85rem;">Выход</a>
                     </span>
                 </nav>
             </div>
@@ -1535,34 +1519,10 @@
             const menu = document.querySelector('.burger-menu');
             const dropdown = document.getElementById('menuDropdown');
             
-            if (menu && dropdown && !menu.contains(event.target)) {
+            if (!menu.contains(event.target)) {
                 dropdown.classList.remove('show');
             }
         });
-        
-        // Проверяем авторизацию для обновления меню
-        async function checkAuth() {
-            try {
-                const response = await fetch('/api/check-auth');
-                const data = await response.json();
-                const authButtons = document.getElementById('authButtons');
-                const userMenu = document.getElementById('userMenu');
-                const mobileAuth = document.getElementById('mobileAuthButtons');
-                const mobileUser = document.getElementById('mobileUserMenu');
-                if (data.authenticated) {
-                    if (authButtons) authButtons.style.display = 'none';
-                    if (userMenu) userMenu.style.display = 'flex';
-                    if (mobileAuth) mobileAuth.style.display = 'none';
-                    if (mobileUser) mobileUser.style.display = 'block';
-                } else {
-                    if (authButtons) authButtons.style.display = 'flex';
-                    if (userMenu) userMenu.style.display = 'none';
-                    if (mobileAuth) mobileAuth.style.display = 'block';
-                    if (mobileUser) mobileUser.style.display = 'none';
-                }
-            } catch (e) {}
-        }
-        document.addEventListener('DOMContentLoaded', checkAuth);
         
         // Print FAQ
         const printButton = document.createElement('button');

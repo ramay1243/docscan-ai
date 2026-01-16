@@ -78,7 +78,7 @@ class IPLimitManager:
             logger.info(f"🔄 Сброшен лимит для IP {real_ip}")
         
         # МАКСИМУМ 1 БЕСПЛАТНЫЙ АНАЛИЗ В ДЕНЬ С ОДНОГО IP
-        can_analyze = ip_data['used_today'] < 3
+        can_analyze = ip_data['used_today'] < 1
         
         if can_analyze:
             logger.info(f"📡 IP {real_ip} может сделать анализ ({ip_data['used_today']}/3)")

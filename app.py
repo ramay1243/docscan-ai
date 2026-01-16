@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 import logging
 import sys
-from models.sqlite_users import db
+from models.sqlite_users import db, User, AnalysisHistory
 
 # Настройка логирования
 # Настройка логирования на русском

@@ -40,9 +40,11 @@ def register():
         # Получаем или создаем пользователя
         if user_id:
             user = User.query.filter_by(user_id=user_id).first()
+            # Если пользователь с таким user_id не найден, создаем нового
             if not user:
-                return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
-        else:
+                user_id = None  # Сбросим, чтобы создать нового ниже
+        
+        if not user_id:
             import uuid
             user_id = str(uuid.uuid4())[:8]
             user = User(

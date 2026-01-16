@@ -38,9 +38,24 @@ def analyze_document():
     from app import app
     from flask import session
     
-    real_ip = app.ip_limit_manager.get_client_ip(request)
+        real_ip = app.ip_limit_manager.get_client_ip(request)
     user_agent = request.headers.get('User-Agent', 'Не определен')
-    logger.info(f"🔍 Анализ запущен для IP: {real_ip}")
+    
+    # ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ IP для диагностики
+    x_forwarded_for = request.headers.get('X-Forwarded-For', '')
+    x_real_ip = request.headers.get('X-Real-IP', '')
+    remote_addr = request.remote_addr or 'None'
+    logger.info(f"🔍 IP диагностика: real_ip={real_ip}, X-Real-IP='{x_real_ip}', X-Forwarded-For='{x_forwarded_for}', remote_addr='{remote_addr}'")
+    logger.info(f"🔍 Анализ запущен для IP: {real_ip}, User-Agent: {user_agent[:50]}...")
+    
+    # ЛОГИРОВАНИЕ: Проверяем есть ли уже гости с похожим User-Agent для диагностики
+    try:
+        from models.sqlite_users import Guest
+        similar_guests = Guest.query.filter(Guest.user_agent.like(f'%{user_agent[:30]}%'), Guest.registered_user_id == None).limit(5).all()
+        if similar_guests:
+            logger.info(f"🔍 Найдено {len(similar_guests)} похожих гостей с похожим User-Agent (разные IP): {[g.ip_address for g in similar_guests]}")
+    except:
+        pass
     
     # ПРОВЕРЯЕМ АВТОРИЗАЦИЮ: получаем user_id из сессии (только для зарегистрированных)
     user_id = session.get('user_id')
@@ -160,15 +175,18 @@ def analyze_document():
             
             # Проверяем IP-лимиты (1 анализ в день)
             if not app.ip_limit_manager.can_analyze_by_ip(request):
-                # Обновляем флаг registration_prompted для гостя
+                # IP лимит превышен - обновляем флаг registration_prompted для гостя
+                # Ищем существующего гостя с этим IP или создаем нового
                 try:
-                    app.user_manager.get_or_create_guest(real_ip, user_agent)
                     guest = app.user_manager.get_or_create_guest(real_ip, user_agent)
                     guest.registration_prompted = True
+                    # Если гость только что создан (analyses_count = 0), это странно, но логируем
+                    if guest.analyses_count == 0:
+                        logger.warning(f"⚠️ IP лимит превышен для IP {real_ip}, но у гостя 0 анализов. Возможно, IP изменился между запросами.")
                     from models.sqlite_users import db
                     db.session.commit()
-                except:
-                    pass
+                except Exception as e:
+                    logger.error(f"❌ Ошибка обновления гостя при превышении лимита: {e}")
                 
                 return jsonify({
                     'success': False,
@@ -220,8 +238,11 @@ def analyze_document():
                 logger.warning(f"⚠️ Не удалось сохранить историю анализа: {e}")
         else:
             # Для незарегистрированных: записываем только в guests и IP-лимиты
+            # ВАЖНО: Сначала обновляем IP-лимиты, потом записываем в guests
+            # Это гарантирует, что если IP изменился, счетчик анализов будет правильным
             app.ip_limit_manager.record_ip_usage(request, None)  # user_id=None для незарегистрированных
-            app.user_manager.record_guest_analysis(real_ip, user_agent)
+            guest = app.user_manager.record_guest_analysis(real_ip, user_agent)
+            logger.info(f"👤 Гость записан: IP={real_ip}, analyses_count={guest.analyses_count}, registration_prompted={guest.registration_prompted}")
             # История анализов НЕ сохраняется для незарегистрированных
         
         # РАЗДЕЛ 6: ФОРМИРОВАНИЕ ОТВЕТА

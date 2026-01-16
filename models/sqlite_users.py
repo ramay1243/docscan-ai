@@ -399,10 +399,18 @@ class SQLiteUserManager:
     def record_guest_analysis(self, ip_address, user_agent=None):
         """Записывает анализ для гостя"""
         guest = self.get_or_create_guest(ip_address, user_agent)
+        
+        # Увеличиваем счетчик анализов только если гость существует
+        old_count = guest.analyses_count
         guest.analyses_count += 1
         guest.last_seen = datetime.now().isoformat()
+        
+        # Если это первый анализ, сбрасываем флаг registration_prompted (если был установлен ранее по ошибке)
+        if guest.analyses_count == 1:
+            guest.registration_prompted = False
+        
         self.db.session.commit()
-        logger.info(f"📊 Записан анализ для гостя: IP={ip_address}, всего анализов={guest.analyses_count}")
+        logger.info(f"📊 Записан анализ для гостя: IP={ip_address}, анализов было={old_count}, стало={guest.analyses_count}, registration_prompted={guest.registration_prompted}")
         return guest
     
     def link_guest_to_user(self, ip_address, user_id):

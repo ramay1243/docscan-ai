@@ -42,14 +42,29 @@ class IPLimitManager:
             logger.error(f"❌ Ошибка сохранения IP-лимитов: {e}")
 
     def get_client_ip(self, request):
-        """Получаем реальный IP клиента на Render"""
-        if request.headers.get('X-Forwarded-For'):
-            # На Render используем этот заголовок
-            return request.headers.get('X-Forwarded-For').split(',')[0].strip()
-        elif request.headers.get('X-Real-IP'):
-            return request.headers.get('X-Real-IP')
+        """Получаем реальный IP клиента - ВАЖНО: консистентный порядок проверки"""
+        x_forwarded_for = request.headers.get('X-Forwarded-For', '')
+        x_real_ip = request.headers.get('X-Real-IP', '')
+        remote_addr = request.remote_addr or 'None'
+        
+        # ВАЖНО: Всегда проверяем в одном порядке для консистентности
+        # X-Real-IP обычно более надежный (устанавливается прокси/балансировщиком напрямую)
+        # X-Forwarded-For может содержать цепочку IP через запятую
+        
+        if x_real_ip and x_real_ip.strip():
+            ip = x_real_ip.strip()
+            logger.debug(f"🔍 IP определен из X-Real-IP: {ip}")
+            return ip
+        elif x_forwarded_for and x_forwarded_for.strip():
+            # X-Forwarded-For может содержать цепочку: client, proxy1, proxy2
+            # Берем первый IP (оригинальный клиент)
+            ip = x_forwarded_for.split(',')[0].strip()
+            logger.debug(f"🔍 IP определен из X-Forwarded-For (первый): {ip}")
+            return ip
         else:
-            return request.remote_addr
+            ip = remote_addr
+            logger.debug(f"🔍 IP определен из remote_addr: {ip}")
+            return ip
 
     def can_analyze_by_ip(self, request):
         """Проверяет может ли IP сделать анализ"""

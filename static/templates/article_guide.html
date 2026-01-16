@@ -921,7 +921,7 @@
                 dropdown.classList.remove('show');
             }
         });
-    </script>
+        
         // Проверяем авторизацию при загрузке
         async function checkAuth() {
             try {
@@ -951,22 +951,8 @@
         }
         
         // Вызываем при загрузке
-        document.addEventListener('DOMContentLoaded', checkAuth); else {
-                    document.getElementById('authButtons').style.display = 'flex';
-                    document.getElementById('userMenu').style.display = 'none';
-                    // Мобильное меню
-                    const mobileAuth = document.getElementById('mobileAuthButtons');
-                    const mobileUser = document.getElementById('mobileUserMenu');
-                    if (mobileAuth) mobileAuth.style.display = 'block';
-                    if (mobileUser) mobileUser.style.display = 'none';
-                }
-            } catch (error) {
-                // Ошибка проверки - оставляем кнопки по умолчанию
-            }
-        }
-        
-        // Вызываем при загрузке
         document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
     
     
     <!-- Yandex.Metrika -->

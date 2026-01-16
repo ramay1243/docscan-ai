@@ -82,7 +82,7 @@ RISK_LEVELS = {
 # Тарифы
 PLANS = {
     'free': {
-        'daily_limit': 3,
+        'daily_limit': 1,  # Зарегистрированные пользователи получают только 1 анализ
         'ai_access': True,
         'price': 0,
         'name': 'Бесплатный'

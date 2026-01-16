@@ -96,9 +96,9 @@ class IPLimitManager:
         can_analyze = ip_data['used_today'] < 1
         
         if can_analyze:
-            logger.info(f"📡 IP {real_ip} может сделать анализ ({ip_data['used_today']}/3)")
+            logger.info(f"📡 IP {real_ip} может сделать анализ ({ip_data['used_today']}/1)")
         else:
-            logger.info(f"🚫 IP {real_ip} уже использовал бесплатный анализ сегодня ({ip_data['used_today']}/3)")
+            logger.info(f"🚫 IP {real_ip} уже использовал бесплатный анализ сегодня ({ip_data['used_today']}/1)")
         
         return can_analyze
 

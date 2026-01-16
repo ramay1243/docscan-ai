@@ -168,7 +168,7 @@ def admin_panel():
             <h3>Выдать тариф пользователю:</h3>
             <input type="text" id="userId" placeholder="ID пользователя">
             <select id="planSelect">
-                <option value="free">Бесплатный (3 анализа)</option>
+                <option value="free">Бесплатный (1 анализ)</option>
                 <option value="basic">Базовый (Неограниченное количество анализов)</option>
                 <option value="premium">Премиум (50 анализов)</option>
                 <option value="unlimited">Безлимитный</option>
@@ -302,7 +302,7 @@ def admin_panel():
             }
 
             function getPlanLimit(plan) {
-                const limits = {free: 3, basic: 10, premium: 50, unlimited: 1000};
+                const limits = {free: 1, basic: 1000, premium: 50, unlimited: 1000};
                 return limits[plan] || 0;
             }
 

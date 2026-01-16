@@ -1563,31 +1563,53 @@ def home():
         
         // Buy plan
         async function buyPlan(planType) {
-            if (!currentUserId) {
-                alert('Сначала загрузите страницу');
-                return;
-            }
-            
+            // Проверяем авторизацию
             try {
-                const response = await fetch('/payments/create-payment', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        user_id: currentUserId,
-                        plan: planType
-                    })
+                const authResponse = await fetch('/api/check-auth', {
+                    credentials: 'include',
+                    cache: 'no-cache'
                 });
                 
-                const result = await response.json();
+                const authData = await authResponse.json();
                 
-                if (result.success) {
-                    window.location.href = result.payment_url;
-                } else {
-                    alert('Ошибка: ' + result.error);
+                if (!authData.authenticated) {
+                    // Пользователь не авторизован - предлагаем войти/зарегистрироваться
+                    if (confirm('Для покупки тарифа необходимо войти в аккаунт или зарегистрироваться. Перейти к регистрации?')) {
+                        window.location.href = '/register';
+                    }
+                    return;
+                }
+            
+                // Пользователь авторизован - продолжаем покупку
+                if (!currentUserId) {
+                    currentUserId = authData.user_id;
                 }
                 
+                try {
+                    const response = await fetch('/payments/create-payment', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            user_id: currentUserId || authData.user_id,
+                            plan: planType
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        window.location.href = result.payment_url;
+                    } else {
+                        alert('Ошибка: ' + result.error);
+                    }
+                    
+                } catch (error) {
+                    alert('Ошибка соединения: ' + error.message);
+                }
             } catch (error) {
-                alert('Ошибка соединения: ' + error.message);
+                console.error('Ошибка проверки авторизации:', error);
+                alert('Ошибка проверки авторизации. Пожалуйста, войдите в аккаунт.');
             }
         }
         

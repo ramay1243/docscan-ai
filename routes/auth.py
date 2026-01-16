@@ -320,19 +320,31 @@ def check_auth():
         logger.debug(f"❌ check-auth: Нет user_id в сессии")
         return jsonify({'authenticated': False})
     
-    user = User.query.filter_by(user_id=user_id).first()
+    # ВАЖНО: Обновляем данные пользователя из БД, чтобы получить актуальный тариф
+    # Это решает проблему, когда тариф изменен в админке, но не обновляется на сайте
+    from app import app
+    user = app.user_manager.get_user(user_id)
     
     if not user or not user.is_registered:
         logger.debug(f"❌ check-auth: Пользователь {user_id} не найден или не зарегистрирован")
         session.clear()
         return jsonify({'authenticated': False})
     
-    logger.debug(f"✅ check-auth: Пользователь {user_id} авторизован")
+    # Обрабатываем plan_expires (может быть строкой или date объектом)
+    plan_expires_str = None
+    if user.plan_expires:
+        if hasattr(user.plan_expires, 'isoformat'):
+            plan_expires_str = user.plan_expires.isoformat()
+        else:
+            plan_expires_str = str(user.plan_expires)
+    
+    logger.debug(f"✅ check-auth: Пользователь {user_id} авторизован, план: {user.plan}")
     return jsonify({
         'authenticated': True,
         'user_id': user.user_id,
         'email': user.email,
         'email_verified': user.email_verified,
-        'plan': user.plan
+        'plan': user.plan,
+        'plan_expires': plan_expires_str
     })
 

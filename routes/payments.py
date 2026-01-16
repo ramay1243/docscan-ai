@@ -10,13 +10,21 @@ payments_bp = Blueprint('payments', __name__)
 @payments_bp.route('/create-payment', methods=['POST'])
 def create_payment():
     """Создание платежа в ЮMoney"""
+    from flask import session
+    
     try:
         data = request.json
-        user_id = data.get('user_id')
         plan_type = data.get('plan')
         
+        # Получаем user_id из сессии (пользователь должен быть авторизован)
+        user_id = session.get('user_id')
+        
+        # Если user_id не в сессии, пытаемся получить из запроса (для обратной совместимости)
+        if not user_id:
+            user_id = data.get('user_id')
+        
         if not user_id or plan_type not in PLANS:
-            return jsonify({'success': False, 'error': 'Неверные данные'})
+            return jsonify({'success': False, 'error': 'Неверные данные. Необходимо войти в аккаунт.'})
         
         plan = PLANS[plan_type]
         

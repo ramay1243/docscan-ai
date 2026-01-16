@@ -172,6 +172,13 @@
         <div class="section">
             <h2 class="section-title">Управление аккаунтом</h2>
             <p style="margin-bottom: 15px; color: var(--gray);">Дата регистрации: {{ user.created_at[:10] }}</p>
+            {% if user.plan == 'free' %}
+            <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; color: white;">
+                <h3 style="margin: 0 0 15px 0; color: white;">💎 Улучшите свой тариф</h3>
+                <p style="margin: 0 0 15px 0; opacity: 0.9;">Получите неограниченное количество анализов всего за 490₽/мес</p>
+                <button onclick="buyPlan('basic')" class="cta-button" style="background: white; color: var(--primary); border: none; cursor: pointer;">Купить тариф за 490₽</button>
+            </div>
+            {% endif %}
             <a href="/" class="cta-button">Начать анализ документа</a>
         </div>
     </div>
@@ -191,6 +198,31 @@
                 dropdown.classList.remove('show');
             }
         });
+        
+        // Buy plan function
+        async function buyPlan(planType) {
+            try {
+                const response = await fetch('/payments/create-payment', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        plan: planType
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.href = result.payment_url;
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+                
+            } catch (error) {
+                alert('Ошибка соединения: ' + error.message);
+            }
+        }
     </script>
 </body>
 </html>

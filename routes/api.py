@@ -38,7 +38,7 @@ def analyze_document():
     from app import app
     from flask import session
     
-        real_ip = app.ip_limit_manager.get_client_ip(request)
+    real_ip = app.ip_limit_manager.get_client_ip(request)
     user_agent = request.headers.get('User-Agent', 'Не определен')
     
     # ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ IP для диагностики

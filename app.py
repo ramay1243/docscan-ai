@@ -34,41 +34,100 @@ def create_app():
     CORS(app, resources={r"/*": {"origins": "*", "supports_credentials": True}})
     
     # Инициализация модулей
-    init_services(app)
-    register_routes(app)
+    try:
+        init_services(app)
+        logger.info("✅ Сервисы инициализированы")
+    except Exception as e:
+        logger.error(f"❌ Ошибка инициализации сервисов: {e}")
+        import traceback
+        logger.error(f"Трассировка: {traceback.format_exc()}")
+        raise
+    
+    try:
+        register_routes(app)
+        logger.info("✅ Маршруты зарегистрированы")
+    except Exception as e:
+        logger.error(f"❌ Ошибка регистрации маршрутов: {e}")
+        import traceback
+        logger.error(f"Трассировка: {traceback.format_exc()}")
+        raise
     
     logger.info("🚀 DocScan App инициализирован!")
     return app
 
 def init_services(app):
     """Инициализация сервисов"""
-    # Импортируем здесь чтобы избежать циклических импортов
-    from models.sqlite_users import SQLiteUserManager, User
-    from models.limits import IPLimitManager
-    
-    # Инициализируем менеджеры
-    app.user_manager = SQLiteUserManager(db, User)
-    app.ip_limit_manager = IPLimitManager()
-    
-    logger.info("✅ Сервисы инициализированы")
+    try:
+        # Импортируем здесь чтобы избежать циклических импортов
+        from models.sqlite_users import SQLiteUserManager, User
+        from models.limits import IPLimitManager
+        
+        # Инициализируем менеджеры
+        app.user_manager = SQLiteUserManager(db, User)
+        app.ip_limit_manager = IPLimitManager()
+        
+        logger.info("✅ Сервисы инициализированы")
+    except Exception as e:
+        logger.error(f"❌ КРИТИЧЕСКАЯ ОШИБКА при инициализации сервисов: {e}")
+        import traceback
+        logger.error(f"Полная трассировка:\n{traceback.format_exc()}")
+        raise
 
 def register_routes(app):
     """Регистрация маршрутов"""
-    # Импортируем здесь чтобы избежать циклических импортов
-    from routes.main import main_bp
-    from routes.api import api_bp
-    from routes.admin import admin_bp
-    from routes.payments import payments_bp
-    from routes.auth import auth_bp
-    
-    # Регистрируем blueprint'ы
-    app.register_blueprint(main_bp)
-    app.register_blueprint(api_bp, url_prefix='/api')
-    app.register_blueprint(admin_bp, url_prefix='/admin')
-    app.register_blueprint(payments_bp, url_prefix='/payments')
-    app.register_blueprint(auth_bp)
-    
-    logger.info("✅ Маршруты зарегистрированы")
+    try:
+        # Импортируем здесь чтобы избежать циклических импортов
+        logger.info("📦 Импорт routes.main...")
+        from routes.main import main_bp
+        logger.info("✅ routes.main импортирован")
+        
+        logger.info("📦 Импорт routes.api...")
+        from routes.api import api_bp
+        logger.info("✅ routes.api импортирован")
+        
+        logger.info("📦 Импорт routes.admin...")
+        from routes.admin import admin_bp
+        logger.info("✅ routes.admin импортирован")
+        
+        logger.info("📦 Импорт routes.payments...")
+        from routes.payments import payments_bp
+        logger.info("✅ routes.payments импортирован")
+        
+        logger.info("📦 Импорт routes.auth...")
+        from routes.auth import auth_bp
+        logger.info("✅ routes.auth импортирован")
+        
+        # Регистрируем blueprint'ы
+        logger.info("📝 Регистрация main_bp...")
+        app.register_blueprint(main_bp)
+        logger.info("✅ main_bp зарегистрирован")
+        
+        logger.info("📝 Регистрация api_bp...")
+        app.register_blueprint(api_bp, url_prefix='/api')
+        logger.info("✅ api_bp зарегистрирован")
+        
+        logger.info("📝 Регистрация admin_bp...")
+        app.register_blueprint(admin_bp, url_prefix='/admin')
+        logger.info("✅ admin_bp зарегистрирован")
+        
+        logger.info("📝 Регистрация payments_bp...")
+        app.register_blueprint(payments_bp, url_prefix='/payments')
+        logger.info("✅ payments_bp зарегистрирован")
+        
+        logger.info("📝 Регистрация auth_bp...")
+        app.register_blueprint(auth_bp)
+        logger.info("✅ auth_bp зарегистрирован")
+        
+        logger.info("✅ Все маршруты зарегистрированы")
+    except Exception as e:
+        logger.error(f"❌ КРИТИЧЕСКАЯ ОШИБКА при регистрации маршрутов: {e}")
+        import traceback
+        logger.error(f"Полная трассировка:\n{traceback.format_exc()}")
+        # Выводим также в stderr для supervisor
+        import sys
+        sys.stderr.write(f"❌ ОШИБКА регистрации маршрутов: {e}\n")
+        sys.stderr.write(f"{traceback.format_exc()}\n")
+        raise
 
 # Создаем приложение
 app = create_app()

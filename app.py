@@ -15,8 +15,13 @@ def create_app():
     app = Flask(__name__, template_folder='static/templates')
     # Настройки сессий
     app.config['SECRET_KEY'] = 'docscan-super-secret-key-2024'
-    app.config['SESSION_TYPE'] = 'filesystem'
     app.config['PERMANENT_SESSION_LIFETIME'] = 3600
+    # Настройки cookies для работы сессий между страницами
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    # Для продакшена (HTTPS) установить в True через переменную окружения
+    # По умолчанию False для работы с HTTP
+    app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
     
     # Конфигурация
     from config import Config
@@ -25,8 +30,8 @@ def create_app():
     # Инициализация базы данных
     db.init_app(app)
     
-    # CORS
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    # CORS - настройки для работы с cookies
+    CORS(app, resources={r"/*": {"origins": "*", "supports_credentials": True}})
     
     # Инициализация модулей
     init_services(app)

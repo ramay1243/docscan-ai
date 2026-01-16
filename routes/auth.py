@@ -311,16 +311,23 @@ def cabinet():
 def check_auth():
     """Проверка авторизации пользователя"""
     user_id = session.get('user_id')
+    session_id = request.cookies.get('session') or 'no-cookie'
+    
+    # Логирование для диагностики
+    logger.debug(f"🔍 check-auth: user_id={user_id}, session_cookie={session_id[:20]}...")
     
     if not user_id:
+        logger.debug(f"❌ check-auth: Нет user_id в сессии")
         return jsonify({'authenticated': False})
     
     user = User.query.filter_by(user_id=user_id).first()
     
     if not user or not user.is_registered:
+        logger.debug(f"❌ check-auth: Пользователь {user_id} не найден или не зарегистрирован")
         session.clear()
         return jsonify({'authenticated': False})
     
+    logger.debug(f"✅ check-auth: Пользователь {user_id} авторизован")
     return jsonify({
         'authenticated': True,
         'user_id': user.user_id,

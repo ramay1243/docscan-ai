@@ -1249,16 +1249,34 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
             
             if (data.authenticated) {
                 console.log('✅ [checkAuth] Пользователь авторизован:', data.email);
-                if (authButtons) authButtons.style.display = 'none';
-                if (userMenu) userMenu.style.display = 'flex';
-                if (mobileAuth) mobileAuth.style.display = 'none';
-                if (mobileUser) mobileUser.style.display = 'block';
+                if (authButtons) {
+                    authButtons.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                    console.log('✅ [checkAuth] authButtons скрыты, display:', authButtons.style.display);
+                }
+                if (userMenu) {
+                    userMenu.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    console.log('✅ [checkAuth] userMenu показан, display:', userMenu.style.display, 'computed:', window.getComputedStyle(userMenu).display);
+                }
+                if (mobileAuth) {
+                    mobileAuth.setAttribute('style', 'display: none !important;');
+                }
+                if (mobileUser) {
+                    mobileUser.setAttribute('style', 'display: block !important;');
+                }
             } else {
                 console.log('❌ [checkAuth] Пользователь НЕ авторизован');
-                if (authButtons) authButtons.style.display = 'flex';
-                if (userMenu) userMenu.style.display = 'none';
-                if (mobileAuth) mobileAuth.style.display = 'block';
-                if (mobileUser) mobileUser.style.display = 'none';
+                if (authButtons) {
+                    authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                }
+                if (userMenu) {
+                    userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                }
+                if (mobileAuth) {
+                    mobileAuth.setAttribute('style', 'display: block !important;');
+                }
+                if (mobileUser) {
+                    mobileUser.setAttribute('style', 'display: none !important;');
+                }
             }
         } catch (error) {
             console.error('❌ [checkAuth] Ошибка:', error);

@@ -100,24 +100,20 @@ class SQLiteUserManager:
 
     def get_user(self, user_id):
         """Получает пользователя по ID с проверкой тарифа"""
-        # ВАЖНО: Используем прямой запрос из БД для получения свежих данных
-        # Чтобы избежать проблем с кешированием, используем query с явным указанием merge=False
-        # если объект уже в сессии, или делаем новый запрос
+        # ВАЖНО: Всегда получаем свежие данные из БД
+        # Используем expire_all() чтобы очистить кеш сессии перед запросом
+        self.db.session.expire_all()
         
-        # Сначала пытаемся получить пользователя
+        # Прямой запрос к БД для получения актуальных данных
         user = self.User.query.filter_by(user_id=user_id).first()
         
-        # Если пользователь найден, пытаемся обновить его данные из БД
+        # Если пользователь найден, принудительно обновляем его данные из БД
         if user:
             try:
                 # Принудительно обновляем данные из БД для этого объекта
                 self.db.session.refresh(user)
             except Exception as e:
-                # Если refresh не работает (объект не отслеживается), делаем новый запрос
-                logger.debug(f"Refresh не сработал для {user_id}, делаю новый запрос: {e}")
-                # Закрываем текущую сессию и делаем новый запрос
-                self.db.session.expire_all()
-                user = self.User.query.filter_by(user_id=user_id).first()
+                logger.debug(f"Refresh не сработал для {user_id}: {e}, но пользователь получен")
     
         # Проверяем просроченный тариф
         if user and user.plan != 'free' and user.plan_expires:
@@ -126,6 +122,10 @@ class SQLiteUserManager:
                 user.plan = 'free'
                 user.plan_expires = None
                 self.db.session.commit()
+        
+        # Логируем для диагностики
+        if user:
+            logger.debug(f"🔍 get_user({user_id}): plan={user.plan}, used_today={user.used_today}")
         
         return user
 
@@ -243,15 +243,16 @@ class SQLiteUserManager:
         # Сохраняем изменения в БД
         self.db.session.commit()
         
-        # ВАЖНО: После commit() нужно убедиться, что изменения записаны
-        # Используем flush() чтобы синхронизировать с БД
-        self.db.session.flush()
+        # ВАЖНО: После commit() проверяем что данные действительно записались в БД
+        # Делаем новый прямой запрос к БД, чтобы убедиться что изменения применены
+        self.db.session.expire(user)  # Удаляем объект из кеша сессии
         
-        # Принудительно обновляем объект из БД (если он еще в сессии)
-        try:
-            self.db.session.refresh(user)
-        except:
-            pass  # Если объект не в сессии, это нормально
+        # Проверяем что изменения действительно записались
+        verify_user = self.User.query.filter_by(user_id=user_id).first()
+        if verify_user and verify_user.plan == plan_type:
+            logger.info(f"✅ Тариф изменен для {user_id}: {plan_type}, expire_date={expire_date.isoformat()}, проверка БД: OK")
+        else:
+            logger.error(f"❌ ОШИБКА: Тариф НЕ записался в БД для {user_id}! Ожидался {plan_type}, получен {verify_user.plan if verify_user else 'None'}")
         
         logger.info(f"✅ Тариф изменен для {user_id}: {plan_type}, expire_date={expire_date.isoformat()}, commit выполнен")
         

@@ -699,27 +699,25 @@
                 const response = await fetch('/api/check-auth');
                 const data = await response.json();
                 
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
+                
                 if (data.authenticated) {
-                    const authButtons = document.getElementById('authButtons');
-                    const userMenu = document.getElementById('userMenu');
-                    const mobileAuth = document.getElementById('mobileAuthButtons');
-                    const mobileUser = document.getElementById('mobileUserMenu');
                     if (authButtons) authButtons.style.display = 'none';
                     if (userMenu) userMenu.style.display = 'flex';
                     if (mobileAuth) mobileAuth.style.display = 'none';
                     if (mobileUser) mobileUser.style.display = 'block';
                 } else {
-                    const authButtons = document.getElementById('authButtons');
-                    const userMenu = document.getElementById('userMenu');
-                    const mobileAuth = document.getElementById('mobileAuthButtons');
-                    const mobileUser = document.getElementById('mobileUserMenu');
                     if (authButtons) authButtons.style.display = 'flex';
                     if (userMenu) userMenu.style.display = 'none';
                     if (mobileAuth) mobileAuth.style.display = 'block';
                     if (mobileUser) mobileUser.style.display = 'none';
                 }
             } catch (error) {
-                // Ошибка проверки
+                // Ошибка проверки - оставляем кнопки по умолчанию
+                console.error('Auth check error:', error);
             }
         }
         

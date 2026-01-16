@@ -1,0 +1,6 @@
+# Python 
+__pycache__/ 
+*.py[cod] 
+*.db 
+docscan_users.json 
+docscan_ip_limits.json 

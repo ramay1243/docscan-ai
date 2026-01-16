@@ -774,6 +774,16 @@ def home():
             border-bottom: none;
         }
         
+        #mobileAuthButtons, #mobileUserMenu {
+            border-top: 1px solid var(--border);
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        
+        #mobileAuthButtons a, #mobileUserMenu a {
+            display: block;
+        }
+        
         .menu-dropdown.show {
             display: block;
         }
@@ -1453,14 +1463,18 @@ def home():
                     document.getElementById('authButtons').style.display = 'none';
                     document.getElementById('userMenu').style.display = 'flex';
                     // Мобильное меню
-                    document.getElementById('mobileAuthButtons').style.display = 'none';
-                    document.getElementById('mobileUserMenu').style.display = 'block';
+                    const mobileAuth = document.getElementById('mobileAuthButtons');
+                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (mobileAuth) mobileAuth.style.display = 'none';
+                    if (mobileUser) mobileUser.style.display = 'block';
                 } else {
                     document.getElementById('authButtons').style.display = 'flex';
                     document.getElementById('userMenu').style.display = 'none';
                     // Мобильное меню
-                    document.getElementById('mobileAuthButtons').style.display = 'block';
-                    document.getElementById('mobileUserMenu').style.display = 'none';
+                    const mobileAuth = document.getElementById('mobileAuthButtons');
+                    const mobileUser = document.getElementById('mobileUserMenu');
+                    if (mobileAuth) mobileAuth.style.display = 'block';
+                    if (mobileUser) mobileUser.style.display = 'none';
                 }
             } catch (error) {
                 // Ошибка проверки - оставляем кнопки по умолчанию

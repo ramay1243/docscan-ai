@@ -696,7 +696,9 @@
         // Проверяем авторизацию при загрузке
         async function checkAuth() {
             try {
-                const response = await fetch('/api/check-auth');
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include'
+                });
                 const data = await response.json();
                 
                 const authButtons = document.getElementById('authButtons');

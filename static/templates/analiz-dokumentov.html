@@ -1215,36 +1215,51 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
     
     // Проверяем авторизацию при загрузке
     async function checkAuth() {
+        console.log('🔍 [checkAuth] Функция вызвана');
         try {
+            console.log('🔍 [checkAuth] Отправляю запрос к /api/check-auth');
             const response = await fetch('/api/check-auth', {
-                credentials: 'include'
+                credentials: 'include',
+                cache: 'no-cache'
             });
             
+            console.log('🔍 [checkAuth] Ответ получен:', response.status, response.statusText);
+            
             if (!response.ok) {
-                console.error('Auth check failed:', response.status);
+                console.error('❌ [checkAuth] Ошибка ответа:', response.status);
                 return;
             }
             
             const data = await response.json();
+            console.log('🔍 [checkAuth] Данные ответа:', data);
             
             const authButtons = document.getElementById('authButtons');
             const userMenu = document.getElementById('userMenu');
             const mobileAuth = document.getElementById('mobileAuthButtons');
             const mobileUser = document.getElementById('mobileUserMenu');
             
+            console.log('🔍 [checkAuth] Найдены элементы:', {
+                authButtons: !!authButtons,
+                userMenu: !!userMenu,
+                mobileAuth: !!mobileAuth,
+                mobileUser: !!mobileUser
+            });
+            
             if (data.authenticated) {
+                console.log('✅ [checkAuth] Пользователь авторизован:', data.email);
                 if (authButtons) authButtons.style.display = 'none';
                 if (userMenu) userMenu.style.display = 'flex';
                 if (mobileAuth) mobileAuth.style.display = 'none';
                 if (mobileUser) mobileUser.style.display = 'block';
             } else {
+                console.log('❌ [checkAuth] Пользователь НЕ авторизован');
                 if (authButtons) authButtons.style.display = 'flex';
                 if (userMenu) userMenu.style.display = 'none';
                 if (mobileAuth) mobileAuth.style.display = 'block';
                 if (mobileUser) mobileUser.style.display = 'none';
             }
         } catch (error) {
-            console.error('Auth check error:', error);
+            console.error('❌ [checkAuth] Ошибка:', error);
             // При ошибке показываем кнопки авторизации
             const authButtons = document.getElementById('authButtons');
             const userMenu = document.getElementById('userMenu');
@@ -1258,11 +1273,25 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
     }
     
     // Вызываем при загрузке и после небольшой задержки для надежности
+    console.log('🔍 [checkAuth] Скрипт загружен, ждем DOMContentLoaded');
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔍 [checkAuth] DOMContentLoaded - вызываю checkAuth');
         checkAuth();
         // Дополнительная проверка через 500ms на случай, если элементы еще не готовы
-        setTimeout(checkAuth, 500);
+        setTimeout(function() {
+            console.log('🔍 [checkAuth] Повторная проверка через 500ms');
+            checkAuth();
+        }, 500);
     });
+    
+    // Также вызываем сразу, если DOM уже загружен
+    if (document.readyState === 'loading') {
+        console.log('🔍 [checkAuth] DOM еще загружается');
+    } else {
+        console.log('🔍 [checkAuth] DOM уже загружен, вызываю checkAuth немедленно');
+        checkAuth();
+        setTimeout(checkAuth, 500);
+    }
     </script>
 </body>
 </html>

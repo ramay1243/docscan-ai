@@ -2071,21 +2071,72 @@ def send_telegram():
     """Отправка сообщения в Telegram"""
     import requests
     import json
+    import logging
+    
+    logger = logging.getLogger(__name__)
     
     data = request.json
     
-    bot_token = "8372564853:AAEKSid1yGVB2v5tNfT5ms7Qzt0xIWwZKxY"
-    chat_id = "8037837239"
+    # Новый токен бота
+    bot_token = "8112079604:AAHzzoB53c7FIo-fs4gvpWUzAdmtW1YF9Z8"
+    
+    # Функция для получения chat_id из последних обновлений (автоматически)
+    def get_chat_id_from_updates(bot_token):
+        """Получает chat_id из последних обновлений бота"""
+        try:
+            url = f"https://api.telegram.org/bot{bot_token}/getUpdates"
+            response = requests.get(url, timeout=5)
+            
+            if response.status_code == 200:
+                updates = response.json()
+                if updates.get('ok') and updates.get('result'):
+                    # Берем chat_id из последнего сообщения
+                    for update in reversed(updates['result']):
+                        if 'message' in update:
+                            chat_id = update['message']['chat']['id']
+                            logger.info(f"✅ Найден chat_id из обновлений: {chat_id}")
+                            return str(chat_id)
+            return None
+        except Exception as e:
+            logger.error(f"❌ Ошибка получения chat_id: {e}")
+            return None
+    
+    # Автоматически получаем chat_id из обновлений бота
+    chat_id = get_chat_id_from_updates(bot_token)
+    
+    # Если не удалось получить, пробуем из переменной окружения (для обратной совместимости)
+    if not chat_id:
+        import os
+        chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    
+    # Если все еще не найден, возвращаем ошибку с инструкцией
+    if not chat_id:
+        logger.error("❌ chat_id не найден. Нужно чтобы кто-то написал боту /start")
+        return jsonify({
+            'success': False, 
+            'error': 'Бот не настроен. Пожалуйста, напишите боту @helpdocscanbot команду /start, затем повторите отправку формы.'
+        }), 400
+    
+    # Формируем текст сообщения
+    subject_names = {
+        'technical': 'Техническая проблема',
+        'billing': 'Вопросы по оплате',
+        'feature': 'Предложение по улучшению',
+        'partnership': 'Сотрудничество',
+        'other': 'Другое'
+    }
+    
+    subject_display = subject_names.get(data.get('subject', ''), data.get('subject', 'Не указано'))
     
     text = f"""
 📨 *НОВОЕ СООБЩЕНИЕ С САЙТА*
 
-*👤 Имя:* {data['name']}
-*📧 Email:* {data['email']}
-*🎯 Тема:* {data['subject']}
+*👤 Имя:* {data.get('name', 'Не указано')}
+*📧 Email:* {data.get('email', 'Не указано')}
+*🎯 Тема:* {subject_display}
 
 *💬 Сообщение:*
-{data['message']}
+{data.get('message', 'Пустое сообщение')}
     """
     
     try:
@@ -2096,15 +2147,20 @@ def send_telegram():
             'parse_mode': 'Markdown'
         }
         
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload, timeout=10)
         
         if response.status_code == 200:
+            logger.info(f"✅ Сообщение успешно отправлено в Telegram (chat_id: {chat_id})")
             return jsonify({'success': True})
         else:
-            return jsonify({'success': False, 'error': 'Ошибка отправки в Telegram'})
+            error_data = response.json() if response.text else {}
+            error_msg = error_data.get('description', 'Ошибка отправки в Telegram')
+            logger.error(f"❌ Ошибка отправки в Telegram: {response.status_code} - {error_msg}")
+            return jsonify({'success': False, 'error': f'Ошибка отправки: {error_msg}'}), response.status_code
             
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        logger.error(f"❌ Исключение при отправке в Telegram: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/favicon.ico')
 def favicon():

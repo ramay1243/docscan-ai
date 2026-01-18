@@ -251,6 +251,9 @@ def admin_panel():
             <div id="emailCampaignsList"></div>
         </div>
 
+        <!-- TinyMCE CSS/JS -->
+        <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+        
         <!-- ========== РАЗДЕЛ УПРАВЛЕНИЯ СТАТЬЯМИ ========== -->
         <h2 style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e2e8f0;">📝 Управление статьями</h2>
         
@@ -289,9 +292,22 @@ def admin_panel():
             </div>
             
             <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">HTML-содержимое статьи:</label>
-                <textarea id="articleHtmlContent" rows="20" placeholder="Введите HTML-код статьи..."
-                          style="width: 100%; max-width: 1200px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace; font-size: 12px;"></textarea>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Содержимое статьи:</label>
+                <div style="margin-bottom: 10px;">
+                    <button type="button" onclick="toggleEditorMode()" id="editorModeBtn" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin-right: 10px;">📝 Визуальный редактор</button>
+                    <button type="button" onclick="insertArticleTemplate()" style="background: #ed8936; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📄 Вставить шаблон</button>
+                    <span id="editorStatus" style="margin-left: 15px; color: #666; font-size: 0.9rem;">Режим: Визуальный редактор</span>
+                </div>
+                <!-- TinyMCE редактор -->
+                <div id="tinymce-container" style="width: 100%; max-width: 1200px;">
+                    <textarea id="articleHtmlContent" rows="20" placeholder="Начните писать статью здесь..."></textarea>
+                </div>
+                <!-- Fallback HTML редактор (скрыт по умолчанию) -->
+                <div id="html-editor-container" style="display: none;">
+                    <textarea id="articleHtmlContentRaw" rows="20" placeholder="Введите HTML-код статьи..."
+                              style="width: 100%; max-width: 1200px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace; font-size: 12px;"></textarea>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">💡 Совет: Используйте визуальный редактор для удобного форматирования</p>
+                </div>
             </div>
             
             <div style="margin: 15px 0;">
@@ -798,6 +814,253 @@ function clearSearch() {
             // Загружаем рассылки при открытии
             loadEmailCampaigns();
             
+            // ========== ИНИЦИАЛИЗАЦИЯ TINYMCE РЕДАКТОРА ==========
+            let tinymceEditor = null;
+            let isHtmlMode = false;
+            
+            function initTinyMCE() {
+                if (typeof tinymce !== 'undefined') {
+                    tinymce.init({
+                        selector: '#articleHtmlContent',
+                        height: 600,
+                        language: 'ru',
+                        menubar: true,
+                        plugins: [
+                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount',
+                            'emoticons', 'template', 'codesample', 'hr', 'pagebreak', 'nonbreaking',
+                            'directionality', 'textcolor', 'colorpicker', 'textpattern', 'noneditable'
+                        ],
+                        toolbar: 'undo redo | blocks | ' +
+                            'bold italic underline strikethrough forecolor backcolor | ' +
+                            'alignleft aligncenter alignright alignjustify | ' +
+                            'bullist numlist outdent indent | ' +
+                            'removeformat | link image media table code | ' +
+                            'insertdatetime charmap emoticons hr pagebreak | ' +
+                            'visualblocks visualchars fullscreen preview | ' +
+                            'fontfamily fontsize | ' +
+                            'codesample template | ' +
+                            'searchreplace help',
+                        content_style: 'body { font-family: Inter, Arial, sans-serif; font-size: 16px; line-height: 1.6; }',
+                        font_family_formats: 'Inter=Inter, sans-serif; Arial=Arial, sans-serif; Times New Roman=Times New Roman, serif; Courier New=Courier New, monospace;',
+                        font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+                        block_formats: 'Параграф=p; Заголовок 1=h1; Заголовок 2=h2; Заголовок 3=h3; Заголовок 4=h4; Заголовок 5=h5; Заголовок 6=h6; Предформатированный=pre',
+                        image_advtab: true,
+                        file_picker_types: 'image',
+                        automatic_uploads: true,
+                        images_upload_url: '/admin/articles/upload-image',
+                        images_upload_handler: function (blobInfo, progress) {
+                            return new Promise(function (resolve, reject) {
+                                var xhr = new XMLHttpRequest();
+                                xhr.withCredentials = true;
+                                xhr.open('POST', '/admin/articles/upload-image');
+                                
+                                xhr.upload.onprogress = function (e) {
+                                    progress(e.loaded / e.total * 100);
+                                };
+                                
+                                xhr.onload = function () {
+                                    if (xhr.status === 403) {
+                                        reject({ message: 'HTTP Error: ' + xhr.status, remove: true });
+                                        return;
+                                    }
+                                    
+                                    if (xhr.status < 200 || xhr.status >= 300) {
+                                        reject('HTTP Error: ' + xhr.status);
+                                        return;
+                                    }
+                                    
+                                    var json = JSON.parse(xhr.responseText);
+                                    
+                                    if (!json || typeof json.location != 'string') {
+                                        reject('Invalid JSON: ' + xhr.responseText);
+                                        return;
+                                    }
+                                    
+                                    resolve(json.location);
+                                };
+                                
+                                xhr.onerror = function () {
+                                    reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+                                };
+                                
+                                var formData = new FormData();
+                                formData.append('file', blobInfo.blob(), blobInfo.filename());
+                                
+                                xhr.send(formData);
+                            });
+                        },
+                        setup: function (editor) {
+                            tinymceEditor = editor;
+                            editor.on('init', function () {
+                                console.log('✅ TinyMCE редактор загружен');
+                            });
+                        },
+                        branding: false,
+                        promotion: false
+                    });
+                } else {
+                    console.error('❌ TinyMCE не загружен. Используйте HTML-режим.');
+                }
+            }
+            
+            function toggleEditorMode() {
+                const container = document.getElementById('tinymce-container');
+                const htmlContainer = document.getElementById('html-editor-container');
+                const statusEl = document.getElementById('editorStatus');
+                const btn = document.getElementById('editorModeBtn');
+                
+                if (isHtmlMode) {
+                    // Переключаемся на визуальный режим
+                    isHtmlMode = false;
+                    const htmlContent = document.getElementById('articleHtmlContentRaw').value;
+                    
+                    if (tinymceEditor) {
+                        tinymceEditor.setContent(htmlContent);
+                        container.style.display = 'block';
+                        htmlContainer.style.display = 'none';
+                        statusEl.textContent = 'Режим: Визуальный редактор';
+                        btn.textContent = '📝 Визуальный редактор';
+                    }
+                } else {
+                    // Переключаемся на HTML-режим
+                    isHtmlMode = true;
+                    let htmlContent = '';
+                    
+                    if (tinymceEditor) {
+                        htmlContent = tinymceEditor.getContent();
+                    } else {
+                        htmlContent = document.getElementById('articleHtmlContent').value;
+                    }
+                    
+                    document.getElementById('articleHtmlContentRaw').value = htmlContent;
+                    container.style.display = 'none';
+                    htmlContainer.style.display = 'block';
+                    statusEl.textContent = 'Режим: HTML-редактор';
+                    btn.textContent = '</> HTML-редактор';
+                }
+            }
+            
+            function insertArticleTemplate() {
+                const template = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px; }
+        h2 { color: #7209b7; margin-top: 30px; }
+        h3 { color: #4cc9f0; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        ul, ol { margin: 15px 0; padding-left: 30px; }
+        li { margin: 8px 0; }
+        strong { color: #4361ee; }
+        blockquote { border-left: 4px solid #7209b7; padding-left: 20px; margin: 20px 0; color: #666; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #4361ee; color: white; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        img { max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>Заголовок статьи</h1>
+    
+    <p>Введение к статье. Опишите, о чем пойдет речь в статье.</p>
+    
+    <h2>Первый раздел</h2>
+    
+    <p>Основной текст статьи. Здесь вы пишете основное содержание.</p>
+    
+    <div class="warning">
+        <strong>⚠️ Важно:</strong> Важное предупреждение или информация.
+    </div>
+    
+    <h3>Подраздел</h3>
+    
+    <ul>
+        <li>Пункт списка 1</li>
+        <li>Пункт списка 2</li>
+        <li>Пункт списка 3</li>
+    </ul>
+    
+    <h2>Второй раздел</h2>
+    
+    <div class="info">
+        <strong>💡 Совет:</strong> Полезная информация для читателя.
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Колонка 1</th>
+                <th>Колонка 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Данные 1</td>
+                <td>Данные 2</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <blockquote>
+        Цитата или важное замечание в статье.
+    </blockquote>
+    
+    <h2>Заключение</h2>
+    
+    <p>Подведение итогов статьи.</p>
+    
+    <div class="success">
+        <strong>✅ Вывод:</strong> Основной вывод из статьи.
+    </div>
+</body>
+</html>`;
+                
+                if (tinymceEditor && !isHtmlMode) {
+                    tinymceEditor.setContent(template);
+                } else {
+                    document.getElementById('articleHtmlContentRaw').value = template;
+                }
+                alert('✅ Шаблон статьи вставлен! Отредактируйте его под свою статью.');
+            }
+            
+            function getArticleContent() {
+                if (isHtmlMode) {
+                    return document.getElementById('articleHtmlContentRaw').value;
+                } else {
+                    if (tinymceEditor) {
+                        return tinymceEditor.getContent();
+                    } else {
+                        return document.getElementById('articleHtmlContent').value;
+                    }
+                }
+            }
+            
+            function setArticleContent(content) {
+                if (tinymceEditor && !isHtmlMode) {
+                    tinymceEditor.setContent(content || '');
+                } else {
+                    document.getElementById('articleHtmlContentRaw').value = content || '';
+                    if (document.getElementById('articleHtmlContent')) {
+                        document.getElementById('articleHtmlContent').value = content || '';
+                    }
+                }
+            }
+            
+            // Инициализируем редактор при загрузке
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initTinyMCE);
+            } else {
+                initTinyMCE();
+            }
+            
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ СО СТАТЬЯМИ ==========
             function loadArticles() {
                 const statusFilter = document.getElementById('articleStatusFilter') ? document.getElementById('articleStatusFilter').value : '';
@@ -863,7 +1126,7 @@ function clearSearch() {
             function createArticle() {
                 const title = document.getElementById('articleTitle').value.trim();
                 const slug = document.getElementById('articleSlug').value.trim();
-                const htmlContent = document.getElementById('articleHtmlContent').value.trim();
+                const htmlContent = getArticleContent().trim();  // Используем функцию для получения контента
                 const description = document.getElementById('articleDescription').value.trim();
                 const icon = document.getElementById('articleIcon').value.trim();
                 const category = document.getElementById('articleCategory').value.trim();
@@ -908,7 +1171,7 @@ function clearSearch() {
             function clearArticleForm() {
                 document.getElementById('articleTitle').value = '';
                 document.getElementById('articleSlug').value = '';
-                document.getElementById('articleHtmlContent').value = '';
+                setArticleContent('');  // Используем функцию для очистки контента
                 document.getElementById('articleDescription').value = '';
                 document.getElementById('articleIcon').value = '';
                 document.getElementById('articleCategory').value = '';
@@ -916,6 +1179,10 @@ function clearSearch() {
                 document.getElementById('articleMetaDescription').value = '';
                 const updateBtn = document.getElementById('updateArticleBtn');
                 if (updateBtn) updateBtn.remove();
+                // Переключаемся на визуальный режим
+                if (isHtmlMode) {
+                    toggleEditorMode();
+                }
             }
             
             function publishArticle(articleId) {
@@ -962,12 +1229,17 @@ function clearSearch() {
                             const article = result.article;
                             document.getElementById('articleTitle').value = article.title || '';
                             document.getElementById('articleSlug').value = article.slug || '';
-                            document.getElementById('articleHtmlContent').value = article.html_content || '';
+                            setArticleContent(article.html_content || '');  // Используем функцию для установки контента
                             document.getElementById('articleDescription').value = article.description || '';
                             document.getElementById('articleIcon').value = article.icon || '';
                             document.getElementById('articleCategory').value = article.category || '';
                             document.getElementById('articleMetaKeywords').value = article.meta_keywords || '';
                             document.getElementById('articleMetaDescription').value = article.meta_description || '';
+                            
+                            // Переключаемся на визуальный режим если был HTML-режим
+                            if (isHtmlMode) {
+                                toggleEditorMode();
+                            }
                             
                             const createBtn = document.querySelector('button[onclick="createArticle()"]');
                             if (createBtn && !document.getElementById('updateArticleBtn')) {
@@ -989,7 +1261,7 @@ function clearSearch() {
             function updateArticle(articleId) {
                 const title = document.getElementById('articleTitle').value.trim();
                 const slug = document.getElementById('articleSlug').value.trim();
-                const htmlContent = document.getElementById('articleHtmlContent').value.trim();
+                const htmlContent = getArticleContent().trim();  // Используем функцию для получения контента
                 const description = document.getElementById('articleDescription').value.trim();
                 const icon = document.getElementById('articleIcon').value.trim();
                 const category = document.getElementById('articleCategory').value.trim();
@@ -1531,4 +1803,54 @@ def unpublish_article(article_id):
         
     except Exception as e:
         logger.error(f"❌ Ошибка снятия с публикации: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/articles/upload-image', methods=['POST'])
+@require_admin_auth
+def upload_article_image():
+    """Загрузить изображение для статьи"""
+    import os
+    from werkzeug.utils import secure_filename
+    from datetime import datetime
+    
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'Файл не найден'}), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'Файл не выбран'}), 400
+        
+        # Проверяем расширение файла
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+        filename = file.filename
+        file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+        
+        if file_ext not in allowed_extensions:
+            return jsonify({'success': False, 'error': f'Разрешенные форматы: {", ".join(allowed_extensions)}'}), 400
+        
+        # Создаем безопасное имя файла
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        safe_filename = secure_filename(f"{timestamp}_{filename}")
+        
+        # Создаем директорию для изображений статей если её нет
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads', 'articles')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Сохраняем файл
+        filepath = os.path.join(upload_dir, safe_filename)
+        file.save(filepath)
+        
+        # Возвращаем URL изображения
+        image_url = f'/static/uploads/articles/{safe_filename}'
+        
+        logger.info(f"📷 Загружено изображение для статьи: {safe_filename}")
+        
+        return jsonify({
+            'location': image_url
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка загрузки изображения: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500

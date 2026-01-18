@@ -149,18 +149,29 @@ def admin_panel():
                 cursor: pointer;
                 transition: all 0.2s;
                 border-left: 3px solid transparent;
+                user-select: none;
+                -webkit-user-select: none;
+                pointer-events: auto !important;
+                position: relative;
+                z-index: 100;
+                background: transparent;
             }
             
             .menu-item:hover {
-                background: rgba(255,255,255,0.1);
+                background: rgba(255,255,255,0.1) !important;
                 color: white;
             }
             
             .menu-item.active {
-                background: rgba(102, 126, 234, 0.2);
+                background: rgba(102, 126, 234, 0.2) !important;
                 border-left-color: #667eea;
                 color: white;
                 font-weight: 600;
+            }
+            
+            .menu-item:active {
+                transform: scale(0.98);
+                opacity: 0.9;
             }
             
             .menu-item i {
@@ -305,20 +316,20 @@ def admin_panel():
                 <h1>🔧 DocScan Admin</h1>
                 <p>""" + admin_info.get('username', 'Unknown') + """</p>
             </div>
-            <nav class="sidebar-menu">
-                <a class="menu-item active" onclick="showSection('dashboard')" data-section="dashboard">
+            <nav class="sidebar-menu" id="sidebarMenu">
+                <a href="#" class="menu-item active" data-section="dashboard">
                     <span>📊</span> Главная
                 </a>
-                <a class="menu-item" onclick="showSection('users')" data-section="users">
+                <a href="#" class="menu-item" data-section="users">
                     <span>👥</span> Пользователи
                 </a>
-                <a class="menu-item" onclick="showSection('guests')" data-section="guests">
+                <a href="#" class="menu-item" data-section="guests">
                     <span>👤</span> Гости
                 </a>
-                <a class="menu-item" onclick="showSection('campaigns')" data-section="campaigns">
+                <a href="#" class="menu-item" data-section="campaigns">
                     <span>📧</span> Email-рассылки
                 </a>
-                <a class="menu-item" onclick="showSection('articles')" data-section="articles">
+                <a href="#" class="menu-item" data-section="articles">
                     <span>📝</span> Статьи
                 </a>
             </nav>
@@ -588,45 +599,207 @@ def admin_panel():
         <script>
             // Функция переключения между секциями
             function showSection(sectionName) {
-                // Скрываем все секции
-                document.querySelectorAll('.content-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                // Показываем выбранную секцию
-                document.getElementById('section-' + sectionName).classList.add('active');
-                
-                // Обновляем активный пункт меню
-                document.querySelectorAll('.menu-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
-                
-                // Обновляем заголовок страницы
-                const titles = {
-                    'dashboard': '📊 Главная',
-                    'users': '👥 Пользователи',
-                    'guests': '👤 Гости',
-                    'campaigns': '📧 Email-рассылки',
-                    'articles': '📝 Статьи'
-                };
-                document.getElementById('pageTitle').textContent = titles[sectionName] || 'Админ-панель';
-                
-                // Загружаем данные секции при первом открытии
-                if (sectionName === 'users' && document.getElementById('usersList').innerHTML === '') {
-                    loadUsers();
-                } else if (sectionName === 'guests' && document.getElementById('guestsList').innerHTML === '') {
-                    loadGuests();
-                } else if (sectionName === 'campaigns' && document.getElementById('emailCampaignsList').innerHTML === '') {
-                    loadEmailCampaigns();
-                } else if (sectionName === 'articles' && document.getElementById('articlesList').innerHTML === '') {
-                    loadArticles();
+                try {
+                    console.log('🔄 Переключение на секцию:', sectionName);
+                    
+                    // Скрываем все секции
+                    const sections = document.querySelectorAll('.content-section');
+                    console.log('📦 Найдено секций:', sections.length);
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Показываем выбранную секцию
+                    const targetSection = document.getElementById('section-' + sectionName);
+                    if (!targetSection) {
+                        console.error('❌ Секция не найдена: section-' + sectionName);
+                        alert('Секция не найдена: ' + sectionName);
+                        return;
+                    }
+                    targetSection.classList.add('active');
+                    console.log('✅ Секция показана: section-' + sectionName);
+                    
+                    // Обновляем активный пункт меню
+                    document.querySelectorAll('.menu-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    const menuItem = document.querySelector(`[data-section="${sectionName}"]`);
+                    if (menuItem) {
+                        menuItem.classList.add('active');
+                        console.log('✅ Меню обновлено');
+                    } else {
+                        console.warn('⚠️ Пункт меню не найден:', sectionName);
+                    }
+                    
+                    // Обновляем заголовок страницы
+                    const titles = {
+                        'dashboard': '📊 Главная',
+                        'users': '👥 Пользователи',
+                        'guests': '👤 Гости',
+                        'campaigns': '📧 Email-рассылки',
+                        'articles': '📝 Статьи'
+                    };
+                    const pageTitle = document.getElementById('pageTitle');
+                    if (pageTitle) {
+                        pageTitle.textContent = titles[sectionName] || 'Админ-панель';
+                    }
+                    
+                    // Загружаем данные секции при первом открытии
+                    if (sectionName === 'users') {
+                        const usersList = document.getElementById('usersList');
+                        if (usersList && usersList.innerHTML === '') {
+                            console.log('📥 Загрузка пользователей...');
+                            loadUsers();
+                        }
+                    } else if (sectionName === 'guests') {
+                        const guestsList = document.getElementById('guestsList');
+                        if (guestsList && guestsList.innerHTML === '') {
+                            console.log('📥 Загрузка гостей...');
+                            loadGuests();
+                        }
+                    } else if (sectionName === 'campaigns') {
+                        const campaignsList = document.getElementById('emailCampaignsList');
+                        if (campaignsList && campaignsList.innerHTML === '') {
+                            console.log('📥 Загрузка рассылок...');
+                            loadEmailCampaigns();
+                        }
+                    } else if (sectionName === 'articles') {
+                        const articlesList = document.getElementById('articlesList');
+                        if (articlesList && articlesList.innerHTML === '') {
+                            console.log('📥 Загрузка статей...');
+                            loadArticles();
+                        }
+                    }
+                    
+                    console.log('✅ Переключение завершено успешно');
+                } catch (error) {
+                    console.error('❌ Ошибка при переключении секции:', error);
+                    alert('Ошибка переключения: ' + error.message);
                 }
             }
             
+            // Проверяем доступность функции showSection
+            console.log('✅ Функция showSection определена:', typeof showSection);
+            
+            // Регистрируем функцию глобально для доступа из onclick
+            window.showSection = showSection;
+            console.log('✅ showSection зарегистрирована глобально:', typeof window.showSection);
+            
             function logout() {
-                document.cookie = "admin_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                window.location.href = "/admin/login";
+                try {
+                    document.cookie = "admin_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    window.location.href = "/admin/login";
+                } catch (error) {
+                    console.error('Ошибка выхода:', error);
+                    alert('Ошибка выхода: ' + error.message);
+                }
+            }
+            
+            // Регистрируем функции глобально для доступа из onclick
+            window.showSection = showSection;
+            window.logout = logout;
+            console.log('✅ Функции зарегистрированы глобально');
+            
+            // Инициализация при загрузке страницы
+            function initAdminPanel() {
+                console.log('🚀 Инициализация админ-панели...');
+                try {
+                    // Загружаем статистику
+                    if (typeof loadStats === 'function') {
+                        loadStats();
+                        console.log('✅ Статистика загружена');
+                    }
+                    
+                    // Убеждаемся, что главная секция видна
+                    const dashboardSection = document.getElementById('section-dashboard');
+                    if (dashboardSection) {
+                        dashboardSection.classList.add('active');
+                        console.log('✅ Dashboard секция активирована');
+                    }
+                    
+                    // Проверяем доступность элементов меню
+                    const menuItems = document.querySelectorAll('.menu-item');
+                    console.log('📦 Найдено пунктов меню:', menuItems.length);
+                    menuItems.forEach((item, index) => {
+                        console.log(`  ${index + 1}. ${item.textContent.trim()}`);
+                    });
+                    
+                    console.log('✅ Админ-панель инициализирована');
+                } catch (error) {
+                    console.error('❌ Ошибка инициализации:', error);
+                    alert('Ошибка инициализации: ' + error.message);
+                }
+            }
+            
+            // Привязываем обработчики событий к пунктам меню
+            function attachMenuHandlers() {
+                console.log('🔗 Привязка обработчиков меню...');
+                const menuItems = document.querySelectorAll('.menu-item');
+                console.log('📦 Найдено пунктов меню:', menuItems.length);
+                
+                menuItems.forEach((item, index) => {
+                    const sectionName = item.getAttribute('data-section');
+                    console.log(`  Обработка пункта ${index + 1}: ${sectionName}`);
+                    
+                    if (sectionName) {
+                        // Удаляем все старые обработчики
+                        item.onclick = null;
+                        item.removeEventListener('click', function(){});
+                        
+                        // Добавляем новый обработчик
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('🖱️ Клик по меню:', sectionName);
+                            
+                            try {
+                                if (typeof window.showSection === 'function') {
+                                    window.showSection(sectionName);
+                                } else if (typeof showSection === 'function') {
+                                    showSection(sectionName);
+                                } else {
+                                    console.error('❌ showSection не определена!');
+                                    alert('Ошибка: функция showSection не найдена. Проверьте консоль.');
+                                }
+                            } catch (error) {
+                                console.error('❌ Ошибка при клике:', error);
+                                alert('Ошибка: ' + error.message);
+                            }
+                            
+                            return false;
+                        });
+                        
+                        // Также добавляем onclick для совместимости
+                        item.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (typeof window.showSection === 'function') {
+                                window.showSection(sectionName);
+                            }
+                            return false;
+                        };
+                        
+                        console.log(`✅ Обработчик привязан для: ${sectionName}`);
+                    } else {
+                        console.warn(`⚠️ Нет data-section для пункта ${index + 1}`);
+                    }
+                });
+                console.log('✅ Все обработчики меню привязаны');
+            }
+            
+            // Инициализируем при загрузке DOM
+            function initAll() {
+                console.log('🚀 Полная инициализация...');
+                attachMenuHandlers();
+                initAdminPanel();
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(initAll, 100);
+                });
+            } else {
+                setTimeout(initAll, 100);
             }
             
             // Проверяем загрузку TinyMCE

@@ -1501,24 +1501,25 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     tinymce.init({
                         selector: '#articleHtmlContent',
                         height: 600,
-                        language: 'ru',
+                        // Язык отключен, так как CDN не поддерживает русский язык
+                        // language: 'ru',
                         menubar: true,
                         plugins: [
                             'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount',
-                            'emoticons', 'template', 'codesample', 'hr', 'pagebreak', 'nonbreaking',
-                            'directionality', 'textcolor', 'colorpicker', 'textpattern', 'noneditable'
+                            'insertdatetime', 'media', 'table', 'help', 'wordcount',
+                            'emoticons', 'codesample', 'pagebreak', 'nonbreaking',
+                            'directionality'
                         ],
                         toolbar: 'undo redo | blocks | ' +
                             'bold italic underline strikethrough forecolor backcolor | ' +
                             'alignleft aligncenter alignright alignjustify | ' +
                             'bullist numlist outdent indent | ' +
                             'removeformat | link image media table code | ' +
-                            'insertdatetime charmap emoticons hr pagebreak | ' +
+                            'insertdatetime charmap emoticons pagebreak | ' +
                             'visualblocks visualchars fullscreen preview | ' +
                             'fontfamily fontsize | ' +
-                            'codesample template | ' +
+                            'codesample | ' +
                             'searchreplace help',
                         content_style: 'body { font-family: Inter, Arial, sans-serif; font-size: 16px; line-height: 1.6; }',
                         font_family_formats: 'Inter=Inter, sans-serif; Arial=Arial, sans-serif; Times New Roman=Times New Roman, serif; Courier New=Courier New, monospace;',

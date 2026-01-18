@@ -157,6 +157,46 @@ class EmailSend(db.Model):
         }
 
 
+class Article(db.Model):
+    """Таблица для хранения статей блога"""
+    __tablename__ = 'articles'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(500), nullable=False)  # Заголовок статьи
+    slug = db.Column(db.String(500), unique=True, nullable=False, index=True)  # URL-адрес статьи (уникальный)
+    description = db.Column(db.Text, nullable=True)  # Краткое описание для карточки
+    icon = db.Column(db.String(10), nullable=True)  # Иконка/эмодзи (например, 🏠)
+    html_content = db.Column(db.Text, nullable=False)  # HTML-содержимое статьи
+    meta_keywords = db.Column(db.String(500), nullable=True)  # SEO ключевые слова
+    meta_description = db.Column(db.String(500), nullable=True)  # SEO описание
+    status = db.Column(db.String(20), default='draft')  # Статус: 'draft', 'published', 'archived'
+    created_at = db.Column(db.String(30), nullable=False)
+    published_at = db.Column(db.String(30), nullable=True)  # Дата публикации
+    updated_at = db.Column(db.String(30), nullable=True)  # Дата последнего обновления
+    author = db.Column(db.String(50), nullable=True)  # Автор (admin username)
+    views_count = db.Column(db.Integer, default=0)  # Количество просмотров
+    category = db.Column(db.String(100), nullable=True)  # Категория статьи (опционально)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'slug': self.slug,
+            'description': self.description,
+            'icon': self.icon,
+            'html_content': self.html_content,
+            'meta_keywords': self.meta_keywords,
+            'meta_description': self.meta_description,
+            'status': self.status,
+            'created_at': self.created_at,
+            'published_at': self.published_at,
+            'updated_at': self.updated_at,
+            'author': self.author,
+            'views_count': self.views_count,
+            'category': self.category
+        }
+
+
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""
     
@@ -640,3 +680,168 @@ class SQLiteUserManager:
             'pending': pending,
             'success_rate': (sent / total * 100) if total > 0 else 0
         }
+    
+    # ========== МЕТОДЫ ДЛЯ РАБОТЫ СО СТАТЬЯМИ ==========
+    
+    def create_article(self, title, slug, html_content, description=None, icon=None,
+                      meta_keywords=None, meta_description=None, author=None, category=None):
+        """Создает новую статью"""
+        from models.sqlite_users import Article
+        
+        # Проверяем уникальность slug
+        existing = Article.query.filter_by(slug=slug).first()
+        if existing:
+            raise ValueError(f"Статья с URL '{slug}' уже существует")
+        
+        article = Article(
+            title=title,
+            slug=slug,
+            description=description,
+            icon=icon,
+            html_content=html_content,
+            meta_keywords=meta_keywords,
+            meta_description=meta_description,
+            status='draft',
+            created_at=datetime.now().isoformat(),
+            author=author,
+            category=category,
+            views_count=0
+        )
+        
+        self.db.session.add(article)
+        self.db.session.commit()
+        
+        logger.info(f"📝 Создана статья: {title} (slug: {slug})")
+        return article
+    
+    def get_article(self, slug_or_id):
+        """Получает статью по slug или ID"""
+        from models.sqlite_users import Article
+        
+        # Пробуем сначала по slug (если это строка)
+        if isinstance(slug_or_id, str):
+            article = Article.query.filter_by(slug=slug_or_id).first()
+            if article and article.status == 'published':
+                # Увеличиваем счетчик просмотров только для опубликованных
+                article.views_count += 1
+                self.db.session.commit()
+            return article
+        
+        # Если не найдено или передан ID (число)
+        try:
+            article_id = int(slug_or_id)
+            article = Article.query.filter_by(id=article_id).first()
+            return article
+        except (ValueError, TypeError):
+            return None
+    
+    def get_published_articles(self, limit=100, offset=0):
+        """Получает список опубликованных статей"""
+        from models.sqlite_users import Article
+        
+        articles = Article.query.filter_by(status='published')\
+            .order_by(Article.published_at.desc())\
+            .limit(limit)\
+            .offset(offset)\
+            .all()
+        
+        return [a.to_dict() for a in articles]
+    
+    def get_all_articles(self, limit=100, status_filter=None):
+        """Получает все статьи (для админки)"""
+        from models.sqlite_users import Article
+        
+        query = Article.query
+        
+        if status_filter:
+            query = query.filter_by(status=status_filter)
+        
+        articles = query.order_by(Article.created_at.desc()).limit(limit).all()
+        
+        return [a.to_dict() for a in articles]
+    
+    def update_article(self, article_id, **kwargs):
+        """Обновляет статью"""
+        from models.sqlite_users import Article
+        
+        article = Article.query.filter_by(id=article_id).first()
+        if not article:
+            return None
+        
+        # Обновляем только переданные поля
+        if 'title' in kwargs:
+            article.title = kwargs['title']
+        if 'slug' in kwargs:
+            # Проверяем уникальность нового slug
+            existing = Article.query.filter_by(slug=kwargs['slug']).first()
+            if existing and existing.id != article_id:
+                raise ValueError(f"Статья с URL '{kwargs['slug']}' уже существует")
+            article.slug = kwargs['slug']
+        if 'description' in kwargs:
+            article.description = kwargs['description']
+        if 'icon' in kwargs:
+            article.icon = kwargs['icon']
+        if 'html_content' in kwargs:
+            article.html_content = kwargs['html_content']
+        if 'meta_keywords' in kwargs:
+            article.meta_keywords = kwargs['meta_keywords']
+        if 'meta_description' in kwargs:
+            article.meta_description = kwargs['meta_description']
+        if 'status' in kwargs:
+            article.status = kwargs['status']
+            if kwargs['status'] == 'published' and not article.published_at:
+                article.published_at = datetime.now().isoformat()
+        if 'category' in kwargs:
+            article.category = kwargs['category']
+        
+        article.updated_at = datetime.now().isoformat()
+        self.db.session.commit()
+        
+        logger.info(f"📝 Обновлена статья: {article.title} (ID: {article_id})")
+        return article
+    
+    def delete_article(self, article_id):
+        """Удаляет статью"""
+        from models.sqlite_users import Article
+        
+        article = Article.query.filter_by(id=article_id).first()
+        if not article:
+            return False
+        
+        self.db.session.delete(article)
+        self.db.session.commit()
+        
+        logger.info(f"🗑️ Удалена статья: {article.title} (ID: {article_id})")
+        return True
+    
+    def publish_article(self, article_id):
+        """Публикует статью"""
+        from models.sqlite_users import Article
+        
+        article = Article.query.filter_by(id=article_id).first()
+        if not article:
+            return None
+        
+        article.status = 'published'
+        if not article.published_at:
+            article.published_at = datetime.now().isoformat()
+        article.updated_at = datetime.now().isoformat()
+        self.db.session.commit()
+        
+        logger.info(f"📢 Опубликована статья: {article.title} (ID: {article_id})")
+        return article
+    
+    def unpublish_article(self, article_id):
+        """Снимает статью с публикации"""
+        from models.sqlite_users import Article
+        
+        article = Article.query.filter_by(id=article_id).first()
+        if not article:
+            return None
+        
+        article.status = 'draft'
+        article.updated_at = datetime.now().isoformat()
+        self.db.session.commit()
+        
+        logger.info(f"🔒 Снята с публикации статья: {article.title} (ID: {article_id})")
+        return article

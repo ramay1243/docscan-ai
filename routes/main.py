@@ -1918,7 +1918,37 @@ Sitemap: https://docscan-ai.ru/sitemap.xml""", 200, {'Content-Type': 'text/plain
 @main_bp.route('/articles')
 def articles():
     """Страница со списком всех статей"""
-    return render_template('articles.html')
+    from app import app
+    
+    # Получаем опубликованные статьи из БД
+    articles_list = app.user_manager.get_published_articles(limit=100)
+    
+    return render_template('articles.html', articles=articles_list)
+
+@main_bp.route('/articles/<slug>')
+def article_detail(slug):
+    """Страница отдельной статьи"""
+    from app import app
+    from flask import abort
+    
+    # Получаем статью по slug
+    article = app.user_manager.get_article(slug)
+    
+    if not article or article.status != 'published':
+        abort(404)
+    
+    # Получаем список всех опубликованных статей для навигации
+    all_articles = app.user_manager.get_published_articles(limit=50)
+    
+    # Находим текущую статью в списке для навигации (предыдущая/следующая)
+    current_index = next((i for i, a in enumerate(all_articles) if a['id'] == article.id), None)
+    prev_article = all_articles[current_index - 1] if current_index and current_index > 0 else None
+    next_article = all_articles[current_index + 1] if current_index is not None and current_index < len(all_articles) - 1 else None
+    
+    return render_template('article_detail.html', 
+                         article=article.to_dict(),
+                         prev_article=prev_article,
+                         next_article=next_article)
 
 @main_bp.route('/articles/about')
 def article_about():

@@ -491,6 +491,28 @@
     <!-- Articles Grid -->
     <section class="container">
         <div class="articles-grid">
+            {% if articles and articles|length > 0 %}
+                {% for article in articles %}
+                <div class="article-card">
+                    {% if article.icon %}
+                    <div class="article-icon">{{ article.icon }}</div>
+                    {% else %}
+                    <div class="article-icon">📄</div>
+                    {% endif %}
+                    <h2>{{ article.title }}</h2>
+                    {% if article.description %}
+                    <p>{{ article.description }}</p>
+                    {% endif %}
+                    <a href="/articles/{{ article.slug }}" class="read-more">Читать статью</a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                    <p style="color: var(--gray); font-size: 1.1rem;">Статьи пока не опубликованы</p>
+                </div>
+            {% endif %}
+            
+            <!-- Статические статьи (для обратной совместимости, если нужны старые ссылки) -->
             <div class="article-card">
                 <div class="article-icon">📖</div>
                 <h2>О проекте DocScan AI</h2>
@@ -572,8 +594,8 @@
                 <h2>Автокредит: 8 скрытых условий в договоре с банком</h2>
                 <p>Разбор опасных пунктов в договорах автокредитов. Как не потерять машину из-за мелкого шрифта. Проверка ИИ за 60 секунд.</p>
                 <a href="/avtokredit-skrytye-usloviya" class="read-more">Читать статью</a>
-            </div>
-            <div class="article-card">
+             </div>
+             <div class="article-card">
                 <div class="article-icon">🏆</div>
                 <h2>ИИ для проверки договоров онлайн бесплатно: ТОП-5 сервисов</h2>
                 <p>Рейтинг бесплатных ИИ-сервисов для проверки договоров 2025. Сравнение DocScan AI, Ассистент, GPT Lawyer.</p>
@@ -597,6 +619,7 @@
                  <p>Скачайте наше приложение для сканирования и анализа документов с ИИ. Работает на телефоне, быстро, безопасно. Бесплатная установка.</p>
                  <a href="/mobile-app" class="read-more">Скачать приложение</a>
               </div>
+        </div>
     </section>
 
     <!-- Burger Menu (Mobile) -->

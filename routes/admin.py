@@ -251,6 +251,81 @@ def admin_panel():
             <div id="emailCampaignsList"></div>
         </div>
 
+        <!-- ========== РАЗДЕЛ УПРАВЛЕНИЯ СТАТЬЯМИ ========== -->
+        <h2 style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e2e8f0;">📝 Управление статьями</h2>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3>Создать новую статью</h3>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Заголовок статьи:</label>
+                <input type="text" id="articleTitle" placeholder="Например: Как проверить договор аренды" 
+                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL статьи (slug):</label>
+                <input type="text" id="articleSlug" placeholder="kak-proverit-dogovor-arendy" 
+                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace;">
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">Только латинские буквы, цифры, дефисы и подчеркивания</p>
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Краткое описание:</label>
+                <textarea id="articleDescription" rows="3" placeholder="Краткое описание для карточки на странице /articles..."
+                          style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Иконка (эмодзи):</label>
+                <input type="text" id="articleIcon" placeholder="🏠" 
+                       style="width: 100px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 1.5rem; text-align: center;">
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Категория (опционально):</label>
+                <input type="text" id="articleCategory" placeholder="Например: Договоры аренды" 
+                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">HTML-содержимое статьи:</label>
+                <textarea id="articleHtmlContent" rows="20" placeholder="Введите HTML-код статьи..."
+                          style="width: 100%; max-width: 1200px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace; font-size: 12px;"></textarea>
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">SEO мета-ключевые слова (опционально):</label>
+                <input type="text" id="articleMetaKeywords" placeholder="проверка договоров, анализ документов" 
+                       style="width: 100%; max-width: 800px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">SEO мета-описание (опционально):</label>
+                <textarea id="articleMetaDescription" rows="2" placeholder="Краткое описание для поисковых систем..."
+                          style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <button onclick="createArticle()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">💾 Создать статью</button>
+                <button onclick="clearArticleForm()" style="background: #a0aec0; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🗑️ Очистить форму</button>
+            </div>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3>Все статьи</h3>
+            <div style="margin-bottom: 20px;">
+                <select id="articleStatusFilter" onchange="loadArticles()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                    <option value="">Все статьи</option>
+                    <option value="published">Опубликованные</option>
+                    <option value="draft">Черновики</option>
+                    <option value="archived">В архиве</option>
+                </select>
+                <button onclick="loadArticles()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🔄 Обновить список</button>
+            </div>
+            <div id="articlesList"></div>
+        </div>
+
         <script>
             function logout() {
                 document.cookie = "admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -722,6 +797,260 @@ function clearSearch() {
             
             // Загружаем рассылки при открытии
             loadEmailCampaigns();
+            
+            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ СО СТАТЬЯМИ ==========
+            function loadArticles() {
+                const statusFilter = document.getElementById('articleStatusFilter') ? document.getElementById('articleStatusFilter').value : '';
+                let url = '/admin/articles';
+                if (statusFilter) {
+                    url += '?status=' + statusFilter;
+                }
+                
+                fetch(url, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(articles => {
+                        const articlesListEl = document.getElementById('articlesList');
+                        if (!articlesListEl) return;
+                        
+                        let html = '';
+                        if (!articles || articles.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет созданных статей</p>';
+                        } else {
+                            articles.forEach(article => {
+                                const statusColors = {
+                                    'draft': '#a0aec0',
+                                    'published': '#48bb78',
+                                    'archived': '#f56565'
+                                };
+                                const statusText = {
+                                    'draft': 'Черновик',
+                                    'published': 'Опубликована',
+                                    'archived': 'В архиве'
+                                };
+                                
+                                html += `
+                                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 4px solid ${statusColors[article.status] || '#cbd5e0'};">
+                                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                                            <div style="flex: 1;">
+                                                <div style="font-size: 1.5rem; margin-bottom: 5px;">${article.icon || '📄'} <strong>${article.title}</strong></div>
+                                                <div style="margin-top: 5px; color: #666; font-size: 0.9rem;">
+                                                    URL: <code style="background: #f7fafc; padding: 2px 6px; border-radius: 3px;">/articles/${article.slug}</code>
+                                                </div>
+                                                <div style="margin-top: 5px; color: #666; font-size: 0.85rem;">
+                                                    Статус: <span style="color: ${statusColors[article.status]}; font-weight: 600;">${statusText[article.status]}</span> |
+                                                    Просмотров: ${article.views_count || 0} |
+                                                    Создано: ${new Date(article.created_at).toLocaleString('ru-RU')}
+                                                    ${article.published_at ? ' | Опубликовано: ' + new Date(article.published_at).toLocaleString('ru-RU') : ''}
+                                                </div>
+                                                ${article.description ? `<div style="margin-top: 8px; color: #666; font-size: 0.9rem;">${article.description}</div>` : ''}
+                                            </div>
+                                            <div style="display: flex; gap: 5px; flex-wrap: wrap; align-items: start;">
+                                                ${article.status === 'draft' ? `<button onclick="publishArticle(${article.id})" style="background: #48bb78; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📢 Опубликовать</button>` : ''}
+                                                ${article.status === 'published' ? `<button onclick="unpublishArticle(${article.id})" style="background: #ed8936; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🔒 Снять</button>` : ''}
+                                                <button onclick="editArticle(${article.id})" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">✏️ Редактировать</button>
+                                                <button onclick="viewArticle('${article.slug}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">👁️ Просмотр</button>
+                                                <button onclick="deleteArticleConfirm(${article.id})" style="background: #f56565; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🗑️ Удалить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        }
+                        articlesListEl.innerHTML = html;
+                    });
+            }
+            
+            function createArticle() {
+                const title = document.getElementById('articleTitle').value.trim();
+                const slug = document.getElementById('articleSlug').value.trim();
+                const htmlContent = document.getElementById('articleHtmlContent').value.trim();
+                const description = document.getElementById('articleDescription').value.trim();
+                const icon = document.getElementById('articleIcon').value.trim();
+                const category = document.getElementById('articleCategory').value.trim();
+                const metaKeywords = document.getElementById('articleMetaKeywords').value.trim();
+                const metaDescription = document.getElementById('articleMetaDescription').value.trim();
+                
+                if (!title || !slug || !htmlContent) {
+                    alert('Заполните все обязательные поля! (заголовок, URL, содержимое)');
+                    return;
+                }
+                
+                fetch('/admin/articles', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        title: title,
+                        slug: slug,
+                        html_content: htmlContent,
+                        description: description,
+                        icon: icon,
+                        category: category,
+                        meta_keywords: metaKeywords,
+                        meta_description: metaDescription
+                    })
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Статья создана!');
+                        clearArticleForm();
+                        loadArticles();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Ошибка создания статьи: ' + err);
+                });
+            }
+            
+            function clearArticleForm() {
+                document.getElementById('articleTitle').value = '';
+                document.getElementById('articleSlug').value = '';
+                document.getElementById('articleHtmlContent').value = '';
+                document.getElementById('articleDescription').value = '';
+                document.getElementById('articleIcon').value = '';
+                document.getElementById('articleCategory').value = '';
+                document.getElementById('articleMetaKeywords').value = '';
+                document.getElementById('articleMetaDescription').value = '';
+                const updateBtn = document.getElementById('updateArticleBtn');
+                if (updateBtn) updateBtn.remove();
+            }
+            
+            function publishArticle(articleId) {
+                if (!confirm('Опубликовать статью?')) return;
+                
+                fetch(`/admin/articles/${articleId}/publish`, {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Статья опубликована!');
+                        loadArticles();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            function unpublishArticle(articleId) {
+                if (!confirm('Снять статью с публикации?')) return;
+                
+                fetch(`/admin/articles/${articleId}/unpublish`, {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Статья снята с публикации!');
+                        loadArticles();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            function editArticle(articleId) {
+                fetch(`/admin/articles/${articleId}`, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(result => {
+                        if (result.success) {
+                            const article = result.article;
+                            document.getElementById('articleTitle').value = article.title || '';
+                            document.getElementById('articleSlug').value = article.slug || '';
+                            document.getElementById('articleHtmlContent').value = article.html_content || '';
+                            document.getElementById('articleDescription').value = article.description || '';
+                            document.getElementById('articleIcon').value = article.icon || '';
+                            document.getElementById('articleCategory').value = article.category || '';
+                            document.getElementById('articleMetaKeywords').value = article.meta_keywords || '';
+                            document.getElementById('articleMetaDescription').value = article.meta_description || '';
+                            
+                            const createBtn = document.querySelector('button[onclick="createArticle()"]');
+                            if (createBtn && !document.getElementById('updateArticleBtn')) {
+                                const btn = document.createElement('button');
+                                btn.id = 'updateArticleBtn';
+                                btn.textContent = '💾 Сохранить изменения';
+                                btn.style.cssText = 'background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;';
+                                btn.onclick = () => updateArticle(articleId);
+                                createBtn.parentElement.insertBefore(btn, createBtn);
+                            }
+                            
+                            alert('Статья загружена в форму для редактирования. Нажмите "Сохранить изменения" после правок.');
+                        } else {
+                            alert('❌ Ошибка загрузки статьи');
+                        }
+                    });
+            }
+            
+            function updateArticle(articleId) {
+                const title = document.getElementById('articleTitle').value.trim();
+                const slug = document.getElementById('articleSlug').value.trim();
+                const htmlContent = document.getElementById('articleHtmlContent').value.trim();
+                const description = document.getElementById('articleDescription').value.trim();
+                const icon = document.getElementById('articleIcon').value.trim();
+                const category = document.getElementById('articleCategory').value.trim();
+                const metaKeywords = document.getElementById('articleMetaKeywords').value.trim();
+                const metaDescription = document.getElementById('articleMetaDescription').value.trim();
+                
+                fetch(`/admin/articles/${articleId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        title: title,
+                        slug: slug,
+                        html_content: htmlContent,
+                        description: description,
+                        icon: icon,
+                        category: category,
+                        meta_keywords: metaKeywords,
+                        meta_description: metaDescription
+                    })
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Статья обновлена!');
+                        const btn = document.getElementById('updateArticleBtn');
+                        if (btn) btn.remove();
+                        clearArticleForm();
+                        loadArticles();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            function deleteArticleConfirm(articleId) {
+                if (!confirm('Удалить статью? Это действие нельзя отменить!')) return;
+                
+                fetch(`/admin/articles/${articleId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Статья удалена!');
+                        loadArticles();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            function viewArticle(slug) {
+                window.open(`/articles/${slug}`, '_blank');
+            }
+            
+            // Загружаем статьи при открытии (если есть раздел)
+            if (document.getElementById('articlesList')) {
+                loadArticles();
+            }
         </script>
     </body>
     </html>
@@ -995,3 +1324,211 @@ def get_recipients_preview():
         'count': len(recipients),
         'recipients': recipients
     })
+
+# ========== МАРШРУТЫ ДЛЯ УПРАВЛЕНИЯ СТАТЬЯМИ ==========
+
+@admin_bp.route('/articles', methods=['GET'])
+@require_admin_auth
+def get_all_articles():
+    """Получить список всех статей"""
+    from app import app
+    
+    status_filter = request.args.get('status', None)
+    articles = app.user_manager.get_all_articles(limit=200, status_filter=status_filter)
+    
+    return jsonify(articles)
+
+@admin_bp.route('/articles', methods=['POST'])
+@require_admin_auth
+def create_article():
+    """Создать новую статью"""
+    from app import app
+    import re
+    
+    try:
+        data = request.get_json()
+        
+        title = data.get('title', '').strip()
+        slug = data.get('slug', '').strip()
+        html_content = data.get('html_content', '').strip()
+        description = data.get('description', '').strip()
+        icon = data.get('icon', '').strip()
+        meta_keywords = data.get('meta_keywords', '').strip()
+        meta_description = data.get('meta_description', '').strip()
+        category = data.get('category', '').strip()
+        
+        if not title or not slug or not html_content:
+            return jsonify({'success': False, 'error': 'Заполните все обязательные поля (заголовок, URL, содержимое)'}), 400
+        
+        # Проверяем формат slug (только латиница, цифры, дефисы и подчеркивания)
+        if not re.match(r'^[a-z0-9_-]+$', slug.lower()):
+            return jsonify({'success': False, 'error': 'URL может содержать только латинские буквы, цифры, дефисы и подчеркивания'}), 400
+        
+        # Приводим slug к нижнему регистру
+        slug = slug.lower()
+        
+        # Получаем имя админа из сессии
+        author = session.get('admin_username', request.cookies.get('admin_username', 'admin'))
+        
+        article = app.user_manager.create_article(
+            title=title,
+            slug=slug,
+            html_content=html_content,
+            description=description,
+            icon=icon,
+            meta_keywords=meta_keywords,
+            meta_description=meta_description,
+            author=author,
+            category=category
+        )
+        
+        logger.info(f"📝 Администратор создал статью: {title} (slug: {slug})")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Статья создана',
+            'article': article.to_dict()
+        })
+        
+    except ValueError as e:
+        return jsonify({'success': False, 'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания статьи: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/articles/<int:article_id>', methods=['GET'])
+@require_admin_auth
+def get_article(article_id):
+    """Получить статью по ID"""
+    from app import app
+    
+    article = app.user_manager.get_article(article_id)
+    if not article:
+        return jsonify({'success': False, 'error': 'Статья не найдена'}), 404
+    
+    return jsonify({'success': True, 'article': article.to_dict()})
+
+@admin_bp.route('/articles/<int:article_id>', methods=['PUT'])
+@require_admin_auth
+def update_article(article_id):
+    """Обновить статью"""
+    from app import app
+    import re
+    
+    try:
+        data = request.get_json()
+        
+        # Подготавливаем данные для обновления
+        update_data = {}
+        
+        if 'title' in data:
+            update_data['title'] = data['title'].strip()
+        if 'slug' in data:
+            slug = data['slug'].strip().lower()
+            if not re.match(r'^[a-z0-9_-]+$', slug):
+                return jsonify({'success': False, 'error': 'URL может содержать только латинские буквы, цифры, дефисы и подчеркивания'}), 400
+            update_data['slug'] = slug
+        if 'html_content' in data:
+            update_data['html_content'] = data['html_content'].strip()
+        if 'description' in data:
+            update_data['description'] = data['description'].strip()
+        if 'icon' in data:
+            update_data['icon'] = data['icon'].strip()
+        if 'meta_keywords' in data:
+            update_data['meta_keywords'] = data['meta_keywords'].strip()
+        if 'meta_description' in data:
+            update_data['meta_description'] = data['meta_description'].strip()
+        if 'status' in data:
+            update_data['status'] = data['status']
+        if 'category' in data:
+            update_data['category'] = data['category'].strip()
+        
+        article = app.user_manager.update_article(article_id, **update_data)
+        
+        if not article:
+            return jsonify({'success': False, 'error': 'Статья не найдена'}), 404
+        
+        logger.info(f"📝 Администратор обновил статью: {article.title} (ID: {article_id})")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Статья обновлена',
+            'article': article.to_dict()
+        })
+        
+    except ValueError as e:
+        return jsonify({'success': False, 'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"❌ Ошибка обновления статьи: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/articles/<int:article_id>', methods=['DELETE'])
+@require_admin_auth
+def delete_article(article_id):
+    """Удалить статью"""
+    from app import app
+    
+    try:
+        success = app.user_manager.delete_article(article_id)
+        
+        if not success:
+            return jsonify({'success': False, 'error': 'Статья не найдена'}), 404
+        
+        logger.info(f"🗑️ Администратор удалил статью (ID: {article_id})")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Статья удалена'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления статьи: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/articles/<int:article_id>/publish', methods=['POST'])
+@require_admin_auth
+def publish_article(article_id):
+    """Опубликовать статью"""
+    from app import app
+    
+    try:
+        article = app.user_manager.publish_article(article_id)
+        
+        if not article:
+            return jsonify({'success': False, 'error': 'Статья не найдена'}), 404
+        
+        logger.info(f"📢 Администратор опубликовал статью: {article.title} (ID: {article_id})")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Статья опубликована',
+            'article': article.to_dict()
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка публикации статьи: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/articles/<int:article_id>/unpublish', methods=['POST'])
+@require_admin_auth
+def unpublish_article(article_id):
+    """Снять статью с публикации"""
+    from app import app
+    
+    try:
+        article = app.user_manager.unpublish_article(article_id)
+        
+        if not article:
+            return jsonify({'success': False, 'error': 'Статья не найдена'}), 404
+        
+        logger.info(f"🔒 Администратор снял с публикации статью: {article.title} (ID: {article_id})")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Статья снята с публикации',
+            'article': article.to_dict()
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка снятия с публикации: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

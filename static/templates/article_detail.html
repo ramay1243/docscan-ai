@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if article.meta_description %}{{ article.title }} | DocScan AI{% else %}{{ article.title }} - DocScan AI{% endif %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% if article.meta_description %}{{ article.meta_description }}{% elif article.description %}{{ article.description }}{% else %}{{ article.title }}{% endif %}">
+    {% if article.meta_keywords %}
+    <meta name="keywords" content="{{ article.meta_keywords }}">
+    {% endif %}
+    <meta name="author" content="DocScan AI">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ article.title }}">
+    <meta property="og:description" content="{% if article.description %}{{ article.description }}{% else %}{{ article.title }}{% endif %}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://docscan-ai.ru/articles/{{ article.slug }}">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ article.title }}">
+    <meta name="twitter:description" content="{% if article.description %}{{ article.description }}{% else %}{{ article.title }}{% endif %}">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://docscan-ai.ru/articles/{{ article.slug }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.85rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Article Content */
+        .article-container {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .article-header {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .article-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .article-meta {
+            color: var(--gray);
+            font-size: 0.9rem;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--dark);
+        }
+        
+        .article-content h1,
+        .article-content h2,
+        .article-content h3 {
+            color: var(--primary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .article-content h1 {
+            font-size: 2rem;
+        }
+        
+        .article-content h2 {
+            font-size: 1.6rem;
+        }
+        
+        .article-content h3 {
+            font-size: 1.3rem;
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+        }
+        
+        .article-content ul,
+        .article-content ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .article-content li {
+            margin-bottom: 10px;
+        }
+        
+        .article-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid var(--border);
+        }
+        
+        .nav-button {
+            background: var(--light);
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.3s;
+            max-width: 45%;
+        }
+        
+        .nav-button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .nav-button.prev:hover {
+            transform: translateX(-5px);
+        }
+        
+        .back-to-articles {
+            display: inline-block;
+            margin: 30px 0;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .back-to-articles:hover {
+            transform: translateX(-5px);
+        }
+        
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 15px 12px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .burger-line {
+            width: 20px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 15px 0;
+            min-width: 200px;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .burger-menu {
+                display: block;
+            }
+            .article-container {
+                padding: 30px 20px;
+            }
+            .article-title {
+                font-size: 1.8rem;
+            }
+            .article-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-button {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
+                    <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
+                    <a href="/mobile-app" class="nav-link">Мобильное приложение</a>
+                    <a href="/articles" class="nav-link active">Статьи</a>
+                    <a href="/faq" class="nav-link">FAQ</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/analiz-dokumentov">📄 Анализ документов</a>
+            <a href="/calculator-penalty">🧮 Калькулятор</a>
+            <a href="/mobile-app">📱 Приложение</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/faq">❓ FAQ</a>
+            <a href="/contact">📞 Контакты</a>
+            <div id="mobileAuthButtons">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Content -->
+    <div class="container">
+        <a href="/articles" class="back-to-articles">← Вернуться к статьям</a>
+        
+        <article class="article-container">
+            <div class="article-header">
+                {% if article.icon %}
+                <div class="article-icon">{{ article.icon }}</div>
+                {% endif %}
+                <h1 class="article-title">{{ article.title }}</h1>
+                <div class="article-meta">
+                    <span>📅 Опубликовано: {{ article.published_at[:10] if article.published_at else article.created_at[:10] }}</span>
+                    {% if article.views_count %}
+                    <span>👁️ Просмотров: {{ article.views_count }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="article-content">
+                {{ article.html_content|safe }}
+            </div>
+            
+            <div class="article-navigation">
+                {% if prev_article %}
+                <a href="/articles/{{ prev_article.slug }}" class="nav-button prev">
+                    ← {{ prev_article.title[:50] }}{% if prev_article.title|length > 50 %}...{% endif %}
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+                
+                {% if next_article %}
+                <a href="/articles/{{ next_article.slug }}" class="nav-button next">
+                    {{ next_article.title[:50] }}{% if next_article.title|length > 50 %}...{% endif %} →
+                </a>
+                {% endif %}
+            </div>
+        </article>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Проверка авторизации
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include',
+                    cache: 'no-cache'
+                });
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
+                
+                if (data.authenticated) {
+                    if (authButtons) authButtons.setAttribute('style', 'display: none !important;');
+                    if (userMenu) userMenu.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    if (mobileAuth) mobileAuth.setAttribute('style', 'display: none !important;');
+                    if (mobileUser) mobileUser.setAttribute('style', 'display: block !important;');
+                } else {
+                    if (authButtons) authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    if (userMenu) userMenu.setAttribute('style', 'display: none !important;');
+                    if (mobileAuth) mobileAuth.setAttribute('style', 'display: block !important;');
+                    if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+        
+        // Закрытие меню при клике вне его
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (menu && !menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Проверяем авторизацию при загрузке
+        checkAuth();
+    </script>
+</body>
+</html>
+

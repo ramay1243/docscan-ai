@@ -252,7 +252,45 @@ def admin_panel():
         </div>
 
         <!-- TinyMCE CSS/JS -->
-        <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+        <script>
+            // Проверяем загрузку TinyMCE
+            let tinyMCELoaded = false;
+            
+            function checkTinyMCELoad() {
+                if (typeof tinymce !== 'undefined') {
+                    tinyMCELoaded = true;
+                    console.log('✅ TinyMCE загружен успешно');
+                } else {
+                    console.warn('⏳ Ожидание загрузки TinyMCE...');
+                    setTimeout(checkTinyMCELoad, 500);
+                }
+            }
+            
+            window.addEventListener('load', function() {
+                checkTinyMCELoad();
+            });
+            
+            // Альтернативная загрузка если основной CDN не работает
+            setTimeout(function() {
+                if (!tinyMCELoaded && typeof tinymce === 'undefined') {
+                    console.warn('⚠️ Основной CDN не загрузился, пробую альтернативный...');
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js';
+                    script.referrerPolicy = 'origin';
+                    script.onload = function() {
+                        console.log('✅ TinyMCE загружен с альтернативного CDN');
+                        tinyMCELoaded = true;
+                    };
+                    script.onerror = function() {
+                        console.error('❌ Не удалось загрузить TinyMCE с обоих CDN');
+                        document.getElementById('tinymce-loading').textContent = '❌ Визуальный редактор недоступен. Используйте HTML-режим.';
+                        document.getElementById('tinymce-loading').style.color = '#f56565';
+                    };
+                    document.head.appendChild(script);
+                }
+            }, 3000);
+        </script>
         
         <!-- ========== РАЗДЕЛ УПРАВЛЕНИЯ СТАТЬЯМИ ========== -->
         <h2 style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e2e8f0;">📝 Управление статьями</h2>
@@ -294,13 +332,14 @@ def admin_panel():
             <div style="margin: 15px 0;">
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Содержимое статьи:</label>
                 <div style="margin-bottom: 10px;">
-                    <button type="button" onclick="toggleEditorMode()" id="editorModeBtn" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin-right: 10px;">📝 Визуальный редактор</button>
+                    <button type="button" onclick="toggleEditorMode()" id="editorModeBtn" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin-right: 10px;"></> Переключить в HTML</button>
                     <button type="button" onclick="insertArticleTemplate()" style="background: #ed8936; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📄 Вставить шаблон</button>
                     <span id="editorStatus" style="margin-left: 15px; color: #666; font-size: 0.9rem;">Режим: Визуальный редактор</span>
                 </div>
                 <!-- TinyMCE редактор -->
                 <div id="tinymce-container" style="width: 100%; max-width: 1200px;">
                     <textarea id="articleHtmlContent" rows="20" placeholder="Начните писать статью здесь..."></textarea>
+                    <p id="tinymce-loading" style="font-size: 12px; color: #666; margin-top: 5px;">⏳ Загрузка визуального редактора...</p>
                 </div>
                 <!-- Fallback HTML редактор (скрыт по умолчанию) -->
                 <div id="html-editor-container" style="display: none;">
@@ -819,7 +858,13 @@ function clearSearch() {
             let isHtmlMode = false;
             
             function initTinyMCE() {
+                const loadingEl = document.getElementById('tinymce-loading');
+                if (loadingEl) {
+                    loadingEl.textContent = '⏳ Инициализация редактора...';
+                }
+                
                 if (typeof tinymce !== 'undefined') {
+                    console.log('🚀 Инициализация TinyMCE...');
                     tinymce.init({
                         selector: '#articleHtmlContent',
                         height: 600,
@@ -894,7 +939,26 @@ function clearSearch() {
                         setup: function (editor) {
                             tinymceEditor = editor;
                             editor.on('init', function () {
-                                console.log('✅ TinyMCE редактор загружен');
+                                console.log('✅ TinyMCE редактор инициализирован успешно');
+                                const loadingEl = document.getElementById('tinymce-loading');
+                                if (loadingEl) {
+                                    loadingEl.textContent = '✅ Визуальный редактор готов!';
+                                    setTimeout(function() {
+                                        loadingEl.style.display = 'none';
+                                    }, 2000);
+                                }
+                                // Убеждаемся, что визуальный редактор видим
+                                document.getElementById('tinymce-container').style.display = 'block';
+                                document.getElementById('html-editor-container').style.display = 'none';
+                            });
+                            
+                            editor.on('error', function(e) {
+                                console.error('❌ Ошибка TinyMCE:', e);
+                                const loadingEl = document.getElementById('tinymce-loading');
+                                if (loadingEl) {
+                                    loadingEl.textContent = '❌ Ошибка загрузки редактора. Используйте HTML-режим.';
+                                    loadingEl.style.color = '#f56565';
+                                }
                             });
                         },
                         branding: false,
@@ -902,6 +966,11 @@ function clearSearch() {
                     });
                 } else {
                     console.error('❌ TinyMCE не загружен. Используйте HTML-режим.');
+                    const loadingEl = document.getElementById('tinymce-loading');
+                    if (loadingEl) {
+                        loadingEl.textContent = '❌ Визуальный редактор не загрузился. Используйте HTML-режим.';
+                        loadingEl.style.color = '#f56565';
+                    }
                 }
             }
             
@@ -911,34 +980,57 @@ function clearSearch() {
                 const statusEl = document.getElementById('editorStatus');
                 const btn = document.getElementById('editorModeBtn');
                 
+                if (!container || !htmlContainer || !statusEl || !btn) {
+                    console.error('❌ Не найдены элементы для переключения режима');
+                    return;
+                }
+                
                 if (isHtmlMode) {
                     // Переключаемся на визуальный режим
+                    console.log('🔄 Переключение на визуальный режим...');
                     isHtmlMode = false;
                     const htmlContent = document.getElementById('articleHtmlContentRaw').value;
                     
                     if (tinymceEditor) {
-                        tinymceEditor.setContent(htmlContent);
+                        tinymceEditor.setContent(htmlContent || '');
                         container.style.display = 'block';
                         htmlContainer.style.display = 'none';
                         statusEl.textContent = 'Режим: Визуальный редактор';
-                        btn.textContent = '📝 Визуальный редактор';
+                        btn.textContent = '</> Переключить в HTML';
+                        console.log('✅ Визуальный режим включен');
+                    } else {
+                        console.warn('⚠️ TinyMCE редактор не инициализирован, пробую инициализировать...');
+                        initTinyMCE();
+                        setTimeout(function() {
+                            if (tinymceEditor) {
+                                tinymceEditor.setContent(htmlContent || '');
+                                container.style.display = 'block';
+                                htmlContainer.style.display = 'none';
+                                statusEl.textContent = 'Режим: Визуальный редактор';
+                                btn.textContent = '</> Переключить в HTML';
+                            } else {
+                                alert('❌ Не удалось загрузить визуальный редактор. Используйте HTML-режим.');
+                            }
+                        }, 1500);
                     }
                 } else {
                     // Переключаемся на HTML-режим
+                    console.log('🔄 Переключение на HTML-режим...');
                     isHtmlMode = true;
                     let htmlContent = '';
                     
                     if (tinymceEditor) {
                         htmlContent = tinymceEditor.getContent();
                     } else {
-                        htmlContent = document.getElementById('articleHtmlContent').value;
+                        htmlContent = document.getElementById('articleHtmlContent') ? document.getElementById('articleHtmlContent').value : '';
                     }
                     
                     document.getElementById('articleHtmlContentRaw').value = htmlContent;
                     container.style.display = 'none';
                     htmlContainer.style.display = 'block';
                     statusEl.textContent = 'Режим: HTML-редактор';
-                    btn.textContent = '</> HTML-редактор';
+                    btn.textContent = '📝 Переключить в визуальный';
+                    console.log('✅ HTML-режим включен');
                 }
             }
             
@@ -1055,10 +1147,50 @@ function clearSearch() {
             }
             
             // Инициализируем редактор при загрузке
+            let editorInitAttempts = 0;
+            const maxAttempts = 20; // 10 секунд максимум
+            
+            function initEditorWhenReady() {
+                editorInitAttempts++;
+                
+                if (typeof tinymce !== 'undefined' && typeof tinymce.init === 'function') {
+                    console.log('✅ TinyMCE скрипт загружен, инициализирую редактор...');
+                    try {
+                        initTinyMCE();
+                    } catch (e) {
+                        console.error('❌ Ошибка инициализации TinyMCE:', e);
+                        const loadingEl = document.getElementById('tinymce-loading');
+                        if (loadingEl) {
+                            loadingEl.textContent = '❌ Ошибка инициализации. Используйте HTML-режим.';
+                            loadingEl.style.color = '#f56565';
+                        }
+                    }
+                } else if (editorInitAttempts < maxAttempts) {
+                    console.log('⏳ Ожидание загрузки TinyMCE... (попытка ' + editorInitAttempts + '/' + maxAttempts + ')');
+                    setTimeout(initEditorWhenReady, 500);
+                } else {
+                    console.error('❌ TinyMCE не загрузился за отведенное время');
+                    const loadingEl = document.getElementById('tinymce-loading');
+                    if (loadingEl) {
+                        loadingEl.textContent = '❌ Визуальный редактор не загрузился. Используйте HTML-режим.';
+                        loadingEl.style.color = '#f56565';
+                    }
+                    // Автоматически переключаемся на HTML-режим
+                    document.getElementById('tinymce-container').style.display = 'none';
+                    document.getElementById('html-editor-container').style.display = 'block';
+                    document.getElementById('editorStatus').textContent = 'Режим: HTML-редактор (визуальный недоступен)';
+                    document.getElementById('editorModeBtn').textContent = '📝 Визуальный редактор недоступен';
+                    document.getElementById('editorModeBtn').disabled = true;
+                    isHtmlMode = true;
+                }
+            }
+            
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initTinyMCE);
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(initEditorWhenReady, 1500);
+                });
             } else {
-                initTinyMCE();
+                setTimeout(initEditorWhenReady, 1500);
             }
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ СО СТАТЬЯМИ ==========

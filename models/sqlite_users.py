@@ -715,16 +715,12 @@ class SQLiteUserManager:
         return article
     
     def get_article(self, slug_or_id):
-        """Получает статью по slug или ID"""
+        """Получает статью по slug или ID (без проверки статуса, для админки и просмотра)"""
         from models.sqlite_users import Article
         
         # Пробуем сначала по slug (если это строка)
         if isinstance(slug_or_id, str):
             article = Article.query.filter_by(slug=slug_or_id).first()
-            if article and article.status == 'published':
-                # Увеличиваем счетчик просмотров только для опубликованных
-                article.views_count += 1
-                self.db.session.commit()
             return article
         
         # Если не найдено или передан ID (число)
@@ -734,6 +730,19 @@ class SQLiteUserManager:
             return article
         except (ValueError, TypeError):
             return None
+    
+    def get_published_article_by_slug(self, slug):
+        """Получает ОПУБЛИКОВАННУЮ статью по slug (для публичного просмотра)"""
+        from models.sqlite_users import Article
+        
+        article = Article.query.filter_by(slug=slug, status='published').first()
+        
+        if article:
+            # Увеличиваем счетчик просмотров
+            article.views_count += 1
+            self.db.session.commit()
+        
+        return article
     
     def get_published_articles(self, limit=100, offset=0):
         """Получает список опубликованных статей"""

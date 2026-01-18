@@ -1930,20 +1930,26 @@ def article_detail(slug):
     """Страница отдельной статьи"""
     from app import app
     from flask import abort
+    import logging
     
-    # Получаем статью по slug
-    article = app.user_manager.get_article(slug)
+    logger = logging.getLogger(__name__)
     
-    if not article or article.status != 'published':
+    # Получаем опубликованную статью по slug
+    article = app.user_manager.get_published_article_by_slug(slug)
+    
+    if not article:
+        logger.warning(f"❌ Статья не найдена или не опубликована: slug={slug}")
         abort(404)
     
     # Получаем список всех опубликованных статей для навигации
     all_articles = app.user_manager.get_published_articles(limit=50)
     
     # Находим текущую статью в списке для навигации (предыдущая/следующая)
-    current_index = next((i for i, a in enumerate(all_articles) if a['id'] == article.id), None)
-    prev_article = all_articles[current_index - 1] if current_index and current_index > 0 else None
+    current_index = next((i for i, a in enumerate(all_articles) if a.get('id') == article.id), None)
+    prev_article = all_articles[current_index - 1] if current_index is not None and current_index > 0 else None
     next_article = all_articles[current_index + 1] if current_index is not None and current_index < len(all_articles) - 1 else None
+    
+    logger.info(f"✅ Просмотр статьи: {article.title} (slug: {slug})")
     
     return render_template('article_detail.html', 
                          article=article.to_dict(),

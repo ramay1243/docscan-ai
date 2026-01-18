@@ -96,164 +96,539 @@ def admin_panel():
     <html>
     <head>
         <title>Admin Panel - DocScan</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { font-family: Arial; margin: 40px; background: #f7fafc; }
-            .container { max-width: 1200px; margin: 0 auto; }
-            .header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            .user-card { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-            button { background: #667eea; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; }
-            button:hover { background: #5a67d8; }
-            .logout-btn { background: #e53e3e; }
-            .logout-btn:hover { background: #c53030; }
-            .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
-            .stat-card { background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+                background: #f7fafc; 
+                color: #2d3748;
+                overflow-x: hidden;
+            }
+            
+            /* Боковое меню */
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 260px;
+                height: 100vh;
+                background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+                color: white;
+                overflow-y: auto;
+                z-index: 1000;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+            
+            .sidebar-header {
+                padding: 20px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                background: rgba(0,0,0,0.2);
+            }
+            
+            .sidebar-header h1 {
+                font-size: 1.3rem;
+                margin-bottom: 5px;
+            }
+            
+            .sidebar-header p {
+                font-size: 0.85rem;
+                opacity: 0.8;
+            }
+            
+            .sidebar-menu {
+                padding: 10px 0;
+            }
+            
+            .menu-item {
+                display: block;
+                padding: 12px 20px;
+                color: rgba(255,255,255,0.8);
+                text-decoration: none;
+                cursor: pointer;
+                transition: all 0.2s;
+                border-left: 3px solid transparent;
+            }
+            
+            .menu-item:hover {
+                background: rgba(255,255,255,0.1);
+                color: white;
+            }
+            
+            .menu-item.active {
+                background: rgba(102, 126, 234, 0.2);
+                border-left-color: #667eea;
+                color: white;
+                font-weight: 600;
+            }
+            
+            .menu-item i {
+                margin-right: 10px;
+                font-size: 1.1rem;
+            }
+            
+            /* Основной контент */
+            .main-content {
+                margin-left: 260px;
+                min-height: 100vh;
+                padding: 0;
+            }
+            
+            .top-header {
+                background: white;
+                padding: 20px 30px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            
+            .top-header h2 {
+                font-size: 1.5rem;
+                color: #2d3748;
+            }
+            
+            .top-header .user-info {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .content-area {
+                padding: 30px;
+            }
+            
+            /* Секции контента */
+            .content-section {
+                display: none;
+            }
+            
+            .content-section.active {
+                display: block;
+            }
+            
+            /* Карточки */
+            .user-card { 
+                background: white; 
+                padding: 15px; 
+                margin: 10px 0; 
+                border-radius: 8px; 
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            }
+            
+            .stat-card { 
+                background: white; 
+                padding: 20px; 
+                border-radius: 10px; 
+                text-align: center; 
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            }
+            
+            .stats { 
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                gap: 20px; 
+                margin: 20px 0; 
+            }
+            
+            /* Кнопки */
+            button { 
+                background: #667eea; 
+                color: white; 
+                border: none; 
+                padding: 10px 15px; 
+                margin: 5px; 
+                border-radius: 5px; 
+                cursor: pointer; 
+                font-size: 0.9rem;
+                transition: background 0.2s;
+            }
+            
+            button:hover { 
+                background: #5a67d8; 
+            }
+            
+            .logout-btn { 
+                background: #e53e3e; 
+            }
+            
+            .logout-btn:hover { 
+                background: #c53030; 
+            }
+            
+            /* Мобильная версия */
+            @media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                    transition: transform 0.3s;
+                }
+                
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+                
+                .main-content {
+                    margin-left: 0;
+                }
+                
+                .menu-toggle {
+                    display: block;
+                }
+            }
+            
+            /* Заголовки секций */
+            .section-header {
+                margin: 30px 0 20px 0;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #e2e8f0;
+                font-size: 1.5rem;
+                color: #2d3748;
+            }
+            
+            .card {
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                margin: 20px 0;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="header">
-                <h1>🔧 Админ-панель DocScan</h1>
-                <p>Вошел как: <strong>""" + admin_info.get('username', 'Unknown') + """</strong></p>
-                <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
+        <!-- Боковое меню -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>🔧 DocScan Admin</h1>
+                <p>""" + admin_info.get('username', 'Unknown') + """</p>
             </div>
-            
-            <div class="stats">
-                <div class="stat-card">
-                    <h3>👥 Всего пользователей</h3>
-                    <div id="totalUsers">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>👤 Всего гостей</h3>
-                    <div id="totalGuests">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>📊 Всего анализов</h3>
-                    <div id="totalAnalyses">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>📈 Анализов сегодня</h3>
-                    <div id="todayAnalyses">0</div>
-                </div>
-            </div>
-            
-<h2>👤 Гости (незарегистрированные пользователи)</h2>
-<p>Пользователи, которые сделали анализ без регистрации</p>
-
-<div style="margin: 15px 0;">
-    <input type="text" id="searchGuest" placeholder="🔍 Поиск по IP, браузеру..." 
-           style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
-           onkeyup="searchGuests()">
-    <button onclick="clearGuestSearch()" style="margin-left: 10px; padding: 8px 15px; border: none; background: #e2e8f0; border-radius: 5px; cursor: pointer;">Очистить</button>
-    <span id="guestSearchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
-</div>
-
-<div id="guestsList"></div>
-
-<h2>👥 Зарегистрированные пользователи</h2>
-
-<h3>Управление пользователями:</h3>
-
-<!-- ДОБАВЬТЕ ЭТОТ БЛОК -->
-<div style="margin: 15px 0;">
-    <input type="text" id="searchUser" placeholder="🔍 Поиск по ID, тарифу, IP..." 
-           style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
-           onkeyup="searchUsers()">
-    <button onclick="clearSearch()" style="margin-left: 10px; padding: 8px 15px; border: none; background: #e2e8f0; border-radius: 5px; cursor: pointer;">Очистить</button>
-    <span id="searchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
-</div>
-<!-- КОНЕЦ БЛОКА -->
-
-<div id="usersList"></div>
-            
-            <h3>Выдать тариф пользователю:</h3>
-            <input type="text" id="userId" placeholder="ID пользователя">
-            <select id="planSelect">
-                <option value="free">Бесплатный (1 анализ)</option>
-                <option value="basic">Базовый (Неограниченное количество анализов)</option>
-                <option value="premium">Премиум (50 анализов)</option>
-                <option value="unlimited">Безлимитный</option>
-            </select>
-            <button onclick="setUserPlan()">Выдать тариф</button>
-            
-            <h3>Статистика калькулятора:</h3>
-            <button onclick="showCalculatorStats()">📊 Показать статистику калькулятора</button>
-            <div id="calculatorStats" style="display: none; margin-top: 20px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
-            
-            <h3>Создать нового пользователя:</h3>
-            <input type="text" id="newUserId" placeholder="Новый ID пользователя (опционально)">
-            <button onclick="createUser()">Создать пользователя</button>
-        </div>
-
-        <!-- ========== РАЗДЕЛ EMAIL-РАССЫЛОК ========== -->
-        <h2 style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e2e8f0;">📧 Email-рассылки</h2>
-        
-        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h3>Создать новую рассылку</h3>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Название рассылки:</label>
-                <input type="text" id="campaignName" placeholder="Например: Приветственное письмо" 
-                       style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Тема письма:</label>
-                <input type="text" id="campaignSubject" placeholder="Например: Добро пожаловать в DocScan AI!" 
-                       style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Получатели:</label>
-                <select id="campaignRecipients" style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
-                    <option value="all">Все зарегистрированные пользователи</option>
-                    <option value="free">Только бесплатный тариф</option>
-                    <option value="paid">Только платные тарифы</option>
-                    <option value="verified">Только верифицированные email</option>
-                </select>
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">HTML-содержимое письма:</label>
-                <p style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                    Доступные переменные: {email}, {user_id}, {plan}, {plan_name}
-                </p>
-                <textarea id="campaignHtmlContent" rows="15" placeholder="Введите HTML-код письма..."
-                          style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace;"></textarea>
-                <button onclick="insertEmailTemplate()" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">📄 Вставить базовый шаблон</button>
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Текстовая версия (опционально):</label>
-                <textarea id="campaignTextContent" rows="8" placeholder="Текстовая версия письма..."
-                          style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
-            </div>
-            
-            <div style="margin: 20px 0;">
-                <button onclick="previewCampaign()" style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">👁️ Предпросмотр</button>
-                <button onclick="createCampaign()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">💾 Создать рассылку</button>
-                <button onclick="loadRecipientsPreview()" style="background: #ed8936; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;">👥 Предпросмотр получателей</button>
-            </div>
-            
-            <div id="campaignPreview" style="display: none; margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 10px; border: 1px solid #cbd5e0;">
-                <h4>Предпросмотр письма:</h4>
-                <div id="previewContent" style="background: white; padding: 20px; border-radius: 5px; margin-top: 10px;"></div>
-            </div>
-            
-            <div id="recipientsPreview" style="display: none; margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 10px; border: 1px solid #cbd5e0;">
-                <h4>Получатели рассылки:</h4>
-                <div id="recipientsList" style="background: white; padding: 20px; border-radius: 5px; margin-top: 10px; max-height: 400px; overflow-y: auto;"></div>
-            </div>
+            <nav class="sidebar-menu">
+                <a class="menu-item active" onclick="showSection('dashboard')" data-section="dashboard">
+                    <span>📊</span> Главная
+                </a>
+                <a class="menu-item" onclick="showSection('users')" data-section="users">
+                    <span>👥</span> Пользователи
+                </a>
+                <a class="menu-item" onclick="showSection('guests')" data-section="guests">
+                    <span>👤</span> Гости
+                </a>
+                <a class="menu-item" onclick="showSection('campaigns')" data-section="campaigns">
+                    <span>📧</span> Email-рассылки
+                </a>
+                <a class="menu-item" onclick="showSection('articles')" data-section="articles">
+                    <span>📝</span> Статьи
+                </a>
+            </nav>
         </div>
         
-        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h3>История рассылок</h3>
-            <button onclick="loadEmailCampaigns()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">🔄 Обновить список</button>
-            <div id="emailCampaignsList"></div>
+        <!-- Основной контент -->
+        <div class="main-content">
+            <div class="top-header">
+                <h2 id="pageTitle">📊 Главная</h2>
+                <div class="user-info">
+                    <span>Вошел как: <strong>""" + admin_info.get('username', 'Unknown') + """</strong></span>
+                    <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- Секция: Главная (Dashboard) -->
+                <div id="section-dashboard" class="content-section active">
+                    <div class="stats">
+                        <div class="stat-card">
+                            <h3>👥 Всего пользователей</h3>
+                            <div id="totalUsers" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>👤 Всего гостей</h3>
+                            <div id="totalGuests" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>📊 Всего анализов</h3>
+                            <div id="totalAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>📈 Анализов сегодня</h3>
+                            <div id="todayAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Статистика калькулятора</h3>
+                        <button onclick="showCalculatorStats()">📊 Показать статистику калькулятора</button>
+                        <div id="calculatorStats" style="display: none; margin-top: 20px;"></div>
+                    </div>
+                </div>
+                
+                <!-- Секция: Пользователи -->
+                <div id="section-users" class="content-section">
+                    <h2 class="section-header">👥 Зарегистрированные пользователи</h2>
+                    
+                    <div class="card">
+                        <h3>Выдать тариф пользователю</h3>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="userId" placeholder="ID пользователя" 
+                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <select id="planSelect" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <option value="free">Бесплатный (1 анализ)</option>
+                                <option value="basic">Базовый (Неограниченное количество анализов)</option>
+                                <option value="premium">Премиум (50 анализов)</option>
+                                <option value="unlimited">Безлимитный</option>
+                            </select>
+                            <button onclick="setUserPlan()">Выдать тариф</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Создать нового пользователя</h3>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="newUserId" placeholder="Новый ID пользователя (опционально)" 
+                                   style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <button onclick="createUser()">Создать пользователя</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Управление пользователями</h3>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="searchUser" placeholder="🔍 Поиск по ID, тарифу, IP..." 
+                                   style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
+                                   onkeyup="searchUsers()">
+                            <button onclick="clearSearch()" style="background: #e2e8f0; color: #2d3748;">Очистить</button>
+                            <span id="searchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
+                        </div>
+                        <div id="usersList"></div>
+                    </div>
+                </div>
+                
+                <!-- Секция: Гости -->
+                <div id="section-guests" class="content-section">
+                    <h2 class="section-header">👤 Гости (незарегистрированные пользователи)</h2>
+                    <p>Пользователи, которые сделали анализ без регистрации</p>
+                    
+                    <div class="card">
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="searchGuest" placeholder="🔍 Поиск по IP, браузеру..." 
+                                   style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
+                                   onkeyup="searchGuests()">
+                            <button onclick="clearGuestSearch()" style="background: #e2e8f0; color: #2d3748;">Очистить</button>
+                            <span id="guestSearchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
+                        </div>
+                        <div id="guestsList"></div>
+                    </div>
+                </div>
+                
+                <!-- Секция: Email-рассылки -->
+                <div id="section-campaigns" class="content-section">
+                    <h2 class="section-header">📧 Email-рассылки</h2>
+                    
+                    <div class="card">
+                        <h3>Создать новую рассылку</h3>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Название рассылки:</label>
+                            <input type="text" id="campaignName" placeholder="Например: Приветственное письмо" 
+                                   style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Тема письма:</label>
+                            <input type="text" id="campaignSubject" placeholder="Например: Добро пожаловать в DocScan AI!" 
+                                   style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Получатели:</label>
+                            <select id="campaignRecipients" style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                                <option value="all">Все зарегистрированные пользователи</option>
+                                <option value="free">Только бесплатный тариф</option>
+                                <option value="paid">Только платные тарифы</option>
+                                <option value="verified">Только верифицированные email</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">HTML-содержимое письма:</label>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                                Доступные переменные: {email}, {user_id}, {plan}, {plan_name}
+                            </p>
+                            <textarea id="campaignHtmlContent" rows="15" placeholder="Введите HTML-код письма..."
+                                      style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace;"></textarea>
+                            <button onclick="insertEmailTemplate()" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">📄 Вставить базовый шаблон</button>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Текстовая версия (опционально):</label>
+                            <textarea id="campaignTextContent" rows="8" placeholder="Текстовая версия письма..."
+                                      style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+                        </div>
+                        
+                        <div style="margin: 20px 0;">
+                            <button onclick="previewCampaign()" style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">👁️ Предпросмотр</button>
+                            <button onclick="createCampaign()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">💾 Создать рассылку</button>
+                            <button onclick="loadRecipientsPreview()" style="background: #ed8936; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;">👥 Предпросмотр получателей</button>
+                        </div>
+                        
+                        <div id="campaignPreview" style="display: none; margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 10px; border: 1px solid #cbd5e0;">
+                            <h4>Предпросмотр письма:</h4>
+                            <div id="previewContent" style="background: white; padding: 20px; border-radius: 5px; margin-top: 10px;"></div>
+                        </div>
+                        
+                        <div id="recipientsPreview" style="display: none; margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 10px; border: 1px solid #cbd5e0;">
+                            <h4>Получатели рассылки:</h4>
+                            <div id="recipientsList" style="background: white; padding: 20px; border-radius: 5px; margin-top: 10px; max-height: 400px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>История рассылок</h3>
+                        <button onclick="loadEmailCampaigns()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">🔄 Обновить список</button>
+                        <div id="emailCampaignsList"></div>
+                    </div>
+                </div>
+                
+                <!-- Секция: Статьи -->
+                <div id="section-articles" class="content-section">
+                    <h2 class="section-header">📝 Управление статьями</h2>
+                    
+                    <div class="card">
+                        <h3>Создать новую статью</h3>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Заголовок статьи:</label>
+                            <input type="text" id="articleTitle" placeholder="Например: Как проверить договор аренды" 
+                                   style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL статьи (slug):</label>
+                            <input type="text" id="articleSlug" placeholder="kak-proverit-dogovor-arendy" 
+                                   style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace;">
+                            <p style="font-size: 12px; color: #666; margin-top: 5px;">Только латинские буквы, цифры, дефисы и подчеркивания</p>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Краткое описание:</label>
+                            <textarea id="articleDescription" rows="3" placeholder="Краткое описание для карточки на странице /articles..."
+                                      style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Иконка (эмодзи):</label>
+                            <input type="text" id="articleIcon" placeholder="🏠" 
+                                   style="width: 100px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 1.5rem; text-align: center;">
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Категория (опционально):</label>
+                            <input type="text" id="articleCategory" placeholder="Например: Договоры аренды" 
+                                   style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Содержимое статьи:</label>
+                            <div style="margin-bottom: 10px;">
+                                <button type="button" onclick="toggleEditorMode()" id="editorModeBtn" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin-right: 10px;"></> Переключить в HTML</button>
+                                <button type="button" onclick="insertArticleTemplate()" style="background: #ed8936; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📄 Вставить шаблон</button>
+                                <span id="editorStatus" style="margin-left: 15px; color: #666; font-size: 0.9rem;">Режим: Визуальный редактор</span>
+                            </div>
+                            <!-- TinyMCE редактор -->
+                            <div id="tinymce-container" style="width: 100%; max-width: 1200px;">
+                                <textarea id="articleHtmlContent" rows="20" placeholder="Начните писать статью здесь..."></textarea>
+                                <p id="tinymce-loading" style="font-size: 12px; color: #666; margin-top: 5px;">⏳ Загрузка визуального редактора...</p>
+                            </div>
+                            <!-- Fallback HTML редактор (скрыт по умолчанию) -->
+                            <div id="html-editor-container" style="display: none;">
+                                <textarea id="articleHtmlContentRaw" rows="20" placeholder="Введите HTML-код статьи..."
+                                          style="width: 100%; max-width: 1200px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace; font-size: 12px;"></textarea>
+                                <p style="font-size: 12px; color: #666; margin-top: 5px;">💡 Совет: Используйте визуальный редактор для удобного форматирования</p>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">SEO мета-ключевые слова (опционально):</label>
+                            <input type="text" id="articleMetaKeywords" placeholder="проверка договоров, анализ документов" 
+                                   style="width: 100%; max-width: 800px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">SEO мета-описание (опционально):</label>
+                            <textarea id="articleMetaDescription" rows="2" placeholder="Краткое описание для поисковых систем..."
+                                      style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+                        </div>
+                        
+                        <div style="margin: 20px 0;">
+                            <button onclick="createArticle()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">💾 Создать статью</button>
+                            <button onclick="clearArticleForm()" style="background: #a0aec0; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🗑️ Очистить форму</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Все статьи</h3>
+                        <div style="margin-bottom: 20px;">
+                            <select id="articleStatusFilter" onchange="loadArticles()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <option value="">Все статьи</option>
+                                <option value="published">Опубликованные</option>
+                                <option value="draft">Черновики</option>
+                                <option value="archived">В архиве</option>
+                            </select>
+                            <button onclick="loadArticles()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🔄 Обновить список</button>
+                        </div>
+                        <div id="articlesList"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-
+        
         <!-- TinyMCE CSS/JS -->
         <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
         <script>
+            // Функция переключения между секциями
+            function showSection(sectionName) {
+                // Скрываем все секции
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Показываем выбранную секцию
+                document.getElementById('section-' + sectionName).classList.add('active');
+                
+                // Обновляем активный пункт меню
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+                
+                // Обновляем заголовок страницы
+                const titles = {
+                    'dashboard': '📊 Главная',
+                    'users': '👥 Пользователи',
+                    'guests': '👤 Гости',
+                    'campaigns': '📧 Email-рассылки',
+                    'articles': '📝 Статьи'
+                };
+                document.getElementById('pageTitle').textContent = titles[sectionName] || 'Админ-панель';
+                
+                // Загружаем данные секции при первом открытии
+                if (sectionName === 'users' && document.getElementById('usersList').innerHTML === '') {
+                    loadUsers();
+                } else if (sectionName === 'guests' && document.getElementById('guestsList').innerHTML === '') {
+                    loadGuests();
+                } else if (sectionName === 'campaigns' && document.getElementById('emailCampaignsList').innerHTML === '') {
+                    loadEmailCampaigns();
+                } else if (sectionName === 'articles' && document.getElementById('articlesList').innerHTML === '') {
+                    loadArticles();
+                }
+            }
+            
+            function logout() {
+                document.cookie = "admin_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = "/admin/login";
+            }
+            
             // Проверяем загрузку TinyMCE
             let tinyMCELoaded = false;
             
@@ -284,15 +659,16 @@ def admin_panel():
                     };
                     script.onerror = function() {
                         console.error('❌ Не удалось загрузить TinyMCE с обоих CDN');
-                        document.getElementById('tinymce-loading').textContent = '❌ Визуальный редактор недоступен. Используйте HTML-режим.';
-                        document.getElementById('tinymce-loading').style.color = '#f56565';
+                        const loadingEl = document.getElementById('tinymce-loading');
+                        if (loadingEl) {
+                            loadingEl.textContent = '❌ Визуальный редактор недоступен. Используйте HTML-режим.';
+                            loadingEl.style.color = '#f56565';
+                        }
                     };
                     document.head.appendChild(script);
                 }
             }, 3000);
-        </script>
-        
-        <!-- ========== РАЗДЕЛ УПРАВЛЕНИЯ СТАТЬЯМИ ========== -->
+            
         <h2 style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e2e8f0;">📝 Управление статьями</h2>
         
         <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -380,13 +756,8 @@ def admin_panel():
             </div>
             <div id="articlesList"></div>
         </div>
-
+        
         <script>
-            function logout() {
-                document.cookie = "admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                window.location.href = "/admin/login";
-            }
-
             // Загружаем статистику и пользователей
             function loadStats() {
                 fetch('/admin/stats', {credentials: 'include'})
@@ -460,10 +831,27 @@ def admin_panel():
             }
             
             function showUser(userId) {
-                // Прокручиваем к пользователям и подсвечиваем нужного
-                document.getElementById('usersList').scrollIntoView({ behavior: 'smooth' });
-                // Можно добавить подсветку нужной карточки пользователя
-                alert('Пользователь: ' + userId);
+                // Переключаемся на секцию пользователей
+                showSection('users');
+                // Прокручиваем к списку пользователей
+                setTimeout(function() {
+                    const usersList = document.getElementById('usersList');
+                    if (usersList) {
+                        usersList.scrollIntoView({ behavior: 'smooth' });
+                        // Подсвечиваем нужную карточку пользователя
+                        const userCards = usersList.querySelectorAll('.user-card');
+                        userCards.forEach(card => {
+                            if (card.textContent.includes(userId)) {
+                                card.style.background = '#fff3cd';
+                                card.style.border = '2px solid #ffc107';
+                                setTimeout(function() {
+                                    card.style.background = 'white';
+                                    card.style.border = 'none';
+                                }, 3000);
+                            }
+                        });
+                    }
+                }, 500);
             }
 
             function loadUsers() {
@@ -587,8 +975,7 @@ function clearSearch() {
 
             // Загружаем при открытии
             loadStats();
-            loadUsers();
-            loadGuests();
+            // loadUsers() и loadGuests() загружаются автоматически при переключении на соответствующие секции
             
             function showCalculatorStats() {
                 fetch('/admin/calculator-stats-data', {credentials: 'include'})
@@ -850,8 +1237,10 @@ function clearSearch() {
                 document.getElementById('campaignHtmlContent').value = template;
             }
             
-            // Загружаем рассылки при открытии
-            loadEmailCampaigns();
+            // Загружаем данные при открытии
+            loadStats();
+            
+            // Инициализируем TinyMCE для статей при загрузке страницы (если раздел статей доступен)
             
             // ========== ИНИЦИАЛИЗАЦИЯ TINYMCE РЕДАКТОРА ==========
             let tinymceEditor = null;

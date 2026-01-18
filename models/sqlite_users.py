@@ -32,6 +32,7 @@ class User(db.Model):
     verification_token_expires = db.Column(db.String(30), nullable=True)
     reset_token = db.Column(db.String(100), nullable=True)
     reset_token_expires = db.Column(db.String(30), nullable=True)
+    email_subscribed = db.Column(db.Boolean, default=True)  # Подписка на рассылки (по умолчанию включена)
 
     def to_dict(self):
         return {
@@ -48,7 +49,8 @@ class User(db.Model):
             'email': self.email,
             'is_registered': self.is_registered,
             'free_analysis_used': self.free_analysis_used,
-            'email_verified': self.email_verified
+            'email_verified': self.email_verified,
+            'email_subscribed': self.email_subscribed
         }
 
 class AnalysisHistory(db.Model):
@@ -99,6 +101,61 @@ class Guest(db.Model):
             'registration_prompted': self.registration_prompted,
             'registered_user_id': self.registered_user_id
         }
+
+
+class EmailCampaign(db.Model):
+    """Таблица для хранения email-рассылок"""
+    __tablename__ = 'email_campaigns'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)  # Название рассылки
+    subject = db.Column(db.String(500), nullable=False)  # Тема письма
+    html_content = db.Column(db.Text, nullable=False)  # HTML-содержимое письма
+    text_content = db.Column(db.Text, nullable=True)  # Текстовая версия
+    recipient_filter = db.Column(db.String(50), nullable=False)  # Фильтр получателей: 'all', 'free', 'paid', 'verified'
+    status = db.Column(db.String(20), default='draft')  # Статус: 'draft', 'sending', 'sent', 'cancelled'
+    created_at = db.Column(db.String(30), nullable=False)
+    sent_at = db.Column(db.String(30), nullable=True)
+    created_by = db.Column(db.String(50), nullable=True)  # Кто создал (username админа)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'subject': self.subject,
+            'html_content': self.html_content,
+            'text_content': self.text_content,
+            'recipient_filter': self.recipient_filter,
+            'status': self.status,
+            'created_at': self.created_at,
+            'sent_at': self.sent_at,
+            'created_by': self.created_by
+        }
+
+
+class EmailSend(db.Model):
+    """Таблица для истории отправки email-рассылок"""
+    __tablename__ = 'email_sends'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    campaign_id = db.Column(db.Integer, db.ForeignKey('email_campaigns.id'), nullable=False)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=True)
+    email = db.Column(db.String(255), nullable=False)  # Email получателя
+    status = db.Column(db.String(20), default='pending')  # Статус: 'pending', 'sent', 'failed', 'bounced'
+    sent_at = db.Column(db.String(30), nullable=True)
+    error_message = db.Column(db.Text, nullable=True)  # Сообщение об ошибке, если была
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'campaign_id': self.campaign_id,
+            'user_id': self.user_id,
+            'email': self.email,
+            'status': self.status,
+            'sent_at': self.sent_at,
+            'error_message': self.error_message
+        }
+
 
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""
@@ -453,3 +510,133 @@ class SQLiteUserManager:
             .all()
         
         return [h.to_dict() for h in history]
+    
+    def get_recipients_for_campaign(self, recipient_filter='all'):
+        """
+        Получает список email-адресов для рассылки по фильтру
+        
+        Args:
+            recipient_filter: 'all' - все, 'free' - только бесплатный тариф,
+                            'paid' - платные тарифы, 'verified' - только верифицированные
+        
+        Returns:
+            list: Список словарей с user_id и email
+        """
+        from models.sqlite_users import EmailCampaign
+        
+        query = self.User.query.filter(
+            self.User.is_registered == True,
+            self.User.email.isnot(None),
+            self.User.email != '',
+            self.User.email_subscribed == True  # Только подписанные
+        )
+        
+        if recipient_filter == 'free':
+            query = query.filter(self.User.plan == 'free')
+        elif recipient_filter == 'paid':
+            query = query.filter(self.User.plan.in_(['basic', 'premium', 'unlimited']))
+        elif recipient_filter == 'verified':
+            query = query.filter(self.User.email_verified == True)
+        # 'all' - без дополнительных фильтров
+        
+        users = query.all()
+        
+        recipients = []
+        for user in users:
+            if user.email:  # Дополнительная проверка
+                recipients.append({
+                    'user_id': user.user_id,
+                    'email': user.email,
+                    'plan': user.plan,
+                    'email_verified': user.email_verified
+                })
+        
+        logger.info(f"📧 Получено {len(recipients)} получателей для фильтра '{recipient_filter}'")
+        return recipients
+    
+    def create_email_campaign(self, name, subject, html_content, text_content, 
+                             recipient_filter, created_by):
+        """Создает новую email-рассылку"""
+        from models.sqlite_users import EmailCampaign
+        
+        campaign = EmailCampaign(
+            name=name,
+            subject=subject,
+            html_content=html_content,
+            text_content=text_content,
+            recipient_filter=recipient_filter,
+            status='draft',
+            created_at=datetime.now().isoformat(),
+            created_by=created_by
+        )
+        
+        self.db.session.add(campaign)
+        self.db.session.commit()
+        
+        logger.info(f"📝 Создана рассылка: {name} (ID: {campaign.id})")
+        return campaign
+    
+    def get_email_campaigns(self, limit=50):
+        """Получает список всех рассылок"""
+        from models.sqlite_users import EmailCampaign
+        
+        campaigns = EmailCampaign.query.order_by(
+            EmailCampaign.created_at.desc()
+        ).limit(limit).all()
+        
+        return [c.to_dict() for c in campaigns]
+    
+    def get_email_campaign(self, campaign_id):
+        """Получает рассылку по ID"""
+        from models.sqlite_users import EmailCampaign
+        
+        return EmailCampaign.query.filter_by(id=campaign_id).first()
+    
+    def create_email_send(self, campaign_id, user_id, email, status='pending'):
+        """Создает запись об отправке email"""
+        from models.sqlite_users import EmailSend
+        
+        email_send = EmailSend(
+            campaign_id=campaign_id,
+            user_id=user_id,
+            email=email,
+            status=status,
+            sent_at=datetime.now().isoformat() if status == 'sent' else None
+        )
+        
+        self.db.session.add(email_send)
+        self.db.session.commit()
+        
+        return email_send
+    
+    def update_email_send_status(self, email_send_id, status, error_message=None):
+        """Обновляет статус отправки email"""
+        from models.sqlite_users import EmailSend
+        
+        email_send = EmailSend.query.filter_by(id=email_send_id).first()
+        if email_send:
+            email_send.status = status
+            if status == 'sent':
+                email_send.sent_at = datetime.now().isoformat()
+            if error_message:
+                email_send.error_message = error_message
+            self.db.session.commit()
+            return True
+        return False
+    
+    def get_campaign_stats(self, campaign_id):
+        """Получает статистику по рассылке"""
+        from models.sqlite_users import EmailSend
+        
+        total = EmailSend.query.filter_by(campaign_id=campaign_id).count()
+        sent = EmailSend.query.filter_by(campaign_id=campaign_id, status='sent').count()
+        failed = EmailSend.query.filter_by(campaign_id=campaign_id, status='failed').count()
+        pending = EmailSend.query.filter_by(campaign_id=campaign_id, status='pending').count()
+        
+        return {
+            'total': total,
+            'sent': sent,
+            'failed': failed,
+            'pending': pending,
+            'success_rate': (sent / total * 100) if total > 0 else 0
+        }

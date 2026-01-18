@@ -184,6 +184,73 @@ def admin_panel():
             <button onclick="createUser()">Создать пользователя</button>
         </div>
 
+        <!-- ========== РАЗДЕЛ EMAIL-РАССЫЛОК ========== -->
+        <h2 style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e2e8f0;">📧 Email-рассылки</h2>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3>Создать новую рассылку</h3>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Название рассылки:</label>
+                <input type="text" id="campaignName" placeholder="Например: Приветственное письмо" 
+                       style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Тема письма:</label>
+                <input type="text" id="campaignSubject" placeholder="Например: Добро пожаловать в DocScan AI!" 
+                       style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Получатели:</label>
+                <select id="campaignRecipients" style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                    <option value="all">Все зарегистрированные пользователи</option>
+                    <option value="free">Только бесплатный тариф</option>
+                    <option value="paid">Только платные тарифы</option>
+                    <option value="verified">Только верифицированные email</option>
+                </select>
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">HTML-содержимое письма:</label>
+                <p style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                    Доступные переменные: {email}, {user_id}, {plan}, {plan_name}
+                </p>
+                <textarea id="campaignHtmlContent" rows="15" placeholder="Введите HTML-код письма..."
+                          style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace;"></textarea>
+                <button onclick="insertEmailTemplate()" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">📄 Вставить базовый шаблон</button>
+            </div>
+            
+            <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Текстовая версия (опционально):</label>
+                <textarea id="campaignTextContent" rows="8" placeholder="Текстовая версия письма..."
+                          style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <button onclick="previewCampaign()" style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">👁️ Предпросмотр</button>
+                <button onclick="createCampaign()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">💾 Создать рассылку</button>
+                <button onclick="loadRecipientsPreview()" style="background: #ed8936; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;">👥 Предпросмотр получателей</button>
+            </div>
+            
+            <div id="campaignPreview" style="display: none; margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 10px; border: 1px solid #cbd5e0;">
+                <h4>Предпросмотр письма:</h4>
+                <div id="previewContent" style="background: white; padding: 20px; border-radius: 5px; margin-top: 10px;"></div>
+            </div>
+            
+            <div id="recipientsPreview" style="display: none; margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 10px; border: 1px solid #cbd5e0;">
+                <h4>Получатели рассылки:</h4>
+                <div id="recipientsList" style="background: white; padding: 20px; border-radius: 5px; margin-top: 10px; max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3>История рассылок</h3>
+            <button onclick="loadEmailCampaigns()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">🔄 Обновить список</button>
+            <div id="emailCampaignsList"></div>
+        </div>
+
         <script>
             function logout() {
                 document.cookie = "admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -425,6 +492,236 @@ function clearSearch() {
                         document.getElementById('calculatorStats').style.display = 'block';
                     });
             }
+            
+            // ========== ФУНКЦИИ ДЛЯ EMAIL-РАССЫЛОК ==========
+            function loadEmailCampaigns() {
+                fetch('/admin/email-campaigns', {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(campaigns => {
+                        let html = '';
+                        if (!campaigns || campaigns.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет созданных рассылок</p>';
+                        } else {
+                            campaigns.forEach(campaign => {
+                                const statusColors = {
+                                    'draft': '#a0aec0',
+                                    'sending': '#ed8936',
+                                    'sent': '#48bb78',
+                                    'cancelled': '#f56565'
+                                };
+                                const statusText = {
+                                    'draft': 'Черновик',
+                                    'sending': 'Отправляется',
+                                    'sent': 'Отправлено',
+                                    'cancelled': 'Отменено'
+                                };
+                                
+                                html += `
+                                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 4px solid ${statusColors[campaign.status] || '#cbd5e0'};">
+                                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                                            <div style="flex: 1;">
+                                                <strong style="font-size: 1.1rem;">${campaign.name}</strong>
+                                                <div style="margin-top: 5px; color: #666; font-size: 0.9rem;">
+                                                    Тема: ${campaign.subject}
+                                                </div>
+                                                <div style="margin-top: 5px; color: #666; font-size: 0.85rem;">
+                                                    Получатели: ${getRecipientFilterText(campaign.recipient_filter)} | 
+                                                    Статус: <span style="color: ${statusColors[campaign.status]}; font-weight: 600;">${statusText[campaign.status]}</span> |
+                                                    Создано: ${new Date(campaign.created_at).toLocaleString('ru-RU')}
+                                                    ${campaign.sent_at ? ' | Отправлено: ' + new Date(campaign.sent_at).toLocaleString('ru-RU') : ''}
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                                ${campaign.status === 'draft' ? `
+                                                    <button onclick="sendCampaign(${campaign.id})" style="background: #48bb78; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📧 Отправить</button>
+                                                    <button onclick="viewCampaignStats(${campaign.id})" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📊 Статистика</button>
+                                                ` : ''}
+                                                ${campaign.status === 'sent' ? `
+                                                    <button onclick="viewCampaignStats(${campaign.id})" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📊 Статистика</button>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        }
+                        document.getElementById('emailCampaignsList').innerHTML = html;
+                    });
+            }
+            
+            function getRecipientFilterText(filter) {
+                const filters = {
+                    'all': 'Все зарегистрированные',
+                    'free': 'Бесплатный тариф',
+                    'paid': 'Платные тарифы',
+                    'verified': 'Верифицированные email'
+                };
+                return filters[filter] || filter;
+            }
+            
+            function createCampaign() {
+                const name = document.getElementById('campaignName').value.trim();
+                const subject = document.getElementById('campaignSubject').value.trim();
+                const htmlContent = document.getElementById('campaignHtmlContent').value.trim();
+                const textContent = document.getElementById('campaignTextContent').value.trim();
+                const recipientFilter = document.getElementById('campaignRecipients').value;
+                
+                if (!name || !subject || !htmlContent) {
+                    alert('Заполните все обязательные поля!');
+                    return;
+                }
+                
+                fetch('/admin/email-campaigns', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        name: name,
+                        subject: subject,
+                        html_content: htmlContent,
+                        text_content: textContent,
+                        recipient_filter: recipientFilter
+                    })
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Рассылка создана!');
+                        // Очищаем форму
+                        document.getElementById('campaignName').value = '';
+                        document.getElementById('campaignSubject').value = '';
+                        document.getElementById('campaignHtmlContent').value = '';
+                        document.getElementById('campaignTextContent').value = '';
+                        // Обновляем список
+                        loadEmailCampaigns();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Ошибка создания рассылки: ' + err);
+                });
+            }
+            
+            function sendCampaign(campaignId) {
+                if (!confirm('Отправить рассылку? Это может занять некоторое время.')) {
+                    return;
+                }
+                
+                fetch(`/admin/email-campaigns/${campaignId}/send`, {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(`✅ Рассылка отправлена!\\nОтправлено: ${result.stats.sent}\\nОшибок: ${result.stats.failed}`);
+                        loadEmailCampaigns();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Ошибка отправки: ' + err);
+                });
+            }
+            
+            function viewCampaignStats(campaignId) {
+                fetch(`/admin/email-campaigns/${campaignId}/stats`, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(stats => {
+                        alert(`📊 Статистика рассылки:\\n\\nВсего: ${stats.total}\\nОтправлено: ${stats.sent}\\nОшибок: ${stats.failed}\\nОжидает: ${stats.pending}\\n\\nУспешность: ${stats.success_rate.toFixed(1)}%`);
+                    });
+            }
+            
+            function previewCampaign() {
+                const htmlContent = document.getElementById('campaignHtmlContent').value.trim();
+                if (!htmlContent) {
+                    alert('Введите HTML-содержимое письма!');
+                    return;
+                }
+                document.getElementById('previewContent').innerHTML = htmlContent;
+                document.getElementById('campaignPreview').style.display = 'block';
+            }
+            
+            function loadRecipientsPreview() {
+                const recipientFilter = document.getElementById('campaignRecipients').value;
+                if (!recipientFilter) return;
+                
+                fetch('/admin/email-campaigns/recipients-preview?filter=' + recipientFilter, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(result => {
+                        if (result && result.success) {
+                            let html = `<p><strong>Количество получателей: ${result.count}</strong></p>`;
+                            if (result.recipients && result.recipients.length > 0) {
+                                html += '<ul style="list-style: none; padding: 0;">';
+                                result.recipients.slice(0, 20).forEach(recipient => {
+                                    html += `<li style="padding: 5px; border-bottom: 1px solid #eee;">${recipient.email} (${recipient.plan || 'free'})</li>`;
+                                });
+                                if (result.recipients.length > 20) {
+                                    html += `<li style="padding: 5px; color: #666;">... и еще ${result.recipients.length - 20}</li>`;
+                                }
+                                html += '</ul>';
+                            } else {
+                                html += '<p style="color: #999;">Нет получателей для выбранного фильтра.</p>';
+                            }
+                            document.getElementById('recipientsList').innerHTML = html;
+                            document.getElementById('recipientsPreview').style.display = 'block';
+                        } else {
+                            document.getElementById('recipientsList').innerHTML = '<p style="color: #999;">Ошибка загрузки получателей.</p>';
+                            document.getElementById('recipientsPreview').style.display = 'block';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Ошибка загрузки получателей:', err);
+                        document.getElementById('recipientsList').innerHTML = '<p style="color: #999;">Не удалось загрузить список получателей. Проверьте фильтр.</p>';
+                        document.getElementById('recipientsPreview').style.display = 'block';
+                    });
+            }
+            
+            function insertEmailTemplate() {
+                const template = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #4361ee, #7209b7); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #4361ee; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 DocScan AI</h1>
+            <p>Заголовок письма</p>
+        </div>
+        <div class="content">
+            <p>Здравствуйте, {email}!</p>
+            
+            <p>Текст вашего письма здесь. Используйте переменные {user_id}, {plan}, {plan_name} для персонализации.</p>
+            
+            <div style="text-align: center;">
+                <a href="https://docscan-ai.ru" class="button">Перейти на сайт</a>
+            </div>
+            
+            <p>С уважением,<br>Команда DocScan AI</p>
+        </div>
+        <div class="footer">
+            <p>© 2025 DocScan AI. Все права защищены.</p>
+            <p><a href="https://docscan-ai.ru/unsubscribe" style="color: #666;">Отписаться от рассылок</a></p>
+        </div>
+    </div>
+</body>
+</html>`;
+                document.getElementById('campaignHtmlContent').value = template;
+            }
+            
+            // Загружаем рассылки при открытии
+            loadEmailCampaigns();
         </script>
     </body>
     </html>
@@ -566,3 +863,135 @@ def calculator_stats_data():
     
     stats = app.user_manager.get_calculator_stats()
     return jsonify(stats)
+
+# ========== МАРШРУТЫ ДЛЯ EMAIL-РАССЫЛОК ==========
+
+@admin_bp.route('/email-campaigns', methods=['GET'])
+@require_admin_auth
+def get_email_campaigns():
+    """Получить список всех рассылок"""
+    from app import app
+    
+    campaigns = app.user_manager.get_email_campaigns(limit=100)
+    return jsonify(campaigns)
+
+@admin_bp.route('/email-campaigns', methods=['POST'])
+@require_admin_auth
+def create_email_campaign():
+    """Создать новую email-рассылку"""
+    from app import app
+    from datetime import datetime
+    
+    try:
+        data = request.get_json()
+        
+        name = data.get('name')
+        subject = data.get('subject')
+        html_content = data.get('html_content')
+        text_content = data.get('text_content', '')
+        recipient_filter = data.get('recipient_filter', 'all')
+        
+        if not name or not subject or not html_content:
+            return jsonify({'success': False, 'error': 'Заполните все обязательные поля'}), 400
+        
+        # Получаем имя админа из сессии или куки
+        created_by = session.get('admin_username', request.cookies.get('admin_username', 'admin'))
+        
+        campaign = app.user_manager.create_email_campaign(
+            name=name,
+            subject=subject,
+            html_content=html_content,
+            text_content=text_content,
+            recipient_filter=recipient_filter,
+            created_by=created_by
+        )
+        
+        logger.info(f"📧 Администратор создал рассылку: {name} (ID: {campaign.id})")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Рассылка создана',
+            'campaign': campaign.to_dict()
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания рассылки: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/email-campaigns/<int:campaign_id>/send', methods=['POST'])
+@require_admin_auth
+def send_email_campaign(campaign_id):
+    """Отправить email-рассылку"""
+    from app import app
+    from utils.email_service import send_email_campaign
+    
+    try:
+        # Запускаем отправку рассылки в фоне (можно сделать через Celery в будущем)
+        result = send_email_campaign(
+            campaign_id=campaign_id,
+            user_manager=app.user_manager,
+            batch_size=10,
+            delay_between_batches=1
+        )
+        
+        if result['success']:
+            logger.info(f"✅ Рассылка {campaign_id} отправлена: {result['sent']}/{result['total']}")
+            return jsonify({
+                'success': True,
+                'message': f"Рассылка отправлена: {result['sent']} из {result['total']}",
+                'stats': result
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Ошибка отправки')
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"❌ Ошибка отправки рассылки {campaign_id}: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/email-campaigns/<int:campaign_id>/stats', methods=['GET'])
+@require_admin_auth
+def get_campaign_stats(campaign_id):
+    """Получить статистику по рассылке"""
+    from app import app
+    
+    stats = app.user_manager.get_campaign_stats(campaign_id)
+    return jsonify(stats)
+
+@admin_bp.route('/email-campaigns/<int:campaign_id>/recipients', methods=['GET'])
+@require_admin_auth
+def get_campaign_recipients(campaign_id):
+    """Получить список получателей для рассылки"""
+    from app import app
+    
+    campaign = app.user_manager.get_email_campaign(campaign_id)
+    if not campaign:
+        return jsonify({'success': False, 'error': 'Рассылка не найдена'}), 404
+    
+    recipients = app.user_manager.get_recipients_for_campaign(campaign.recipient_filter)
+    
+    return jsonify({
+        'success': True,
+        'filter': campaign.recipient_filter,
+        'count': len(recipients),
+        'recipients': recipients
+    })
+
+@admin_bp.route('/email-campaigns/recipients-preview', methods=['GET'])
+@require_admin_auth
+def get_recipients_preview():
+    """Получить предпросмотр получателей по фильтру"""
+    from app import app
+    
+    recipient_filter = request.args.get('filter', 'all')
+    
+    recipients = app.user_manager.get_recipients_for_campaign(recipient_filter)
+    
+    return jsonify({
+        'success': True,
+        'filter': recipient_filter,
+        'count': len(recipients),
+        'recipients': recipients
+    })

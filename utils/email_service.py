@@ -198,3 +198,184 @@ def send_password_reset_email(email, reset_token, user_id):
     
     return send_email(email, subject, html_content, text_content)
 
+
+def personalize_email_content(html_content, user_data):
+    """
+    Персонализирует содержимое письма, заменяя переменные
+    
+    Доступные переменные:
+    - {email} - email пользователя
+    - {user_id} - ID пользователя
+    - {plan} - тариф пользователя
+    - {plan_name} - название тарифа
+    """
+    replacements = {
+        '{email}': user_data.get('email', ''),
+        '{user_id}': user_data.get('user_id', ''),
+        '{plan}': user_data.get('plan', 'free'),
+        '{plan_name}': user_data.get('plan_name', 'Бесплатный')
+    }
+    
+    personalized = html_content
+    for placeholder, value in replacements.items():
+        personalized = personalized.replace(placeholder, str(value))
+    
+    return personalized
+
+
+def send_campaign_email(campaign, recipient, user_manager):
+    """
+    Отправляет одно письмо из рассылки
+    
+    Args:
+        campaign: объект EmailCampaign
+        recipient: словарь с данными получателя (user_id, email, plan)
+        user_manager: экземпляр SQLiteUserManager для работы с БД
+    
+    Returns:
+        tuple: (success: bool, error_message: str or None)
+    """
+    from datetime import datetime
+    from config import PLANS
+    
+    try:
+        # Персонализируем содержимое
+        user_data = {
+            'email': recipient['email'],
+            'user_id': recipient.get('user_id', ''),
+            'plan': recipient.get('plan', 'free'),
+            'plan_name': PLANS.get(recipient.get('plan', 'free'), {}).get('name', 'Бесплатный')
+        }
+        
+        html_content = personalize_email_content(campaign.html_content, user_data)
+        text_content = None
+        if campaign.text_content:
+            text_content = personalize_email_content(campaign.text_content, user_data)
+        
+        # Отправляем письмо
+        success = send_email(
+            to_email=recipient['email'],
+            subject=campaign.subject,
+            html_content=html_content,
+            text_content=text_content
+        )
+        
+        # Создаем запись об отправке
+        email_send = user_manager.create_email_send(
+            campaign_id=campaign.id,
+            user_id=recipient.get('user_id'),
+            email=recipient['email'],
+            status='sent' if success else 'failed'
+        )
+        
+        if not success:
+            # Обновляем статус с ошибкой
+            user_manager.update_email_send_status(
+                email_send_id=email_send.id,
+                status='failed',
+                error_message='Ошибка отправки email'
+            )
+            return False, 'Ошибка отправки email'
+        
+        return True, None
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка отправки письма из рассылки {campaign.id} получателю {recipient.get('email')}: {e}")
+        # Создаем запись об ошибке
+        try:
+            email_send = user_manager.create_email_send(
+                campaign_id=campaign.id,
+                user_id=recipient.get('user_id'),
+                email=recipient.get('email', 'unknown'),
+                status='failed'
+            )
+            user_manager.update_email_send_status(
+                email_send_id=email_send.id,
+                status='failed',
+                error_message=str(e)
+            )
+        except:
+            pass
+        
+        return False, str(e)
+
+
+def send_email_campaign(campaign_id, user_manager, batch_size=10, delay_between_batches=1):
+    """
+    Отправляет email-рассылку получателям
+    
+    Args:
+        campaign_id: ID рассылки
+        user_manager: экземпляр SQLiteUserManager
+        batch_size: размер батча для отправки (по умолчанию 10 писем за раз)
+        delay_between_batches: задержка между батчами в секундах
+    
+    Returns:
+        dict: статистика отправки
+    """
+    import time
+    from datetime import datetime
+    
+    campaign = user_manager.get_email_campaign(campaign_id)
+    if not campaign:
+        logger.error(f"❌ Рассылка {campaign_id} не найдена")
+        return {'success': False, 'error': 'Рассылка не найдена'}
+    
+    if campaign.status == 'sent':
+        logger.warning(f"⚠️ Рассылка {campaign_id} уже отправлена")
+        return {'success': False, 'error': 'Рассылка уже отправлена'}
+    
+    # Обновляем статус рассылки на "отправляется"
+    campaign.status = 'sending'
+    user_manager.db.session.commit()
+    
+    try:
+        # Получаем список получателей
+        recipients = user_manager.get_recipients_for_campaign(campaign.recipient_filter)
+        
+        if not recipients:
+            campaign.status = 'draft'
+            user_manager.db.session.commit()
+            logger.warning(f"⚠️ Нет получателей для рассылки {campaign_id}")
+            return {'success': False, 'error': 'Нет получателей для рассылки'}
+        
+        logger.info(f"📧 Начинаем отправку рассылки {campaign.name} ({campaign_id}) получателям: {len(recipients)}")
+        
+        # Отправляем письма батчами
+        sent_count = 0
+        failed_count = 0
+        
+        for i in range(0, len(recipients), batch_size):
+            batch = recipients[i:i + batch_size]
+            
+            for recipient in batch:
+                success, error = send_campaign_email(campaign, recipient, user_manager)
+                if success:
+                    sent_count += 1
+                else:
+                    failed_count += 1
+            
+            # Задержка между батчами (чтобы не перегружать SMTP-сервер)
+            if i + batch_size < len(recipients):
+                time.sleep(delay_between_batches)
+        
+        # Обновляем статус рассылки на "отправлено"
+        campaign.status = 'sent'
+        campaign.sent_at = datetime.now().isoformat()
+        user_manager.db.session.commit()
+        
+        logger.info(f"✅ Рассылка {campaign.name} ({campaign_id}) завершена: отправлено {sent_count}, ошибок {failed_count}")
+        
+        return {
+            'success': True,
+            'total': len(recipients),
+            'sent': sent_count,
+            'failed': failed_count
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка отправки рассылки {campaign_id}: {e}")
+        campaign.status = 'draft'  # Возвращаем статус в черновик при ошибке
+        user_manager.db.session.commit()
+        return {'success': False, 'error': str(e)}
+

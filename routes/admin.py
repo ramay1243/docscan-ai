@@ -1020,9 +1020,16 @@ def admin_panel():
             }
             
             function clearGuestSearch() {
+                // Регистрируем глобально при первом вызове
+                if (!window.clearGuestSearch) window.clearGuestSearch = clearGuestSearch;
+                
                 document.getElementById('searchGuest').value = '';
                 searchGuests();
             }
+            
+            // Регистрируем функции поиска гостей глобально
+            window.searchGuests = searchGuests;
+            window.clearGuestSearch = clearGuestSearch;
             
             function showUser(userId) {
                 // Переключаемся на секцию пользователей
@@ -1167,59 +1174,79 @@ function clearSearch() {
 }
 // ========== КОНЕЦ ФУНКЦИЙ ПОИСКА ==========
 
+// Регистрируем функции поиска глобально
+window.searchUsers = searchUsers;
+window.clearSearch = clearSearch;
+if (typeof searchGuests === 'function') window.searchGuests = searchGuests;
+if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuestSearch;
+
             // Загружаем при открытии
             loadStats();
             // loadUsers() и loadGuests() загружаются автоматически при переключении на соответствующие секции
             
             function showCalculatorStats() {
-                fetch('/admin/calculator-stats-data', {credentials: 'include'})
-                    .then(r => r.json())
-                    .then(stats => {
-                        let html = '<h3>📊 Статистика калькулятора неустойки</h3>';
-                        html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">';
-                        html += '<div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">';
-                        html += '<div style="font-size: 0.9rem; color: #666;">Всего использований</div>';
-                        html += '<div style="font-size: 2rem; font-weight: bold; color: #4361ee;">' + stats.total_calculator_uses + '</div>';
-                        html += '</div>';
-                        html += '<div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">';
-                        html += '<div style="font-size: 0.9rem; color: #666;">Пользователей использовали</div>';
-                        html += '<div style="font-size: 2rem; font-weight: bold; color: #4361ee;">' + stats.users_with_calculator_use + '/' + stats.total_users + '</div>';
-                        html += '</div>';
-                        html += '</div>';
-                        
-                        if (stats.top_users && stats.top_users.length > 0) {
-                            html += '<h4>Топ пользователей:</h4>';
-                            html += '<table style="width: 100%; border-collapse: collapse;"><thead><tr>';
-                            html += '<th style="padding: 10px; background: #4361ee; color: white;">ID</th>';
-                            html += '<th style="padding: 10px; background: #4361ee; color: white;">Использований</th>';
-                            html += '<th style="padding: 10px; background: #4361ee; color: white;">Последнее</th>';
-                            html += '</tr></thead><tbody>';
+                try {
+                    console.log('📊 Загрузка статистики калькулятора...');
+                    fetch('/admin/calculator-stats-data', {credentials: 'include'})
+                        .then(function(r) { return r.json(); })
+                        .then(function(stats) {
+                            let html = '<h3>📊 Статистика калькулятора неустойки</h3>';
+                            html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">';
+                            html += '<div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">';
+                            html += '<div style="font-size: 0.9rem; color: #666;">Всего использований</div>';
+                            html += '<div style="font-size: 2rem; font-weight: bold; color: #4361ee;">' + stats.total_calculator_uses + '</div>';
+                            html += '</div>';
+                            html += '<div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">';
+                            html += '<div style="font-size: 0.9rem; color: #666;">Пользователей использовали</div>';
+                            html += '<div style="font-size: 2rem; font-weight: bold; color: #4361ee;">' + stats.users_with_calculator_use + '/' + stats.total_users + '</div>';
+                            html += '</div>';
+                            html += '</div>';
                             
-                            stats.top_users.forEach(function(user) {
-                                html += '<tr>';
-                                html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + user[0] + '</td>';
-                                html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + user[1] + '</td>';
-                                html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + (user[2] || 'Нет данных') + '</td>';
-                                html += '</tr>';
-                            });
+                            if (stats.top_users && stats.top_users.length > 0) {
+                                html += '<h4>Топ пользователей:</h4>';
+                                html += '<table style="width: 100%; border-collapse: collapse;"><thead><tr>';
+                                html += '<th style="padding: 10px; background: #4361ee; color: white;">ID</th>';
+                                html += '<th style="padding: 10px; background: #4361ee; color: white;">Использований</th>';
+                                html += '<th style="padding: 10px; background: #4361ee; color: white;">Последнее</th>';
+                                html += '</tr></thead><tbody>';
+                                
+                                stats.top_users.forEach(function(user) {
+                                    html += '<tr>';
+                                    html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + user[0] + '</td>';
+                                    html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + user[1] + '</td>';
+                                    html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + (user[2] || 'Нет данных') + '</td>';
+                                    html += '</tr>';
+                                });
+                                
+                                html += '</tbody></table>';
+                            }
                             
-                            html += '</tbody></table>';
-                        }
-                        
-                        const statsEl = document.getElementById('calculatorStats');
-                        if (statsEl) {
-                            statsEl.innerHTML = html;
-                            statsEl.style.display = 'block';
-                        }
-                    })
-                    .catch(function(error) {
-                        console.error('Ошибка загрузки статистики калькулятора:', error);
-                        alert('Ошибка загрузки статистики: ' + error.message);
-                    });
+                            const statsEl = document.getElementById('calculatorStats');
+                            if (statsEl) {
+                                statsEl.innerHTML = html;
+                                statsEl.style.display = 'block';
+                                console.log('✅ Статистика калькулятора загружена');
+                            } else {
+                                console.error('❌ Элемент calculatorStats не найден');
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('❌ Ошибка загрузки статистики калькулятора:', error);
+                            alert('Ошибка загрузки статистики: ' + error.message);
+                        });
+                } catch (error) {
+                    console.error('❌ Ошибка в showCalculatorStats:', error);
+                    alert('Ошибка: ' + error.message);
+                }
             }
             
-            // Регистрируем функцию глобально
+            // Регистрируем функцию глобально СРАЗУ после определения
             window.showCalculatorStats = showCalculatorStats;
+            // Также регистрируем для совместимости
+            if (typeof window.showCalculatorStats === 'undefined') {
+                window.showCalculatorStats = showCalculatorStats;
+            }
+            console.log('✅ showCalculatorStats зарегистрирована глобально:', typeof window.showCalculatorStats);
             
             // ========== ФУНКЦИИ ДЛЯ EMAIL-РАССЫЛОК ==========
             function loadEmailCampaigns() {

@@ -491,6 +491,7 @@
     <!-- Articles Grid -->
     <section class="container">
         <div class="articles-grid">
+            <!-- Динамические статьи из БД (созданные через админ-панель) -->
             {% if articles and articles|length > 0 %}
                 {% for article in articles %}
                 <div class="article-card">
@@ -506,13 +507,11 @@
                     <a href="/articles/{{ article.slug }}" class="read-more">Читать статью</a>
                 </div>
                 {% endfor %}
-            {% else %}
-                <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
-                    <p style="color: var(--gray); font-size: 1.1rem;">Статьи пока не опубликованы</p>
-                </div>
             {% endif %}
             
-            <!-- Статические статьи (для обратной совместимости, если нужны старые ссылки) -->
+            <!-- Статические статьи (старые, встроенные в код) -->
+            
+            <!-- Статические статьи (для обратной совместимости) -->
             <div class="article-card">
                 <div class="article-icon">📖</div>
                 <h2>О проекте DocScan AI</h2>

@@ -863,10 +863,9 @@ def admin_panel():
                 }
             }, 3000);
             
-        <h2 style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e2e8f0;">📝 Управление статьями</h2>
+        </script>
         
-        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h3>Создать новую статью</h3>
+        <!-- Дублированный HTML удален - он уже есть выше в структуре страницы -->
             
             <div style="margin: 15px 0;">
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Заголовок статьи:</label>
@@ -1240,13 +1239,20 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 }
             }
             
-            // Регистрируем функцию глобально СРАЗУ после определения
+            // Регистрируем функцию глобально СРАЗУ после определения (ВАЖНО!)
             window.showCalculatorStats = showCalculatorStats;
-            // Также регистрируем для совместимости
-            if (typeof window.showCalculatorStats === 'undefined') {
-                window.showCalculatorStats = showCalculatorStats;
-            }
             console.log('✅ showCalculatorStats зарегистрирована глобально:', typeof window.showCalculatorStats);
+            
+            // Проверка через 1 секунду, что функция действительно доступна
+            setTimeout(function() {
+                if (typeof window.showCalculatorStats === 'function') {
+                    console.log('✅ Проверка: showCalculatorStats доступна глобально');
+                } else {
+                    console.error('❌ ОШИБКА: showCalculatorStats НЕ доступна глобально!');
+                    // Повторная регистрация
+                    window.showCalculatorStats = showCalculatorStats;
+                }
+            }, 1000);
             
             // ========== ФУНКЦИИ ДЛЯ EMAIL-РАССЫЛОК ==========
             function loadEmailCampaigns() {

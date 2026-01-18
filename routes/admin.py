@@ -184,6 +184,8 @@ def admin_panel():
                 margin-left: 260px;
                 min-height: 100vh;
                 padding: 0;
+                width: calc(100% - 260px);
+                overflow-x: hidden;
             }
             
             .top-header {
@@ -348,25 +350,25 @@ def admin_panel():
             <div class="content-area">
                 <!-- Секция: Главная (Dashboard) -->
                 <div id="section-dashboard" class="content-section active">
-            <div class="stats">
-                <div class="stat-card">
-                    <h3>👥 Всего пользователей</h3>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <h3>👥 Всего пользователей</h3>
                             <div id="totalUsers" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                         </div>
                         <div class="stat-card">
                             <h3>👤 Всего гостей</h3>
                             <div id="totalGuests" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>📊 Всего анализов</h3>
+                        </div>
+                        <div class="stat-card">
+                            <h3>📊 Всего анализов</h3>
                             <div id="totalAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>📈 Анализов сегодня</h3>
+                        </div>
+                        <div class="stat-card">
+                            <h3>📈 Анализов сегодня</h3>
                             <div id="todayAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                </div>
-            </div>
-            
+                        </div>
+                    </div>
+                    
                     <div class="card">
                         <h3>Статистика калькулятора</h3>
                         <button onclick="showCalculatorStats()">📊 Показать статистику калькулятора</button>
@@ -404,14 +406,14 @@ def admin_panel():
                     
                     <div class="card">
                         <h3>Управление пользователями</h3>
-<div style="margin: 15px 0;">
-    <input type="text" id="searchUser" placeholder="🔍 Поиск по ID, тарифу, IP..." 
-           style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
-           onkeyup="searchUsers()">
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="searchUser" placeholder="🔍 Поиск по ID, тарифу, IP..." 
+                                   style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
+                                   onkeyup="searchUsers()">
                             <button onclick="clearSearch()" style="background: #e2e8f0; color: #2d3748;">Очистить</button>
-    <span id="searchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
-</div>
-<div id="usersList"></div>
+                            <span id="searchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
+                        </div>
+                        <div id="usersList"></div>
                     </div>
                 </div>
                 
@@ -862,93 +864,7 @@ def admin_panel():
                     document.head.appendChild(script);
                 }
             }, 3000);
-            
         </script>
-        
-        <!-- Дублированный HTML удален - он уже есть выше в структуре страницы -->
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Заголовок статьи:</label>
-                <input type="text" id="articleTitle" placeholder="Например: Как проверить договор аренды" 
-                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL статьи (slug):</label>
-                <input type="text" id="articleSlug" placeholder="kak-proverit-dogovor-arendy" 
-                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace;">
-                <p style="font-size: 12px; color: #666; margin-top: 5px;">Только латинские буквы, цифры, дефисы и подчеркивания</p>
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Краткое описание:</label>
-                <textarea id="articleDescription" rows="3" placeholder="Краткое описание для карточки на странице /articles..."
-                          style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Иконка (эмодзи):</label>
-                <input type="text" id="articleIcon" placeholder="🏠" 
-                       style="width: 100px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 1.5rem; text-align: center;">
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Категория (опционально):</label>
-                <input type="text" id="articleCategory" placeholder="Например: Договоры аренды" 
-                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Содержимое статьи:</label>
-                <div style="margin-bottom: 10px;">
-                    <button type="button" onclick="toggleEditorMode()" id="editorModeBtn" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin-right: 10px;"></> Переключить в HTML</button>
-                    <button type="button" onclick="insertArticleTemplate()" style="background: #ed8936; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📄 Вставить шаблон</button>
-                    <span id="editorStatus" style="margin-left: 15px; color: #666; font-size: 0.9rem;">Режим: Визуальный редактор</span>
-                </div>
-                <!-- TinyMCE редактор -->
-                <div id="tinymce-container" style="width: 100%; max-width: 1200px;">
-                    <textarea id="articleHtmlContent" rows="20" placeholder="Начните писать статью здесь..."></textarea>
-                    <p id="tinymce-loading" style="font-size: 12px; color: #666; margin-top: 5px;">⏳ Загрузка визуального редактора...</p>
-                </div>
-                <!-- Fallback HTML редактор (скрыт по умолчанию) -->
-                <div id="html-editor-container" style="display: none;">
-                    <textarea id="articleHtmlContentRaw" rows="20" placeholder="Введите HTML-код статьи..."
-                              style="width: 100%; max-width: 1200px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace; font-size: 12px;"></textarea>
-                    <p style="font-size: 12px; color: #666; margin-top: 5px;">💡 Совет: Используйте визуальный редактор для удобного форматирования</p>
-                </div>
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">SEO мета-ключевые слова (опционально):</label>
-                <input type="text" id="articleMetaKeywords" placeholder="проверка договоров, анализ документов" 
-                       style="width: 100%; max-width: 800px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
-            </div>
-            
-            <div style="margin: 15px 0;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">SEO мета-описание (опционально):</label>
-                <textarea id="articleMetaDescription" rows="2" placeholder="Краткое описание для поисковых систем..."
-                          style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
-            </div>
-            
-            <div style="margin: 20px 0;">
-                <button onclick="createArticle()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">💾 Создать статью</button>
-                <button onclick="clearArticleForm()" style="background: #a0aec0; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🗑️ Очистить форму</button>
-            </div>
-        </div>
-        
-        <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h3>Все статьи</h3>
-            <div style="margin-bottom: 20px;">
-                <select id="articleStatusFilter" onchange="loadArticles()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
-                    <option value="">Все статьи</option>
-                    <option value="published">Опубликованные</option>
-                    <option value="draft">Черновики</option>
-                    <option value="archived">В архиве</option>
-                </select>
-                <button onclick="loadArticles()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🔄 Обновить список</button>
-            </div>
-            <div id="articlesList"></div>
-        </div>
         
         <script>
             // Загружаем статистику и пользователей

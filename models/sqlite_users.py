@@ -142,6 +142,18 @@ class SQLiteUserManager:
             except Exception as e:
                 logger.debug(f"Refresh не сработал для {user_id}: {e}, но пользователь получен")
     
+        # СБРОС ЛИМИТА: Проверяем нужно ли сбросить дневной лимит
+        if user:
+            from datetime import date
+            today = date.today().isoformat()
+            if user.last_reset < today:
+                old_used_today = user.used_today
+                old_last_reset = user.last_reset
+                user.used_today = 0
+                user.last_reset = today
+                self.db.session.commit()
+                logger.info(f"🔄 Сброшен дневной лимит для пользователя {user_id}: {old_last_reset} -> {today}, used_today: {old_used_today} -> 0")
+    
         # Проверяем просроченный тариф
         if user and user.plan != 'free' and user.plan_expires:
             from datetime import date
@@ -152,7 +164,7 @@ class SQLiteUserManager:
         
         # Логируем для диагностики
         if user:
-            logger.info(f"🔍 get_user({user_id}): plan={user.plan}, used_today={user.used_today}, plan_expires={user.plan_expires}")
+            logger.info(f"🔍 get_user({user_id}): plan={user.plan}, used_today={user.used_today}, last_reset={user.last_reset}, plan_expires={user.plan_expires}")
         
         return user
 

@@ -341,32 +341,32 @@ def admin_panel():
                 <h2 id="pageTitle">📊 Главная</h2>
                 <div class="user-info">
                     <span>Вошел как: <strong>""" + admin_info.get('username', 'Unknown') + """</strong></span>
-                    <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
+                <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
                 </div>
             </div>
             
             <div class="content-area">
                 <!-- Секция: Главная (Dashboard) -->
                 <div id="section-dashboard" class="content-section active">
-                    <div class="stats">
-                        <div class="stat-card">
-                            <h3>👥 Всего пользователей</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>👥 Всего пользователей</h3>
                             <div id="totalUsers" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                         </div>
                         <div class="stat-card">
                             <h3>👤 Всего гостей</h3>
                             <div id="totalGuests" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>📊 Всего анализов</h3>
+                </div>
+                <div class="stat-card">
+                    <h3>📊 Всего анализов</h3>
                             <div id="totalAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>📈 Анализов сегодня</h3>
+                </div>
+                <div class="stat-card">
+                    <h3>📈 Анализов сегодня</h3>
                             <div id="todayAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                        </div>
-                    </div>
-                    
+                </div>
+            </div>
+            
                     <div class="card">
                         <h3>Статистика калькулятора</h3>
                         <button onclick="showCalculatorStats()">📊 Показать статистику калькулятора</button>
@@ -404,14 +404,14 @@ def admin_panel():
                     
                     <div class="card">
                         <h3>Управление пользователями</h3>
-                        <div style="margin: 15px 0;">
-                            <input type="text" id="searchUser" placeholder="🔍 Поиск по ID, тарифу, IP..." 
-                                   style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
-                                   onkeyup="searchUsers()">
+<div style="margin: 15px 0;">
+    <input type="text" id="searchUser" placeholder="🔍 Поиск по ID, тарифу, IP..." 
+           style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
+           onkeyup="searchUsers()">
                             <button onclick="clearSearch()" style="background: #e2e8f0; color: #2d3748;">Очистить</button>
-                            <span id="searchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
-                        </div>
-                        <div id="usersList"></div>
+    <span id="searchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
+</div>
+<div id="usersList"></div>
                     </div>
                 </div>
                 
@@ -458,7 +458,7 @@ def admin_panel():
                                 <option value="free">Только бесплатный тариф</option>
                                 <option value="paid">Только платные тарифы</option>
                                 <option value="verified">Только верифицированные email</option>
-                            </select>
+            </select>
                         </div>
                         
                         <div style="margin: 15px 0;">
@@ -475,8 +475,8 @@ def admin_panel():
                             <label style="display: block; margin-bottom: 5px; font-weight: 600;">Текстовая версия (опционально):</label>
                             <textarea id="campaignTextContent" rows="8" placeholder="Текстовая версия письма..."
                                       style="width: 100%; max-width: 800px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
-                        </div>
-                        
+        </div>
+
                         <div style="margin: 20px 0;">
                             <button onclick="previewCampaign()" style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">👁️ Предпросмотр</button>
                             <button onclick="createCampaign()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">💾 Создать рассылку</button>
@@ -688,17 +688,38 @@ def admin_panel():
             function logout() {
                 try {
                     document.cookie = "admin_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                    window.location.href = "/admin/login";
+                window.location.href = "/admin/login";
                 } catch (error) {
                     console.error('Ошибка выхода:', error);
                     alert('Ошибка выхода: ' + error.message);
                 }
             }
             
-            // Регистрируем функции глобально для доступа из onclick
+            // Регистрируем ВСЕ функции глобально для доступа из onclick
             window.showSection = showSection;
             window.logout = logout;
-            console.log('✅ Функции зарегистрированы глобально');
+            
+            // Регистрируем функции после их определения (будет сделано позже)
+            function registerGlobalFunctions() {
+                if (typeof loadStats === 'function') window.loadStats = loadStats;
+                if (typeof loadUsers === 'function') window.loadUsers = loadUsers;
+                if (typeof loadGuests === 'function') window.loadGuests = loadGuests;
+                if (typeof loadArticles === 'function') window.loadArticles = loadArticles;
+                if (typeof showCalculatorStats === 'function') window.showCalculatorStats = showCalculatorStats;
+                if (typeof setUserPlan === 'function') window.setUserPlan = setUserPlan;
+                if (typeof createUser === 'function') window.createUser = createUser;
+                if (typeof searchUsers === 'function') window.searchUsers = searchUsers;
+                if (typeof clearSearch === 'function') window.clearSearch = clearSearch;
+                if (typeof searchGuests === 'function') window.searchGuests = searchGuests;
+                if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuestSearch;
+                if (typeof createCampaign === 'function') window.createCampaign = createCampaign;
+                if (typeof loadEmailCampaigns === 'function') window.loadEmailCampaigns = loadEmailCampaigns;
+                if (typeof createArticle === 'function') window.createArticle = createArticle;
+                if (typeof clearArticleForm === 'function') window.clearArticleForm = clearArticleForm;
+                console.log('✅ Все функции зарегистрированы глобально');
+            }
+            
+            console.log('✅ Основные функции зарегистрированы глобально');
             
             // Инициализация при загрузке страницы
             function initAdminPanel() {
@@ -1154,34 +1175,51 @@ function clearSearch() {
                 fetch('/admin/calculator-stats-data', {credentials: 'include'})
                     .then(r => r.json())
                     .then(stats => {
-                        let html = `
-                            <h3>📊 Статистика калькулятора неустойки</h3>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
-                                <div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">
-                                    <div style="font-size: 0.9rem; color: #666;">Всего использований</div>
-                                    <div style="font-size: 2rem; font-weight: bold; color: #4361ee;">${stats.total_calculator_uses}</div>
-                                </div>
-                                <div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">
-                                    <div style="font-size: 0.9rem; color: #666;">Пользователей использовали</div>
-                                    <div style="font-size: 2rem; font-weight: bold; color: #4361ee;">${stats.users_with_calculator_use}/${stats.total_users}</div>
-                                </div>
-                            </div>
-                        `;
+                        let html = '<h3>📊 Статистика калькулятора неустойки</h3>';
+                        html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">';
+                        html += '<div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">';
+                        html += '<div style="font-size: 0.9rem; color: #666;">Всего использований</div>';
+                        html += '<div style="font-size: 2rem; font-weight: bold; color: #4361ee;">' + stats.total_calculator_uses + '</div>';
+                        html += '</div>';
+                        html += '<div style="background: #f0f7ff; padding: 15px; border-radius: 8px;">';
+                        html += '<div style="font-size: 0.9rem; color: #666;">Пользователей использовали</div>';
+                        html += '<div style="font-size: 2rem; font-weight: bold; color: #4361ee;">' + stats.users_with_calculator_use + '/' + stats.total_users + '</div>';
+                        html += '</div>';
+                        html += '</div>';
                         
                         if (stats.top_users && stats.top_users.length > 0) {
-                            html += `<h4>Топ пользователей:</h4><table style="width: 100%; border-collapse: collapse;"><thead><tr><th style="padding: 10px; background: #4361ee; color: white;">ID</th><th style="padding: 10px; background: #4361ee; color: white;">Использований</th><th style="padding: 10px; background: #4361ee; color: white;">Последнее</th></tr></thead><tbody>`;
+                            html += '<h4>Топ пользователей:</h4>';
+                            html += '<table style="width: 100%; border-collapse: collapse;"><thead><tr>';
+                            html += '<th style="padding: 10px; background: #4361ee; color: white;">ID</th>';
+                            html += '<th style="padding: 10px; background: #4361ee; color: white;">Использований</th>';
+                            html += '<th style="padding: 10px; background: #4361ee; color: white;">Последнее</th>';
+                            html += '</tr></thead><tbody>';
                             
-                            stats.top_users.forEach(user => {
-                                html += `<tr><td style="padding: 10px; border-bottom: 1px solid #ddd;">${user[0]}</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${user[1]}</td><td style="padding: 10px; border-bottom: 1px solid #ddd;">${user[2] || 'Нет данных'}</td></tr>`;
+                            stats.top_users.forEach(function(user) {
+                                html += '<tr>';
+                                html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + user[0] + '</td>';
+                                html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + user[1] + '</td>';
+                                html += '<td style="padding: 10px; border-bottom: 1px solid #ddd;">' + (user[2] || 'Нет данных') + '</td>';
+                                html += '</tr>';
                             });
                             
-                            html += `</tbody></table>`;
+                            html += '</tbody></table>';
                         }
                         
-                        document.getElementById('calculatorStats').innerHTML = html;
-                        document.getElementById('calculatorStats').style.display = 'block';
+                        const statsEl = document.getElementById('calculatorStats');
+                        if (statsEl) {
+                            statsEl.innerHTML = html;
+                            statsEl.style.display = 'block';
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Ошибка загрузки статистики калькулятора:', error);
+                        alert('Ошибка загрузки статистики: ' + error.message);
                     });
             }
+            
+            // Регистрируем функцию глобально
+            window.showCalculatorStats = showCalculatorStats;
             
             // ========== ФУНКЦИИ ДЛЯ EMAIL-РАССЫЛОК ==========
             function loadEmailCampaigns() {
@@ -1213,7 +1251,7 @@ function clearSearch() {
                                                 <strong style="font-size: 1.1rem;">${campaign.name}</strong>
                                                 <div style="margin-top: 5px; color: #666; font-size: 0.9rem;">
                                                     Тема: ${campaign.subject}
-                                                </div>
+                                </div>
                                                 <div style="margin-top: 5px; color: #666; font-size: 0.85rem;">
                                                     Получатели: ${getRecipientFilterText(campaign.recipient_filter)} | 
                                                     Статус: <span style="color: ${statusColors[campaign.status]}; font-weight: 600;">${statusText[campaign.status]}</span> |
@@ -1230,9 +1268,9 @@ function clearSearch() {
                                                     <button onclick="viewCampaignStats(${campaign.id})" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">📊 Статистика</button>
                                                 ` : ''}
                                             </div>
-                                        </div>
-                                    </div>
-                                `;
+                                </div>
+                            </div>
+                        `;
                             });
                         }
                         document.getElementById('emailCampaignsList').innerHTML = html;
@@ -2017,6 +2055,37 @@ function clearSearch() {
             if (document.getElementById('articlesList')) {
                 loadArticles();
             }
+            
+            // Регистрируем все функции глобально после их определения
+            if (typeof registerGlobalFunctions === 'function') {
+                registerGlobalFunctions();
+            } else {
+                // Если функция еще не определена, регистрируем основные функции вручную
+                if (typeof showCalculatorStats === 'function') {
+                    window.showCalculatorStats = showCalculatorStats;
+                }
+                if (typeof loadStats === 'function') {
+                    window.loadStats = loadStats;
+                }
+                if (typeof loadUsers === 'function') {
+                    window.loadUsers = loadUsers;
+                }
+                if (typeof loadGuests === 'function') {
+                    window.loadGuests = loadGuests;
+                }
+                if (typeof loadArticles === 'function') {
+                    window.loadArticles = loadArticles;
+                }
+                if (typeof createArticle === 'function') {
+                    window.createArticle = createArticle;
+                }
+                if (typeof createCampaign === 'function') {
+                    window.createCampaign = createCampaign;
+                }
+                console.log('✅ Функции зарегистрированы глобально (fallback)');
+            }
+            
+            console.log('✅ Все скрипты загружены и функции зарегистрированы');
         </script>
     </body>
     </html>
@@ -2149,7 +2218,7 @@ def admin_stats():
     stats['total_guests'] = total_guests
     
     return jsonify(stats)
-
+        
 @admin_bp.route('/calculator-stats-data')
 @require_admin_auth
 def calculator_stats_data():

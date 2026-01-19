@@ -1138,12 +1138,27 @@
             
             // Отправляем статистику использования калькулятора
     try {
-        const user_id = localStorage.getItem('docscan_user_id');
-        fetch('/api/calculator-click', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ user_id: user_id })
-        }).catch(e => console.log('Analytics error:', e));
+        // Получаем user_id из сессии для авторизованных пользователей
+        fetch('/api/check-auth', {credentials: 'include'})
+            .then(r => r.json())
+            .then(authData => {
+                const user_id = authData.authenticated ? authData.user_id : null;
+                fetch('/api/calculator-click', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({ user_id: user_id })
+                }).catch(e => console.log('Analytics error:', e));
+            })
+            .catch(e => {
+                // Если не удалось получить auth, отправляем без user_id
+                fetch('/api/calculator-click', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({ user_id: null })
+                }).catch(err => console.log('Analytics error:', err));
+            });
     } catch (e) {
         console.log('Failed to send analytics:', e);
     }

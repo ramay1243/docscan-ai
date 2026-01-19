@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from utils.logger import RussianLogger
 import tempfile
 import os
@@ -36,7 +36,6 @@ def create_user():
 def analyze_document():
     """Анализ документа - поддерживает multipart/form-data и application/json с base64"""
     from app import app
-    from flask import session
     
     real_ip = app.ip_limit_manager.get_client_ip(request)
     user_agent = request.headers.get('User-Agent', 'Не определен')
@@ -299,7 +298,6 @@ def analyze_document():
 def get_usage():
     """Получить информацию об использовании"""
     from app import app
-    from flask import session
     
     # Проверяем авторизацию через сессию
     user_id = session.get('user_id')
@@ -405,8 +403,17 @@ def calculator_click():
     try:
         from app import app
         
-        data = request.json
-        user_id = data.get('user_id') if data else None
+        # Сначала проверяем сессию для авторизованных пользователей
+        user_id = None
+        if 'user_id' in session:
+            user_id = session['user_id']
+            logger.info(f"🔍 Calculator click: user_id из сессии = {user_id}")
+        else:
+            # Если нет в сессии, проверяем тело запроса
+            data = request.json
+            if data:
+                user_id = data.get('user_id')
+                logger.info(f"🔍 Calculator click: user_id из запроса = {user_id}")
         
         if user_id:
             # Используем менеджер для обновления счетчика
@@ -414,12 +421,14 @@ def calculator_click():
             if success:
                 logger.info(f"✅ Calculator used by user {user_id}")
             else:
-                logger.info(f"⚠️ Unknown user {user_id} used calculator")
+                logger.warning(f"⚠️ Unknown user {user_id} used calculator")
         else:
-            logger.info(f"🔸 Anonymous calculator use")
+            logger.info(f"🔸 Anonymous calculator use (no user_id)")
         
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'user_id': user_id})
         
     except Exception as e:
         logger.error(f"❌ Calculator click error: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)}), 500

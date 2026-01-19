@@ -423,28 +423,51 @@ class SQLiteUserManager:
         
     def record_calculator_use(self, user_id):
         """Увеличивает счетчик использования калькулятора"""
-        user = self.get_user(user_id)
+        if not user_id:
+            logger.warning("⚠️ Попытка записать использование калькулятора без user_id")
+            return False
+        
+        # Получаем пользователя напрямую из БД
+        user = self.User.query.filter_by(user_id=user_id).first()
         if user:
-            user.calculator_uses += 1
+            # Обновляем счетчик
+            old_count = user.calculator_uses or 0
+            user.calculator_uses = old_count + 1
             user.last_calculator_use = datetime.now().isoformat()
             self.db.session.commit()
+            logger.info(f"✅ Записано использование калькулятора для {user_id}: {old_count} -> {user.calculator_uses}")
             return True
-        return False
+        else:
+            logger.warning(f"⚠️ Пользователь {user_id} не найден при попытке записать использование калькулятора")
+            return False
         
     def get_calculator_stats(self):
         """Возвращает статистику по использованию калькулятора"""
-        users = self.get_all_users()
+        # Обновляем данные из БД перед подсчетом
+        self.db.session.expire_all()
         
-        total_calculator_uses = sum(user.calculator_uses for user in users)
-        users_with_calculator_use = sum(1 for user in users if user.calculator_uses > 0)
+        # Получаем всех пользователей напрямую из БД
+        users = self.User.query.all()
+        
+        # Обновляем данные для каждого пользователя
+        for user in users:
+            try:
+                self.db.session.refresh(user)
+            except Exception:
+                pass  # Игнорируем ошибки refresh
+        
+        total_calculator_uses = sum(user.calculator_uses or 0 for user in users)
+        users_with_calculator_use = sum(1 for user in users if (user.calculator_uses or 0) > 0)
         
         # Пользователи с наибольшим использованием
         top_users = sorted(
-            [(user.user_id, user.calculator_uses, user.last_calculator_use) 
-             for user in users if user.calculator_uses > 0],
+            [(user.user_id, user.calculator_uses or 0, user.last_calculator_use or 'Нет данных') 
+             for user in users if (user.calculator_uses or 0) > 0],
             key=lambda x: x[1],
             reverse=True
         )[:10]
+        
+        logger.info(f"📊 Статистика калькулятора: всего использований={total_calculator_uses}, пользователей использовали={users_with_calculator_use}/{len(users)}")
         
         return {
             'total_calculator_uses': total_calculator_uses,

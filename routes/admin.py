@@ -273,23 +273,125 @@ def admin_panel():
                 background: #c53030; 
             }
             
+            /* Кнопка меню для мобильных */
+            .menu-toggle {
+                display: none;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1001;
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 12px 15px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.2rem;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            }
+            
+            .menu-toggle:hover {
+                background: #5a67d8;
+            }
+            
+            /* Затемнение фона при открытом меню */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+            
             /* Мобильная версия */
             @media (max-width: 768px) {
                 .sidebar {
                     transform: translateX(-100%);
-                    transition: transform 0.3s;
+                    transition: transform 0.3s ease;
+                    width: 280px;
+                    z-index: 1000;
                 }
                 
                 .sidebar.open {
                     transform: translateX(0);
                 }
                 
+                .sidebar-overlay.active {
+                    display: block;
+                }
+                
                 .main-content {
-                    margin-left: 0;
+                    margin-left: 0 !important;
+                    width: 100% !important;
                 }
                 
                 .menu-toggle {
                     display: block;
+                }
+                
+                .top-header {
+                    padding: 15px 20px;
+                    flex-wrap: wrap;
+                }
+                
+                .top-header h2 {
+                    font-size: 1.2rem;
+                    margin-bottom: 10px;
+                }
+                
+                .top-header .user-info {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 10px;
+                    width: 100%;
+                }
+                
+                .content-area {
+                    padding: 15px;
+                }
+                
+                .stats {
+                    grid-template-columns: 1fr;
+                    gap: 15px;
+                }
+                
+                .stat-card {
+                    padding: 15px;
+                }
+                
+                .card {
+                    padding: 15px;
+                    margin: 15px 0;
+                }
+                
+                .section-header {
+                    font-size: 1.2rem;
+                    margin: 20px 0 15px 0;
+                }
+                
+                button {
+                    width: 100%;
+                    margin: 5px 0;
+                    padding: 12px;
+                    font-size: 1rem;
+                }
+                
+                input, select, textarea {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    box-sizing: border-box;
+                }
+                
+                .user-card {
+                    padding: 12px;
+                    margin: 8px 0;
                 }
             }
             
@@ -312,6 +414,12 @@ def admin_panel():
         </style>
     </head>
     <body>
+        <!-- Затемнение фона для мобильных -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
+        
+        <!-- Кнопка меню для мобильных -->
+        <button class="menu-toggle" id="menuToggle" onclick="toggleMobileMenu()">☰</button>
+        
         <!-- Боковое меню -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -604,6 +712,18 @@ def admin_panel():
                 try {
                     console.log('🔄 Переключение на секцию:', sectionName);
                     
+                    // Закрываем меню на мобильных после выбора
+                    if (window.innerWidth <= 768) {
+                        const sidebar = document.getElementById('sidebar');
+                        const overlay = document.getElementById('sidebarOverlay');
+                        if (sidebar) {
+                            sidebar.classList.remove('open');
+                        }
+                        if (overlay) {
+                            overlay.classList.remove('active');
+                        }
+                    }
+                    
                     // Скрываем все секции
                     const sections = document.querySelectorAll('.content-section');
                     console.log('📦 Найдено секций:', sections.length);
@@ -697,9 +817,35 @@ def admin_panel():
                 }
             }
             
+            // Функция для открытия/закрытия меню на мобильных
+            function toggleMobileMenu() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (sidebar && overlay) {
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('active');
+                }
+            }
+            
+            // Закрываем меню при клике вне его на мобильных
+            document.addEventListener('click', function(event) {
+                const sidebar = document.getElementById('sidebar');
+                const menuToggle = document.getElementById('menuToggle');
+                const overlay = document.getElementById('sidebarOverlay');
+                
+                if (window.innerWidth <= 768 && sidebar && menuToggle && overlay) {
+                    // Если клик не по меню и не по кнопке, закрываем меню
+                    if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                        sidebar.classList.remove('open');
+                        overlay.classList.remove('active');
+                    }
+                }
+            });
+            
             // Регистрируем ВСЕ функции глобально для доступа из onclick
             window.showSection = showSection;
             window.logout = logout;
+            window.toggleMobileMenu = toggleMobileMenu;
             
             // Регистрируем функции после их определения (будет сделано позже)
             function registerGlobalFunctions() {

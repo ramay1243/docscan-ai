@@ -283,11 +283,16 @@ def admin_panel():
                 background: #667eea;
                 color: white;
                 border: none;
-                padding: 12px 15px;
+                padding: 0;
                 border-radius: 8px;
                 cursor: pointer;
                 font-size: 1.2rem;
                 box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                width: 44px;
+                height: 44px;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
             }
             
             .menu-toggle:hover {

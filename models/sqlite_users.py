@@ -87,6 +87,7 @@ class Guest(db.Model):
     first_seen = db.Column(db.String(30), nullable=False)
     last_seen = db.Column(db.String(30), nullable=False)
     analyses_count = db.Column(db.Integer, default=0)
+    calculator_uses = db.Column(db.Integer, default=0)
     registration_prompted = db.Column(db.Boolean, default=False)
     registered_user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=True)
     
@@ -98,6 +99,7 @@ class Guest(db.Model):
             'first_seen': self.first_seen,
             'last_seen': self.last_seen,
             'analyses_count': self.analyses_count,
+            'calculator_uses': self.calculator_uses,
             'registration_prompted': self.registration_prompted,
             'registered_user_id': self.registered_user_id
         }
@@ -456,8 +458,17 @@ class SQLiteUserManager:
             except Exception:
                 pass  # Игнорируем ошибки refresh
         
-        total_calculator_uses = sum(user.calculator_uses or 0 for user in users)
+        # Анализы зарегистрированных пользователей
+        registered_calculator_uses = sum(user.calculator_uses or 0 for user in users)
         users_with_calculator_use = sum(1 for user in users if (user.calculator_uses or 0) > 0)
+        
+        # Анализы гостей (незарегистрированных пользователей)
+        from models.sqlite_users import Guest
+        guests = Guest.query.all()
+        total_guest_calculator_uses = sum(guest.calculator_uses or 0 for guest in guests)
+        
+        # Общая статистика
+        total_calculator_uses = registered_calculator_uses + total_guest_calculator_uses
         
         # Пользователи с наибольшим использованием
         top_users = sorted(
@@ -467,10 +478,12 @@ class SQLiteUserManager:
             reverse=True
         )[:10]
         
-        logger.info(f"📊 Статистика калькулятора: всего использований={total_calculator_uses}, пользователей использовали={users_with_calculator_use}/{len(users)}")
+        logger.info(f"📊 Статистика калькулятора: всего использований={total_calculator_uses} (пользователи: {registered_calculator_uses}, гости: {total_guest_calculator_uses}), пользователей использовали={users_with_calculator_use}/{len(users)}")
         
         return {
             'total_calculator_uses': total_calculator_uses,
+            'registered_calculator_uses': registered_calculator_uses,
+            'guest_calculator_uses': total_guest_calculator_uses,
             'users_with_calculator_use': users_with_calculator_use,
             'total_users': len(users),
             'top_users': top_users
@@ -539,6 +552,7 @@ class SQLiteUserManager:
                 first_seen=now,
                 last_seen=now,
                 analyses_count=0,
+                calculator_uses=0,
                 registration_prompted=False,
                 registered_user_id=None
             )
@@ -568,6 +582,20 @@ class SQLiteUserManager:
         self.db.session.commit()
         logger.info(f"📊 Записан анализ для гостя: IP={ip_address}, анализов было={old_count}, стало={guest.analyses_count}, registration_prompted={guest.registration_prompted}")
         return guest
+    
+    def record_guest_calculator_use(self, ip_address):
+        """Записывает использование калькулятора для гостя"""
+        from models.sqlite_users import Guest
+        
+        guest = self.get_or_create_guest(ip_address)
+        if guest:
+            old_count = guest.calculator_uses or 0
+            guest.calculator_uses = old_count + 1
+            guest.last_seen = datetime.now().isoformat()
+            self.db.session.commit()
+            logger.info(f"🧮 Записано использование калькулятора для гостя: IP={ip_address}, использований было={old_count}, стало={guest.calculator_uses}")
+            return True
+        return False
     
     def link_guest_to_user(self, ip_address, user_id):
         """Связывает гостя с зарегистрированным пользователем"""

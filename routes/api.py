@@ -416,14 +416,20 @@ def calculator_click():
                 logger.info(f"🔍 Calculator click: user_id из запроса = {user_id}")
         
         if user_id:
-            # Используем менеджер для обновления счетчика
+            # Используем менеджер для обновления счетчика зарегистрированного пользователя
             success = app.user_manager.record_calculator_use(user_id)
             if success:
                 logger.info(f"✅ Calculator used by user {user_id}")
             else:
                 logger.warning(f"⚠️ Unknown user {user_id} used calculator")
         else:
-            logger.info(f"🔸 Anonymous calculator use (no user_id)")
+            # Записываем использование для гостя (по IP)
+            real_ip = app.ip_limit_manager.get_client_ip(request)
+            success = app.user_manager.record_guest_calculator_use(real_ip)
+            if success:
+                logger.info(f"🔸 Anonymous calculator use recorded for IP {real_ip}")
+            else:
+                logger.warning(f"⚠️ Failed to record calculator use for IP {real_ip}")
         
         return jsonify({'success': True, 'user_id': user_id})
         

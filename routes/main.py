@@ -1910,8 +1910,21 @@ def robots():
     """Robots.txt для SEO"""
     return """User-agent: *
 Allow: /
-Disallow: /admin
+Disallow: /admin/
 Disallow: /admin-login
+Disallow: /cabinet/
+Disallow: /register
+Disallow: /login
+Disallow: /api/
+Disallow: /reset-password
+Disallow: /forgot-password
+
+# Разрешаем индексировать статические страницы
+Allow: /articles
+Allow: /analiz-dokumentov
+Allow: /calculator-penalty
+Allow: /contact
+Allow: /faq
 
 Sitemap: https://docscan-ai.ru/sitemap.xml""", 200, {'Content-Type': 'text/plain'}
 

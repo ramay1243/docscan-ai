@@ -313,16 +313,40 @@ class SQLiteUserManager:
         return users
 
     def get_stats(self):
-        """Возвращает статистику по пользователям"""
+        """Возвращает статистику по пользователям и гостям"""
+        from models.sqlite_users import Guest
+        from datetime import datetime, date
+        
         users = self.get_all_users()
         total_users = len(users)
-        total_analyses = sum(user.total_used for user in users)
-        today_analyses = sum(user.used_today for user in users)
+        
+        # Анализы зарегистрированных пользователей
+        registered_analyses = sum(user.total_used for user in users)
+        today_registered_analyses = sum(user.used_today for user in users)
+        
+        # Анализы гостей (незарегистрированных пользователей)
+        guests = Guest.query.all()
+        total_guest_analyses = sum(guest.analyses_count for guest in guests)
+        
+        # Анализы гостей за сегодня (если last_seen сегодня, считаем что был анализ)
+        today = date.today().isoformat()
+        today_guest_analyses = 0
+        for guest in guests:
+            if guest.last_seen and guest.last_seen[:10] == today:
+                # Если последний визит сегодня, считаем что был хотя бы 1 анализ сегодня
+                # (но не больше чем analyses_count)
+                today_guest_analyses += min(1, guest.analyses_count)
+        
+        # Общая статистика
+        total_analyses = registered_analyses + total_guest_analyses
+        today_analyses = today_registered_analyses + today_guest_analyses
         
         return {
             'total_users': total_users,
             'total_analyses': total_analyses,
-            'today_analyses': today_analyses
+            'today_analyses': today_analyses,
+            'registered_analyses': registered_analyses,
+            'guest_analyses': total_guest_analyses
         }
         
     def can_analyze(self, user_id):

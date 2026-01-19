@@ -463,25 +463,25 @@ def admin_panel():
             <div class="content-area">
                 <!-- Секция: Главная (Dashboard) -->
                 <div id="section-dashboard" class="content-section active">
-                    <div class="stats">
-                        <div class="stat-card">
-                            <h3>👥 Всего пользователей</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>👥 Всего пользователей</h3>
                             <div id="totalUsers" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                         </div>
                         <div class="stat-card">
                             <h3>👤 Всего гостей</h3>
                             <div id="totalGuests" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>📊 Всего анализов</h3>
+                </div>
+                <div class="stat-card">
+                    <h3>📊 Всего анализов</h3>
                             <div id="totalAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>📈 Анализов сегодня</h3>
+                </div>
+                <div class="stat-card">
+                    <h3>📈 Анализов сегодня</h3>
                             <div id="todayAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                        </div>
-                    </div>
-                    
+                </div>
+            </div>
+            
                     <div class="card">
                         <h3>Статистика калькулятора</h3>
                         <button onclick="showCalculatorStats()">📊 Показать статистику калькулятора</button>
@@ -519,14 +519,14 @@ def admin_panel():
                     
                     <div class="card">
                         <h3>Управление пользователями</h3>
-                        <div style="margin: 15px 0;">
-                            <input type="text" id="searchUser" placeholder="🔍 Поиск по ID, тарифу, IP..." 
-                                   style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
-                                   onkeyup="searchUsers()">
+<div style="margin: 15px 0;">
+    <input type="text" id="searchUser" placeholder="🔍 Поиск по ID, тарифу, IP..." 
+           style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
+           onkeyup="searchUsers()">
                             <button onclick="clearSearch()" style="background: #e2e8f0; color: #2d3748;">Очистить</button>
-                            <span id="searchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
-                        </div>
-                        <div id="usersList"></div>
+    <span id="searchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
+</div>
+<div id="usersList"></div>
                     </div>
                 </div>
                 
@@ -1253,7 +1253,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
             function showCalculatorStats() {
                 try {
                     console.log('📊 Загрузка статистики калькулятора...');
-                    fetch('/admin/calculator-stats-data', {credentials: 'include'})
+                fetch('/admin/calculator-stats-data', {credentials: 'include'})
                         .then(function(r) { return r.json(); })
                         .then(function(stats) {
                             let html = '<h3>📊 Статистика калькулятора неустойки</h3>';
@@ -1526,7 +1526,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
         <div class="header">
             <h1>🤖 DocScan AI</h1>
             <p>Заголовок письма</p>
-        </div>
+                                </div>
         <div class="content">
             <p>Здравствуйте, {email}!</p>
             
@@ -1736,31 +1736,25 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
             }
             
             function insertArticleTemplate() {
-                const template = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-        h1 { color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px; }
-        h2 { color: #7209b7; margin-top: 30px; }
-        h3 { color: #4cc9f0; }
-        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
-        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0; border-radius: 5px; }
-        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 5px; }
-        ul, ol { margin: 15px 0; padding-left: 30px; }
-        li { margin: 8px 0; }
-        strong { color: #4361ee; }
-        blockquote { border-left: 4px solid #7209b7; padding-left: 20px; margin: 20px 0; color: #666; font-style: italic; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #4361ee; color: white; }
-        tr:nth-child(even) { background: #f8f9fa; }
-        img { max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0; }
-        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+                const template = `<style>
+        .article-content h1 { color: #4361ee; border-bottom: 2px solid #4361ee; padding-bottom: 10px; margin-top: 0; }
+        .article-content h2 { color: #7209b7; margin-top: 30px; }
+        .article-content h3 { color: #4cc9f0; }
+        .article-content .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .article-content .info { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .article-content .success { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .article-content ul, .article-content ol { margin: 15px 0; padding-left: 30px; }
+        .article-content li { margin: 8px 0; }
+        .article-content strong { color: #4361ee; }
+        .article-content blockquote { border-left: 4px solid #7209b7; padding-left: 20px; margin: 20px 0; color: #666; font-style: italic; }
+        .article-content table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .article-content th, .article-content td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .article-content th { background: #4361ee; color: white; }
+        .article-content tr:nth-child(even) { background: #f8f9fa; }
+        .article-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0; }
+        .article-content code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
     </style>
-</head>
-<body>
+    
     <h1>Заголовок статьи</h1>
     
     <p>Введение к статье. Опишите, о чем пойдет речь в статье.</p>
@@ -1799,6 +1793,10 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 <td>Данные 1</td>
                 <td>Данные 2</td>
             </tr>
+            <tr>
+                <td>Данные 3</td>
+                <td>Данные 4</td>
+            </tr>
         </tbody>
     </table>
     
@@ -1812,9 +1810,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
     
     <div class="success">
         <strong>✅ Вывод:</strong> Основной вывод из статьи.
-    </div>
-</body>
-</html>`;
+    </div>`;
                 
                 if (tinymceEditor && !isHtmlMode) {
                     tinymceEditor.setContent(template);
@@ -1947,9 +1943,9 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                                                 <button onclick="viewArticle('${article.slug}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">👁️ Просмотр</button>
                                                 <button onclick="deleteArticleConfirm(${article.id})" style="background: #f56565; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🗑️ Удалить</button>
                                             </div>
-                                        </div>
-                                    </div>
-                                `;
+                                </div>
+                            </div>
+                        `;
                             });
                         }
                         articlesListEl.innerHTML = html;

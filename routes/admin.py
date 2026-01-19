@@ -1810,6 +1810,12 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
     
     <div class="success">
         <strong>✅ Вывод:</strong> Основной вывод из статьи.
+    </div>
+    
+    <div style="text-align: center; margin: 40px 0;">
+        <a href="/articles" style="font-size: 1.1rem; padding: 15px 30px; background: #4361ee; color: white; border-radius: 50px; text-decoration: none; display: inline-block; transition: all 0.3s;">
+            ← Вернуться к статьям
+        </a>
     </div>`;
                 
                 if (tinymceEditor && !isHtmlMode) {

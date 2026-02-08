@@ -835,25 +835,30 @@ def home():
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 28px;
-            height: 28px;
-            background: rgba(0,0,0,0.1);
-            border: none;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(0, 0, 0, 0.2);
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            color: #666;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
             transition: all 0.3s ease;
             z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            line-height: 1;
         }
         
         .ad-banner-close:hover {
-            background: rgba(0,0,0,0.2);
+            background: #fff;
+            border-color: rgba(0, 0, 0, 0.4);
             color: #000;
-            transform: rotate(90deg);
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
         
         .ad-banner-link {

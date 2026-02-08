@@ -1923,6 +1923,18 @@ def home():
                     }
                 }
             ]
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Главная",
+                    "item": "https://docscan-ai.ru"
+                }
+            ]
         }
     ]
     </script>

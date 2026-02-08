@@ -1805,8 +1805,7 @@ def home():
             const banner = document.getElementById('adBanner');
             if (banner) {
                 banner.classList.add('hidden');
-                // Сохраняем состояние закрытия в localStorage на 24 часа
-                localStorage.setItem('adBannerClosed', Date.now().toString());
+                // Не сохраняем в localStorage - баннер будет показываться при каждом обновлении страницы
             }
         }
         
@@ -1822,20 +1821,9 @@ def home():
             const banner = document.getElementById('adBanner');
             if (!banner) return;
             
-            const closedTime = localStorage.getItem('adBannerClosed');
-            if (closedTime) {
-                const closedTimestamp = parseInt(closedTime);
-                const now = Date.now();
-                const hoursPassed = (now - closedTimestamp) / (1000 * 60 * 60);
-                
-                // Показываем баннер снова через 24 часа
-                if (hoursPassed < 24) {
-                    banner.classList.add('hidden');
-                } else {
-                    // Удаляем старую запись
-                    localStorage.removeItem('adBannerClosed');
-                }
-            }
+            // Баннер всегда показывается при загрузке страницы
+            // Не проверяем localStorage - баннер появляется при каждом обновлении
+            banner.classList.remove('hidden');
         }
         
         // Initialize on load

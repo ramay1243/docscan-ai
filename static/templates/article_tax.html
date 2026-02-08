@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансовые риски договоров: нейросеть проверяет требования ФНС онлайн</title>
+    
+    <link rel="canonical" href="https://docscan-ai.ru/articles/tax">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Финансовые риски в договорах: что проверяет ФНС. Проверка договоров на налоговые риски за 60 секунд. Избегайте штрафов - проверьте договор сейчас!">
+    <meta name="keywords" content="финансовые риски договоры, проверка ФНС, налоговые риски, бухгалтерские документы, налоговые проверки, налоговые штрафы">
+    <meta name="author" content="DocScan AI">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Финансовые риски договоров: проверка нейросетью требований ФНС">
+    <meta property="og:description" content="Бесплатная проверка договоров на налоговые риски онлайн. ИИ анализ за 60 секунд">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://docscan-ai.ru/articles/tax">
+    <meta property="og:image" content="https://docscan-ai.ru/static/og-tax.jpg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Нейросеть проверяет договоры на риски ФНС онлайн">
+    <meta name="twitter:description" content="ИИ анализ финансовых рисков в договорах. Бесплатная проверка требований ФНС">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-size: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+                .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.85rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Article Container */
+        .article-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin: 30px 0 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .article-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), #48bb78);
+        }
+        
+        /* Breadcrumbs */
+        .breadcrumbs {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 25px;
+        }
+        
+        .breadcrumb-link {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Article Title */
+        .article-title {
+            color: var(--dark);
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        .article-subtitle {
+            text-align: center;
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        
+        .article-meta {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        /* Section Titles */
+        .section-title {
+            color: var(--dark);
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+            margin-top: 50px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+        
+        .subsection-title {
+            color: var(--dark);
+            margin-top: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Risk Grid */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        /* Risk Card */
+        .risk-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .risk-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+        
+        .risk-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        
+        .risk-card.critical {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .risk-card.warning {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .risk-card.info {
+            border-left: 4px solid var(--primary);
+        }
+        
+        .risk-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* Badges */
+        .penalty-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--danger), #c53030);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .warning-badge {
+            background: linear-gradient(135deg, var(--warning), #b7791f);
+        }
+        
+        .info-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
+        /* Checklist */
+        .checklist {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--border);
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .checklist-item::before {
+            content: '✅';
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        /* Warning/Example Boxes */
+        .example-box {
+            background: linear-gradient(135deg, #fffaf0 0%, #feebc8 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid #38a169;
+        }
+        
+        /* AI Insight */
+        .ai-insight {
+            background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid var(--success);
+        }
+        
+        /* Case Study */
+        .case-study {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 6px solid var(--warning);
+        }
+        
+        /* Action Box */
+        .action-box {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+        }
+        
+        /* Lists */
+        ul, ol {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        /* Paragraphs */
+        p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: var(--dark);
+        }
+        
+        strong {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* Links */
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .back-link:hover {
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .cta-link {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .cta-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0 25px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+        }
+        
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .burger-line {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 12px 0;
+            min-width: 180px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .article-container {
+                padding: 25px;
+            }
+            
+            .article-title {
+                font-size: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .risk-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .burger-menu {
+                display: block;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .article-container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
+                    <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
+                    <a href="/mobile-app" class="nav-link">Мобильное приложение</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/faq" class="nav-link">FAQ</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="article-container">
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs">
+                <a href="/" class="breadcrumb-link">Главная</a> / 
+                <a href="/articles" class="breadcrumb-link">Статьи</a> / 
+                <span style="color: var(--gray);">Финансовые риски</span>
+            </div>
+            
+            <!-- Title -->
+            <h1>Финансовые риски в договорах: полный гид по проверке ФНС</h1>
+            
+            <div class="article-subtitle">
+                Полное руководство по проверке ФНС: от базовых принципов до сложных кейсов
+            </div>
+            
+            <div class="article-meta">
+                <span style="color: #48bb78;">•</span> Автор: Финансовый отдел DocScan AI | Обновлено: 25.11.2024 | Время чтения: 12 мин
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">87%</div>
+                    <div>договоров имеют финансовые риски</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">500К+ ₽</div>
+                    <div>средний штраф по ст. 122 НК РФ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3 года</div>
+                    <div>срок давности для проверки ФНС</div>
+                </div>
+            </div>
+
+            <!-- Principles -->
+            <h2 class="section-title">🔍 Основные принципы проверки ФНС</h2>
+            <p>Налоговая служба при проверке договоров руководствуется тремя ключевыми принципами, закрепленными в Налоговом кодексе РФ и разъяснениях Минфина:</p>
+            
+            <div class="risk-grid">
+                <div class="risk-card info">
+                    <span class="risk-icon">⚖️</span>
+                    <div class="penalty-badge info-badge">Принцип 1</div>
+                    <h3 class="subsection-title" style="margin-top: 0;">Приоритет содержания над формой</h3>
+                    <p>ФНС анализирует реальную экономическую сущность сделки, а не только ее формальное оформление.</p>
+                    <div class="checklist">
+                        <strong>Что это значит на практике:</strong>
+                        <div class="checklist-item">
+                            <div>Договор займа может быть признан инвестицией</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Агентский договор - договором купли-продажи</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Лизинг - кредитованием</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card info">
+                    <span class="risk-icon">🎯</span>
+                    <div class="penalty-badge info-badge">Принцип 2</div>
+                    <h3 class="subsection-title" style="margin-top: 0;">Добросовестность налогоплательщика</h3>
+                    <p>Налоговая оценивает разумность и обоснованность полученной налоговой выгоды.</p>
+                    <div class="checklist">
+                        <strong>Критерии добросовестности:</strong>
+                        <div class="checklist-item">
+                            <div>Реальность хозяйственных операций</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Деловая цель сделки</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Отсутствие злоупотребления правом</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-card info">
+                    <span class="risk-icon">📊</span>
+                    <div class="penalty-badge info-badge">Принцип 3</div>
+                    <h3 class="subsection-title" style="margin-top: 0;">Единство учетной политики</h3>
+                    <p>Все операции должны отражаться последовательно от периода к периоду.</p>
+                    <div class="checklist">
+                        <strong>Типичные нарушения:</strong>
+                        <div class="checklist-item">
+                            <div>Изменение методов учета в середине года</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Несогласованность бухгалтерского и налогового учета</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Отсутствие документооборота</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Risks -->
+            <h2 class="section-title">🚨 Критические финансовые риски</h2>
+            
+            <div class="risk-grid">
+                <div class="risk-card critical">
+                    <span class="risk-icon">🔍</span>
+                    <div class="penalty-badge">Штраф до 500,000 ₽</div>
+                    <h3 class="subsection-title" style="margin-top: 0;">Необоснованная налоговая выгода</h3>
+                    <p>Сделки с контрагентами-однодневками или искусственное занижение налоговой базы.</p>
+                    
+                    <div class="checklist">
+                        <strong>Что проверяет ФНС:</strong>
+                        <div class="checklist-item">
+                            <div>Деловая репутация контрагента</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Реальность хозяйственных операций</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Соответствие цен рыночным</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Наличие экономического смысла</div>
+                        </div>
+                    </div>
+
+                    <div class="example-box">
+                        <strong>📌 Реальный кейс:</strong><br>
+                        Компания "Альфа" заключила договор на IT-услуги с фирмой, зарегистрированной за 1 день до сделки. ФНС признала вычет НДС необоснованным - доначисление 2,3 млн рублей.
+                    </div>
+                </div>
+
+                <div class="risk-card warning">
+                    <span class="risk-icon">⚖️</span>
+                    <div class="penalty-badge warning-badge">Доначисление налогов</div>
+                    <h3 class="subsection-title" style="margin-top: 0;">Трансфертное ценообразование</h3>
+                    <p>Сделки между взаимозависимыми лицами по нерыночным ценам.</p>
+                    
+                    <div class="checklist">
+                        <strong>Критические моменты:</strong>
+                        <div class="checklist-item">
+                            <div>Сделки с офшорными компаниями</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Цены значительно отличаются от рыночных</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Отсутствие документального обоснования цен</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Сделки с родственными структурами</div>
+                        </div>
+                    </div>
+
+                    <div class="ai-insight">
+                        <strong>🤖 DocScan AI анализирует:</strong><br>
+                        Соответствие цен рыночным показателям по отраслевым базам данных и выявляет признаки трансфертного ценообразования.
+                    </div>
+                </div>
+
+                <div class="risk-card critical">
+                    <span class="risk-icon">📝</span>
+                    <div class="penalty-badge">Отказ в вычетах НДС</div>
+                    <h3 class="subsection-title" style="margin-top: 0;">Неправильное оформление первички</h3>
+                    <p>Отсутствие обязательных реквизитов в счетах-фактурах и УПД.</p>
+                    
+                    <div class="example-box">
+                        <strong>❌ Опасные ошибки:</strong><br>
+                        • Отсутствие ИНН/КПП контрагента<br>
+                        • Неправильные реквизиты банковского счета<br>
+                        • Отсутствие подписей уполномоченных лиц<br>
+                        • Несоответствие дат в разных документах
+                    </div>
+
+                    <div class="success-box">
+                        <strong>✅ Как правильно:</strong><br>
+                        Всегда проверяйте комплектность документов: договор → счет → УПД/акт → счет-фактура → платежное поручение.
+                    </div>
+                </div>
+
+                <div class="risk-card info">
+                    <span class="risk-icon">🕒</span>
+                    <div class="penalty-badge info-badge">Проценты и пени</div>
+                    <h3 class="subsection-title" style="margin-top: 0;">Нарушение сроков исполнения</h3>
+                    <p>Несоответствие фактических и договорных сроков оплаты, поставок.</p>
+                    
+                    <div class="checklist">
+                        <strong>Риски:</strong>
+                        <div class="checklist-item">
+                            <div>Предоплата без поставки более 30 дней</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Оплата до подписания актов</div>
+                        </div>
+                        <div class="checklist-item">
+                            <div>Нарушение графика платежей</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Risks -->
+            <h2 class="section-title">📊 Дополнительные риски и нюансы</h2>
+
+            <h3 class="subsection-title">💱 Валютные операции и контракты</h3>
+            <div class="risk-card warning">
+                <span class="risk-icon">💱</span>
+                <div class="penalty-badge warning-badge">Штрафы ЦБ и ФНС</div>
+                <h3 class="subsection-title" style="margin-top: 0;">Нарушения валютного законодательства</h3>
+                <p>Несоблюдение сроков репатриации валютной выручки и оформления паспортов сделок.</p>
+                
+                <div class="checklist">
+                    <strong>Ключевые требования:</strong>
+                    <div class="checklist-item">
+                        <div>Репатриация валюты в течение 180 дней</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Оформление паспорта сделки для контрактов от 3 млн рублей</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Своевременное зачисление на счета в уполномоченных банках</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title" style="margin-top: 30px;">👥 Работы с физическими лицами</h3>
+            <div class="risk-card critical">
+                <span class="risk-icon">👥</span>
+                <div class="penalty-badge">НДФЛ и взносы</div>
+                <h3 class="subsection-title" style="margin-top: 0;">Неуплата налогов с выплат физлицам</h3>
+                <p>Ошибки в договорах ГПХ, которые переквалифицируются в трудовые.</p>
+                
+                <div class="example-box">
+                    <strong>📌 Признаки трудовых отношений в ГПХ:</strong><br>
+                    • Постоянный характер работы<br>
+                    • Подчинение правилам внутреннего распорядка<br>
+                    • Гарантированная оплата труда<br>
+                    • Предоставление оборудования работодателем
+                </div>
+            </div>
+
+            <!-- Practical Recommendations -->
+            <h2 class="section-title">🛡️ Практические рекомендации</h2>
+
+            <div class="case-study">
+                <h3 class="subsection-title" style="margin-top: 0;">Чек-лист проверки договора перед подписанием</h3>
+                <div class="checklist">
+                    <strong>Обязательные пункты для проверки:</strong>
+                    <div class="checklist-item">
+                        <div>Проверка контрагента (ИНН, ОГРН, признаки массовости)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Соответствие цен рыночным (анализ по 3-5 аналогичным сделкам)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Наличие экономического обоснования сделки</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Корректность всех реквизитов и подписей</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Соответствие сроков исполнения реальным возможностям</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Наличие всех необходимых приложений и спецификаций</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3 class="subsection-title" style="margin-top: 0;">💡 Проактивная защита от претензий ФНС</h3>
+                <p><strong>Документируйте все!</strong> Создавайте внутренние регламенты по проверке контрагентов, сохраняйте переписку, фиксируйте экономическое обоснование цен. В случае проверки это станет вашим главным аргументом.</p>
+                
+                <div class="checklist">
+                    <strong>Документы для защиты:</strong>
+                    <div class="checklist-item">
+                        <div>Анализ цен по отрасли</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Выписки из ЕГРЮЛ контрагентов</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Внутренние приказы об одобрении сделки</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div>Коммерческие предложения от 3+ поставщиков</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Box -->
+            <div class="action-box">
+                <h3 style="color: white; margin-top: 0;">🚀 Проверьте договоры до визита ФНС!</h3>
+                <p style="margin-bottom: 20px; opacity: 0.9;">Наш ИИ проанализирует ваши договоры на все виды финансовых рисков и подготовит подробный отчет для защиты в налоговой</p>
+                <a href="/" class="cta-link" style="background: white; color: var(--primary);">
+                    🔍 Проверить финансовые риски бесплатно
+                </a>
+                <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">Первые 3 документа — в подарок для новых пользователей</p>
+            </div>
+
+<div style="text-align: center; margin-top: 40px;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 30px;">
+        <div style="display: flex; gap: 40px; flex-wrap: wrap; justify-content: center;">
+            <a href="/articles" class="back-link" style="margin: 0;">
+                📚 Все статьи для бизнеса
+            </a>
+            <a href="/" class="cta-link">
+                🎯 Проверить налоговые риски
+            </a>
+        </div>
+        <p style="color: var(--gray); font-size: 0.9rem;">
+            Бесплатная проверка договоров на финансовые риски за 60 секунд
+        </p>
+    </div>
+</div>
+        
+        <!-- Похожие статьи -->
+        <div style="margin-top: 50px; padding-top: 40px; border-top: 2px solid var(--border);">
+            <h2 style="color: var(--dark); font-size: 1.8rem; margin-bottom: 30px; text-align: center;">📚 Похожие статьи</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px;">
+                <a href="/articles/labor" style="text-decoration: none; color: inherit;">
+                    <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; border-left: 4px solid var(--primary);">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">⚖️</div>
+                        <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 1.2rem;">Топ-5 ошибок в трудовых договорах</h3>
+                        <p style="color: var(--gray); font-size: 0.95rem;">Критические ошибки, которые приводят к штрафам</p>
+                    </div>
+                </a>
+                <a href="/articles/business-protection" style="text-decoration: none; color: inherit;">
+                    <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; border-left: 4px solid var(--primary);">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🛡️</div>
+                        <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 1.2rem;">Защита бизнеса</h3>
+                        <p style="color: var(--gray); font-size: 0.95rem;">5 смертельных ошибок в договорах</p>
+                    </div>
+                </a>
+                <a href="/articles/rent" style="text-decoration: none; color: inherit;">
+                    <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; border-left: 4px solid var(--primary);">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🏠</div>
+                        <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 1.2rem;">Проверка договора аренды</h3>
+                        <p style="color: var(--gray); font-size: 0.95rem;">7 главных пунктов для проверки</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/contact">📞 Контакты</a>
+            <a href="/calculator-penalty">🧮 Калькулятор неустойки</a>
+            <a href="/mobile-app">📱 Приложение</a>
+            <a href="/faq">❓FAQ</a>
+                        <div id="mobileAuthButtons">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="max-width: 300px; color: rgba(255,255,255,0.95); margin-bottom: 15px;">
+                        Автоматическая проверка документов и договоров с искусственным интеллектом.
+                     </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Burger menu toggle
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+    
+    <!-- Yandex.Metrika -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+        ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
+    </script>
+    
+    <script>
+    // Проверяем авторизацию при загрузке
+    async function checkAuth() {
+        console.log('🔍 [checkAuth] Функция вызвана');
+        try {
+            console.log('🔍 [checkAuth] Отправляю запрос к /api/check-auth');
+            const response = await fetch('/api/check-auth', {
+                credentials: 'include',
+                cache: 'no-cache'
+            });
+            
+            console.log('🔍 [checkAuth] Ответ получен:', response.status, response.statusText);
+            
+            if (!response.ok) {
+                console.error('❌ [checkAuth] Ошибка ответа:', response.status);
+                return;
+            }
+            
+            const data = await response.json();
+            console.log('🔍 [checkAuth] Данные ответа:', data);
+            
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const mobileAuth = document.getElementById('mobileAuthButtons');
+            const mobileUser = document.getElementById('mobileUserMenu');
+            
+            console.log('🔍 [checkAuth] Найдены элементы:', {
+                authButtons: !!authButtons,
+                userMenu: !!userMenu,
+                mobileAuth: !!mobileAuth,
+                mobileUser: !!mobileUser
+            });
+            
+            if (data.authenticated) {
+                console.log('✅ [checkAuth] Пользователь авторизован:', data.email);
+                if (authButtons) {
+                    authButtons.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                    console.log('✅ [checkAuth] authButtons скрыты, display:', authButtons.style.display);
+                }
+                if (userMenu) {
+                    userMenu.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    console.log('✅ [checkAuth] userMenu показан, display:', userMenu.style.display, 'computed:', window.getComputedStyle(userMenu).display);
+                }
+                if (mobileAuth) {
+                    mobileAuth.setAttribute('style', 'display: none !important;');
+                }
+                if (mobileUser) {
+                    mobileUser.setAttribute('style', 'display: block !important;');
+                }
+            } else {
+                console.log('❌ [checkAuth] Пользователь НЕ авторизован');
+                if (authButtons) {
+                    authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                }
+                if (userMenu) {
+                    userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                }
+                if (mobileAuth) {
+                    mobileAuth.setAttribute('style', 'display: block !important;');
+                }
+                if (mobileUser) {
+                    mobileUser.setAttribute('style', 'display: none !important;');
+                }
+            }
+        } catch (error) {
+            console.error('❌ [checkAuth] Ошибка:', error);
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const mobileAuth = document.getElementById('mobileAuthButtons');
+            const mobileUser = document.getElementById('mobileUserMenu');
+            if (authButtons) authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+            if (userMenu) userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+            if (mobileAuth) mobileAuth.setAttribute('style', 'display: block !important;');
+            if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
+        }
+    }
+    
+    // Вызываем при загрузке и после небольшой задержки для надежности
+    console.log('🔍 [checkAuth] Скрипт загружен, ждем DOMContentLoaded');
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔍 [checkAuth] DOMContentLoaded - вызываю checkAuth');
+        checkAuth();
+        setTimeout(function() {
+            console.log('🔍 [checkAuth] Повторная проверка через 500ms');
+            checkAuth();
+        }, 500);
+    });
+    
+    if (document.readyState === 'loading') {
+        console.log('🔍 [checkAuth] DOM еще загружается');
+    } else {
+        console.log('🔍 [checkAuth] DOM уже загружен, вызываю checkAuth немедленно');
+        checkAuth();
+        setTimeout(checkAuth, 500);
+    }
+    </script>
+    
+    <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    [
+        {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": "Финансовые риски в договорах: полный гид по проверке ФНС",
+            "description": "Финансовые риски в договорах: что проверяет ФНС. Проверка договоров на налоговые риски за 60 секунд. Избегайте штрафов - проверьте договор сейчас!",
+            "image": "https://docscan-ai.ru/static/og-tax.jpg",
+            "author": {
+                "@type": "Organization",
+                "name": "DocScan AI",
+                "url": "https://docscan-ai.ru"
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "DocScan AI",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://docscan-ai.ru/static/favicon.ico"
+                }
+            },
+            "datePublished": "2024-11-25",
+            "dateModified": "2024-11-25",
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "https://docscan-ai.ru/articles/tax"
+            },
+            "articleSection": "Финансы",
+            "keywords": "финансовые риски договоры, проверка ФНС, налоговые риски, бухгалтерские документы",
+            "inLanguage": "ru-RU"
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Главная",
+                    "item": "https://docscan-ai.ru"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Статьи",
+                    "item": "https://docscan-ai.ru/articles"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "Финансовые риски в договорах",
+                    "item": "https://docscan-ai.ru/articles/tax"
+                }
+            ]
+        }
+    ]
+    </script>
+</body>
+</html>

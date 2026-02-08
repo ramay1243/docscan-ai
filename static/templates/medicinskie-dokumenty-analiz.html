@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анализ медицинских документов: полный гайд по проверке договоров и согласий | DocScan AI</title>
+    
+    <link rel="canonical" href="https://docscan-ai.ru/medicinskie-dokumenty-analiz">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Анализ медицинских документов: проверка договоров и согласий. Бесплатный анализ нейросетью за 60 секунд. Проверьте медицинский договор сейчас!">
+    <meta name="keywords" content="анализ медицинских документов, медицинские договоры проверка, информированные согласия анализ, проверка медицинских рецептов, нейросеть для документов, ИИ анализ договоров, бесплатный анализ онлайн">
+    <meta name="author" content="DocScan AI">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Анализ медицинских документов: полный гайд по проверке договоров и согласий">
+    <meta property="og:description" content="Как правильно проверять медицинские документы. Анализ договоров, согласий и рецептов нейросетью онлайн.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://docscan-ai.ru/articles/medicinskie-dokumenty-analiz">
+    <meta property="og:image" content="https://docscan-ai.ru/static/og-medical.jpg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Анализ медицинских документов: полный гайд">
+    <meta name="twitter:description" content="Как проверять медицинские договоры и согласия нейросетью онлайн.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-size: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+                .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.85rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Article Container */
+        .article-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin: 30px 0 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .article-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        /* Breadcrumbs */
+        .breadcrumbs {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 25px;
+        }
+        
+        .breadcrumb-link {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Article Title */
+        .article-title {
+            color: var(--dark);
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        .article-subtitle {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+        
+        /* Step Container */
+        .step-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 20px;
+            align-items: start;
+            margin: 25px 0;
+            padding: 25px;
+            background: var(--light);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .step-content h3 {
+            margin-top: 0;
+            color: var(--dark);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        /* Box Styles */
+        .tip-box {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid #38a169;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid var(--danger);
+        }
+        
+        /* Section Titles */
+        .section-title {
+            color: var(--dark);
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+            margin-top: 40px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        /* File Types */
+        .file-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 15px 0;
+        }
+        
+        .file-type {
+            background: var(--light);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+        }
+        
+        .file-type.premium {
+            background: #fed7d7;
+            color: #c53030;
+            border-color: #fed7d7;
+        }
+        
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .feature-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        /* Screenshot Placeholder */
+        .screenshot {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .screenshot-placeholder {
+            background: var(--light);
+            padding: 40px;
+            border-radius: 12px;
+            border: 2px dashed var(--border);
+            text-align: center;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: var(--dark);
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        /* Lists */
+        ul {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        /* Paragraphs */
+        p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: var(--dark);
+        }
+        
+        strong {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* Links */
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .back-link:hover {
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .cta-link {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .cta-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0 25px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+        }
+        
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .burger-line {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 12px 0;
+            min-width: 180px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .article-container {
+                padding: 25px;
+            }
+            
+            .article-title {
+                font-size: 1.5rem;
+            }
+            
+            .step-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .step-number {
+                margin: 0 auto;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .burger-menu {
+                display: block;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .article-container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            .file-types {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
+                    <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
+                    <a href="/mobile-app" class="nav-link">Мобильное приложение</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/faq" class="nav-link">FAQ</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="article-container">
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs">
+                <a href="/" class="breadcrumb-link">Главная</a> / 
+                <a href="/articles" class="breadcrumb-link">Статьи</a> / 
+                <span style="color: var(--gray);">Медицинские документы</span>
+            </div>
+            
+            <!-- Title -->
+            <h1>Анализ медицинских документов: полный гайд по проверке договоров и согласий</h1>
+            <p class="article-subtitle">Как правильно анализировать медицинские договоры, информированные согласия и рецепты с помощью нейросети</p>
+            
+            <!-- Introduction -->
+            <p>Медицинские документы — особая категория бумаг, где каждая ошибка может стоить здоровья и денег. В этой статье мы разберем, как правильно анализировать медицинские договоры, информированные согласия и другие документы с помощью современных технологий.</p>
+            
+            <!-- Step 1 -->
+            <div class="step-container">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>📋 Основные виды медицинских документов</h3>
+                    <p>Медицинская документация делится на несколько категорий, каждая из которых требует особого подхода к анализу:</p>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Договоры на услуги</h4>
+                            <p>Договоры на оказание платных медицинских услуг, стоматологические услуги, косметологические процедуры</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Информированные согласия</h4>
+                            <p>Добровольные согласия на медицинское вмешательство, операции, анестезию, применение лекарств</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Рецепты и назначения</h4>
+                            <p>Врачебные назначения, рецептурные бланки, схемы лечения</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Мед. карты и выписки</h4>
+                            <p>Истории болезни, выписки из стационара, результаты обследований</p>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>💡 Важно:</strong> При анализе медицинских документов нейросеть DocScan AI проверяет:
+                        <ul>
+                            <li>Соответствие требованиям 323-ФЗ «Об основах охраны здоровья»</li>
+                            <li>Наличие обязательных реквизитов</li>
+                            <li>Правильность формулировок</li>
+                            <li>Отсутствие скрытых условий</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="step-container">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>⚖️ Проверка договоров на оказание медицинских услуг</h3>
+                    <p>Договоры на платные медицинские услуги — один из самых частых источников конфликтов. Вот на что обращает внимание нейросеть при анализе:</p>
+                    
+                    <div class="warning-box">
+                        <strong>🚨 Критические ошибки в договорах:</strong>
+                        <ul>
+                            <li><strong>Отсутствие конкретики:</strong> «лечение по усмотрению врача» без четкого плана</li>
+                            <li><strong>Скрытые платежи:</strong> дополнительные услуги, не указанные в стоимости</li>
+                            <li><strong>Недобросовестные гарантии:</strong> обещания 100% результата</li>
+                            <li><strong>Неправомерные отказы:</strong> условия, ограничивающие права пациента</li>
+                        </ul>
+                    </div>
+
+                    <div class="file-types">
+                        <div class="file-type">📄 Договор на лечение</div>
+                        <div class="file-type">🦷 Стоматологический договор</div>
+                        <div class="file-type">💉 Договор на операции</div>
+                        <div class="file-type">🧪 Диагностические услуги</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="step-container">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>📝 Анализ информированных согласий</h3>
+                    <p>Информированное добровольное согласие — ключевой документ в медицинской практике. Нейросеть проверяет:</p>
+                    
+                    <div class="tip-box">
+                        <strong>✅ Обязательные элементы согласия:</strong>
+                        <ul>
+                            <li>Полное имя пациента и врача</li>
+                            <li>Конкретное описание медицинского вмешательства</li>
+                            <li>Цели, методы, продолжительность лечения</li>
+                            <li>Предполагаемые результаты</li>
+                            <li>Риски и возможные осложнения</li>
+                            <li>Альтернативные методы лечения</li>
+                            <li>Последствия отказа от вмешательства</li>
+                            <li>Дата, подпись пациента</li>
+                        </ul>
+                    </div>
+
+                    <div class="screenshot">
+                        <div class="screenshot-placeholder">
+                            <div style="font-size: 3rem;">📋</div>
+                            <p><strong>Пример информированного согласия</strong></p>
+                            <p style="color: var(--gray);">Нейросеть проверяет полноту и правильность заполнения</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="step-container">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>💊 Проверка рецептов и медицинских назначений</h3>
+                    <p>Рецептурные бланки и врачебные назначения требуют особой точности. Нейросеть анализирует:</p>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Правильность дозировок</h4>
+                            <p>Проверка соответствия стандартам лечения и возрастным нормам</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Сочетаемость препаратов</h4>
+                            <p>Анализ возможных лекарственных взаимодействий</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Сроки и режим приема</h4>
+                            <p>Проверка правильности указания сроков лечения</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Реквизиты врача</h4>
+                            <p>Наличие всех необходимых подписей и печатей</p>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Частые ошибки в рецептах:</strong>
+                        <ul>
+                            <li>Неразборчивый почерк врача</li>
+                            <li>Отсутствие печати медицинской организации</li>
+                            <li>Неправильные сокращения</li>
+                            <li>Нет указания на особые условия хранения</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 5 -->
+            <div class="step-container">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3>🤖 Как нейросеть DocScan AI анализирует медицинские документы</h3>
+                    <p>Наш ИИ использует специально обученные модели для работы с медицинской документацией:</p>
+
+                    <div class="feature-grid">
+                        <div class="feature-card" style="border-left: 4px solid var(--primary);">
+                            <h4>Медицинский NLP</h4>
+                            <p>Модель, обученная на тысячах медицинских документов</p>
+                        </div>
+                        <div class="feature-card" style="border-left: 4px solid #38a169;">
+                            <h4>База нормативов</h4>
+                            <p>323-ФЗ, Приказы Минздрава, клинические рекомендации</p>
+                        </div>
+                        <div class="feature-card" style="border-left: 4px solid #dd6b20;">
+                            <h4>Проверка рисков</h4>
+                            <p>Выявление потенциально опасных формулировок</p>
+                        </div>
+                        <div class="feature-card" style="border-left: 4px solid var(--secondary);">
+                            <h4>Юридический анализ</h4>
+                            <p>Соответствие гражданскому законодательству</p>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <strong>🎯 Пример анализа медицинского договора:</strong>
+                        <ul>
+                            <li><strong>Тип документа:</strong> Договор на платные медицинские услуги</li>
+                            <li><strong>Уровень риска:</strong> ВЫСОКИЙ</li>
+                            <li><strong>Проблема:</strong> Отсутствует конкретный перечень услуг</li>
+                            <li><strong>Нарушение:</strong> Ст. 84 323-ФЗ о необходимости детализации услуг</li>
+                            <li><strong>Рекомендация:</strong> Добавить приложение с полным перечнем процедур</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Практические советы -->
+            <h2 class="section-title">💡 Практические советы по работе с медицинскими документами</h2>
+            
+            <div class="tip-box">
+                <strong>📋 Для пациентов:</strong>
+                <ul>
+                    <li>Всегда требуйте полную версию договора до подписания</li>
+                    <li>Проверяйте информированные согласия на наличие всех пунктов</li>
+                    <li>Сохраняйте копии всех медицинских документов</li>
+                    <li>Используйте нейросеть для предварительной проверки</li>
+                </ul>
+            </div>
+
+            <div class="tip-box">
+                <strong>⚕️ Для медицинских работников:</strong>
+                <ul>
+                    <li>Используйте утвержденные формы документов</li>
+                    <li>Проверяйте договоры на соответствие 323-ФЗ</li>
+                    <li>Обеспечьте понятное информирование пациентов</li>
+                    <li>Регулярно обновляйте шаблоны документов</li>
+                </ul>
+            </div>
+            
+            <!-- Как начать анализ -->
+            <h2 class="section-title">🚀 Как начать анализ медицинских документов</h2>
+            
+            <div class="step-container" style="background: linear-gradient(135deg, #f0f4ff 0%, #e6f7ff 100%);">
+                <div class="step-number">🎯</div>
+                <div class="step-content">
+                    <h3>Бесплатный анализ медицинских документов</h3>
+                    <p>Проверьте свои медицинские документы с помощью нейросети DocScan AI:</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="background: #38a169; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">1</div>
+                            <span>Загрузите документ в формате PDF, DOCX или изображение</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="background: #3182ce; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">2</div>
+                            <span>Нейросеть проанализирует документ за 60 секунд</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="background: #805ad5; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">3</div>
+                            <span>Получите детальный отчет с рекомендациями</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- FAQ -->
+            <h2 class="section-title">❓ Частые вопросы о медицинских документах</h2>
+            
+            <div class="tip-box">
+                <strong>🤔 Может ли нейросеть заменить медицинского юриста?</strong>
+                <p>Нейросеть отлично справляется с типовыми проверками и выявлением очевидных нарушений, но для сложных случаев и судебных споров рекомендуется консультация специалиста.</p>
+            </div>
+
+            <div class="tip-box">
+                <strong>🔒 Конфиденциальны ли медицинские данные?</strong>
+                <p>Да! Все документы обрабатываются анонимно, не сохраняются на серверах и удаляются сразу после анализа. Мы соблюдаем требования 152-ФЗ о персональных данных.</p>
+            </div>
+
+            <div class="tip-box">
+                <strong>⚖️ Какие законы регулируют медицинские документы?</strong>
+                <p>Основные нормативные акты: 323-ФЗ «Об основах охраны здоровья», Гражданский кодекс, Приказы Минздрава, ФЗ «О защите прав потребителей».</p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div style="text-align: center; margin-top: 40px;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 30px;">
+                    <div style="display: flex; gap: 40px; flex-wrap: wrap; justify-content: center;">
+                        <a href="/articles" class="back-link" style="margin: 0;">
+                            ← Назад к статьям
+                        </a>
+                        <a href="/" class="cta-link">
+                            🏥 Проверить медицинский документ
+                        </a>
+                    </div>
+                    <p style="color: var(--gray); font-size: 0.9rem;">
+                        Бесплатный анализ медицинских договоров и согласий нейросетью за 60 секунд
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/contact">📞 Контакты</a>
+            <a href="/calculator-penalty">🧮 Калькулятор неустойки</a>
+            <a href="/mobile-app">📱 Приложение</a>
+            <a href="/faq">❓FAQ</a>
+                        <div id="mobileAuthButtons">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.9; max-width: 300px; color: rgba(255,255,255,0.9);">
+                        Автоматическая проверка документов и договоров с искусственным интеллектом.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                         <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Burger menu toggle
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+    
+    <script>
+        console.log('🔍 [checkAuth] Скрипт загружен, ждем DOMContentLoaded');
+        // Проверяем авторизацию при загрузке
+        async function checkAuth() {
+            console.log('🔍 [checkAuth] Функция вызвана');
+            try {
+                console.log('🔍 [checkAuth] Отправляю запрос к /api/check-auth');
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include',
+                    cache: 'no-cache'
+                });
+                
+                console.log('🔍 [checkAuth] Ответ получен:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    console.error('❌ [checkAuth] Ошибка ответа:', response.status);
+                    return;
+                }
+                
+                const data = await response.json();
+                console.log('🔍 [checkAuth] Данные ответа:', data);
+                
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
+                
+                console.log('🔍 [checkAuth] Найдены элементы:', {
+                    authButtons: !!authButtons,
+                    userMenu: !!userMenu,
+                    mobileAuth: !!mobileAuth,
+                    mobileUser: !!mobileUser
+                });
+                
+                if (data.authenticated) {
+                    console.log('✅ [checkAuth] Пользователь авторизован:', data.email);
+                    if (authButtons) {
+                        authButtons.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                        console.log('✅ [checkAuth] authButtons скрыты');
+                    }
+                    if (userMenu) {
+                        userMenu.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                        console.log('✅ [checkAuth] userMenu показан, computed:', window.getComputedStyle(userMenu).display);
+                    }
+                    if (mobileAuth) mobileAuth.setAttribute('style', 'display: none !important;');
+                    if (mobileUser) mobileUser.setAttribute('style', 'display: block !important;');
+                } else {
+                    console.log('❌ [checkAuth] Пользователь НЕ авторизован');
+                    if (authButtons) authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                    if (userMenu) userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                    if (mobileAuth) mobileAuth.setAttribute('style', 'display: block !important;');
+                    if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
+                }
+            } catch (error) {
+                console.error('❌ [checkAuth] Ошибка:', error);
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
+                if (authButtons) authButtons.setAttribute('style', 'display: flex !important; gap: 10px; align-items: center;');
+                if (userMenu) userMenu.setAttribute('style', 'display: none !important; gap: 10px; align-items: center;');
+                if (mobileAuth) mobileAuth.setAttribute('style', 'display: block !important;');
+                if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
+            }
+        }
+        
+        // Вызываем при загрузке и после небольшой задержки для надежности
+        if (document.readyState === 'loading') {
+            console.log('🔍 [checkAuth] DOM еще загружается');
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('🔍 [checkAuth] DOMContentLoaded - вызываю checkAuth');
+                checkAuth();
+                console.log('🔍 [checkAuth] Повторная проверка через 500ms');
+                setTimeout(checkAuth, 500);
+            });
+        } else {
+            console.log('🔍 [checkAuth] DOM уже загружен, вызываю checkAuth немедленно');
+            checkAuth();
+            setTimeout(checkAuth, 500);
+        }
+    </script>
+    
+    
+    <!-- Yandex.Metrika -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+        ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+</body>
+</html>

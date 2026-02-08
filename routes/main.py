@@ -926,6 +926,10 @@ def home():
             }
         }
     </style>
+    
+    <!-- Yandex.RTB -->
+    <script>window.yaContextCb=window.yaContextCb||[]</script>
+    <script src="https://yandex.ru/ads/system/context.js" async></script>
 </head>
 <body>
     <!-- Header -->
@@ -991,6 +995,19 @@ def home():
             </div>
         </div>
     </section>
+    
+    <!-- Yandex.RTB R-A-18680294-1 -->
+    <div style="text-align: center; margin: 30px auto; max-width: 1200px; padding: 0 20px;">
+        <div id="yandex_rtb_R-A-18680294-1"></div>
+        <script>
+        window.yaContextCb.push(() => {
+            Ya.Context.AdvManager.render({
+                "blockId": "R-A-18680294-1",
+                "renderTo": "yandex_rtb_R-A-18680294-1"
+            })
+        })
+        </script>
+    </div>
     
     <!-- Интерактивный демо-анализ -->
     <section class="container">

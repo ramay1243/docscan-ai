@@ -4,21 +4,113 @@ from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+from reportlab.pdfbase.ttfonts import TTFont
 from io import BytesIO
 from datetime import datetime
 import logging
+import os
+import platform
 
 logger = logging.getLogger(__name__)
 
-# Используем стандартные шрифты Times-Roman, которые лучше поддерживают кириллицу
-# Paragraph автоматически обрабатывает Unicode символы
-FONT_NAME = 'Times-Roman'
-FONT_BOLD = 'Times-Bold'
-logger.info("✅ Используются стандартные шрифты Times-Roman для PDF")
+# Регистрируем шрифты с поддержкой кириллицы
+# Пробуем использовать TTF шрифты из системы, которые точно поддерживают кириллицу
+FONT_NAME = None
+FONT_BOLD = None
+
+def register_fonts():
+    """Регистрирует шрифты с поддержкой кириллицы"""
+    global FONT_NAME, FONT_BOLD
+    
+    # Список возможных путей к шрифтам с поддержкой кириллицы
+    font_paths = {
+        'Windows': [
+            'C:/Windows/Fonts/arial.ttf',
+            'C:/Windows/Fonts/arialbd.ttf',
+            'C:/Windows/Fonts/times.ttf',
+            'C:/Windows/Fonts/timesbd.ttf',
+            'C:/Windows/Fonts/calibri.ttf',
+            'C:/Windows/Fonts/calibrib.ttf',
+        ],
+        'Linux': [
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+            '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
+            '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+            '/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf',
+            '/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf',
+        ],
+        'Darwin': [  # macOS
+            '/System/Library/Fonts/Helvetica.ttc',
+            '/Library/Fonts/Arial.ttf',
+            '/Library/Fonts/Arial Bold.ttf',
+        ]
+    }
+    
+    system = platform.system()
+    paths = font_paths.get(system, font_paths['Linux'])
+    
+    # Пробуем найти и зарегистрировать TTF шрифты
+    regular_font = None
+    bold_font = None
+    
+    for path in paths:
+        if os.path.exists(path):
+            try:
+                if 'bold' in path.lower() or 'bd' in path.lower() or 'Bold' in path:
+                    if bold_font is None:
+                        pdfmetrics.registerFont(TTFont('CyrillicBold', path))
+                        bold_font = 'CyrillicBold'
+                        logger.info(f"✅ Зарегистрирован жирный шрифт: {path}")
+                else:
+                    if regular_font is None:
+                        pdfmetrics.registerFont(TTFont('CyrillicRegular', path))
+                        regular_font = 'CyrillicRegular'
+                        logger.info(f"✅ Зарегистрирован обычный шрифт: {path}")
+                
+                if regular_font and bold_font:
+                    break
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось зарегистрировать шрифт {path}: {e}")
+                continue
+    
+    # Если нашли оба шрифта - используем их
+    if regular_font and bold_font:
+        FONT_NAME = regular_font
+        FONT_BOLD = bold_font
+        logger.info("✅ TTF шрифты с поддержкой кириллицы успешно зарегистрированы")
+        return True
+    
+    # Если не нашли TTF шрифты - пробуем UnicodeCIDFont (японские шрифты)
+    try:
+        pdfmetrics.registerFont(UnicodeCIDFont('HeiseiMin-W3'))
+        pdfmetrics.registerFont(UnicodeCIDFont('HeiseiKakuGo-W5'))
+        FONT_NAME = 'HeiseiMin-W3'
+        FONT_BOLD = 'HeiseiKakuGo-W5'
+        logger.warning("⚠️ Используются японские Unicode шрифты (могут плохо отображать кириллицу)")
+        return True
+    except Exception as e:
+        logger.error(f"❌ Не удалось зарегистрировать Unicode шрифты: {e}")
+        FONT_NAME = 'Helvetica'
+        FONT_BOLD = 'Helvetica-Bold'
+        logger.error("❌ ВНИМАНИЕ: Используются стандартные шрифты! Кириллица будет отображаться как ■■■")
+        return False
+
+# Регистрируем шрифты при импорте модуля
+register_fonts()
 
 def generate_analysis_pdf(analysis_data, filename="document.pdf"):
     """Генерирует PDF файл с результатами анализа"""
     try:
+        # Проверяем, что шрифты зарегистрированы
+        if FONT_NAME is None or FONT_BOLD is None:
+            logger.error("❌ Шрифты не зарегистрированы! Пробуем зарегистрировать снова...")
+            register_fonts()
+            if FONT_NAME is None or FONT_BOLD is None:
+                raise Exception("Не удалось зарегистрировать шрифты с поддержкой кириллицы!")
+        
         buffer = BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=A4,
                               rightMargin=72, leftMargin=72,

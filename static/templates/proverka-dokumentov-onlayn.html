@@ -318,16 +318,25 @@
         <div class="container">
             <div class="header-content">
                 <a href="/" class="logo">
-                    <div class="logo-icon">📄</div>
-                    <span>DocScan AI</span>
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
                 </a>
                 <nav class="nav-links">
                     <a href="/" class="nav-link">Главная</a>
                     <a href="/analiz-dokumentov" class="nav-link">Анализ документов</a>
-                    <a href="/proverka-dogovorov" class="nav-link">Проверка договоров</a>
+                    <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
+                    <a href="/mobile-app" class="nav-link">Мобильное приложение</a>
                     <a href="/articles" class="nav-link">Статьи</a>
                     <a href="/faq" class="nav-link">FAQ</a>
-                    <a href="/analiz-dokumentov" class="cta-button">Проверить документ</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
                 </nav>
             </div>
         </div>
@@ -605,6 +614,35 @@
         ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true});
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    
+    <!-- Auth Check Script -->
+    <script>
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                
+                if (data.authenticated) {
+                    if (authButtons) authButtons.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'flex';
+                } else {
+                    if (authButtons) authButtons.style.display = 'flex';
+                    if (userMenu) userMenu.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+    </script>
 </body>
 </html>
 

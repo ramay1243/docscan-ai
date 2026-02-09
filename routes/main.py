@@ -2673,28 +2673,6 @@ def send_telegram():
 def favicon():
     """Отдает фавикон для браузеров и поисковых систем"""
     return send_file('static/favicon.ico', mimetype='image/x-icon')
-
-@main_bp.route('/terms')
-def terms():
-    """Страница пользовательского соглашения"""
-    RussianLogger.log_page_view("Пользовательское соглашение")
-    return render_template('terms.html')
-
-@main_bp.route('/privacy')
-def privacy():
-    """Страница политики конфиденциальности"""
-    RussianLogger.log_page_view("Политика конфиденциальности")
-    return render_template('privacy.html')
-
-@main_bp.route('/offer')
-def offer():
-    """Страница публичной оферты"""
-    RussianLogger.log_page_view("Публичная оферта")
-    return render_template('offer.html')
-
-@main_bp.route('/sitemap.xml')
-def sitemap():
-    """Sitemap для SEO с динамическими датами"""
     from datetime import datetime
     base_url = "https://docscan-ai.ru"
     today = datetime.now().strftime('%Y-%m-%d')

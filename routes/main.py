@@ -1671,13 +1671,76 @@ def home():
             }
         }
         
+        // Сохраняем данные анализа для скачивания
+        let currentAnalysisData = null;
+        
         function showResult(data) {
             const resultDiv = document.getElementById('result');
             const resultContent = document.getElementById('resultContent');
             
+            // Сохраняем данные анализа для скачивания
+            currentAnalysisData = data;
+            
             resultContent.innerHTML = createSmartAnalysisHTML(data);
             resultDiv.style.display = 'block';
             resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        async function downloadAnalysis(event) {
+            if (!currentAnalysisData) {
+                alert('Ошибка: данные анализа не найдены');
+                return;
+            }
+            
+            try {
+                // Показываем индикатор загрузки
+                const button = event ? event.target : document.querySelector('button[onclick*="downloadAnalysis"]');
+                const originalText = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '⏳ Генерация PDF...';
+                
+                // Отправляем запрос на сервер
+                const response = await fetch('/api/download-analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        analysis: currentAnalysisData.result,
+                        filename: currentAnalysisData.filename || 'document.pdf'
+                    })
+                });
+                
+                if (response.ok) {
+                    // Получаем PDF файл
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `analysis_${currentAnalysisData.filename || 'document'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    button.innerHTML = '✅ Скачано!';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    alert('Ошибка при генерации PDF: ' + (error.error || 'Неизвестная ошибка'));
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            } catch (error) {
+                console.error('Ошибка скачивания:', error);
+                alert('Ошибка соединения: ' + error.message);
+                event.target.disabled = false;
+                event.target.innerHTML = '📥 Скачать анализ в PDF';
+            }
         }
         
         function createSmartAnalysisHTML(data) {
@@ -1954,7 +2017,26 @@ def home():
                 </div>
             ` : '';
             
-            return mobileStyles + registrationPrompt + mainHeader + expertAnalysis + risksSection + recommendationsSection;
+            // Кнопка скачивания (только для зарегистрированных)
+            const downloadButton = !isGuest ? `
+                <div class="analysis-block" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); padding: 30px; border-radius: 15px; margin: 30px 0; text-align: center; box-shadow: 0 8px 30px rgba(67, 97, 238, 0.3); width: 100%; max-width: 100%;">
+                    <div style="color: white;">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">📥</div>
+                        <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.5rem; font-weight: 700;">Сохранить анализ</h3>
+                        <p style="margin: 0 0 25px 0; opacity: 0.95; font-size: 1.1rem; line-height: 1.6;">
+                            Скачайте полный отчет анализа в формате PDF для сохранения, печати или отправки юристу
+                        </p>
+                        <button onclick="downloadAnalysis(event)" style="background: white; color: var(--primary); padding: 16px 40px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                            📥 Скачать анализ в PDF
+                        </button>
+                        <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+                            ✨ PDF включает все разделы анализа, риски и рекомендации
+                        </div>
+                    </div>
+                </div>
+            ` : '';
+            
+            return mobileStyles + registrationPrompt + mainHeader + expertAnalysis + risksSection + recommendationsSection + downloadButton;
         }
         
         // FAQ Toggle

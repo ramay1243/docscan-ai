@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, send_file
 from utils.logger import RussianLogger
 import tempfile
 import os
@@ -6,8 +6,11 @@ import uuid
 import logging
 from services.file_processing import extract_text_from_file, validate_file
 from services.analysis import analyze_text
+from services.pdf_generator import generate_analysis_pdf
 from config import PLANS
 from flask_cors import cross_origin, CORS
+from io import BytesIO
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 
@@ -441,3 +444,47 @@ def calculator_click():
         import traceback
         logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/download-analysis', methods=['POST'])
+@cross_origin()
+def download_analysis():
+    """Генерирует и возвращает PDF файл с результатами анализа"""
+    from app import app
+    
+    # Проверяем авторизацию
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Требуется авторизация'}), 401
+    
+    try:
+        data = request.get_json()
+        analysis_data = data.get('analysis')
+        filename = data.get('filename', 'document.pdf')
+        
+        if not analysis_data:
+            return jsonify({'error': 'Данные анализа не предоставлены'}), 400
+        
+        # Генерируем PDF
+        pdf_content = generate_analysis_pdf(analysis_data, filename)
+        
+        # Создаем BytesIO объект для отправки
+        pdf_buffer = BytesIO(pdf_content)
+        pdf_buffer.seek(0)
+        
+        # Формируем имя файла для скачивания
+        download_filename = f"analysis_{filename.replace('.pdf', '').replace('.docx', '')}_{uuid.uuid4().hex[:8]}.pdf"
+        
+        logger.info(f"✅ PDF сгенерирован для пользователя {user_id}, файл: {filename}")
+        
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=download_filename
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка генерации PDF: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return jsonify({'error': f'Ошибка генерации PDF: {str(e)}'}), 500

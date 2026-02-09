@@ -15,9 +15,22 @@ def extract_text_from_pdf(file_path):
     try:
         with open(file_path, 'rb') as file:
             reader = PyPDF2.PdfReader(file)
-            for page in reader.pages:
-                text += page.extract_text() + "\n"
-        logger.info(f"✅ Извлечен текст из PDF: {len(text)} символов")
+            total_pages = len(reader.pages)
+            logger.info(f"📄 PDF содержит {total_pages} страниц")
+            
+            for page_num, page in enumerate(reader.pages, 1):
+                page_text = page.extract_text()
+                if page_text:
+                    text += f"\n--- Страница {page_num} ---\n"
+                    text += page_text + "\n"
+                else:
+                    logger.warning(f"⚠️ Страница {page_num} не содержит текста (возможно, это сканированное изображение)")
+            
+        logger.info(f"✅ Извлечен текст из PDF: {len(text)} символов из {total_pages} страниц")
+        
+        if len(text.strip()) < 100:
+            logger.warning("⚠️ Извлечено очень мало текста. Возможно, PDF содержит только изображения (сканированный документ)")
+            
     except Exception as e:
         error_msg = f"Ошибка чтения PDF: {str(e)}"
         logger.error(f"❌ {error_msg}")

@@ -38,51 +38,60 @@ def analyze_with_yandexgpt(text, document_type='general'):
         doc_config = SMART_ANALYSIS_CONFIG[document_type]
         
         # Умный промпт для комплексного анализа
-        system_prompt = f"""Ты - ведущий юридический эксперт с многолетним опытом. Проведи комплексный анализ документа и предоставь развернутую экспертизу:
+        system_prompt = f"""Ты - ведущий юридический эксперт с многолетним опытом. Проведи комплексный анализ документа и предоставь развернутую экспертизу.
+
+ВАЖНО: Для договоров займа/кредита обязательно анализируй процентную ставку. Ставка выше 30% годовых - это HIGH риск, выше 40% - CRITICAL риск.
 
 ЭКСПЕРТНАЯ ОЦЕНКА ДОКУМЕНТА:
 
 1. ЮРИДИЧЕСКАЯ ЭКСПЕРТИЗА:
+Дай развернутую оценку (минимум 2-3 предложения):
 - Соответствие законодательству РФ
 - Полнота существенных условий
 - Ясность формулировок
 - Сбалансированность прав сторон
 
 2. ФИНАНСОВЫЙ АНАЛИЗ:
+Дай развернутую оценку (минимум 2-3 предложения):
 - Прозрачность финансовых условий
 - Справедливость расчетов
 - Риски финансовых потерь
+- ОБЯЗАТЕЛЬНО укажи процентную ставку и оцени её справедливость
 
 3. ОПЕРАЦИОННЫЕ РИСКИ:
+Дай развернутую оценку (минимум 2-3 предложения):
 - Реализуемость условий на практике
 - Возможности для злоупотреблений
 
 4. СТРАТЕГИЧЕСКАЯ ОЦЕНКА:
+Дай развернутую оценку (минимум 2-3 предложения):
 - Соответствие бизнес-целям
 - Гибкость при изменении обстоятельств
 
 Требования к ответу:
-- Будь конкретен и ссылайся на конкретные пункты
-- Оценивай риски по степени критичности
+- Будь конкретен и ссылайся на конкретные пункты договора
+- ОБЯЗАТЕЛЬНО выяви ВСЕ риски, особенно финансовые
+- Для договоров займа: если процентная ставка выше 30% - это ВСЕГДА риск
 - Предлагай практические решения
 
-Формат ответа СТРОГО:
+Формат ответа СТРОГО (соблюдай точно):
 ЮРИДИЧЕСКАЯ ЭКСПЕРТИЗА:
-[оценка соответствия законодательству]
+[развернутая оценка минимум 2-3 предложения]
 
 ФИНАНСОВЫЙ АНАЛИЗ: 
-[анализ финансовых условий]
+[развернутая оценка минимум 2-3 предложения, обязательно укажи процентную ставку]
 
 ОПЕРАЦИОННЫЕ РИСКИ:
-[оценка практической реализуемости]
+[развернутая оценка минимум 2-3 предложения]
 
 СТРАТЕГИЧЕСКАЯ ОЦЕНКА:
-[соответствие целям]
+[развернутая оценка минимум 2-3 предложения]
 
 КЛЮЧЕВЫЕ РИСКИ:
-CRITICAL|Высокий риск|Описание
-HIGH|Существенный риск|Описание  
-MEDIUM|Умеренный риск|Описание
+[ОБЯЗАТЕЛЬНО укажи хотя бы 3-5 рисков в формате ниже]
+CRITICAL|Название риска|Детальное описание риска
+HIGH|Название риска|Детальное описание риска
+MEDIUM|Название риска|Детальное описание риска
 
 ПРАКТИЧЕСКИЕ РЕКОМЕНДАЦИИ:
 - Конкретное действие|Ожидаемый эффект|Срочность
@@ -115,10 +124,12 @@ MEDIUM|Умеренный риск|Описание
                     "role": "user",
                     "text": f"""Проведи комплексный экспертный анализ этого {doc_config['name']}:
 
-{text[:15000]}
+{text[:50000]}
 
+ВАЖНО: Проанализируй ВЕСЬ документ, включая все страницы и все условия.
 Проанализируй с позиций: {', '.join(doc_config['expert_areas'])}.
-Будь максимально конкретен и практичен в рекомендациях."""
+Будь максимально конкретен и практичен в рекомендациях.
+Обрати особое внимание на финансовые условия, процентные ставки, сроки, штрафы и неустойки."""
                 }
             ]
         }
@@ -198,27 +209,53 @@ def parse_smart_analysis(ai_response, document_type):
         if current_section:
             if current_section in ['legal_expertise', 'financial_analysis', 'operational_risks', 
                                  'strategic_assessment', 'expert_conclusion']:
-                if line and not line.startswith(('CRITICAL', 'HIGH', 'MEDIUM', 'LOW', '-', '•')):
-                    if sections[current_section]:
-                        sections[current_section] += ' ' + line
-                    else:
-                        sections[current_section] = line
+                # Пропускаем только заголовки разделов и пустые строки
+                if line and not line.startswith(('CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'КЛЮЧЕВЫЕ', 'ПРАКТИЧЕСКИЕ', 'АЛЬТЕРНАТИВНЫЕ', 'ЭКСПЕРТНОЕ')):
+                    # Пропускаем строки, которые являются только заголовками без текста
+                    if len(line) > 10:  # Минимальная длина для содержательного текста
+                        if sections[current_section]:
+                            sections[current_section] += ' ' + line
+                        else:
+                            sections[current_section] = line
             
-            elif current_section == 'key_risks' and '|' in line:
-                parts = line.split('|')
-                if len(parts) >= 3:
-                    risk_level = parts[0].strip()
-                    risk_title = parts[1].strip()
-                    risk_description = parts[2].strip()
-                    
-                    if risk_level in RISK_LEVELS:
-                        sections['key_risks'].append({
-                            'level': risk_level,
-                            'title': risk_title,
-                            'description': risk_description,
-                            'color': RISK_LEVELS[risk_level]['color'],
-                            'icon': RISK_LEVELS[risk_level]['icon']
-                        })
+            elif current_section == 'key_risks':
+                # Пробуем разные форматы
+                if '|' in line:
+                    parts = line.split('|')
+                    if len(parts) >= 3:
+                        risk_level = parts[0].strip().upper()
+                        risk_title = parts[1].strip()
+                        risk_description = parts[2].strip()
+                        
+                        if risk_level in RISK_LEVELS:
+                            sections['key_risks'].append({
+                                'level': risk_level,
+                                'title': risk_title,
+                                'description': risk_description,
+                                'color': RISK_LEVELS[risk_level]['color'],
+                                'icon': RISK_LEVELS[risk_level]['icon']
+                            })
+                # Альтернативный формат: CRITICAL: Название - Описание
+                elif ':' in line and any(level in line.upper() for level in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']):
+                    for level in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']:
+                        if level in line.upper():
+                            parts = line.split(':', 1)
+                            if len(parts) >= 2:
+                                title_desc = parts[1].strip()
+                                if ' - ' in title_desc:
+                                    title, desc = title_desc.split(' - ', 1)
+                                else:
+                                    title = title_desc[:50]
+                                    desc = title_desc[50:] if len(title_desc) > 50 else title_desc
+                                
+                                sections['key_risks'].append({
+                                    'level': level,
+                                    'title': title.strip(),
+                                    'description': desc.strip(),
+                                    'color': RISK_LEVELS[level]['color'],
+                                    'icon': RISK_LEVELS[level]['icon']
+                                })
+                            break
             
             elif current_section == 'practical_recommendations' and '|' in line:
                 parts = line.split('|')
@@ -237,6 +274,43 @@ def parse_smart_analysis(ai_response, document_type):
                         'advantages': parts[1].strip(),
                         'disadvantages': parts[2].strip()
                     })
+    
+    # Если для договора займа не найдено рисков, но есть процентная ставка - добавляем автоматически
+    if document_type == 'loan' and len(sections['key_risks']) == 0:
+        # Ищем процентную ставку в тексте
+        import re
+        rate_patterns = [
+            r'(\d+[.,]\d+)\s*%?\s*процентов?\s*годовых',
+            r'процентная\s*ставка[:\s]+(\d+[.,]\d+)',
+            r'(\d+[.,]\d+)\s*%?\s*годовых',
+            r'ПСК[:\s]+(\d+[.,]\d+)',
+            r'полная\s*стоимость[:\s]+(\d+[.,]\d+)'
+        ]
+        
+        for pattern in rate_patterns:
+            matches = re.findall(pattern, ai_response, re.IGNORECASE)
+            if matches:
+                try:
+                    rate = float(matches[0].replace(',', '.'))
+                    if rate >= 40:
+                        sections['key_risks'].append({
+                            'level': 'CRITICAL',
+                            'title': f'Критически высокая процентная ставка {rate}% годовых',
+                            'description': f'Процентная ставка {rate}% годовых значительно превышает среднерыночные значения (обычно 15-25%). Это создает высокую финансовую нагрузку на заемщика и увеличивает риск невозврата.',
+                            'color': RISK_LEVELS['CRITICAL']['color'],
+                            'icon': RISK_LEVELS['CRITICAL']['icon']
+                        })
+                    elif rate >= 30:
+                        sections['key_risks'].append({
+                            'level': 'HIGH',
+                            'title': f'Высокая процентная ставка {rate}% годовых',
+                            'description': f'Процентная ставка {rate}% годовых выше среднерыночных значений. Рекомендуется сравнить с предложениями других кредиторов.',
+                            'color': RISK_LEVELS['HIGH']['color'],
+                            'icon': RISK_LEVELS['HIGH']['icon']
+                        })
+                    break
+                except ValueError:
+                    continue
     
     # Создаем итоговый результат
     return create_smart_analysis_result(sections, document_type)

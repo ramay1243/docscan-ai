@@ -4,23 +4,30 @@ from config import PLANS, SMART_ANALYSIS_CONFIG, RISK_LEVELS
 
 logger = logging.getLogger(__name__)
 
-def analyze_text(text, user_plan='free'):
+def analyze_text(text, user_plan='free', is_authenticated=False):
     """Умная функция анализа с определением типа документа"""
     
     # Определяем тип документа
     document_type = detect_document_type(text)
     doc_config = SMART_ANALYSIS_CONFIG[document_type]
     
-    logger.info(f"🔍 Анализируем документ типа: {doc_config['name']}, план пользователя: {user_plan}")
+    logger.info(f"🔍 Анализируем документ типа: {doc_config['name']}, план пользователя: {user_plan}, зарегистрирован: {is_authenticated}")
     
     # Проверяем доступ к AI по тарифу
     if PLANS[user_plan]['ai_access']:
         result = analyze_with_yandexgpt(text, document_type)
         if result['ai_used']:
+            # Если пользователь не зарегистрирован - создаем краткую версию
+            if not is_authenticated:
+                return create_guest_analysis(result)
             return result
     
     # Если AI недоступен, используем улучшенный локальный анализ
-    return create_basic_analysis(text, document_type)
+    basic_result = create_basic_analysis(text, document_type)
+    # Для незарегистрированных - создаем краткую версию
+    if not is_authenticated:
+        return create_guest_analysis(basic_result)
+    return basic_result
 
 def create_basic_analysis(text, document_type):
     """Базовый анализ для случаев когда AI недоступен"""
@@ -88,6 +95,83 @@ def parse_fallback_response(ai_response):
                     break
     
     return risks, recommendations
+
+def create_guest_analysis(full_analysis):
+    """Создает краткую версию анализа для незарегистрированных пользователей"""
+    # Берем только самые критичные риски (максимум 3)
+    key_risks = full_analysis.get('risk_analysis', {}).get('key_risks', [])
+    
+    # Убеждаемся что key_risks это список
+    if not isinstance(key_risks, list):
+        key_risks = []
+    
+    # Фильтруем только CRITICAL и HIGH риски, берем первые 3
+    critical_risks = [r for r in key_risks if isinstance(r, dict) and r.get('level') in ['CRITICAL', 'HIGH']][:3]
+    
+    # Если критичных рисков нет, берем первые 2 любых
+    if not critical_risks:
+        critical_risks = [r for r in key_risks if isinstance(r, dict)][:2]
+    
+    # Создаем краткое описание
+    risk_stats = full_analysis.get('risk_analysis', {}).get('risk_statistics', {})
+    total_risks = risk_stats.get('total', 0)
+    critical_count = risk_stats.get('CRITICAL', 0)
+    high_count = risk_stats.get('HIGH', 0)
+    
+    # Краткое описание на основе уровня риска
+    risk_level = full_analysis.get('executive_summary', {}).get('risk_level', 'MEDIUM')
+    if risk_level == 'CRITICAL':
+        brief_description = f"⚠️ Обнаружено {total_risks} рисков, из них {critical_count} критических. Документ требует серьезной доработки."
+    elif risk_level == 'HIGH':
+        brief_description = f"⚠️ Обнаружено {total_risks} рисков, из них {high_count} высоких. Рекомендуется доработка."
+    elif risk_level == 'MEDIUM':
+        brief_description = f"ℹ️ Обнаружено {total_risks} рисков среднего уровня. Документ требует внимательного изучения."
+    else:
+        brief_description = f"✅ Обнаружено {total_risks} незначительных рисков. Документ в целом безопасен."
+    
+    # Создаем краткую версию
+    guest_analysis = {
+        'document_type': full_analysis.get('document_type'),
+        'document_type_name': full_analysis.get('document_type_name'),
+        'expert_areas': full_analysis.get('expert_areas'),
+        'ai_used': full_analysis.get('ai_used', False),
+        'is_guest': True,  # Флаг что это краткая версия
+        
+        # Краткая экспертиза (только общее описание)
+        'expert_analysis': {
+            'legal_expertise': brief_description,
+            'financial_analysis': 'Для получения детального финансового анализа зарегистрируйтесь на сайте.',
+            'operational_risks': None,
+            'strategic_assessment': None
+        },
+        
+        # Только критичные риски
+        'risk_analysis': {
+            'key_risks': critical_risks,
+            'overall_risk_level': risk_level,
+            'risk_statistics': risk_stats,
+            'risk_summary': f"Выявлено {total_risks} рисков: {critical_count} критических, {high_count} высоких"
+        },
+        
+        # Без рекомендаций для гостей
+        'recommendations': None,
+        
+        # Краткая сводка
+        'executive_summary': {
+            'risk_level': risk_level,
+            'risk_color': full_analysis.get('executive_summary', {}).get('risk_color', '#f8961e'),
+            'risk_icon': full_analysis.get('executive_summary', {}).get('risk_icon', '⚠️'),
+            'risk_description': brief_description,
+            'quick_facts': [
+                f"Обнаружено {total_risks} рисков",
+                f"Критических: {critical_count}",
+                f"Высоких: {high_count}"
+            ],
+            'decision_support': full_analysis.get('executive_summary', {}).get('decision_support', 'Требуется расширенный анализ')
+        }
+    }
+    
+    return guest_analysis
 
 def get_decision_support(risk_level):
     """Предоставляет поддержку для принятия решений"""

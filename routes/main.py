@@ -1682,57 +1682,186 @@ def home():
         
         function createSmartAnalysisHTML(data) {
             const analysis = data.result;
+            const isAuthenticated = analysis.is_authenticated || false;
+            const isGuest = analysis.is_guest || !isAuthenticated;
             
-            return `
-                <div style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 25px; border-radius: 15px; margin: 20px 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+            // Призыв к регистрации для гостей
+            const registrationPrompt = isGuest ? `
+                <div style="background: linear-gradient(135deg, #f72585 0%, #7209b7 100%); color: white; padding: 30px; border-radius: 20px; margin: 20px 0; box-shadow: 0 10px 40px rgba(247, 37, 133, 0.3); text-align: center; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                    <div style="position: relative; z-index: 2;">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">🔒</div>
+                        <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.5rem; font-weight: 700;">Это краткий анализ</h3>
+                        <p style="margin: 0 0 25px 0; opacity: 0.95; font-size: 1.1rem; line-height: 1.6;">
+                            Для получения <strong>расширенного анализа</strong> с детальными рекомендациями, практическими действиями и полной экспертизой <strong>зарегистрируйтесь</strong> или <strong>войдите</strong> на сайт
+                        </p>
+                        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                            <a href="/register" style="background: white; color: #7209b7; padding: 14px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: transform 0.3s; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                📝 Зарегистрироваться
+                            </a>
+                            <a href="/login" style="background: rgba(255,255,255,0.2); color: white; padding: 14px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: transform 0.3s; display: inline-block; border: 2px solid white;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                🔐 Войти
+                            </a>
+                        </div>
+                        <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+                            ✨ Регистрация займет 1 минуту • 1 бесплатный анализ в день
+                        </div>
+                    </div>
+                </div>
+            ` : '';
+            
+            // Основной блок с информацией о документе
+            const mainHeader = `
+                <div style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 8px 30px rgba(67, 97, 238, 0.2);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                         <div>
-                            <h3 style="margin: 0; color: white;">${analysis.document_type_name}</h3>
-                            <p style="margin: 5px 0; opacity: 0.9;">${analysis.executive_summary.risk_icon} ${analysis.executive_summary.risk_description}</p>
+                            <h3 style="margin: 0; color: white; font-size: 1.4rem; font-weight: 700;">${analysis.document_type_name}</h3>
+                            <p style="margin: 5px 0; opacity: 0.95; font-size: 1rem;">${analysis.executive_summary.risk_icon} ${analysis.executive_summary.risk_description}</p>
                         </div>
                         <div style="text-align: right;">
                             <div class="risk-badge risk-${analysis.executive_summary.risk_level.toLowerCase()}" 
-                                 style="font-size: 16px; padding: 8px 16px;">
+                                 style="font-size: 16px; padding: 10px 20px; font-weight: 700;">
                                 ${analysis.executive_summary.risk_level}
                             </div>
                         </div>
                     </div>
                     
-                    <div style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-                        <strong>💡 Решение:</strong> ${analysis.executive_summary.decision_support}
+                    <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 10px; backdrop-filter: blur(10px);">
+                        <strong style="font-size: 1.05rem;">💡 Решение:</strong> 
+                        <span style="opacity: 0.95;">${analysis.executive_summary.decision_support}</span>
                     </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
-                    <div style="background: white; padding: 20px; border-radius: 12px; border-left: 4px solid var(--primary);">
-                        <h4 style="color: var(--primary); margin-bottom: 15px;">🧑‍⚖️ Юридическая экспертиза</h4>
-                        <p>${analysis.expert_analysis.legal_expertise}</p>
-                    </div>
-                    
-                    <div style="background: white; padding: 20px; border-radius: 12px; border-left: 4px solid #4cc9f0;">
-                        <h4 style="color: #4cc9f0; margin-bottom: 15px;">💰 Финансовый анализ</h4>
-                        <p>${analysis.expert_analysis.financial_analysis}</p>
-                    </div>
-                </div>
-
-                <div style="background: white; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid var(--warning);">
-                    <h4 style="color: var(--warning); margin-bottom: 15px;">⚠️ Ключевые риски</h4>
-                    <div style="margin: 10px 0;">
-                        <strong>Статистика:</strong> ${analysis.risk_analysis.risk_summary}
-                    </div>
-                    ${analysis.risk_analysis.key_risks.map(risk => `
-                        <div style="background: ${risk.color}20; padding: 12px; margin: 8px 0; border-radius: 8px; border-left: 4px solid ${risk.color};">
-                            <div style="display: flex; justify-content: between; align-items: center;">
-                                <span class="risk-badge risk-${risk.level.toLowerCase()}">
-                                    ${risk.icon} ${risk.level}
-                                </span>
-                                <strong style="flex-grow: 1; margin-left: 10px;">${risk.title}</strong>
-                            </div>
-                            <p style="margin: 8px 0 0 0; color: #4a5568;">${risk.description}</p>
-                        </div>
-                    `).join('')}
                 </div>
             `;
+            
+            // Экспертиза (разная для гостей и зарегистрированных)
+            const expertAnalysis = isGuest ? `
+                <div style="background: white; padding: 25px; border-radius: 15px; margin: 30px 0; border-left: 5px solid var(--primary); box-shadow: 0 5px 20px rgba(0,0,0,0.08);">
+                    <h4 style="color: var(--primary); margin-bottom: 15px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                        <span>📋</span> Краткая экспертиза
+                    </h4>
+                    <p style="color: #4a5568; line-height: 1.7; margin: 0;">${analysis.expert_analysis.legal_expertise}</p>
+                    ${analysis.expert_analysis.financial_analysis ? `
+                        <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 3px solid #4cc9f0;">
+                            <p style="margin: 0; color: #6c757d; font-size: 0.95rem;">${analysis.expert_analysis.financial_analysis}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            ` : `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin: 30px 0;">
+                    <div style="background: white; padding: 25px; border-radius: 15px; border-left: 5px solid var(--primary); box-shadow: 0 5px 25px rgba(0,0,0,0.1); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🧑‍⚖️</div>
+                            <h4 style="color: var(--primary); margin: 0; font-size: 1.2rem; font-weight: 700;">Юридическая экспертиза</h4>
+                        </div>
+                        <p style="color: #4a5568; line-height: 1.7; margin: 0;">${analysis.expert_analysis.legal_expertise}</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 25px; border-radius: 15px; border-left: 5px solid #4cc9f0; box-shadow: 0 5px 25px rgba(0,0,0,0.1); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #4cc9f0, #38a169); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">💰</div>
+                            <h4 style="color: #4cc9f0; margin: 0; font-size: 1.2rem; font-weight: 700;">Финансовый анализ</h4>
+                        </div>
+                        <p style="color: #4a5568; line-height: 1.7; margin: 0;">${analysis.expert_analysis.financial_analysis}</p>
+                    </div>
+                    
+                    ${analysis.expert_analysis.operational_risks ? `
+                    <div style="background: white; padding: 25px; border-radius: 15px; border-left: 5px solid var(--warning); box-shadow: 0 5px 25px rgba(0,0,0,0.1); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--warning), #f94144); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">⚙️</div>
+                            <h4 style="color: var(--warning); margin: 0; font-size: 1.2rem; font-weight: 700;">Операционные риски</h4>
+                        </div>
+                        <p style="color: #4a5568; line-height: 1.7; margin: 0;">${analysis.expert_analysis.operational_risks}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${analysis.expert_analysis.strategic_assessment ? `
+                    <div style="background: white; padding: 25px; border-radius: 15px; border-left: 5px solid var(--secondary); box-shadow: 0 5px 25px rgba(0,0,0,0.1); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--secondary), var(--primary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎯</div>
+                            <h4 style="color: var(--secondary); margin: 0; font-size: 1.2rem; font-weight: 700;">Стратегическая оценка</h4>
+                        </div>
+                        <p style="color: #4a5568; line-height: 1.7; margin: 0;">${analysis.expert_analysis.strategic_assessment}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Риски (разные для гостей и зарегистрированных)
+            const risksSection = `
+                <div style="background: white; padding: 25px; border-radius: 15px; margin: 20px 0; border-left: 5px solid var(--warning); box-shadow: 0 5px 25px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--warning), #f94144); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">⚠️</div>
+                        <h4 style="color: var(--warning); margin: 0; font-size: 1.3rem; font-weight: 700;">${isGuest ? 'Основные риски' : 'Ключевые риски'}</h4>
+                    </div>
+                    <div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                        <strong style="color: var(--dark);">📊 Статистика:</strong> 
+                        <span style="color: #6c757d;">${analysis.risk_analysis.risk_summary}</span>
+                    </div>
+                    ${(analysis.risk_analysis.key_risks || []).map((risk, index) => `
+                        <div style="background: ${risk.color}15; padding: 18px; margin: 12px 0; border-radius: 12px; border-left: 5px solid ${risk.color}; transition: transform 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05);" onmouseover="this.style.transform='translateX(5px)'" onmouseout="this.style.transform='translateX(0)'">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;">
+                                <span class="risk-badge risk-${risk.level.toLowerCase()}" style="font-size: 14px; padding: 6px 14px; font-weight: 700;">
+                                    ${risk.icon} ${risk.level}
+                                </span>
+                                <strong style="flex-grow: 1; margin-left: 0; color: var(--dark); font-size: 1.05rem;">${risk.title}</strong>
+                            </div>
+                            <p style="margin: 8px 0 0 0; color: #4a5568; line-height: 1.6;">${risk.description}</p>
+                        </div>
+                    `).join('')}
+                    ${isGuest && (analysis.risk_analysis.key_risks || []).length < (analysis.risk_analysis.risk_statistics?.total || 0) ? `
+                        <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%); border-radius: 10px; text-align: center; border: 2px dashed var(--primary);">
+                            <p style="margin: 0; color: var(--primary); font-weight: 600;">
+                                🔒 Для просмотра всех ${analysis.risk_analysis.risk_statistics.total} рисков зарегистрируйтесь на сайте
+                            </p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Рекомендации (только для зарегистрированных)
+            const recommendationsSection = !isGuest && analysis.recommendations && typeof analysis.recommendations === 'object' ? `
+                <div style="background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #38a169; box-shadow: 0 5px 25px rgba(56, 161, 105, 0.15);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #38a169, #2f855a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">💡</div>
+                        <h4 style="color: #2f855a; margin: 0; font-size: 1.3rem; font-weight: 700;">Практические рекомендации</h4>
+                    </div>
+                    
+                    ${analysis.recommendations.practical_actions && analysis.recommendations.practical_actions.length > 0 ? `
+                        <div style="margin-bottom: 25px;">
+                            <h5 style="color: #2f855a; margin-bottom: 15px; font-size: 1.1rem; font-weight: 600;">📋 Рекомендуемые действия:</h5>
+                            <div style="display: grid; gap: 12px;">
+                                ${analysis.recommendations.practical_actions.map((action, index) => `
+                                    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #38a169; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: start; gap: 10px;">
+                                            <span style="color: #38a169; font-weight: 700; font-size: 1.1rem;">${index + 1}.</span>
+                                            <div style="flex: 1;">
+                                                ${typeof action === 'object' ? `
+                                                    <strong style="color: var(--dark); display: block; margin-bottom: 5px;">${action.title || action.action || 'Рекомендация'}</strong>
+                                                    <p style="margin: 0; color: #4a5568; line-height: 1.6;">${action.description || action.reason || ''}</p>
+                                                ` : `<p style="margin: 0; color: #4a5568; line-height: 1.6;">${action}</p>`}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${analysis.recommendations.priority_actions && analysis.recommendations.priority_actions.length > 0 ? `
+                        <div style="margin-top: 20px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #f8961e;">
+                            <h5 style="color: #f8961e; margin-bottom: 15px; font-size: 1.1rem; font-weight: 600;">🚨 Срочные действия:</h5>
+                            <ul style="margin: 0; padding-left: 20px; color: #4a5568; line-height: 1.8;">
+                                ${analysis.recommendations.priority_actions.map(action => `
+                                    <li>${typeof action === 'object' ? (action.title || action.action || 'Действие') : action}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            ` : '';
+            
+            return registrationPrompt + mainHeader + expertAnalysis + risksSection + recommendationsSection;
         }
         
         // FAQ Toggle

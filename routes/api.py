@@ -223,7 +223,7 @@ def analyze_document():
             return jsonify({'error': 'Не удалось извлечь текст из файла'}), 400
         
         # Анализируем текст
-        analysis_result = analyze_text(text, plan_type)
+        analysis_result = analyze_text(text, plan_type, is_authenticated=is_authenticated)
         
         logger.info(f"✅ АНАЛИЗ УСПЕШЕН для {'пользователя' if is_authenticated else 'гостя'}, IP: {real_ip}")
         
@@ -268,6 +268,9 @@ def analyze_document():
                 'registration_required': True,
                 'is_registered': False
             }
+        
+        # Добавляем флаг is_authenticated в результат для фронтенда
+        analysis_result['is_authenticated'] = is_authenticated
         
         # Возвращаем результат (user_id только для зарегистрированных)
         response_data = {

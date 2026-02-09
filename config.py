@@ -177,8 +177,3 @@ ADMINS = {
     'admin': 'admin123',
     'superuser': 'super123'
 }
-
-ADMINS = {
-    'admin': 'admin123',
-    'superuser': 'super123'
-}

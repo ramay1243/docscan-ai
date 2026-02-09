@@ -4,11 +4,27 @@ from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from io import BytesIO
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Регистрируем шрифты с поддержкой кириллицы
+try:
+    # Используем UnicodeCIDFont для поддержки кириллицы
+    pdfmetrics.registerFont(UnicodeCIDFont('HeiseiMin-W3'))
+    pdfmetrics.registerFont(UnicodeCIDFont('HeiseiKakuGo-W5'))
+    FONT_NAME = 'HeiseiMin-W3'
+    FONT_BOLD = 'HeiseiKakuGo-W5'
+    logger.info("✅ Unicode шрифты зарегистрированы для поддержки кириллицы")
+except Exception as e:
+    # Fallback на стандартные шрифты
+    FONT_NAME = 'Helvetica'
+    FONT_BOLD = 'Helvetica-Bold'
+    logger.warning(f"⚠️ Unicode шрифты не зарегистрированы: {e}. Возможны проблемы с кириллицей.")
 
 def generate_analysis_pdf(analysis_data, filename="document.pdf"):
     """Генерирует PDF файл с результатами анализа"""
@@ -30,7 +46,7 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             textColor=colors.HexColor('#4361ee'),
             spaceAfter=30,
             alignment=TA_CENTER,
-            fontName='Helvetica-Bold'
+            fontName=FONT_BOLD
         )
         
         story.append(Paragraph("Анализ документа", title_style))
@@ -42,7 +58,8 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             parent=styles['Normal'],
             fontSize=11,
             textColor=colors.HexColor('#6c757d'),
-            alignment=TA_CENTER
+            alignment=TA_CENTER,
+            fontName=FONT_NAME
         )
         
         story.append(Paragraph(f"<b>Файл:</b> {filename}", info_style))
@@ -67,7 +84,7 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             textColor=risk_color,
             alignment=TA_CENTER,
             spaceAfter=20,
-            fontName='Helvetica-Bold'
+            fontName=FONT_BOLD
         )
         
         risk_icon = analysis_data.get('executive_summary', {}).get('risk_icon', '⚠️')
@@ -86,7 +103,8 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             alignment=TA_JUSTIFY,
             backColor=colors.HexColor('#f8f9fa'),
             borderPadding=10,
-            spaceAfter=20
+            spaceAfter=20,
+            fontName=FONT_NAME
         )
         
         decision = analysis_data.get('executive_summary', {}).get('decision_support', '')
@@ -97,7 +115,12 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
         # Статистика рисков
         risk_stats = analysis_data.get('risk_analysis', {}).get('risk_statistics', {})
         if risk_stats:
-            story.append(Paragraph("<b>📊 Статистика рисков</b>", styles['Heading2']))
+            heading2_style = ParagraphStyle(
+                'Heading2Custom',
+                parent=styles['Heading2'],
+                fontName=FONT_BOLD
+            )
+            story.append(Paragraph("<b>📊 Статистика рисков</b>", heading2_style))
             story.append(Spacer(1, 0.1*inch))
             
             stats_data = [
@@ -114,53 +137,73 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4361ee')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 0), (-1, 0), FONT_BOLD),
                 ('FONTSIZE', (0, 0), (-1, 0), 12),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
                 ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
                 ('GRID', (0, 0), (-1, -1), 1, colors.grey),
                 ('FONTSIZE', (0, 1), (-1, -1), 11),
+                ('FONTNAME', (0, 1), (-1, -1), FONT_NAME),
             ]))
             story.append(stats_table)
             story.append(Spacer(1, 0.3*inch))
         
+        # Создаем стили с поддержкой кириллицы
+        normal_style = ParagraphStyle(
+            'NormalCustom',
+            parent=styles['Normal'],
+            fontName=FONT_NAME
+        )
+        
+        heading2_style_custom = ParagraphStyle(
+            'Heading2Custom',
+            parent=styles['Heading2'],
+            fontName=FONT_BOLD
+        )
+        
+        heading3_style_custom = ParagraphStyle(
+            'Heading3Custom',
+            parent=styles['Heading3'],
+            fontName=FONT_BOLD
+        )
+        
         # Юридическая экспертиза
         legal = analysis_data.get('expert_analysis', {}).get('legal_expertise', '')
         if legal and legal != 'Юридический анализ не выявил критических нарушений':
-            story.append(Paragraph("<b>🧑‍⚖️ Юридическая экспертиза</b>", styles['Heading2']))
+            story.append(Paragraph("<b>🧑‍⚖️ Юридическая экспертиза</b>", heading2_style_custom))
             story.append(Spacer(1, 0.1*inch))
-            story.append(Paragraph(legal, styles['Normal']))
+            story.append(Paragraph(legal, normal_style))
             story.append(Spacer(1, 0.2*inch))
         
         # Финансовый анализ
         financial = analysis_data.get('expert_analysis', {}).get('financial_analysis', '')
         if financial and financial != 'Финансовые условия требуют дополнительной проверки':
-            story.append(Paragraph("<b>💰 Финансовый анализ</b>", styles['Heading2']))
+            story.append(Paragraph("<b>💰 Финансовый анализ</b>", heading2_style_custom))
             story.append(Spacer(1, 0.1*inch))
-            story.append(Paragraph(financial, styles['Normal']))
+            story.append(Paragraph(financial, normal_style))
             story.append(Spacer(1, 0.2*inch))
         
         # Операционные риски
         operational = analysis_data.get('expert_analysis', {}).get('operational_risks', '')
         if operational and operational != 'Операционные риски находятся в допустимых пределах':
-            story.append(Paragraph("<b>⚙️ Операционные риски</b>", styles['Heading2']))
+            story.append(Paragraph("<b>⚙️ Операционные риски</b>", heading2_style_custom))
             story.append(Spacer(1, 0.1*inch))
-            story.append(Paragraph(operational, styles['Normal']))
+            story.append(Paragraph(operational, normal_style))
             story.append(Spacer(1, 0.2*inch))
         
         # Стратегическая оценка
         strategic = analysis_data.get('expert_analysis', {}).get('strategic_assessment', '')
         if strategic and strategic != 'Документ соответствует базовым стратегическим целям':
-            story.append(Paragraph("<b>🎯 Стратегическая оценка</b>", styles['Heading2']))
+            story.append(Paragraph("<b>🎯 Стратегическая оценка</b>", heading2_style_custom))
             story.append(Spacer(1, 0.1*inch))
-            story.append(Paragraph(strategic, styles['Normal']))
+            story.append(Paragraph(strategic, normal_style))
             story.append(Spacer(1, 0.2*inch))
         
         # Ключевые риски
         key_risks = analysis_data.get('risk_analysis', {}).get('key_risks', [])
         if key_risks:
             story.append(PageBreak())
-            story.append(Paragraph("<b>⚠️ Детальный анализ рисков</b>", styles['Heading2']))
+            story.append(Paragraph("<b>⚠️ Детальный анализ рисков</b>", heading2_style_custom))
             story.append(Spacer(1, 0.2*inch))
             
             for i, risk in enumerate(key_risks, 1):
@@ -172,24 +215,24 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
                     parent=styles['Heading3'],
                     fontSize=14,
                     textColor=risk_color,
-                    fontName='Helvetica-Bold',
+                    fontName=FONT_BOLD,
                     spaceAfter=5
                 )
                 
                 story.append(Paragraph(f"{i}. {risk.get('icon', '⚠️')} <b>{risk.get('title', 'Риск')}</b> ({risk_level})", risk_title_style))
-                story.append(Paragraph(risk.get('description', ''), styles['Normal']))
+                story.append(Paragraph(risk.get('description', ''), normal_style))
                 story.append(Spacer(1, 0.15*inch))
         
         # Рекомендации
         recommendations = analysis_data.get('recommendations', {})
         if recommendations:
             story.append(PageBreak())
-            story.append(Paragraph("<b>💡 Практические рекомендации</b>", styles['Heading2']))
+            story.append(Paragraph("<b>💡 Практические рекомендации</b>", heading2_style_custom))
             story.append(Spacer(1, 0.2*inch))
             
             practical_actions = recommendations.get('practical_actions', [])
             if practical_actions:
-                story.append(Paragraph("<b>📋 Рекомендуемые действия:</b>", styles['Heading3']))
+                story.append(Paragraph("<b>📋 Рекомендуемые действия:</b>", heading3_style_custom))
                 story.append(Spacer(1, 0.1*inch))
                 
                 for i, action in enumerate(practical_actions, 1):
@@ -197,17 +240,17 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
                         action_text = action.get('action', action.get('title', ''))
                         effect = action.get('effect', action.get('description', ''))
                         if effect:
-                            story.append(Paragraph(f"{i}. <b>{action_text}</b> - {effect}", styles['Normal']))
+                            story.append(Paragraph(f"{i}. <b>{action_text}</b> - {effect}", normal_style))
                         else:
-                            story.append(Paragraph(f"{i}. {action_text}", styles['Normal']))
+                            story.append(Paragraph(f"{i}. {action_text}", normal_style))
                     else:
-                        story.append(Paragraph(f"{i}. {action}", styles['Normal']))
+                        story.append(Paragraph(f"{i}. {action}", normal_style))
                     story.append(Spacer(1, 0.1*inch))
             
             priority_actions = recommendations.get('priority_actions', [])
             if priority_actions:
                 story.append(Spacer(1, 0.2*inch))
-                story.append(Paragraph("<b>🚨 Срочные действия:</b>", styles['Heading3']))
+                story.append(Paragraph("<b>🚨 Срочные действия:</b>", heading3_style_custom))
                 story.append(Spacer(1, 0.1*inch))
                 
                 for action in priority_actions:
@@ -215,7 +258,7 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
                         action_text = action.get('action', action.get('title', ''))
                     else:
                         action_text = str(action)
-                    story.append(Paragraph(f"• {action_text}", styles['Normal']))
+                    story.append(Paragraph(f"• {action_text}", normal_style))
                     story.append(Spacer(1, 0.05*inch))
         
         # Футер
@@ -225,7 +268,8 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             parent=styles['Normal'],
             fontSize=9,
             textColor=colors.HexColor('#6c757d'),
-            alignment=TA_CENTER
+            alignment=TA_CENTER,
+            fontName=FONT_NAME
         )
         story.append(Paragraph("Сгенерировано DocScan AI - https://docscan-ai.ru", footer_style))
         

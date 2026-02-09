@@ -9,7 +9,8 @@ def detect_document_type(text):
     text_lower = text.lower()
     
     # Приоритетный порядок проверки - сначала более специфичные типы
-    priority_order = ['loan', 'lease', 'employment', 'nda', 'partnership', 'service', 'sale', 'general']
+    # Судебные документы проверяем первыми, так как они могут содержать слова "займ", "кредит" и т.д.
+    priority_order = ['court', 'loan', 'lease', 'employment', 'nda', 'partnership', 'service', 'sale', 'general']
     
     # Сначала проверяем приоритетные типы
     for doc_type in priority_order:

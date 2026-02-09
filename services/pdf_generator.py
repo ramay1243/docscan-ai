@@ -4,27 +4,17 @@ from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from io import BytesIO
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Регистрируем шрифты с поддержкой кириллицы
-try:
-    # Используем UnicodeCIDFont для поддержки кириллицы
-    pdfmetrics.registerFont(UnicodeCIDFont('HeiseiMin-W3'))
-    pdfmetrics.registerFont(UnicodeCIDFont('HeiseiKakuGo-W5'))
-    FONT_NAME = 'HeiseiMin-W3'
-    FONT_BOLD = 'HeiseiKakuGo-W5'
-    logger.info("✅ Unicode шрифты зарегистрированы для поддержки кириллицы")
-except Exception as e:
-    # Fallback на стандартные шрифты
-    FONT_NAME = 'Helvetica'
-    FONT_BOLD = 'Helvetica-Bold'
-    logger.warning(f"⚠️ Unicode шрифты не зарегистрированы: {e}. Возможны проблемы с кириллицей.")
+# Используем стандартные шрифты Times-Roman, которые лучше поддерживают кириллицу
+# Paragraph автоматически обрабатывает Unicode символы
+FONT_NAME = 'Times-Roman'
+FONT_BOLD = 'Times-Bold'
+logger.info("✅ Используются стандартные шрифты Times-Roman для PDF")
 
 def generate_analysis_pdf(analysis_data, filename="document.pdf"):
     """Генерирует PDF файл с результатами анализа"""

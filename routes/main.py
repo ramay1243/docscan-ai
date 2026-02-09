@@ -805,11 +805,11 @@ def home():
             position: fixed;
             left: 20px;
             bottom: 20px;
-            width: 320px;
+            width: 240px;
             max-width: calc(100vw - 40px);
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
             z-index: 9999;
             overflow: hidden;
             transition: transform 0.3s ease, opacity 0.3s ease;
@@ -833,10 +833,10 @@ def home():
         
         .ad-banner-close {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 32px;
-            height: 32px;
+            top: 8px;
+            right: 8px;
+            width: 26px;
+            height: 26px;
             background: rgba(255, 255, 255, 0.95);
             border: 2px solid rgba(0, 0, 0, 0.2);
             border-radius: 50%;
@@ -844,7 +844,7 @@ def home():
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #333;
             transition: all 0.3s ease;
@@ -870,59 +870,59 @@ def home():
         
         .ad-banner-image {
             width: 100%;
-            height: 180px;
+            height: 130px;
             object-fit: cover;
             display: block;
         }
         
         .ad-banner-content {
-            padding: 15px;
+            padding: 12px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
         
         .ad-banner-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             line-height: 1.3;
         }
         
         .ad-banner-description {
-            font-size: 13px;
+            font-size: 11px;
             opacity: 0.95;
             line-height: 1.4;
         }
         
         .ad-banner-telegram-icon {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
             vertical-align: middle;
         }
         
         @media (max-width: 768px) {
             .ad-banner {
-                width: 280px;
+                width: 220px;
                 left: 10px;
                 bottom: 10px;
             }
             
             .ad-banner-image {
-                height: 150px;
+                height: 110px;
             }
             
             .ad-banner-content {
-                padding: 12px;
+                padding: 10px;
             }
             
             .ad-banner-title {
-                font-size: 14px;
+                font-size: 12px;
             }
             
             .ad-banner-description {
-                font-size: 12px;
+                font-size: 10px;
             }
         }
     </style>

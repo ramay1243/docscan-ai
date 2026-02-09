@@ -8,13 +8,20 @@ def detect_document_type(text):
     """Умное определение типа документа по ключевым словам"""
     text_lower = text.lower()
     
-    for doc_type, config in SMART_ANALYSIS_CONFIG.items():
-        if doc_type == 'general':
+    # Приоритетный порядок проверки - сначала более специфичные типы
+    priority_order = ['loan', 'lease', 'employment', 'nda', 'partnership', 'service', 'sale', 'general']
+    
+    # Сначала проверяем приоритетные типы
+    for doc_type in priority_order:
+        if doc_type not in SMART_ANALYSIS_CONFIG:
             continue
             
+        config = SMART_ANALYSIS_CONFIG[doc_type]
+        
+        # Проверяем все ключевые слова
         for keyword in config['keywords']:
             if keyword in text_lower:
-                logger.info(f"📄 Определен тип документа: {config['name']}")
+                logger.info(f"📄 Определен тип документа: {config['name']} (по ключевому слову: '{keyword}')")
                 return doc_type
     
     logger.info("📄 Документ определен как: Общий договор")

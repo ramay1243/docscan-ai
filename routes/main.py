@@ -2506,6 +2506,11 @@ def article_labor():
 def article_tax():
     """Статья 'Финансовые риски в договорах'"""
     return render_template('article_tax.html')
+
+@main_bp.route('/articles/nalogovaya-proverka')
+def article_nalogovaya_proverka():
+    """Статья 'Документ налоговой проверки'"""
+    return render_template('article_nalogovaya-proverka.html')
     
 @main_bp.route('/articles/business_protection')
 def redirect_business_protection():

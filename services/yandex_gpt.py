@@ -280,6 +280,63 @@ def parse_smart_analysis(ai_response, document_type):
                                     'icon': RISK_LEVELS[level]['icon']
                                 })
                             break
+                # Еще один формат: строки начинающиеся с уровня риска
+                elif any(line.upper().startswith(level) for level in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']):
+                    for level in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']:
+                        if line.upper().startswith(level):
+                            rest = line[len(level):].strip().lstrip(':-|').strip()
+                            if rest:
+                                if ' - ' in rest:
+                                    title, desc = rest.split(' - ', 1)
+                                elif len(rest) > 50:
+                                    title = rest[:50]
+                                    desc = rest[50:]
+                                else:
+                                    title = rest
+                                    desc = rest
+                                
+                                sections['key_risks'].append({
+                                    'level': level,
+                                    'title': title.strip(),
+                                    'description': desc.strip(),
+                                    'color': RISK_LEVELS[level]['color'],
+                                    'icon': RISK_LEVELS[level]['icon']
+                                })
+                            break
+                # Формат с эмодзи или маркерами: 🔴/🟠/🟡/🟢 или 1./2./3.
+                elif line.strip() and (line.strip().startswith(('🔴', '🟠', '🟡', '🟢', '1.', '2.', '3.', '4.', '5.', '-', '•'))):
+                    # Определяем уровень риска по эмодзи или контексту
+                    risk_level = None
+                    if '🔴' in line or 'критич' in line.lower():
+                        risk_level = 'CRITICAL'
+                    elif '🟠' in line or 'высок' in line.lower():
+                        risk_level = 'HIGH'
+                    elif '🟡' in line or 'средн' in line.lower():
+                        risk_level = 'MEDIUM'
+                    elif '🟢' in line or 'низк' in line.lower():
+                        risk_level = 'LOW'
+                    
+                    if risk_level:
+                        # Убираем маркеры и эмодзи
+                        clean_line = line.strip().lstrip('🔴🟠🟡🟢1234567890.-•').strip()
+                        if clean_line and len(clean_line) > 10:
+                            if ' - ' in clean_line:
+                                title, desc = clean_line.split(' - ', 1)
+                            elif ':' in clean_line:
+                                parts = clean_line.split(':', 1)
+                                title = parts[0].strip()
+                                desc = parts[1].strip() if len(parts) > 1 else title
+                            else:
+                                title = clean_line[:60]
+                                desc = clean_line[60:] if len(clean_line) > 60 else clean_line
+                            
+                            sections['key_risks'].append({
+                                'level': risk_level,
+                                'title': title.strip(),
+                                'description': desc.strip(),
+                                'color': RISK_LEVELS[risk_level]['color'],
+                                'icon': RISK_LEVELS[risk_level]['icon']
+                            })
             
             elif current_section == 'practical_recommendations' and '|' in line:
                 parts = line.split('|')
@@ -298,6 +355,39 @@ def parse_smart_analysis(ai_response, document_type):
                         'advantages': parts[1].strip(),
                         'disadvantages': parts[2].strip()
                     })
+    
+    # Если риски не найдены в строгом формате, пытаемся извлечь их из текста
+    if len(sections['key_risks']) == 0:
+        # Ищем риски в тексте по ключевым словам
+        import re
+        risk_keywords = {
+            'CRITICAL': ['критическ', 'критичн', 'опасн', 'запрещ', 'недопустим', 'незаконн', 'нарушен'],
+            'HIGH': ['высок', 'серьезн', 'значительн', 'существенн', 'рискован'],
+            'MEDIUM': ['средн', 'умеренн', 'возможн', 'потенциальн'],
+            'LOW': ['низк', 'минимальн', 'незначительн']
+        }
+        
+        # Ищем упоминания рисков в тексте
+        for line in lines:
+            line_lower = line.lower()
+            for level, keywords in risk_keywords.items():
+                if any(keyword in line_lower for keyword in keywords) and len(line.strip()) > 20:
+                    # Пытаемся извлечь название риска
+                    title = line.strip()[:80]
+                    desc = line.strip()
+                    
+                    sections['key_risks'].append({
+                        'level': level,
+                        'title': title,
+                        'description': desc,
+                        'color': RISK_LEVELS[level]['color'],
+                        'icon': RISK_LEVELS[level]['icon']
+                    })
+                    break
+        
+        # Ограничиваем количество извлеченных рисков
+        if len(sections['key_risks']) > 10:
+            sections['key_risks'] = sections['key_risks'][:10]
     
     # Если для договора займа не найдено рисков, но есть процентная ставка - добавляем автоматически
     if document_type == 'loan' and len(sections['key_risks']) == 0:

@@ -1644,3 +1644,16 @@
     </script>
 </body>
 </html>
+
+        
+        // Auto-expand first item in each category
+        document.querySelectorAll('.faq-section').forEach(section => {
+            const firstItem = section.querySelector('.faq-item');
+            if (firstItem) {
+                firstItem.querySelector('.faq-answer')?.classList.add('active');
+                firstItem.querySelector('.faq-question')?.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

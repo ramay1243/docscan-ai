@@ -84,8 +84,6 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 0;
-            flex-wrap: wrap;
-            gap: 15px;
         }
         
         .logo {
@@ -122,22 +120,45 @@
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s;
+            position: relative;
             font-size: 0.9rem;
+            white-space: nowrap;
         }
         
         .nav-link:hover {
             color: var(--primary);
         }
         
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
         .cta-button {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.85rem;
         }
         
         .cta-button:hover {
@@ -308,6 +329,15 @@
             
             .benefits-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                display: none;
             }
         }
     </style>

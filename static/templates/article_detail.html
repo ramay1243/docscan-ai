@@ -6,7 +6,7 @@
     <title>{% if article.meta_description %}{{ article.title }} | DocScan AI{% else %}{{ article.title }} - DocScan AI{% endif %}</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="{% if article.meta_description %}{{ article.meta_description }}{% elif article.description %}{{ article.description }}{% else %}{{ article.title }}{% endif %}">
+    <meta name="description" content="{% if article.meta_description %}{{ article.meta_description }}{% elif article.description %}{{ article.description }}{% elif article.title %}{{ article.title }}. Статья о проверке документов с ИИ на DocScan AI. Анализ договоров онлайн бесплатно.{% else %}Статья о проверке документов с ИИ на DocScan AI. Анализ договоров онлайн бесплатно.{% endif %}">
     {% if article.meta_keywords %}
     <meta name="keywords" content="{{ article.meta_keywords }}">
     {% endif %}
@@ -645,7 +645,7 @@
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": "{{ article.title|e }}",
-        "description": "{% if article.meta_description %}{{ article.meta_description|e }}{% elif article.description %}{{ article.description|e }}{% else %}{{ article.title|e }}{% endif %}",
+        "description": "{% if article.meta_description %}{{ article.meta_description|e }}{% elif article.description %}{{ article.description|e }}{% elif article.title %}{{ article.title|e }}. Статья о проверке документов с ИИ на DocScan AI. Анализ договоров онлайн бесплатно.{% else %}Статья о проверке документов с ИИ на DocScan AI. Анализ договоров онлайн бесплатно.{% endif %}",
         "author": {
             "@type": "Person",
             "name": "DocScan AI"

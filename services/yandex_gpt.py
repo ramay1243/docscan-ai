@@ -10,7 +10,30 @@ def detect_document_type(text):
     
     # Приоритетный порядок проверки - сначала более специфичные типы
     # Судебные документы проверяем первыми, так как они могут содержать слова "займ", "кредит" и т.д.
-    priority_order = ['court', 'loan', 'lease', 'employment', 'nda', 'partnership', 'service', 'sale', 'general']
+    # Затем документы с уникальными ключевыми словами, потом общие
+    priority_order = [
+        'court',           # Судебные документы (самые специфичные)
+        'invoice',         # Счет-фактура (уникальные слова)
+        'waybill',         # Накладная (уникальные слова)
+        'act',             # Акт (уникальные слова)
+        'power_of_attorney', # Доверенность (уникальные слова)
+        'loan',            # Договор займа/кредита
+        'insurance',       # Страхование (уникальные слова)
+        'lease',           # Договор аренды
+        'employment',      # Трудовой договор
+        'contract',        # Договор подряда
+        'supply',          # Договор поставки
+        'nda',             # Соглашение о конфиденциальности
+        'partnership',     # Договор партнерства
+        'service',         # Договор оказания услуг
+        'commission',      # Договор комиссии
+        'agency',          # Договор агентирования
+        'mandate',         # Договор поручения
+        'gift',            # Договор дарения
+        'exchange',        # Договор мены
+        'sale',            # Договор купли-продажи
+        'general'         # Общий договор (fallback)
+    ]
     
     # Сначала проверяем приоритетные типы
     for doc_type in priority_order:
@@ -354,6 +377,88 @@ def create_smart_analysis_result(sections, document_type):
         'expert_analysis': {
             'legal_expertise': sections['legal_expertise'] or 'Юридический анализ не выявил критических нарушений',
             'financial_analysis': sections['financial_analysis'] or 'Финансовые условия требуют дополнительной проверки',
+            'operational_risks': sections['operational_risks'] or 'Операционные риски находятся в допустимых пределах',
+            'strategic_assessment': sections['strategic_assessment'] or 'Документ соответствует базовым стратегическим целям'
+        },
+        
+        # Детализированные риски
+        'risk_analysis': {
+            'key_risks': sections['key_risks'][:10],
+            'overall_risk_level': overall_risk,
+            'risk_statistics': risk_stats,
+            'risk_summary': f"Выявлено {risk_stats['total']} рисков: {risk_stats['CRITICAL']} критических, {risk_stats['HIGH']} высоких, {risk_stats['MEDIUM']} средних"
+        },
+        
+        # Практические рекомендации
+        'recommendations': {
+            'practical_actions': sections['practical_recommendations'][:8],
+            'alternative_solutions': sections['alternative_solutions'][:5],
+            'priority_actions': [r for r in sections['practical_recommendations'] if 'срочн' in r.get('urgency', '').lower()][:3]
+        },
+        
+        # Визуальная сводка
+        'executive_summary': {
+            'risk_level': overall_risk,
+            'risk_color': RISK_LEVELS[overall_risk]['color'],
+            'risk_icon': RISK_LEVELS[overall_risk]['icon'],
+            'risk_description': RISK_LEVELS[overall_risk]['description'],
+            'quick_facts': [
+                f"Обнаружено {risk_stats['total']} рисков",
+                f"Критических: {risk_stats['CRITICAL']}",
+                f"Высоких: {risk_stats['HIGH']}",
+                f"Требует доработки: {risk_stats['CRITICAL'] + risk_stats['HIGH'] > 0}"
+            ],
+            'decision_support': get_decision_support(overall_risk)
+        }
+    }
+
+def get_decision_support(risk_level):
+    """Предоставляет поддержку для принятия решений"""
+    decisions = {
+        'CRITICAL': "НЕ РЕКОМЕНДУЕТСЯ к подписанию. Требуется существенная доработка с юристом.",
+        'HIGH': "Требует серьезной доработки. Консультация с юристом обязательна.",
+        'MEDIUM': "Может быть подписан после устранения основных замечаний.",
+        'LOW': "Может быть подписан. Рекомендуется учесть выявленные рекомендации."
+    }
+    return decisions.get(risk_level, "Требуется дополнительный анализ.")
+
+def create_fallback_analysis(document_type, error_msg):
+    """Создает базовый анализ при ошибках"""
+    doc_config = SMART_ANALYSIS_CONFIG[document_type]
+    
+    return {
+        'document_type': document_type,
+        'document_type_name': doc_config['name'],
+        'expert_areas': doc_config['expert_areas'],
+        'ai_used': False,
+        'expert_analysis': {
+            'legal_expertise': f'Ошибка анализа: {error_msg}',
+            'financial_analysis': 'Анализ недоступен',
+            'operational_risks': 'Анализ недоступен',
+            'strategic_assessment': 'Анализ недоступен'
+        },
+        'risk_analysis': {
+            'key_risks': [{
+                'level': 'INFO',
+                'title': 'Ошибка анализа',
+                'description': error_msg,
+                'color': '#3182ce',
+                'icon': '🔵'
+            }],
+            'overall_risk_level': 'INFO',
+            'risk_statistics': {'total': 1, 'CRITICAL': 0, 'HIGH': 0, 'MEDIUM': 0, 'LOW': 0},
+            'risk_summary': 'Анализ не выполнен'
+        },
+        'executive_summary': {
+            'risk_level': 'INFO',
+            'risk_color': '#3182ce',
+            'risk_icon': '🔵',
+            'risk_description': 'Ошибка анализа',
+            'quick_facts': ['Анализ не выполнен', 'Попробуйте еще раз'],
+            'decision_support': 'Недостаточно данных для принятия решения'
+        }
+    }
+
             'operational_risks': sections['operational_risks'] or 'Операционные риски находятся в допустимых пределах',
             'strategic_assessment': sections['strategic_assessment'] or 'Документ соответствует базовым стратегическим целям'
         },

@@ -529,17 +529,18 @@ def home():
         /* FAQ */
         .faq-section {
             margin: 80px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        }
+        
+        .faq-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
         }
         
         .faq-item {
             background: white;
             border-radius: 15px;
-            margin: 0 auto 15px;
-            max-width: 900px;
-            width: 100%;
+            margin-bottom: 15px;
             overflow: hidden;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }
@@ -1307,6 +1308,7 @@ def home():
     <section class="container faq-section">
         <h2>Частые вопросы</h2>
         
+        <div class="faq-wrapper">
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFAQ(1)">
                 <span>🤔 Какой максимальный размер файла?</span>
@@ -1355,6 +1357,7 @@ def home():
             <div class="faq-answer" id="faq-5">
                 <p>ИИ хорошо справляется с выявлением типовых рисков в договорах. Однако это инструмент для первичной проверки - для важных документов рекомендуем консультацию с юристом.</p>
             </div>
+        </div>
         </div>
     </section>
 

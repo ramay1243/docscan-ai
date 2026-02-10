@@ -532,22 +532,25 @@ def home():
         }
         
         .container.faq-section {
+            max-width: 100% !important;
             padding: 0 !important;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         
         .container.faq-section h2 {
             width: 100%;
+            max-width: 900px;
             text-align: center;
             padding: 0 20px;
+            margin: 0 auto;
         }
         
         .faq-wrapper {
             max-width: 900px;
             margin: 0 auto;
-            width: 100%;
             padding: 0 20px;
             box-sizing: border-box;
         }

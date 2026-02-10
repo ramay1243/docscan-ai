@@ -473,6 +473,24 @@
         }
         
         /* Services Grid */
+        .services-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 60px 0;
+            padding: 0;
+        }
+        
+        .services-section h2 {
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+        
         .services-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -480,6 +498,8 @@
             max-width: 800px;
             width: 100%;
             margin: 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
         
         .faq-question {
@@ -663,6 +683,10 @@
             .cta-section { padding: 40px 20px; }
             .hero-section { padding: 40px 0; }
             .hero-subtitle { font-size: 1rem; }
+            .services-grid {
+                grid-template-columns: 1fr;
+                padding: 0 15px;
+            }
         }
         
         /* Calculator specific */
@@ -1009,8 +1033,8 @@
     </section>
 
     <!-- Related Services -->
-    <section class="container" style="margin: 60px 0; padding: 0; display: flex; flex-direction: column; align-items: center;">
-        <h2 class="section-title" style="width: 100%; padding: 0 20px;">🔗 Дополнительные сервисы</h2>
+    <section class="services-section">
+        <h2 class="section-title">🔗 Дополнительные сервисы</h2>
         
         <div class="services-grid">
             <a href="/proverka-dogovorov" 

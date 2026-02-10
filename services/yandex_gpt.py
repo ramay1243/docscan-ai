@@ -321,6 +321,9 @@ def parse_smart_analysis(ai_response, document_type):
                     if risk_level:
                         # Убираем маркеры и эмодзи
                         clean_line = line.strip().lstrip('🔴🟠🟡🟢1234567890.-•').strip()
+                        # Если ИИ явно пишет, что существенных рисков нет, НЕ считаем это риском
+                        if 'существенных рисков не выявлено' in clean_line.lower() or 'существенных рисков не обнаружено' in clean_line.lower():
+                            continue
                         if clean_line and len(clean_line) > 10:
                             if ' - ' in clean_line:
                                 title, desc = clean_line.split(' - ', 1)

@@ -380,6 +380,11 @@ def home():
             margin: 0 auto 40px;
         }
         
+        /* Центрирование заголовков секций */
+        .container h2 {
+            text-align: center;
+        }
+        
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));

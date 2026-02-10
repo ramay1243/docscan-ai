@@ -2713,34 +2713,6 @@ def send_telegram():
 def favicon():
     """Отдает фавикон для браузеров и поисковых систем"""
     return send_file('static/favicon.ico', mimetype='image/x-icon')
-        <a href="https://t.me/BirzhaAuditbot" target="_blank" class="ad-banner-link" onclick="trackAdClick()">
-            <img src="/static/ad-banner-image.jpg" alt="Биржа Аудитории" class="ad-banner-image" onerror="this.style.display='none'">
-            <div class="ad-banner-content">
-                <div class="ad-banner-title">
-                    📢 Биржа Аудитории
-                </div>
-                <div class="ad-banner-description">
-                    Для взаимного обмена подписчиками<br>
-                    Получайте реальных подписчиков
-                </div>
-            </div>
-        </a>
-    </div>
-    
-    <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->
-    <script>
-    window.yaContextCb.push(() => {
-        Ya.Context.AdvManager.render({
-            "blockId": "R-A-18680294-2",
-            "type": "floorAd",
-            "platform": "touch"
-        })
-    })
-    </script>
-
-</body>
-</html>
-    '''
 
 # ... (остальные функции routes остаются БЕЗ ИЗМЕНЕНИЙ)
 @main_bp.route('/terms')

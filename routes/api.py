@@ -10,7 +10,6 @@ from services.pdf_generator import generate_analysis_pdf
 from config import PLANS
 from flask_cors import cross_origin, CORS
 from io import BytesIO
-from io import BytesIO
 
 logger = logging.getLogger(__name__)
 

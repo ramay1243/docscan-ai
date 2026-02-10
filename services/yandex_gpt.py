@@ -548,8 +548,6 @@ def create_fallback_analysis(document_type, error_msg):
             'decision_support': 'Недостаточно данных для принятия решения'
         }
     }
-
-                    })
     
     # Если риски не найдены в строгом формате, пытаемся извлечь их из текста
     if len(sections['key_risks']) == 0:

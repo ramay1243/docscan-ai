@@ -2406,6 +2406,8 @@ def sitemap():
         ('/faq', 'monthly', '0.8'),
         ('/calculator-penalty', 'monthly', '0.8'),
         ('/mobile-app', 'weekly', '0.8'),
+        ('/proverka-dokumentov-onlayn', 'weekly', '0.9'),
+        ('/articles/nalogovaya-proverka', 'monthly', '0.8'),
     ]
     
     # Статьи (обновляются реже)

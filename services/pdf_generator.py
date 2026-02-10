@@ -1474,4 +1474,3 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
         import traceback
         logger.error(traceback.format_exc())
         raise
-

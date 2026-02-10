@@ -534,7 +534,8 @@ def home():
         .faq-item {
             background: white;
             border-radius: 15px;
-            margin-bottom: 15px;
+            margin: 0 auto 15px;
+            max-width: 800px;
             overflow: hidden;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }

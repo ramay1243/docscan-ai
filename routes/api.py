@@ -4,12 +4,12 @@ import tempfile
 import os
 import uuid
 import logging
-from datetime import datetime
 from services.file_processing import extract_text_from_file, validate_file
 from services.analysis import analyze_text
 from services.pdf_generator import generate_analysis_pdf
 from config import PLANS
 from flask_cors import cross_origin, CORS
+from io import BytesIO
 from io import BytesIO
 
 logger = logging.getLogger(__name__)
@@ -441,50 +441,6 @@ def calculator_click():
         
     except Exception as e:
         logger.error(f"❌ Calculator click error: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@api_bp.route('/generate-document', methods=['POST'])
-def generate_document():
-    """Генерация документа (договор, бизнес-план и т.д.) и возврат в PDF"""
-    try:
-        from services.document_generator import (
-            generate_service_contract_pdf,
-            generate_lease_contract_pdf,
-            generate_business_plan_pdf
-        )
-        
-        data = request.get_json()
-        doc_type = data.get('doc_type', 'service')
-        
-        logger.info(f"📄 Генерация документа типа: {doc_type}")
-        
-        # Генерируем PDF в зависимости от типа
-        if doc_type == 'service':
-            pdf_buffer = generate_service_contract_pdf(data)
-            filename = f"Dogovor_uslug_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        elif doc_type == 'lease':
-            pdf_buffer = generate_lease_contract_pdf(data)
-            filename = f"Dogovor_arendy_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        elif doc_type == 'business_plan':
-            pdf_buffer = generate_business_plan_pdf(data)
-            filename = f"Biznes_plan_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        else:
-            return jsonify({'success': False, 'error': 'Неизвестный тип документа'}), 400
-        
-        # Возвращаем PDF как файл
-        from flask import Response
-        return Response(
-            pdf_buffer.getvalue(),
-            mimetype='application/pdf',
-            headers={
-                'Content-Disposition': f'attachment; filename={filename}'
-            }
-        )
-        
-    except Exception as e:
-        logger.error(f"❌ Ошибка генерации документа: {e}")
         import traceback
         logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)}), 500

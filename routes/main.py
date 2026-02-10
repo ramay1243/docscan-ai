@@ -947,7 +947,6 @@ def home():
                     <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
                     <a href="/mobile-app" class="nav-link">Мобильное приложение</a>
                     <a href="/articles" class="nav-link">Статьи</a>
-                    <a href="/create-document" class="nav-link">Создать документ</a>
                     <a href="/faq" class="nav-link">FAQ</a>
                     <a href="/contact" class="nav-link">Контакты</a>
                     <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
@@ -2726,12 +2725,6 @@ def send_telegram():
     except Exception as e:
         logger.error(f"❌ Исключение при отправке в Telegram: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
-
-@main_bp.route('/create-document')
-def create_document():
-    """Страница конструктора документов"""
-    RussianLogger.log_page_view("Конструктор документов")
-    return render_template('document_creator.html')
 
 @main_bp.route('/favicon.ico')
 def favicon():

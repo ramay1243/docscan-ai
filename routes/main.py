@@ -529,13 +529,17 @@ def home():
         /* FAQ */
         .faq-section {
             margin: 80px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .faq-item {
             background: white;
             border-radius: 15px;
             margin: 0 auto 15px;
-            max-width: 800px;
+            max-width: 900px;
+            width: 100%;
             overflow: hidden;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }

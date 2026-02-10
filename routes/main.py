@@ -531,11 +531,17 @@ def home():
             margin: 80px 0;
         }
         
-        .faq-section.container {
-            padding: 0;
+        .container.faq-section {
+            padding: 0 !important;
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+        
+        .container.faq-section h2 {
+            width: 100%;
+            text-align: center;
+            padding: 0 20px;
         }
         
         .faq-wrapper {

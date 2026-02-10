@@ -2297,6 +2297,17 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
             </div>
         </a>
     </div>
+    
+    <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-18680294-2",
+            "type": "floorAd",
+            "platform": "touch"
+        })
+    })
+    </script>
 
 </body>
 </html>

@@ -548,3 +548,198 @@ def create_fallback_analysis(document_type, error_msg):
             'decision_support': 'Недостаточно данных для принятия решения'
         }
     }
+
+                    })
+    
+    # Если риски не найдены в строгом формате, пытаемся извлечь их из текста
+    if len(sections['key_risks']) == 0:
+        # Ищем риски в тексте по ключевым словам
+        import re
+        risk_keywords = {
+            'CRITICAL': ['критическ', 'критичн', 'опасн', 'запрещ', 'недопустим', 'незаконн', 'нарушен'],
+            'HIGH': ['высок', 'серьезн', 'значительн', 'существенн', 'рискован'],
+            'MEDIUM': ['средн', 'умеренн', 'возможн', 'потенциальн'],
+            'LOW': ['низк', 'минимальн', 'незначительн']
+        }
+        
+        # Ищем упоминания рисков в тексте
+        for line in lines:
+            line_lower = line.lower()
+            for level, keywords in risk_keywords.items():
+                if any(keyword in line_lower for keyword in keywords) and len(line.strip()) > 20:
+                    # Пытаемся извлечь название риска
+                    title = line.strip()[:80]
+                    desc = line.strip()
+                    
+                    sections['key_risks'].append({
+                        'level': level,
+                        'title': title,
+                        'description': desc,
+                        'color': RISK_LEVELS[level]['color'],
+                        'icon': RISK_LEVELS[level]['icon']
+                    })
+                    break
+        
+        # Ограничиваем количество извлеченных рисков
+        if len(sections['key_risks']) > 10:
+            sections['key_risks'] = sections['key_risks'][:10]
+    
+    # Если для договора займа не найдено рисков, но есть процентная ставка - добавляем автоматически
+    if document_type == 'loan' and len(sections['key_risks']) == 0:
+        # Ищем процентную ставку в тексте
+        import re
+        rate_patterns = [
+            r'(\d+[.,]\d+)\s*%?\s*процентов?\s*годовых',
+            r'процентная\s*ставка[:\s]+(\d+[.,]\d+)',
+            r'(\d+[.,]\d+)\s*%?\s*годовых',
+            r'ПСК[:\s]+(\d+[.,]\d+)',
+            r'полная\s*стоимость[:\s]+(\d+[.,]\d+)'
+        ]
+        
+        for pattern in rate_patterns:
+            matches = re.findall(pattern, ai_response, re.IGNORECASE)
+            if matches:
+                try:
+                    rate = float(matches[0].replace(',', '.'))
+                    if rate >= 40:
+                        sections['key_risks'].append({
+                            'level': 'CRITICAL',
+                            'title': f'Критически высокая процентная ставка {rate}% годовых',
+                            'description': f'Процентная ставка {rate}% годовых значительно превышает среднерыночные значения (обычно 15-25%). Это создает высокую финансовую нагрузку на заемщика и увеличивает риск невозврата.',
+                            'color': RISK_LEVELS['CRITICAL']['color'],
+                            'icon': RISK_LEVELS['CRITICAL']['icon']
+                        })
+                    elif rate >= 30:
+                        sections['key_risks'].append({
+                            'level': 'HIGH',
+                            'title': f'Высокая процентная ставка {rate}% годовых',
+                            'description': f'Процентная ставка {rate}% годовых выше среднерыночных значений. Рекомендуется сравнить с предложениями других кредиторов.',
+                            'color': RISK_LEVELS['HIGH']['color'],
+                            'icon': RISK_LEVELS['HIGH']['icon']
+                        })
+                    break
+                except ValueError:
+                    continue
+    
+    # Создаем итоговый результат
+    return create_smart_analysis_result(sections, document_type)
+
+def create_smart_analysis_result(sections, document_type):
+    """Создает структурированный результат умного анализа"""
+    doc_config = SMART_ANALYSIS_CONFIG[document_type]
+    
+    # Подсчитываем статистику рисков
+    risk_stats = {
+        'CRITICAL': 0,
+        'HIGH': 0, 
+        'MEDIUM': 0,
+        'LOW': 0,
+        'total': len(sections['key_risks'])
+    }
+    
+    for risk in sections['key_risks']:
+        if risk['level'] in risk_stats:
+            risk_stats[risk['level']] += 1
+    
+    # Определяем общий уровень риска документа
+    if risk_stats['CRITICAL'] > 0:
+        overall_risk = 'CRITICAL'
+    elif risk_stats['HIGH'] > 0:
+        overall_risk = 'HIGH' 
+    elif risk_stats['MEDIUM'] > 0:
+        overall_risk = 'MEDIUM'
+    else:
+        overall_risk = 'LOW'
+    
+    return {
+        # Основная информация
+        'document_type': document_type,
+        'document_type_name': doc_config['name'],
+        'expert_areas': doc_config['expert_areas'],
+        'ai_used': True,
+        
+        # Комплексная экспертиза
+        'expert_analysis': {
+            'legal_expertise': sections['legal_expertise'] or 'Юридический анализ не выявил критических нарушений',
+            'financial_analysis': sections['financial_analysis'] or 'Финансовые условия требуют дополнительной проверки',
+            'operational_risks': sections['operational_risks'] or 'Операционные риски находятся в допустимых пределах',
+            'strategic_assessment': sections['strategic_assessment'] or 'Документ соответствует базовым стратегическим целям'
+        },
+        
+        # Детализированные риски
+        'risk_analysis': {
+            'key_risks': sections['key_risks'][:10],
+            'overall_risk_level': overall_risk,
+            'risk_statistics': risk_stats,
+            'risk_summary': f"Выявлено {risk_stats['total']} рисков: {risk_stats['CRITICAL']} критических, {risk_stats['HIGH']} высоких, {risk_stats['MEDIUM']} средних"
+        },
+        
+        # Практические рекомендации
+        'recommendations': {
+            'practical_actions': sections['practical_recommendations'][:8],
+            'alternative_solutions': sections['alternative_solutions'][:5],
+            'priority_actions': [r for r in sections['practical_recommendations'] if 'срочн' in r.get('urgency', '').lower()][:3]
+        },
+        
+        # Визуальная сводка
+        'executive_summary': {
+            'risk_level': overall_risk,
+            'risk_color': RISK_LEVELS[overall_risk]['color'],
+            'risk_icon': RISK_LEVELS[overall_risk]['icon'],
+            'risk_description': RISK_LEVELS[overall_risk]['description'],
+            'quick_facts': [
+                f"Обнаружено {risk_stats['total']} рисков",
+                f"Критических: {risk_stats['CRITICAL']}",
+                f"Высоких: {risk_stats['HIGH']}",
+                f"Требует доработки: {risk_stats['CRITICAL'] + risk_stats['HIGH'] > 0}"
+            ],
+            'decision_support': get_decision_support(overall_risk)
+        }
+    }
+
+def get_decision_support(risk_level):
+    """Предоставляет поддержку для принятия решений"""
+    decisions = {
+        'CRITICAL': "НЕ РЕКОМЕНДУЕТСЯ к подписанию. Требуется существенная доработка с юристом.",
+        'HIGH': "Требует серьезной доработки. Консультация с юристом обязательна.",
+        'MEDIUM': "Может быть подписан после устранения основных замечаний.",
+        'LOW': "Может быть подписан. Рекомендуется учесть выявленные рекомендации."
+    }
+    return decisions.get(risk_level, "Требуется дополнительный анализ.")
+
+def create_fallback_analysis(document_type, error_msg):
+    """Создает базовый анализ при ошибках"""
+    doc_config = SMART_ANALYSIS_CONFIG[document_type]
+    
+    return {
+        'document_type': document_type,
+        'document_type_name': doc_config['name'],
+        'expert_areas': doc_config['expert_areas'],
+        'ai_used': False,
+        'expert_analysis': {
+            'legal_expertise': f'Ошибка анализа: {error_msg}',
+            'financial_analysis': 'Анализ недоступен',
+            'operational_risks': 'Анализ недоступен',
+            'strategic_assessment': 'Анализ недоступен'
+        },
+        'risk_analysis': {
+            'key_risks': [{
+                'level': 'INFO',
+                'title': 'Ошибка анализа',
+                'description': error_msg,
+                'color': '#3182ce',
+                'icon': '🔵'
+            }],
+            'overall_risk_level': 'INFO',
+            'risk_statistics': {'total': 1, 'CRITICAL': 0, 'HIGH': 0, 'MEDIUM': 0, 'LOW': 0},
+            'risk_summary': 'Анализ не выполнен'
+        },
+        'executive_summary': {
+            'risk_level': 'INFO',
+            'risk_color': '#3182ce',
+            'risk_icon': '🔵',
+            'risk_description': 'Ошибка анализа',
+            'quick_facts': ['Анализ не выполнен', 'Попробуйте еще раз'],
+            'decision_support': 'Недостаточно данных для принятия решения'
+        }
+    }

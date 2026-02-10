@@ -436,6 +436,27 @@ def create_smart_analysis_result(sections, document_type):
     """Создает структурированный результат умного анализа"""
     doc_config = SMART_ANALYSIS_CONFIG[document_type]
     
+    # Очищаем "псевдо-риски", где ИИ явно пишет, что существенных рисков нет
+    if sections.get('key_risks'):
+        cleaned_risks = []
+        for risk in sections['key_risks']:
+            title = (risk.get('title') or '').lower()
+            desc = (risk.get('description') or '').lower()
+            combined = f"{title} {desc}"
+            # Частые формулировки "без рисков"
+            no_risk_phrases = [
+                'существенных рисков не выявлено',
+                'существенных рисков не обнаружено',
+                'существенные риски не выявлены',
+                'существенные риски отсутствуют',
+                'рисков не выявлено',
+                'рисков не обнаружено'
+            ]
+            if any(phrase in combined for phrase in no_risk_phrases):
+                continue
+            cleaned_risks.append(risk)
+        sections['key_risks'] = cleaned_risks
+    
     # Подсчитываем статистику рисков
     risk_stats = {
         'CRITICAL': 0,

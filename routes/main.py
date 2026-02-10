@@ -1836,8 +1836,11 @@ def home():
                     ` : ''}
                 </div>
             ` : `
-                <!-- Визуализация статистики рисков -->
-                ${analysis.risk_analysis && analysis.risk_analysis.risk_statistics ? `
+                <!-- Визуализация статистики рисков или сообщение об отсутствии рисков -->
+                ${analysis.risk_analysis && analysis.risk_analysis.risk_statistics
+                    ? (
+                        (analysis.risk_analysis.risk_statistics.total || 0) > 0
+                        ? `
                 <div class="analysis-block" style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 25px rgba(0,0,0,0.1); width: 100%; max-width: 100%;">
                     <h4 style="color: var(--dark); margin-bottom: 25px; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 12px;">
                         <span style="font-size: 1.8rem;">📊</span> Статистика рисков
@@ -1873,7 +1876,21 @@ def home():
                         </div>
                     </div>
                 </div>
-                ` : ''}
+                        `
+                        : `
+                <div class="analysis-block" style="background: #f0fff4; padding: 24px; border-radius: 15px; margin: 20px 0; border-left: 5px solid #38a169; box-shadow: 0 4px 18px rgba(0,0,0,0.06); width: 100%; max-width: 100%;">
+                    <h4 style="color: #22543d; margin-bottom: 12px; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.6rem;">✅</span> Существенных рисков не выявлено
+                    </h4>
+                    <p style="margin: 0; color: #2f855a; font-size: 1rem; line-height: 1.6;">
+                        По результатам анализа в документе не обнаружено критических или высоких юридических и финансовых рисков.
+                        Тем не менее рекомендуется внимательно ознакомиться с договором и учесть общие рекомендации по улучшению условий.
+                    </p>
+                </div>
+                        `
+                    )
+                    : ''
+                }
                 
                 <!-- Юридическая экспертиза -->
                 <div class="analysis-block expert-section" style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0; border-left: 5px solid var(--primary); box-shadow: 0 5px 25px rgba(0,0,0,0.1); width: 100%; max-width: 100%;">

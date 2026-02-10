@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Проверка документов онлайн бесплатно с ИИ | Анализ за 60 секунд | DocScan AI</title>
+    <title>Проверка документов онлайн бесплатно — проверка документов за 60 секунд | DocScan AI</title>
     <link rel="canonical" href="https://docscan-ai.ru/proverka-dokumentov-onlayn">
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Проверка документов онлайн бесплатно с искусственным интеллектом. Автоматическая проверка документов, договоров, справок на риски за 60 секунд. Проверьте документ прямо сейчас!">
-    <meta name="keywords" content="проверка документов онлайн, проверка документов онлайн бесплатно, проверка документов, автоматическая проверка документов, проверка документов с ИИ, проверка документов в электронном виде, проверка документов бесплатно, проверка документов на подлинность, проверка документов xml, проверка документов схема, проверка документов c, проверка документов приказов, проверка документов по коду, проверка документов товара, проверка правописания документа, проверка документов онлайн бесплатно">
+    <meta name="description" content="Проверка документов онлайн бесплатно: автоматическая проверка документов и договоров на риски за 60 секунд. Проверка документов в электронном виде (PDF, DOCX, TXT). Проверьте документ прямо сейчас!">
+    <meta name="keywords" content="проверка документов, проверка документов онлайн, проверка документов онлайн бесплатно, проверка документов бесплатно, автоматическая проверка документов, проверка документов в электронном виде, проверка документов на подлинность, проверка документов организации, проверка электронного документа, проверка документов по коду, проверка документов xml">
     <meta name="author" content="DocScan AI">
     <meta name="robots" content="index, follow">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Проверка документов онлайн бесплатно с ИИ | DocScan AI">
+    <meta property="og:title" content="Проверка документов онлайн бесплатно | DocScan AI">
     <meta property="og:description" content="Проверка документов онлайн бесплатно с искусственным интеллектом. Автоматический анализ договоров, справок, документов на риски за 60 секунд.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docscan-ai.ru/proverka-dokumentov-onlayn">
@@ -309,6 +309,138 @@
             font-size: 1.2rem;
             margin-bottom: 30px;
         }
+
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1100;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .burger-line {
+            width: 18px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            padding: 12px 0;
+            min-width: 200px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        #mobileAuthButtons, #mobileUserMenu {
+            border-top: 1px solid var(--border);
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        
+        #mobileAuthButtons a, #mobileUserMenu a {
+            display: block;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0 25px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+        }
         
         @media (max-width: 768px) {
             .hero-title {
@@ -331,13 +463,12 @@
                 grid-template-columns: 1fr;
             }
             
-            .header-content {
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-            
             .nav-links {
                 display: none;
+            }
+
+            .burger-menu {
+                display: block;
             }
         }
     </style>
@@ -433,7 +564,7 @@
                 <strong>Проверка документов онлайн</strong> — это современный способ анализа документов с помощью искусственного интеллекта. Вместо того чтобы обращаться к юристу или тратить часы на самостоятельное изучение договора, вы можете загрузить документ на наш сайт и получить детальный анализ за 60 секунд.
             </p>
             <p>
-                Наш сервис <strong>проверки документов онлайн бесплатно</strong> использует нейросеть YandexGPT для анализа различных типов документов: договоров аренды, трудовых договоров, договоров займа, договоров поставки и многих других. ИИ проверяет документ на юридические риски, финансовые условия, операционные риски и предоставляет практические рекомендации.
+                Наш сервис <strong>проверки документов онлайн бесплатно</strong> использует современные технологии искусственного интеллекта для анализа различных типов документов: договоров аренды, трудовых договоров, договоров займа, договоров поставки и многих других. Система проверяет документ на юридические риски, финансовые условия, операционные риски и предоставляет практические рекомендации.
             </p>
 
             <div class="feature-box">
@@ -622,14 +753,81 @@
         </div>
     </div>
 
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/analiz-dokumentov">📄 Анализ документов</a>
+            <a href="/calculator-penalty">🧮 Калькулятор</a>
+            <a href="/mobile-app">📱 Приложение</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/faq">❓ FAQ</a>
+            <a href="/contact">📞 Контакты</a>
+            <div id="mobileAuthButtons">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+        </div>
+    </div>
+
     <!-- Footer -->
-    <footer style="background: var(--dark); color: white; padding: 40px 0; margin-top: 60px;">
-        <div class="container" style="text-align: center;">
-            <p style="color: rgba(255,255,255,0.8); margin-bottom: 15px;">© 2025 DocScan AI. Все права защищены.</p>
-            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                <a href="/terms" style="color: rgba(255,255,255,0.8); text-decoration: none;">Пользовательское соглашение</a>
-                <a href="/privacy" style="color: rgba(255,255,255,0.8); text-decoration: none;">Политика конфиденциальности</a>
-                <a href="/contact" style="color: rgba(255,255,255,0.8); text-decoration: none;">Контакты</a>
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Проверка документов онлайн бесплатно. Автоматическая проверка документов и договоров с искусственным интеллектом за 60 секунд.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/proverka-dokumentov-onlayn" class="footer-link">Проверка документов онлайн</a>
+                        <a href="/analiz-dokumentov" class="footer-link">Анализ документов</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/mobile-app" class="footer-link">📱 Приложение</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
             </div>
         </div>
     </footer>
@@ -657,18 +855,39 @@
                 
                 const authButtons = document.getElementById('authButtons');
                 const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
                 
                 if (data.authenticated) {
                     if (authButtons) authButtons.style.display = 'none';
                     if (userMenu) userMenu.style.display = 'flex';
+                    if (mobileAuth) mobileAuth.style.display = 'none';
+                    if (mobileUser) mobileUser.style.display = 'block';
                 } else {
                     if (authButtons) authButtons.style.display = 'flex';
                     if (userMenu) userMenu.style.display = 'none';
+                    if (mobileAuth) mobileAuth.style.display = 'block';
+                    if (mobileUser) mobileUser.style.display = 'none';
                 }
             } catch (error) {
                 console.error('Auth check error:', error);
             }
         }
+
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            if (dropdown) dropdown.classList.toggle('show');
+        }
+        
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            if (!menu || !dropdown) return;
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
         
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();

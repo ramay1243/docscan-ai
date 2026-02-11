@@ -128,24 +128,20 @@ def activate_plan(user_id, plan_type='basic'):
         if plan_type not in PLANS:
             return {'success': False, 'error': 'Неверный тариф'}
         
-        user = app.user_manager.get_user(user_id)
+        # Используем метод set_user_plan из user_manager, который правильно работает с SQLite
+        result = app.user_manager.set_user_plan(user_id, plan_type)
         
-        # Устанавливаем тариф на 30 дней
-        from datetime import timedelta, date
-        expire_date = date.today() + timedelta(days=30)
-        
-        user['plan'] = plan_type
-        user['plan_expires'] = expire_date.isoformat()
-        user['used_today'] = 0  # Сбрасываем дневной лимит
-        
-        app.user_manager.save_users()
-        
-        logger.info(f"🎉 Активирован тариф {plan_type} для пользователя {user_id} до {expire_date}")
-        
-        return {
-            'success': True,
-            'message': f'Тариф {PLANS[plan_type]["name"]} активирован до {expire_date}'
-        }
+        if result.get('success'):
+            from datetime import timedelta, date
+            expire_date = date.today() + timedelta(days=30)
+            logger.info(f"🎉 Активирован тариф {plan_type} для пользователя {user_id} до {expire_date}")
+            return {
+                'success': True,
+                'message': f'Тариф {PLANS[plan_type]["name"]} активирован до {expire_date}'
+            }
+        else:
+            # Если set_user_plan вернул ошибку, возвращаем её
+            return result
         
     except Exception as e:
         logger.error(f"❌ Ошибка активации тарифа: {e}")

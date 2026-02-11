@@ -911,19 +911,39 @@
     
     <!-- Schema.org -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "ContactPage",
-      "name": "Контакты DocScan AI",
-      "description": "Страница контактов DocScan AI",
-      "url": "https://docscan-ai.ru/contact",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "docscanhelp@gmail.com",
-        "contactType": "customer service",
-        "availableLanguage": ["Russian"]
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        "name": "Контакты DocScan AI",
+        "description": "Страница контактов DocScan AI",
+        "url": "https://docscan-ai.ru/contact",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "docscanhelp@gmail.com",
+          "contactType": "customer service",
+          "availableLanguage": ["Russian"]
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Главная",
+            "item": "https://docscan-ai.ru"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Контакты",
+            "item": "https://docscan-ai.ru/contact"
+          }
+        ]
       }
-    }
+    ]
     </script>
     
     <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->

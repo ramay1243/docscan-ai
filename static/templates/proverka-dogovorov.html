@@ -1273,7 +1273,7 @@
                     if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
                 }
             } catch (error) {
-                console.error('Auth check error:', error);
+                // Auth check error handled silently
                 const authButtons = document.getElementById('authButtons');
                 const userMenu = document.getElementById('userMenu');
                 const mobileAuth = document.getElementById('mobileAuthButtons');

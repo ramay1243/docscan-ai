@@ -1102,7 +1102,7 @@
                     if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
                 }
             } catch (error) {
-                console.error('Auth check error:', error);
+                // Auth check error handled silently
                 const authButtons = document.getElementById('authButtons');
                 const userMenu = document.getElementById('userMenu');
                 const mobileAuth = document.getElementById('mobileAuthButtons');
@@ -1128,7 +1128,6 @@
         if (downloadBtn) {
             downloadBtn.addEventListener('click', function(e) {
                 // Track download
-                console.log('Download started');
                 
                 // Change button text temporarily
                 const originalText = this.innerHTML;

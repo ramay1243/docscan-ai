@@ -2495,10 +2495,8 @@ def robots():
 Allow: /
 Disallow: /admin/
 Disallow: /admin-login
-
-# Дополнительные запреты, если нужны:
-# Disallow: /cabinet/
-# Disallow: /api/
+Disallow: /cabinet/
+Disallow: /api/
 
 Sitemap: https://docscan-ai.ru/sitemap.xml""", 200, {'Content-Type': 'text/plain'}
 

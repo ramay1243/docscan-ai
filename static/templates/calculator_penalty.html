@@ -1244,7 +1244,7 @@
                     headers: {'Content-Type': 'application/json'},
                     credentials: 'include',
                     body: JSON.stringify({ user_id: user_id })
-                }).catch(e => console.log('Analytics error:', e));
+                }).catch(e => { /* Analytics error handled silently */ });
             })
             .catch(e => {
                 // Если не удалось получить auth, отправляем без user_id
@@ -1253,10 +1253,10 @@
                     headers: {'Content-Type': 'application/json'},
                     credentials: 'include',
                     body: JSON.stringify({ user_id: null })
-                }).catch(err => console.log('Analytics error:', err));
+                }).catch(err => { /* Analytics error handled silently */ });
             });
     } catch (e) {
-        console.log('Failed to send analytics:', e);
+        // Failed to send analytics - handled silently
     }
             
             // Проверяем валидность ввода
@@ -1489,7 +1489,7 @@
                     if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
                 }
             } catch (error) {
-                console.error('Auth check error:', error);
+                // Auth check error handled silently
                 const authButtons = document.getElementById('authButtons');
                 const userMenu = document.getElementById('userMenu');
                 const mobileAuth = document.getElementById('mobileAuthButtons');

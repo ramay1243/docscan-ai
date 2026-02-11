@@ -805,7 +805,6 @@
         
         // Проверяем авторизацию при загрузке
         async function checkAuth() {
-            console.log('🔍 [checkAuth] Функция вызвана');
             try {
                 const response = await fetch('/api/check-auth', {
                     credentials: 'include',
@@ -832,7 +831,7 @@
                     if (mobileUser) mobileUser.setAttribute('style', 'display: none !important;');
                 }
             } catch (error) {
-                console.error('Auth check error:', error);
+                // Auth check error handled silently
                 const authButtons = document.getElementById('authButtons');
                 const userMenu = document.getElementById('userMenu');
                 const mobileAuth = document.getElementById('mobileAuthButtons');

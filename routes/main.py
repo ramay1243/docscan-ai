@@ -2222,7 +2222,7 @@ def home():
             "name": "DocScan AI",
             "url": "https://docscan-ai.ru",
             "logo": "https://docscan-ai.ru/static/favicon.ico",
-            "description": "Автоматический анализ документов с искусственным интеллектом. Проверка договоров на юридические и финансовые риски за 60 секунд.",
+            "description": "DocScan AI — умный помощник для проверки документов. Находите скрытые риски в договорах, справках и контрактах за минуту. Первый анализ бесплатно. Без регистрации, без скрытых платежей.",
             "contactPoint": {
                 "@type": "ContactPoint",
                 "email": "docscanhelp@gmail.com",
@@ -2239,7 +2239,7 @@ def home():
             "name": "DocScan AI",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "Web Browser",
-            "description": "Автоматический анализ документов с искусственным интеллектом. Проверка договоров на юридические и финансовые риски за 60 секунд.",
+            "description": "DocScan AI — умный помощник для проверки документов. Находите скрытые риски в договорах, справках и контрактах за минуту. Первый анализ бесплатно. Без регистрации, без скрытых платежей.",
             "url": "https://docscan-ai.ru",
             "author": {
                 "@type": "Organization",

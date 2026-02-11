@@ -1,0 +1,46 @@
+Список всех URL для переобхода в Яндекс.Вебмастер
+==================================================
+
+Базовый URL: https://docscan-ai.ru
+
+ПРИОРИТЕТНЫЕ СТРАНИЦЫ:
+----------------------
+https://docscan-ai.ru/
+https://docscan-ai.ru/analiz-dokumentov
+https://docscan-ai.ru/proverka-dogovorov
+https://docscan-ai.ru/proverka-dokumentov-onlayn
+https://docscan-ai.ru/articles
+https://docscan-ai.ru/faq
+https://docscan-ai.ru/calculator-penalty
+https://docscan-ai.ru/mobile-app
+
+СТАТЬИ:
+-------
+https://docscan-ai.ru/articles/about
+https://docscan-ai.ru/articles/guide
+https://docscan-ai.ru/articles/tech
+https://docscan-ai.ru/articles/rent
+https://docscan-ai.ru/articles/labor
+https://docscan-ai.ru/articles/tax
+https://docscan-ai.ru/articles/business-protection
+https://docscan-ai.ru/articles/freelance-gph
+https://docscan-ai.ru/articles/ipoteka-2025
+https://docscan-ai.ru/articles/nalogovaya-proverka
+
+ДОПОЛНИТЕЛЬНЫЕ СТРАНИЦЫ:
+------------------------
+https://docscan-ai.ru/riski-dogovora-zayma
+https://docscan-ai.ru/avtokredit-skrytye-usloviya
+https://docscan-ai.ru/ii-dlya-proverki-dogovorov-onlayn-besplatno
+https://docscan-ai.ru/medicinskie-dokumenty-analiz
+https://docscan-ai.ru/contact
+
+СЛУЖЕБНЫЕ СТРАНИЦЫ:
+------------------
+https://docscan-ai.ru/terms
+https://docscan-ai.ru/privacy
+https://docscan-ai.ru/offer
+
+==================================================
+ВСЕГО: 25 страниц для переобхода
+

@@ -329,8 +329,9 @@ class SQLiteUserManager:
         return user
 
     def get_all_users(self):
-        """Возвращает всех пользователей"""
-        users = self.User.query.all()
+        """Возвращает всех пользователей, отсортированных по дате создания (новые сначала)"""
+        # Сортируем по created_at в порядке убывания (новые сначала)
+        users = self.User.query.order_by(self.User.created_at.desc()).all()
         
         # Проверяем просроченные тарифы
         from datetime import date

@@ -2490,13 +2490,13 @@ def admin_stats():
     total_guests = Guest.query.filter_by(registered_user_id=None).count()
     stats['total_guests'] = total_guests
     
-    # Новые пользователи за последние 24 часа
-    yesterday = (datetime.now() - timedelta(days=1)).isoformat()
-    new_users_24h = User.query.filter(User.created_at >= yesterday).count()
+    # Новые пользователи за сегодня (с 0:00)
+    today_str = date.today().isoformat()
+    new_users_24h = User.query.filter(User.created_at >= today_str).count()
     stats['new_users_24h'] = new_users_24h
     
-    # Новые гости за последние 24 часа
-    new_guests_24h = Guest.query.filter(Guest.first_seen >= yesterday).count()
+    # Новые гости за сегодня (с 0:00)
+    new_guests_24h = Guest.query.filter(Guest.first_seen >= today_str).count()
     stats['new_guests_24h'] = new_guests_24h
     
     # Статистика доходов
@@ -2564,12 +2564,12 @@ def get_payments():
 @admin_bp.route('/new-users')
 @require_admin_auth
 def get_new_users():
-    """Получить новых пользователей за последние 24 часа"""
+    """Получить новых пользователей за сегодня (с 0:00)"""
     from models.sqlite_users import User, AnalysisHistory
     from datetime import datetime, timedelta, date
     
-    yesterday = (datetime.now() - timedelta(days=1)).isoformat()
-    new_users = User.query.filter(User.created_at >= yesterday).order_by(User.created_at.desc()).all()
+    today_str = date.today().isoformat()
+    new_users = User.query.filter(User.created_at >= today_str).order_by(User.created_at.desc()).all()
     
     users_list = []
     # Получаем сегодняшнюю дату для проверки анализов за сегодня

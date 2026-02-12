@@ -1281,7 +1281,7 @@ def admin_panel():
                                     <td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td>
                                     <td style="padding: 10px;">${planExpires}</td>
                                     <td style="padding: 10px;">${user.total_used || 0}</td>
-                                    <td style="padding: 10px;">${user.used_today || 0}/${getPlanLimit(user.plan || 'free')}</td>
+                                    <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}/${getPlanLimit(user.plan || 'free')}</td>
                                     <td style="padding: 10px;">
                                         <button onclick="setUserPlanQuick('${user.userId}', 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
                                         <button onclick="setUserPlanQuick('${user.userId}', 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
@@ -2351,9 +2351,14 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
 def get_all_users():
     """Получить всех пользователей (отсортированных по дате создания, новые сначала)"""
     from app import app
+    from models.sqlite_users import AnalysisHistory
+    from datetime import date
     
     # Получаем пользователей из SQLite (уже отсортированы по created_at DESC)
     users_list = app.user_manager.get_all_users()
+    
+    # Получаем сегодняшнюю дату для фильтрации анализов
+    today = date.today().isoformat()
     
     # Конвертируем в dict для совместимости, сохраняя порядок
     users_dict = {}
@@ -2363,7 +2368,7 @@ def get_all_users():
     # Создаем менеджер IP-лимитов
     ip_manager = IPLimitManager()
     
-    # Добавляем IP-адреса к каждому пользователю
+    # Добавляем IP-адреса и анализы за сегодня к каждому пользователю
     for user_id, user_data in users_dict.items():
         user_ip = "Не определен"
         
@@ -2375,6 +2380,14 @@ def get_all_users():
                 break
         
         user_data['ip_address'] = user_ip
+        
+        # Подсчитываем реальные анализы за сегодня из AnalysisHistory
+        analyses_today = AnalysisHistory.query.filter(
+            AnalysisHistory.user_id == user_id,
+            AnalysisHistory.created_at.like(f'{today}%')
+        ).count()
+        
+        user_data['analyses_today'] = analyses_today
     
     # Возвращаем словарь - порядок сохранится в Python 3.7+ и при использовании OrderedDict
     # Но для надежности также добавим сортировку на клиенте

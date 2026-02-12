@@ -20,7 +20,7 @@ https://docscan-ai.ru/articles/about
 https://docscan-ai.ru/articles/guide
 https://docscan-ai.ru/articles/tech
 https://docscan-ai.ru/articles/rent
-https://docscan-ai.ru/articles/labor
+https://docscan-ai.ru/articles/labor ----
 https://docscan-ai.ru/articles/tax
 https://docscan-ai.ru/articles/business-protection
 https://docscan-ai.ru/articles/freelance-gph

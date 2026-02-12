@@ -1242,26 +1242,53 @@ def admin_panel():
                 fetch('/admin/users', {credentials: 'include'})
                     .then(r => r.json())
                     .then(users => {
+                        // Преобразуем объект в массив и сортируем по дате создания (новые сначала)
+                        const usersArray = Object.entries(users).map(([userId, userData]) => ({
+                            userId: userId,
+                            ...userData
+                        }));
+                        
+                        // Сортируем по created_at (новые сначала)
+                        usersArray.sort((a, b) => {
+                            if (!a.created_at && !b.created_at) return 0;
+                            if (!a.created_at) return 1;
+                            if (!b.created_at) return -1;
+                            return new Date(b.created_at) - new Date(a.created_at);
+                        });
+                        
                         let html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф до</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Анализов всего</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сегодня</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
-                        for (const [userId, userData] of Object.entries(users)) {
-                            const createdDate = userData.created_at ? new Date(userData.created_at).toLocaleString('ru-RU') : 'Неизвестно';
-                            const planExpires = userData.plan_expires ? new Date(userData.plan_expires).toLocaleDateString('ru-RU') : '—';
+                        
+                        usersArray.forEach(user => {
+                            const createdDate = user.created_at ? (function() {
+                                try {
+                                    return new Date(user.created_at).toLocaleString('ru-RU');
+                                } catch(e) {
+                                    return user.created_at;
+                                }
+                            })() : 'Неизвестно';
+                            const planExpires = user.plan_expires ? (function() {
+                                try {
+                                    return new Date(user.plan_expires).toLocaleDateString('ru-RU');
+                                } catch(e) {
+                                    return user.plan_expires;
+                                }
+                            })() : '—';
                             html += `
-                                <tr style="border-bottom: 1px solid #e2e8f0;" class="user-card-row" data-user-id="${userId}">
-                                    <td style="padding: 10px;"><strong>${userId}</strong></td>
-                                    <td style="padding: 10px;">${userData.email || 'Не указан'}</td>
+                                <tr style="border-bottom: 1px solid #e2e8f0;" class="user-card-row" data-user-id="${user.userId}">
+                                    <td style="padding: 10px;"><strong>${user.userId}</strong></td>
+                                    <td style="padding: 10px;">${user.email || 'Не указан'}</td>
                                     <td style="padding: 10px;">${createdDate}</td>
-                                    <td style="padding: 10px;">${getPlanName(userData.plan)}</td>
+                                    <td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td>
                                     <td style="padding: 10px;">${planExpires}</td>
-                                    <td style="padding: 10px;">${userData.total_used || 0}</td>
-                                    <td style="padding: 10px;">${userData.used_today || 0}/${getPlanLimit(userData.plan)}</td>
+                                    <td style="padding: 10px;">${user.total_used || 0}</td>
+                                    <td style="padding: 10px;">${user.used_today || 0}/${getPlanLimit(user.plan || 'free')}</td>
                                     <td style="padding: 10px;">
-                                        <button onclick="setUserPlanQuick('${userId}', 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
-                                        <button onclick="setUserPlanQuick('${userId}', 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
+                                        <button onclick="setUserPlanQuick('${user.userId}', 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
+                                        <button onclick="setUserPlanQuick('${user.userId}', 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
                                     </td>
                                 </tr>
                             `;
-                        }
+                        });
                         html += '</tbody></table>';
                         document.getElementById('usersList').innerHTML = html;
                     });
@@ -2322,13 +2349,13 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
 @admin_bp.route('/users')
 @require_admin_auth
 def get_all_users():
-    """Получить всех пользователей"""
+    """Получить всех пользователей (отсортированных по дате создания, новые сначала)"""
     from app import app
     
-    # Получаем пользователей из SQLite
+    # Получаем пользователей из SQLite (уже отсортированы по created_at DESC)
     users_list = app.user_manager.get_all_users()
     
-    # Конвертируем в dict для совместимости
+    # Конвертируем в dict для совместимости, сохраняя порядок
     users_dict = {}
     for user in users_list:
         users_dict[user.user_id] = user.to_dict()
@@ -2349,6 +2376,8 @@ def get_all_users():
         
         user_data['ip_address'] = user_ip
     
+    # Возвращаем словарь - порядок сохранится в Python 3.7+ и при использовании OrderedDict
+    # Но для надежности также добавим сортировку на клиенте
     return jsonify(users_dict)
 
 @admin_bp.route('/set-plan', methods=['POST'])

@@ -469,8 +469,12 @@ def admin_panel():
                     <div id="totalUsers" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3>🆕 Новых за 24 часа</h3>
+                    <h3>🆕 Новых пользователей за 24 часа</h3>
                     <div id="newUsers24h" style="font-size: 2rem; font-weight: bold; color: #48bb78; margin-top: 10px;">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🆕 Новых гостей за 24 часа</h3>
+                    <div id="newGuests24h" style="font-size: 2rem; font-weight: bold; color: #ed8936; margin-top: 10px;">0</div>
                 </div>
                 <div class="stat-card">
                     <h3>👤 Всего гостей</h3>
@@ -1061,6 +1065,7 @@ def admin_panel():
                     .then(stats => {
                         document.getElementById('totalUsers').textContent = stats.total_users;
                         document.getElementById('newUsers24h').textContent = stats.new_users_24h || 0;
+                        document.getElementById('newGuests24h').textContent = stats.new_guests_24h || 0;
                         document.getElementById('totalGuests').textContent = stats.total_guests || 0;
                         document.getElementById('totalAnalyses').textContent = stats.total_analyses;
                         document.getElementById('todayAnalyses').textContent = stats.today_analyses;
@@ -2445,6 +2450,10 @@ def admin_stats():
     yesterday = (datetime.now() - timedelta(days=1)).isoformat()
     new_users_24h = User.query.filter(User.created_at >= yesterday).count()
     stats['new_users_24h'] = new_users_24h
+    
+    # Новые гости за последние 24 часа
+    new_guests_24h = Guest.query.filter(Guest.first_seen >= yesterday).count()
+    stats['new_guests_24h'] = new_guests_24h
     
     # Статистика доходов
     all_payments = Payment.query.filter_by(status='success').all()

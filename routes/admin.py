@@ -2492,11 +2492,11 @@ def admin_stats():
     
     # Новые пользователи за сегодня (с 0:00)
     today_str = date.today().isoformat()
-    new_users_24h = User.query.filter(User.created_at >= today_str).count()
+    new_users_24h = User.query.filter(User.created_at.like(f'{today_str}%')).count()
     stats['new_users_24h'] = new_users_24h
     
     # Новые гости за сегодня (с 0:00)
-    new_guests_24h = Guest.query.filter(Guest.first_seen >= today_str).count()
+    new_guests_24h = Guest.query.filter(Guest.first_seen.like(f'{today_str}%')).count()
     stats['new_guests_24h'] = new_guests_24h
     
     # Статистика доходов
@@ -2569,7 +2569,7 @@ def get_new_users():
     from datetime import datetime, timedelta, date
     
     today_str = date.today().isoformat()
-    new_users = User.query.filter(User.created_at >= today_str).order_by(User.created_at.desc()).all()
+    new_users = User.query.filter(User.created_at.like(f'{today_str}%')).order_by(User.created_at.desc()).all()
     
     users_list = []
     # Получаем сегодняшнюю дату для проверки анализов за сегодня

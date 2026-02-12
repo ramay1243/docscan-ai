@@ -309,15 +309,29 @@ def cabinet():
     
     # Получаем статистику - используем актуальный план из БД
     from config import PLANS
+    from datetime import date
     current_plan_type = user.plan
     plan = PLANS.get(current_plan_type, PLANS['free'])
     
-    logger.info(f"📊 Cabinet: user_id={user_id}, plan={current_plan_type}, plan_name={plan['name']}, daily_limit={plan['daily_limit']}, used_today={user.used_today}, plan_expires={user.plan_expires}")
+    # Вычисляем дни до окончания тарифа
+    days_left = None
+    if user.plan != 'free' and user.plan_expires:
+        try:
+            expiry_date = date.fromisoformat(user.plan_expires) if isinstance(user.plan_expires, str) else user.plan_expires
+            today = date.today()
+            delta = expiry_date - today
+            days_left = delta.days
+        except Exception as e:
+            logger.error(f"❌ Ошибка вычисления дней до окончания тарифа: {e}")
+            days_left = None
+    
+    logger.info(f"📊 Cabinet: user_id={user_id}, plan={current_plan_type}, plan_name={plan['name']}, daily_limit={plan['daily_limit']}, used_today={user.used_today}, plan_expires={user.plan_expires}, days_left={days_left}")
     
     return render_template('cabinet.html', 
         user=user,
         history=history,
-        plan=plan
+        plan=plan,
+        days_left=days_left
     )
 
 @auth_bp.route('/api/check-auth', methods=['GET'])
@@ -360,4 +374,140 @@ def check_auth():
         'plan': user.plan,
         'plan_expires': plan_expires_str
     })
+
+@auth_bp.route('/api/change-email', methods=['POST'])
+def change_email():
+    """API для смены email"""
+    user_id = session.get('user_id')
+    
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+    
+    try:
+        from app import app
+        user = app.user_manager.get_user(user_id)
+        
+        if not user or not user.is_registered:
+            return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+        
+        data = request.get_json()
+        new_email = data.get('new_email', '').strip().lower()
+        
+        if not new_email:
+            return jsonify({'success': False, 'error': 'Введите новый email'}), 400
+        
+        if not validate_email(new_email):
+            return jsonify({'success': False, 'error': 'Неверный формат email'}), 400
+        
+        # Проверяем, не занят ли email другим пользователем
+        existing_user = User.query.filter_by(email=new_email).first()
+        if existing_user and existing_user.user_id != user_id:
+            return jsonify({'success': False, 'error': 'Этот email уже используется'}), 400
+        
+        # Обновляем email и сбрасываем верификацию
+        old_email = user.email
+        user.email = new_email
+        user.email_verified = False
+        user.verification_token = generate_verification_token()
+        user.verification_token_expires = get_token_expiry()
+        
+        db.session.commit()
+        
+        # Отправляем письмо подтверждения на новый email
+        try:
+            send_verification_email(new_email, user.verification_token, user_id)
+            logger.info(f"✅ Письмо подтверждения отправлено на {new_email} для {user_id}")
+        except Exception as e:
+            logger.error(f"❌ Ошибка отправки письма подтверждения: {e}")
+        
+        logger.info(f"✅ Email изменен для {user_id}: {old_email} -> {new_email}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Email изменен. Проверьте новый email и перейдите по ссылке из письма для подтверждения.'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка смены email: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@auth_bp.route('/api/change-password', methods=['POST'])
+def change_password():
+    """API для смены пароля"""
+    user_id = session.get('user_id')
+    
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+    
+    try:
+        from app import app
+        user = app.user_manager.get_user(user_id)
+        
+        if not user or not user.is_registered:
+            return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+        
+        data = request.get_json()
+        current_password = data.get('current_password', '')
+        new_password = data.get('new_password', '')
+        
+        if not current_password or not new_password:
+            return jsonify({'success': False, 'error': 'Заполните все поля'}), 400
+        
+        if len(new_password) < 8:
+            return jsonify({'success': False, 'error': 'Пароль должен содержать минимум 8 символов'}), 400
+        
+        # Проверяем текущий пароль
+        if not verify_password(user.password_hash, current_password):
+            return jsonify({'success': False, 'error': 'Неверный текущий пароль'}), 400
+        
+        # Устанавливаем новый пароль
+        user.password_hash = hash_password(new_password)
+        db.session.commit()
+        
+        logger.info(f"✅ Пароль изменен для {user_id}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Пароль успешно изменен'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка смены пароля: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@auth_bp.route('/api/update-notifications', methods=['POST'])
+def update_notifications():
+    """API для обновления настроек уведомлений"""
+    user_id = session.get('user_id')
+    
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+    
+    try:
+        from app import app
+        user = app.user_manager.get_user(user_id)
+        
+        if not user or not user.is_registered:
+            return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+        
+        data = request.get_json()
+        email_subscribed = data.get('email_subscribed', True)
+        
+        # Обновляем настройку подписки
+        user.email_subscribed = bool(email_subscribed)
+        db.session.commit()
+        
+        logger.info(f"✅ Настройки уведомлений обновлены для {user_id}: email_subscribed={email_subscribed}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Настройки сохранены'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка обновления настроек уведомлений: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 

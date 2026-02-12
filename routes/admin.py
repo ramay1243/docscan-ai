@@ -1083,7 +1083,7 @@ def admin_panel():
                         if (!users || users.length === 0) {
                             html = '<p style="color: #999; padding: 20px;">Нет новых пользователей за последние 24 часа</p>';
                         } else {
-                            html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th></tr></thead><tbody>';
+                            html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сделал анализ</th></tr></thead><tbody>';
                             users.forEach(user => {
                                 const createdDate = user.created_at ? (function() {
                                     try {
@@ -1092,7 +1092,8 @@ def admin_panel():
                                         return user.created_at;
                                     }
                                 })() : 'Неизвестно';
-                                html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px;">${user.user_id}</td><td style="padding: 10px;">${user.email || 'Не указан'}</td><td style="padding: 10px;">${createdDate}</td><td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td></tr>`;
+                                const hasAnalysis = user.has_analysis ? '<span style="color: #48bb78; font-weight: bold;">✅ Да</span>' : '<span style="color: #f56565;">❌ Нет</span>';
+                                html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px;">${user.user_id}</td><td style="padding: 10px;">${user.email || 'Не указан'}</td><td style="padding: 10px;">${createdDate}</td><td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td><td style="padding: 10px;">${hasAnalysis}</td></tr>`;
                             });
                             html += '</tbody></table>';
                         }
@@ -2563,7 +2564,7 @@ def get_payments():
 @require_admin_auth
 def get_new_users():
     """Получить новых пользователей за последние 24 часа"""
-    from models.sqlite_users import User
+    from models.sqlite_users import User, AnalysisHistory
     from datetime import datetime, timedelta
     
     yesterday = (datetime.now() - timedelta(days=1)).isoformat()
@@ -2572,6 +2573,11 @@ def get_new_users():
     users_list = []
     for user in new_users:
         user_dict = user.to_dict()
+        
+        # Проверяем, сделал ли пользователь хотя бы один анализ
+        has_analysis = AnalysisHistory.query.filter_by(user_id=user.user_id).first() is not None
+        user_dict['has_analysis'] = has_analysis
+        
         users_list.append(user_dict)
     
     return jsonify(users_list)

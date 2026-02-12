@@ -107,6 +107,41 @@ def payment_webhook():
                 user_id = parts[0]
                 plan_type = parts[-1]
                 
+                # Получаем email пользователя
+                from app import app
+                user = app.user_manager.get_user(user_id)
+                user_email = user.email if user else None
+                
+                # Сохраняем платеж в БД
+                try:
+                    from models.sqlite_users import Payment, db
+                    from datetime import datetime
+                    import json
+                    
+                    # Получаем дату из webhook или используем текущую
+                    payment_datetime = data.get('datetime', '')
+                    if not payment_datetime:
+                        payment_datetime = datetime.now().isoformat()
+                    
+                    payment = Payment(
+                        user_id=user_id,
+                        email=user_email,
+                        plan_type=plan_type,
+                        amount=float(data.get('amount', 0)),
+                        currency=data.get('currency', 'RUB'),
+                        provider='yoomoney',
+                        status='success',
+                        operation_id=data.get('operation_id'),
+                        label=label,
+                        created_at=payment_datetime,
+                        raw_data=json.dumps(dict(data))
+                    )
+                    db.session.add(payment)
+                    db.session.commit()
+                    logger.info(f"💰 Платеж сохранен в БД: user_id={user_id}, amount={payment.amount}, plan={plan_type}")
+                except Exception as e:
+                    logger.error(f"❌ Ошибка сохранения платежа в БД: {e}")
+                
                 # Активируем тариф автоматически
                 activate_response = activate_plan(user_id, plan_type)
                 logger.info(f"✅ Тариф активирован для {user_id}: {activate_response}")

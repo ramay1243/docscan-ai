@@ -466,20 +466,56 @@ def admin_panel():
             <div class="stats">
                 <div class="stat-card">
                     <h3>👥 Всего пользователей</h3>
-                            <div id="totalUsers" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>👤 Всего гостей</h3>
-                            <div id="totalGuests" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                    <div id="totalUsers" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🆕 Новых за 24 часа</h3>
+                    <div id="newUsers24h" style="font-size: 2rem; font-weight: bold; color: #48bb78; margin-top: 10px;">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>👤 Всего гостей</h3>
+                    <div id="totalGuests" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                 </div>
                 <div class="stat-card">
                     <h3>📊 Всего анализов</h3>
-                            <div id="totalAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                    <div id="totalAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                 </div>
                 <div class="stat-card">
                     <h3>📈 Анализов сегодня</h3>
-                            <div id="todayAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                    <div id="todayAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                 </div>
+                <div class="stat-card">
+                    <h3>💰 Доход сегодня</h3>
+                    <div id="todayRevenue" style="font-size: 2rem; font-weight: bold; color: #48bb78; margin-top: 10px;">0 ₽</div>
+                </div>
+                <div class="stat-card">
+                    <h3>💰 Доход за всё время</h3>
+                    <div id="totalRevenue" style="font-size: 2rem; font-weight: bold; color: #48bb78; margin-top: 10px;">0 ₽</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🧾 Платежей сегодня</h3>
+                    <div id="todayPayments" style="font-size: 2rem; font-weight: bold; color: #ed8936; margin-top: 10px;">0</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🆕 Новые пользователи за последние 24 часа</h3>
+                <button onclick="loadNewUsers()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">🔄 Обновить</button>
+                <div id="newUsersList"></div>
+            </div>
+            
+            <div class="card">
+                <h3>💰 Последние платежи</h3>
+                <div style="margin-bottom: 20px;">
+                    <select id="paymentsFilter" onchange="loadPayments()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                        <option value="">Все платежи</option>
+                        <option value="1">За сегодня</option>
+                        <option value="7">За 7 дней</option>
+                        <option value="30">За 30 дней</option>
+                    </select>
+                    <button onclick="loadPayments()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🔄 Обновить</button>
+                </div>
+                <div id="paymentsList"></div>
             </div>
             
                     <div class="card">
@@ -1024,9 +1060,82 @@ def admin_panel():
                     .then(r => r.json())
                     .then(stats => {
                         document.getElementById('totalUsers').textContent = stats.total_users;
+                        document.getElementById('newUsers24h').textContent = stats.new_users_24h || 0;
                         document.getElementById('totalGuests').textContent = stats.total_guests || 0;
                         document.getElementById('totalAnalyses').textContent = stats.total_analyses;
                         document.getElementById('todayAnalyses').textContent = stats.today_analyses;
+                        document.getElementById('todayRevenue').textContent = (stats.today_revenue || 0).toFixed(2) + ' ₽';
+                        document.getElementById('totalRevenue').textContent = (stats.total_revenue || 0).toFixed(2) + ' ₽';
+                        document.getElementById('todayPayments').textContent = stats.today_payments || 0;
+                    });
+            }
+            
+            function loadNewUsers() {
+                fetch('/admin/new-users', {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(users => {
+                        let html = '';
+                        if (!users || users.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет новых пользователей за последние 24 часа</p>';
+                        } else {
+                            html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th></tr></thead><tbody>';
+                            users.forEach(user => {
+                                const createdDate = user.created_at ? (function() {
+                                    try {
+                                        return new Date(user.created_at).toLocaleString('ru-RU');
+                                    } catch(e) {
+                                        return user.created_at;
+                                    }
+                                })() : 'Неизвестно';
+                                html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px;">${user.user_id}</td><td style="padding: 10px;">${user.email || 'Не указан'}</td><td style="padding: 10px;">${createdDate}</td><td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td></tr>`;
+                            });
+                            html += '</tbody></table>';
+                        }
+                        const el = document.getElementById('newUsersList');
+                        if (el) el.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error('Ошибка загрузки новых пользователей:', err);
+                        const el = document.getElementById('newUsersList');
+                        if (el) el.innerHTML = '<p style="color: #f56565; padding: 20px;">Ошибка загрузки данных</p>';
+                    });
+            }
+            
+            function loadPayments() {
+                const days = document.getElementById('paymentsFilter') ? document.getElementById('paymentsFilter').value : '';
+                let url = '/admin/payments';
+                if (days) {
+                    url += '?days=' + days;
+                }
+                
+                fetch(url, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(payments => {
+                        let html = '';
+                        if (!payments || payments.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет платежей</p>';
+                        } else {
+                            html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сумма</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Статус</th></tr></thead><tbody>';
+                            payments.forEach(payment => {
+                                const date = payment.created_at ? (function() {
+                                    try {
+                                        return new Date(payment.created_at).toLocaleString('ru-RU');
+                                    } catch(e) {
+                                        return payment.created_at;
+                                    }
+                                })() : 'Неизвестно';
+                                const amount = payment.amount ? payment.amount.toFixed(2) : '0.00';
+                                html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px;">${date}</td><td style="padding: 10px;">${payment.email || 'Не указан'}</td><td style="padding: 10px;">${getPlanName(payment.plan_type || 'basic')}</td><td style="padding: 10px; font-weight: bold; color: #48bb78;">${amount} ${payment.currency || 'RUB'}</td><td style="padding: 10px;"><span style="color: #48bb78;">✅ ${payment.status || 'success'}</span></td></tr>`;
+                            });
+                            html += '</tbody></table>';
+                        }
+                        const el = document.getElementById('paymentsList');
+                        if (el) el.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error('Ошибка загрузки платежей:', err);
+                        const el = document.getElementById('paymentsList');
+                        if (el) el.innerHTML = '<p style="color: #f56565; padding: 20px;">Ошибка загрузки данных</p>';
                     });
             }
             
@@ -1123,27 +1232,32 @@ def admin_panel():
 
             function loadUsers() {
                 // Очищаем поиск при новой загрузке
-    document.getElementById('searchUser').value = '';
-    document.getElementById('searchStatus').textContent = '';
-                    fetch('/admin/users', {credentials: 'include'})
+                document.getElementById('searchUser').value = '';
+                document.getElementById('searchStatus').textContent = '';
+                fetch('/admin/users', {credentials: 'include'})
                     .then(r => r.json())
                     .then(users => {
-                        let html = '';
+                        let html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф до</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Анализов всего</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сегодня</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
                         for (const [userId, userData] of Object.entries(users)) {
+                            const createdDate = userData.created_at ? new Date(userData.created_at).toLocaleString('ru-RU') : 'Неизвестно';
+                            const planExpires = userData.plan_expires ? new Date(userData.plan_expires).toLocaleDateString('ru-RU') : '—';
                             html += `
-                                <div class="user-card">
-                                    <strong>ID:</strong> ${userId}<br>
-                                    <strong>Тариф:</strong> ${userData.plan} (${getPlanName(userData.plan)})<br>
-                                    <strong>Использовано сегодня:</strong> ${userData.used_today}/${getPlanLimit(userData.plan)}<br>
-                                    <strong>Всего анализов:</strong> ${userData.total_used}<br>
-                                    <strong>Создан:</strong> ${userData.created_at || 'Неизвестно'}<br>
-                                    <strong>IP-адрес:</strong> ${userData.ip_address || 'Не определен'}<br>
-                                    <button onclick="setUserPlanQuick('${userId}', 'basic')">Выдать Базовый</button>
-                                    <button onclick="setUserPlanQuick('${userId}', 'premium')">Выдать Премиум</button>
-                                    <button onclick="setUserPlanQuick('${userId}', 'unlimited')">Выдать Безлимитный</button>
-                                </div>
+                                <tr style="border-bottom: 1px solid #e2e8f0;" class="user-card-row" data-user-id="${userId}">
+                                    <td style="padding: 10px;"><strong>${userId}</strong></td>
+                                    <td style="padding: 10px;">${userData.email || 'Не указан'}</td>
+                                    <td style="padding: 10px;">${createdDate}</td>
+                                    <td style="padding: 10px;">${getPlanName(userData.plan)}</td>
+                                    <td style="padding: 10px;">${planExpires}</td>
+                                    <td style="padding: 10px;">${userData.total_used || 0}</td>
+                                    <td style="padding: 10px;">${userData.used_today || 0}/${getPlanLimit(userData.plan)}</td>
+                                    <td style="padding: 10px;">
+                                        <button onclick="setUserPlanQuick('${userId}', 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
+                                        <button onclick="setUserPlanQuick('${userId}', 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
+                                    </td>
+                                </tr>
                             `;
                         }
+                        html += '</tbody></table>';
                         document.getElementById('usersList').innerHTML = html;
                     });
             }
@@ -1210,16 +1324,16 @@ def admin_panel():
 // ========== ФУНКЦИИ ПОИСКА ==========
 function searchUsers() {
     const searchTerm = document.getElementById('searchUser').value.toLowerCase().trim();
-    const userCards = document.querySelectorAll('.user-card');
+    const userRows = document.querySelectorAll('.user-card-row');
     let foundCount = 0;
     
-    userCards.forEach(card => {
-        const cardText = card.textContent.toLowerCase();
-        if (searchTerm === '' || cardText.includes(searchTerm)) {
-            card.style.display = 'block';
+    userRows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        if (searchTerm === '' || rowText.includes(searchTerm)) {
+            row.style.display = '';
             foundCount++;
         } else {
-            card.style.display = 'none';
+            row.style.display = 'none';
         }
     });
     
@@ -1240,14 +1354,18 @@ function clearSearch() {
 }
 // ========== КОНЕЦ ФУНКЦИЙ ПОИСКА ==========
 
-// Регистрируем функции поиска глобально
+            // Регистрируем функции поиска глобально
 window.searchUsers = searchUsers;
 window.clearSearch = clearSearch;
+window.loadNewUsers = loadNewUsers;
+window.loadPayments = loadPayments;
 if (typeof searchGuests === 'function') window.searchGuests = searchGuests;
 if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuestSearch;
 
             // Загружаем при открытии
             loadStats();
+            loadNewUsers();
+            loadPayments();
             // loadUsers() и loadGuests() загружаются автоматически при переключении на соответствующие секции
             
             function showCalculatorStats() {
@@ -1550,6 +1668,8 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
             
             // Загружаем данные при открытии
             loadStats();
+            loadNewUsers();
+            loadPayments();
             
             // Инициализируем TinyMCE для статей при загрузке страницы (если раздел статей доступен)
             
@@ -2312,13 +2432,46 @@ def get_all_guests():
 def admin_stats():
     """Статистика для админ-панели"""
     from app import app
-    from models.sqlite_users import Guest
+    from models.sqlite_users import Guest, Payment, User
+    from datetime import datetime, date, timedelta
     
     stats = app.user_manager.get_stats()
     
     # Добавляем статистику по гостям
     total_guests = Guest.query.filter_by(registered_user_id=None).count()
     stats['total_guests'] = total_guests
+    
+    # Новые пользователи за последние 24 часа
+    yesterday = (datetime.now() - timedelta(days=1)).isoformat()
+    new_users_24h = User.query.filter(User.created_at >= yesterday).count()
+    stats['new_users_24h'] = new_users_24h
+    
+    # Статистика доходов
+    all_payments = Payment.query.filter_by(status='success').all()
+    total_revenue = sum(p.amount for p in all_payments)
+    stats['total_revenue'] = total_revenue
+    
+    # Доход за сегодня
+    today_str = date.today().isoformat()
+    today_payments = Payment.query.filter(
+        Payment.status == 'success',
+        Payment.created_at.like(f'{today_str}%')
+    ).all()
+    today_revenue = sum(p.amount for p in today_payments)
+    stats['today_revenue'] = today_revenue
+    
+    # Доход за последние 7 дней
+    week_ago = (datetime.now() - timedelta(days=7)).isoformat()
+    week_payments = Payment.query.filter(
+        Payment.status == 'success',
+        Payment.created_at >= week_ago
+    ).all()
+    week_revenue = sum(p.amount for p in week_payments)
+    stats['week_revenue'] = week_revenue
+    
+    # Количество успешных платежей
+    stats['total_payments'] = len(all_payments)
+    stats['today_payments'] = len(today_payments)
     
     return jsonify(stats)
         
@@ -2330,6 +2483,47 @@ def calculator_stats_data():
     
     stats = app.user_manager.get_calculator_stats()
     return jsonify(stats)
+
+@admin_bp.route('/payments')
+@require_admin_auth
+def get_payments():
+    """Получить список всех платежей"""
+    from models.sqlite_users import Payment
+    from datetime import datetime, timedelta
+    
+    # Получаем параметры фильтрации
+    days = request.args.get('days', type=int)  # За последние N дней
+    limit = request.args.get('limit', type=int, default=100)  # Лимит записей
+    
+    query = Payment.query.filter_by(status='success')
+    
+    # Фильтр по дате
+    if days:
+        date_from = (datetime.now() - timedelta(days=days)).isoformat()
+        query = query.filter(Payment.created_at >= date_from)
+    
+    # Сортировка по дате (новые сначала)
+    payments = query.order_by(Payment.created_at.desc()).limit(limit).all()
+    
+    payments_list = [p.to_dict() for p in payments]
+    return jsonify(payments_list)
+
+@admin_bp.route('/new-users')
+@require_admin_auth
+def get_new_users():
+    """Получить новых пользователей за последние 24 часа"""
+    from models.sqlite_users import User
+    from datetime import datetime, timedelta
+    
+    yesterday = (datetime.now() - timedelta(days=1)).isoformat()
+    new_users = User.query.filter(User.created_at >= yesterday).order_by(User.created_at.desc()).all()
+    
+    users_list = []
+    for user in new_users:
+        user_dict = user.to_dict()
+        users_list.append(user_dict)
+    
+    return jsonify(users_list)
 
 # ========== МАРШРУТЫ ДЛЯ EMAIL-РАССЫЛОК ==========
 

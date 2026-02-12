@@ -199,6 +199,40 @@ class Article(db.Model):
         }
 
 
+class Payment(db.Model):
+    """Таблица для хранения платежей"""
+    __tablename__ = 'payments'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)
+    email = db.Column(db.String(255), nullable=True)  # Email пользователя на момент оплаты
+    plan_type = db.Column(db.String(20), nullable=False)  # Тип тарифа: 'basic', 'premium', etc.
+    amount = db.Column(db.Float, nullable=False)  # Сумма платежа (фактически оплаченная)
+    currency = db.Column(db.String(10), default='RUB')  # Валюта
+    provider = db.Column(db.String(50), default='yoomoney')  # Платежный провайдер
+    status = db.Column(db.String(20), default='success')  # Статус: 'success', 'failed', 'refund'
+    operation_id = db.Column(db.String(100), nullable=True)  # ID операции от провайдера
+    label = db.Column(db.String(100), nullable=True)  # Метка платежа (user_id_plan)
+    created_at = db.Column(db.String(30), nullable=False)  # Дата и время платежа
+    raw_data = db.Column(db.Text, nullable=True)  # Сырые данные webhook (JSON)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'email': self.email,
+            'plan_type': self.plan_type,
+            'amount': self.amount,
+            'currency': self.currency,
+            'provider': self.provider,
+            'status': self.status,
+            'operation_id': self.operation_id,
+            'label': self.label,
+            'created_at': self.created_at,
+            'raw_data': self.raw_data
+        }
+
+
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""
     
@@ -316,22 +350,26 @@ class SQLiteUserManager:
 
     def get_stats(self):
         """Возвращает статистику по пользователям и гостям"""
-        from models.sqlite_users import Guest
+        from models.sqlite_users import Guest, AnalysisHistory
         from datetime import datetime, date
         
         users = self.get_all_users()
         total_users = len(users)
         
-        # Анализы зарегистрированных пользователей
+        # Анализы зарегистрированных пользователей (общее количество)
         registered_analyses = sum(user.total_used for user in users)
-        today_registered_analyses = sum(user.used_today for user in users)
+        
+        # ТОЧНЫЙ подсчет анализов за сегодня через AnalysisHistory
+        today = date.today().isoformat()
+        today_registered_analyses = AnalysisHistory.query.filter(
+            AnalysisHistory.created_at.like(f'{today}%')
+        ).count()
         
         # Анализы гостей (незарегистрированных пользователей)
         guests = Guest.query.all()
         total_guest_analyses = sum(guest.analyses_count for guest in guests)
         
         # Анализы гостей за сегодня (если last_seen сегодня, считаем что был анализ)
-        today = date.today().isoformat()
         today_guest_analyses = 0
         for guest in guests:
             if guest.last_seen and guest.last_seen[:10] == today:

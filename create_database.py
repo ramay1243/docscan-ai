@@ -22,15 +22,17 @@ def create_database():
         
         # Используем путь из config.py если доступен
         try:
+            sys.path.insert(0, project_path)
             from config import Config
             db_uri = Config.SQLALCHEMY_DATABASE_URI
             temp_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
-        except Exception:
+            print(f"📁 Используется путь из config.py: {db_uri}")
+        except Exception as e:
             # Fallback на стандартный путь
-            temp_app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-                'DATABASE_URL', 
-                f'sqlite:///{os.path.join(project_path, "docscan.db")}'
-            )
+            db_path = os.path.join(project_path, 'docscan.db')
+            temp_app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+            print(f"⚠️ Не удалось загрузить config, используем: {db_path}")
+            print(f"   Ошибка: {e}")
         
         temp_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         

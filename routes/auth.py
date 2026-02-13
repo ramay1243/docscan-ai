@@ -539,25 +539,51 @@ def get_referral_data():
     user_id = session.get('user_id')
     
     if not user_id:
+        logger.warning(f"❌ Попытка получить данные партнерской программы без авторизации")
         return jsonify({'success': False, 'error': 'Не авторизован'}), 401
     
     try:
         from app import app
+        logger.info(f"🔍 Получение данных партнерской программы для user_id={user_id}")
+        
         user = app.user_manager.get_user(user_id)
         
-        if not user or not user.is_registered:
+        if not user:
+            logger.error(f"❌ Пользователь {user_id} не найден")
             return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
         
+        if not user.is_registered:
+            logger.error(f"❌ Пользователь {user_id} не зарегистрирован")
+            return jsonify({'success': False, 'error': 'Пользователь не зарегистрирован'}), 404
+        
+        logger.info(f"✅ Пользователь найден: {user_id}, email={user.email}, referral_code={user.referral_code}")
+        
         # Генерируем или получаем реферальный код
-        referral_code = app.user_manager.get_or_generate_referral_code(user_id)
+        try:
+            referral_code = app.user_manager.get_or_generate_referral_code(user_id)
+            if not referral_code:
+                logger.error(f"❌ Не удалось сгенерировать реферальный код для {user_id}")
+                return jsonify({'success': False, 'error': 'Не удалось сгенерировать реферальный код'}), 500
+            logger.info(f"✅ Реферальный код: {referral_code}")
+        except Exception as e:
+            logger.error(f"❌ Ошибка генерации реферального кода для {user_id}: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return jsonify({'success': False, 'error': f'Ошибка генерации кода: {str(e)}'}), 500
         
         # Формируем реферальную ссылку
         from flask import request
         base_url = request.host_url.rstrip('/')
         referral_link = f"{base_url}/?ref={referral_code}"
+        logger.info(f"✅ Реферальная ссылка: {referral_link}")
         
         # Получаем статистику
-        stats = app.user_manager.get_referral_stats(user_id)
+        try:
+            stats = app.user_manager.get_referral_stats(user_id)
+            logger.info(f"✅ Статистика: {stats}")
+        except Exception as e:
+            logger.error(f"❌ Ошибка получения статистики для {user_id}: {e}")
+            stats = {'invited_count': 0, 'purchases_count': 0, 'pending_amount': 0, 'paid_amount': 0}
         
         return jsonify({
             'success': True,
@@ -568,8 +594,10 @@ def get_referral_data():
         })
         
     except Exception as e:
-        logger.error(f"❌ Ошибка получения данных партнерской программы: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        logger.error(f"❌ Ошибка получения данных партнерской программы для {user_id}: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'error': f'Ошибка сервера: {str(e)}'}), 500
 
 @auth_bp.route('/api/save-payment-details', methods=['POST'])
 def save_payment_details():

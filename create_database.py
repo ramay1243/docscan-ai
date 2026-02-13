@@ -19,10 +19,19 @@ def create_database():
         
         # Создаем минимальное приложение Flask только для создания таблиц
         temp_app = Flask(__name__)
-        temp_app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-            'DATABASE_URL', 
-            f'sqlite:///{os.path.join(project_path, "instance", "users.db")}'
-        )
+        
+        # Используем путь из config.py если доступен
+        try:
+            from config import Config
+            db_uri = Config.SQLALCHEMY_DATABASE_URI
+            temp_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+        except Exception:
+            # Fallback на стандартный путь
+            temp_app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+                'DATABASE_URL', 
+                f'sqlite:///{os.path.join(project_path, "docscan.db")}'
+            )
+        
         temp_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         
         db.init_app(temp_app)

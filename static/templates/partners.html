@@ -34,6 +34,98 @@
             margin: 0 auto;
             padding: 0 20px;
         }
+        
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 15px 12px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+        
+        .burger-line {
+            width: 20px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 15px 0;
+            min-width: 200px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        #mobileAuthButtons, #mobileUserMenu {
+            border-top: 1px solid var(--border);
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        
+        #mobileAuthButtons a, #mobileUserMenu a {
+            display: block;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
         /* Header */
         .main-header {
             background: white;
@@ -118,11 +210,6 @@
         .cta-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
         }
         .hero {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -263,12 +350,14 @@
             border-top: 1px solid rgba(255,255,255,0.1);
             color: rgba(255,255,255,0.5);
         }
+        /* Responsive */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
             .hero p { font-size: 1.1rem; }
             .section { padding: 20px; }
             .steps { grid-template-columns: 1fr; }
             .nav-links { display: none; }
+            .burger-menu { display: block; }
         }
     </style>
 </head>
@@ -303,7 +392,34 @@
         </div>
     </header>
 
-    <div class="container">
+    <!-- Burger Menu -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/analiz-dokumentov">📄 Анализ документов</a>
+            <a href="/calculator-penalty">🧮 Калькулятор</a>
+            <a href="/mobile-app">📱 Приложение</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/faq">❓ FAQ</a>
+            <a href="/contact">📞 Контакты</a>
+            <div id="mobileAuthButtons">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+        </div>
+    </div>
+
+    <div class="container" style="padding: 40px 20px;">
         <div class="hero">
             <h1>🎁 Партнерская программа</h1>
             <p>Приглашайте друзей и получайте 15% с каждой покупки тарифа</p>
@@ -471,14 +587,34 @@
                 if (data.authenticated) {
                     document.getElementById('authButtons').style.display = 'none';
                     document.getElementById('userMenu').style.display = 'flex';
+                    document.getElementById('mobileAuthButtons').style.display = 'none';
+                    document.getElementById('mobileUserMenu').style.display = 'block';
                 } else {
                     document.getElementById('authButtons').style.display = 'flex';
                     document.getElementById('userMenu').style.display = 'none';
+                    document.getElementById('mobileAuthButtons').style.display = 'block';
+                    document.getElementById('mobileUserMenu').style.display = 'none';
                 }
             } catch (error) {
                 console.error('Ошибка проверки авторизации:', error);
             }
         }
+        
+        // Toggle burger menu
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
         
         // Run on page load
         document.addEventListener('DOMContentLoaded', checkAuth);

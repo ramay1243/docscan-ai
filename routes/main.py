@@ -1454,6 +1454,7 @@ def home():
                         <a href="/terms" class="footer-link">Пользовательское соглашение</a>
                         <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
                         <a href="/offer" class="footer-link">Публичная оферта</a>
+                        <a href="/partners" class="footer-link">Партнерская программа</a>
                     </div>
                 </div>
                 
@@ -2507,6 +2508,7 @@ def sitemap():
         ('/mobile-app', 'weekly', '0.8'),
         ('/proverka-dokumentov-onlayn', 'weekly', '0.9'),
         ('/articles/nalogovaya-proverka', 'monthly', '0.8'),
+        ('/partners', 'weekly', '0.8'),
     ]
     
     # Статьи (обновляются реже)

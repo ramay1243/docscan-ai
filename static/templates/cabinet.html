@@ -503,7 +503,7 @@
             }
             
             try {
-                const response = await fetch('/auth/api/change-email', {
+                const response = await fetch('/api/change-email', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     credentials: 'include',
@@ -549,7 +549,7 @@
             }
             
             try {
-                const response = await fetch('/auth/api/change-password', {
+                const response = await fetch('/api/change-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     credentials: 'include',
@@ -581,7 +581,7 @@
             const messageEl = document.getElementById('notificationMessage');
             
             try {
-                const response = await fetch('/auth/api/update-notifications', {
+                const response = await fetch('/api/update-notifications', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     credentials: 'include',
@@ -614,7 +614,7 @@
             }
             
             try {
-                const response = await fetch('/auth/api/referral-data', {
+                const response = await fetch('/api/referral-data', {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -725,7 +725,7 @@
             }
             
             try {
-                const response = await fetch('/auth/api/save-payment-details', {
+                const response = await fetch('/api/save-payment-details', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     credentials: 'include',

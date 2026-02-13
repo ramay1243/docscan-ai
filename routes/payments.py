@@ -139,6 +139,23 @@ def payment_webhook():
                     db.session.add(payment)
                     db.session.commit()
                     logger.info(f"💰 Платеж сохранен в БД: user_id={user_id}, amount={payment.amount}, plan={plan_type}")
+                    
+                    # Создаем вознаграждение для партнера если пользователь был приглашен
+                    try:
+                        user = app.user_manager.get_user(user_id)
+                        if user and user.referrer_id:
+                            # Создаем вознаграждение 15% от суммы покупки
+                            app.user_manager.create_referral_reward(
+                                partner_id=user.referrer_id,
+                                invited_user_id=user_id,
+                                payment_id=payment.id,
+                                purchase_amount=payment.amount,
+                                reward_percent=15.0
+                            )
+                            logger.info(f"🎁 Создано вознаграждение для партнера {user.referrer_id}: 15% от {payment.amount}₽")
+                    except Exception as e:
+                        logger.error(f"❌ Ошибка создания вознаграждения: {e}")
+                        
                 except Exception as e:
                     logger.error(f"❌ Ошибка сохранения платежа в БД: {e}")
                 

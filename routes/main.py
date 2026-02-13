@@ -2204,12 +2204,27 @@ def home():
             banner.classList.remove('hidden');
         }
         
+        // Обработка реферального кода из URL
+        function handleReferralCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            
+            if (refCode) {
+                // Сохраняем реферальный код в cookie на 30 дней
+                const expiryDate = new Date();
+                expiryDate.setTime(expiryDate.getTime() + (30 * 24 * 60 * 60 * 1000));
+                document.cookie = `ref=${refCode}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+                console.log('🎁 Реферальный код сохранен:', refCode);
+            }
+        }
+        
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
             loadUser();
             initCarousel();
             checkAuth();
             initAdBanner();
+            handleReferralCode();
         });
     </script>
     

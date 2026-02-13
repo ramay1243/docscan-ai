@@ -447,6 +447,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="articles">
                     <span>📝</span> Статьи
                 </a>
+                <a href="#" class="menu-item" data-section="partners">
+                    <span>🎁</span> Партнерская программа
+                </a>
             </nav>
         </div>
         
@@ -746,6 +749,30 @@ def admin_panel():
                         <div id="articlesList"></div>
                     </div>
                 </div>
+                
+                <!-- Секция: Партнерская программа -->
+                <div id="section-partners" class="content-section">
+                    <div class="card">
+                        <h2 class="section-header">🎁 Партнеры</h2>
+                        <p>Пользователи, которые сгенерировали реферальные ссылки</p>
+                        <button onclick="loadPartners()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">🔄 Обновить</button>
+                        <div id="partnersList"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2 class="section-header">📋 Приглашения</h2>
+                        <p>Список всех приглашений пользователей</p>
+                        <button onclick="loadReferrals()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">🔄 Обновить</button>
+                        <div id="referralsList"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2 class="section-header">💰 Вознаграждения к выплате</h2>
+                        <p>Список вознаграждений, ожидающих выплаты</p>
+                        <button onclick="loadRewards()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">🔄 Обновить</button>
+                        <div id="rewardsList"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -804,7 +831,8 @@ def admin_panel():
                         'users': '👥 Пользователи',
                         'guests': '👤 Гости',
                         'campaigns': '📧 Email-рассылки',
-                        'articles': '📝 Статьи'
+                        'articles': '📝 Статьи',
+                        'partners': '🎁 Партнерская программа'
                     };
                     const pageTitle = document.getElementById('pageTitle');
                     if (pageTitle) {
@@ -836,6 +864,10 @@ def admin_panel():
                             console.log('📥 Загрузка статей...');
                             loadArticles();
                         }
+                    } else if (sectionName === 'partners') {
+                        loadPartners();
+                        loadReferrals();
+                        loadRewards();
                     }
                     
                     console.log('✅ Переключение завершено успешно');
@@ -2313,6 +2345,143 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 loadArticles();
             }
             
+            // ========== ФУНКЦИИ ДЛЯ ПАРТНЕРСКОЙ ПРОГРАММЫ ==========
+            function loadPartners() {
+                fetch('/admin/partners', {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(partners => {
+                        const listEl = document.getElementById('partnersList');
+                        if (!listEl) return;
+                        
+                        if (!partners || partners.length === 0) {
+                            listEl.innerHTML = '<p style="color: #999; padding: 20px;">Нет партнеров</p>';
+                            return;
+                        }
+                        
+                        let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Реферальный код</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Приглашено</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Покупок</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Ожидает выплаты</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Реквизиты</th></tr></thead><tbody>';
+                        
+                        partners.forEach(partner => {
+                            const paymentDetails = partner.payment_details ? JSON.parse(partner.payment_details) : null;
+                            html += `<tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 12px;">${partner.user_id}</td>
+                                <td style="padding: 12px;">${partner.email || 'Нет email'}</td>
+                                <td style="padding: 12px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px;">${partner.referral_code || 'Не сгенерирован'}</code></td>
+                                <td style="padding: 12px;">${partner.invited_count || 0}</td>
+                                <td style="padding: 12px;">${partner.purchases_count || 0}</td>
+                                <td style="padding: 12px; font-weight: 600; color: #48bb78;">${(partner.pending_amount || 0).toFixed(2)} ₽</td>
+                                <td style="padding: 12px;">
+                                    ${paymentDetails ? `
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>Способ:</strong> ${paymentDetails.method || 'Не указан'}<br>
+                                            <strong>Реквизиты:</strong> ${paymentDetails.details || 'Не указаны'}<br>
+                                            <strong>Контакт:</strong> ${paymentDetails.contact || 'Не указан'}
+                                        </div>
+                                    ` : '<span style="color: #999;">Не указаны</span>'}
+                                </td>
+                            </tr>`;
+                        });
+                        
+                        html += '</tbody></table>';
+                        listEl.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error('Ошибка загрузки партнеров:', err);
+                        document.getElementById('partnersList').innerHTML = '<p style="color: #f56565;">Ошибка загрузки данных</p>';
+                    });
+            }
+            
+            function loadReferrals() {
+                fetch('/admin/referrals', {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(referrals => {
+                        const listEl = document.getElementById('referralsList');
+                        if (!listEl) return;
+                        
+                        if (!referrals || referrals.length === 0) {
+                            listEl.innerHTML = '<p style="color: #999; padding: 20px;">Нет приглашений</p>';
+                            return;
+                        }
+                        
+                        let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Кто пригласил</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Кого пригласили</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата приглашения</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th></tr></thead><tbody>';
+                        
+                        referrals.forEach(ref => {
+                            html += `<tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 12px;">${ref.referrer_id}</td>
+                                <td style="padding: 12px;">${ref.invited_user_id}</td>
+                                <td style="padding: 12px;">${new Date(ref.created_at).toLocaleString('ru-RU')}</td>
+                                <td style="padding: 12px;">${ref.registered_at ? new Date(ref.registered_at).toLocaleString('ru-RU') : 'Не зарегистрирован'}</td>
+                            </tr>`;
+                        });
+                        
+                        html += '</tbody></table>';
+                        listEl.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error('Ошибка загрузки приглашений:', err);
+                        document.getElementById('referralsList').innerHTML = '<p style="color: #f56565;">Ошибка загрузки данных</p>';
+                    });
+            }
+            
+            function loadRewards() {
+                fetch('/admin/rewards', {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(rewards => {
+                        const listEl = document.getElementById('rewardsList');
+                        if (!listEl) return;
+                        
+                        if (!rewards || rewards.length === 0) {
+                            listEl.innerHTML = '<p style="color: #999; padding: 20px;">Нет вознаграждений</p>';
+                            return;
+                        }
+                        
+                        let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Партнер</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Приглашенный</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сумма покупки</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Вознаграждение</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Статус</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
+                        
+                        rewards.forEach(reward => {
+                            const statusColor = reward.status === 'paid' ? '#48bb78' : '#ed8936';
+                            const statusText = reward.status === 'paid' ? 'Выплачено' : 'Ожидает выплаты';
+                            html += `<tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 12px;">${reward.partner_id}</td>
+                                <td style="padding: 12px;">${reward.invited_user_id}</td>
+                                <td style="padding: 12px;">${reward.purchase_amount.toFixed(2)} ₽</td>
+                                <td style="padding: 12px; font-weight: 600; color: #48bb78;">${reward.reward_amount.toFixed(2)} ₽ (${reward.reward_percent}%)</td>
+                                <td style="padding: 12px; color: ${statusColor}; font-weight: 600;">${statusText}</td>
+                                <td style="padding: 12px;">${new Date(reward.created_at).toLocaleString('ru-RU')}</td>
+                                <td style="padding: 12px;">
+                                    ${reward.status === 'pending' ? `<button onclick="markRewardPaid(${reward.id})" style="background: #48bb78; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">✅ Отметить как выплачено</button>` : reward.paid_at ? `Выплачено: ${new Date(reward.paid_at).toLocaleString('ru-RU')}` : ''}
+                                </td>
+                            </tr>`;
+                        });
+                        
+                        html += '</tbody></table>';
+                        listEl.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error('Ошибка загрузки вознаграждений:', err);
+                        document.getElementById('rewardsList').innerHTML = '<p style="color: #f56565;">Ошибка загрузки данных</p>';
+                    });
+            }
+            
+            function markRewardPaid(rewardId) {
+                if (!confirm('Отметить вознаграждение как выплаченное?')) return;
+                
+                fetch(`/admin/rewards/${rewardId}/mark-paid`, {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Вознаграждение отмечено как выплаченное');
+                        loadRewards();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Ошибка соединения');
+                });
+            }
+            
             // Регистрируем все функции глобально после их определения
             if (typeof registerGlobalFunctions === 'function') {
                 registerGlobalFunctions();
@@ -2977,4 +3146,87 @@ def upload_article_image():
         
     except Exception as e:
         logger.error(f"❌ Ошибка загрузки изображения: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/partners')
+@require_admin_auth
+def get_partners():
+    """Получить список всех партнеров"""
+    from models.sqlite_users import User, Referral, ReferralReward
+    
+    try:
+        # Получаем всех пользователей с реферальными кодами
+        partners = User.query.filter(User.referral_code.isnot(None)).all()
+        
+        partners_list = []
+        for partner in partners:
+            # Статистика партнера
+            invited_count = Referral.query.filter_by(referrer_id=partner.user_id).count()
+            rewards = ReferralReward.query.filter_by(partner_id=partner.user_id).all()
+            purchases_count = len(rewards)
+            pending_rewards = ReferralReward.query.filter_by(partner_id=partner.user_id, status='pending').all()
+            pending_amount = sum(r.reward_amount for r in pending_rewards)
+            
+            partners_list.append({
+                'user_id': partner.user_id,
+                'email': partner.email,
+                'referral_code': partner.referral_code,
+                'invited_count': invited_count,
+                'purchases_count': purchases_count,
+                'pending_amount': pending_amount,
+                'payment_details': partner.payment_details
+            })
+        
+        return jsonify(partners_list)
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения партнеров: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/referrals')
+@require_admin_auth
+def get_referrals():
+    """Получить список всех приглашений"""
+    from models.sqlite_users import Referral
+    
+    try:
+        referrals = Referral.query.order_by(Referral.created_at.desc()).all()
+        return jsonify([r.to_dict() for r in referrals])
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения приглашений: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/rewards')
+@require_admin_auth
+def get_rewards():
+    """Получить список всех вознаграждений"""
+    from models.sqlite_users import ReferralReward
+    
+    try:
+        rewards = ReferralReward.query.order_by(ReferralReward.created_at.desc()).all()
+        return jsonify([r.to_dict() for r in rewards])
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения вознаграждений: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/rewards/<int:reward_id>/mark-paid', methods=['POST'])
+@require_admin_auth
+def mark_reward_paid(reward_id):
+    """Отметить вознаграждение как выплаченное"""
+    from models.sqlite_users import ReferralReward, db
+    from datetime import datetime
+    
+    try:
+        reward = ReferralReward.query.filter_by(id=reward_id).first()
+        if not reward:
+            return jsonify({'success': False, 'error': 'Вознаграждение не найдено'}), 404
+        
+        reward.status = 'paid'
+        reward.paid_at = datetime.now().isoformat()
+        db.session.commit()
+        
+        logger.info(f"✅ Вознаграждение {reward_id} отмечено как выплаченное")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"❌ Ошибка обновления вознаграждения: {e}")
+        db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500

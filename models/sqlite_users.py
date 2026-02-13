@@ -33,6 +33,9 @@ class User(db.Model):
     reset_token = db.Column(db.String(100), nullable=True)
     reset_token_expires = db.Column(db.String(30), nullable=True)
     email_subscribed = db.Column(db.Boolean, default=True)  # Подписка на рассылки (по умолчанию включена)
+    referral_code = db.Column(db.String(20), nullable=True, unique=True)  # Уникальный реферальный код
+    referrer_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=True)  # Кто пригласил этого пользователя
+    payment_details = db.Column(db.Text, nullable=True)  # Реквизиты для получения выплат (JSON)
 
     def to_dict(self):
         return {
@@ -50,7 +53,10 @@ class User(db.Model):
             'is_registered': self.is_registered,
             'free_analysis_used': self.free_analysis_used,
             'email_verified': self.email_verified,
-            'email_subscribed': self.email_subscribed
+            'email_subscribed': self.email_subscribed,
+            'referral_code': self.referral_code,
+            'referrer_id': self.referrer_id,
+            'payment_details': self.payment_details
         }
 
 class AnalysisHistory(db.Model):
@@ -230,6 +236,56 @@ class Payment(db.Model):
             'label': self.label,
             'created_at': self.created_at,
             'raw_data': self.raw_data
+        }
+
+class Referral(db.Model):
+    """Таблица для хранения приглашений (рефералов)"""
+    __tablename__ = 'referrals'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    referrer_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Кто пригласил
+    invited_user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Кого пригласили
+    created_at = db.Column(db.String(30), nullable=False)  # Дата приглашения
+    registered_at = db.Column(db.String(30), nullable=True)  # Дата регистрации приглашенного
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'referrer_id': self.referrer_id,
+            'invited_user_id': self.invited_user_id,
+            'created_at': self.created_at,
+            'registered_at': self.registered_at
+        }
+
+class ReferralReward(db.Model):
+    """Таблица для хранения вознаграждений партнеров"""
+    __tablename__ = 'referral_rewards'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    partner_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Кто пригласил (партнер)
+    invited_user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Кого пригласили
+    payment_id = db.Column(db.Integer, db.ForeignKey('payments.id'), nullable=True)  # ID платежа приглашенного
+    purchase_amount = db.Column(db.Float, nullable=False)  # Сумма покупки приглашенного
+    reward_amount = db.Column(db.Float, nullable=False)  # 15% к выплате
+    reward_percent = db.Column(db.Float, default=15.0)  # Процент вознаграждения
+    status = db.Column(db.String(20), default='pending')  # 'pending' (ожидает) / 'paid' (выплачено)
+    paid_at = db.Column(db.String(30), nullable=True)  # Дата выплаты
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания записи
+    notes = db.Column(db.Text, nullable=True)  # Заметки админа
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'partner_id': self.partner_id,
+            'invited_user_id': self.invited_user_id,
+            'payment_id': self.payment_id,
+            'purchase_amount': self.purchase_amount,
+            'reward_amount': self.reward_amount,
+            'reward_percent': self.reward_percent,
+            'status': self.status,
+            'paid_at': self.paid_at,
+            'created_at': self.created_at,
+            'notes': self.notes
         }
 
 
@@ -968,3 +1024,101 @@ class SQLiteUserManager:
         
         logger.info(f"🔒 Снята с публикации статья: {article.title} (ID: {article_id})")
         return article
+    
+    def get_or_generate_referral_code(self, user_id):
+        """Получает или генерирует реферальный код для пользователя"""
+        user = self.get_user(user_id)
+        if not user:
+            return None
+        
+        if not user.referral_code:
+            # Генерируем уникальный код на основе user_id
+            import hashlib
+            code = hashlib.md5(f"{user_id}_{datetime.now().isoformat()}".encode()).hexdigest()[:8].upper()
+            # Проверяем уникальность
+            while self.User.query.filter_by(referral_code=code).first():
+                code = hashlib.md5(f"{user_id}_{datetime.now().isoformat()}_{uuid.uuid4()}".encode()).hexdigest()[:8].upper()
+            
+            user.referral_code = code
+            self.db.session.commit()
+            logger.info(f"🎁 Сгенерирован реферальный код для {user_id}: {code}")
+        
+        return user.referral_code
+    
+    def get_referral_stats(self, user_id):
+        """Получает статистику партнерской программы для пользователя"""
+        from models.sqlite_users import Referral, ReferralReward
+        
+        # Количество приглашенных
+        invited_count = Referral.query.filter_by(referrer_id=user_id).count()
+        
+        # Количество покупок от приглашенных
+        rewards = ReferralReward.query.filter_by(partner_id=user_id).all()
+        purchases_count = len(rewards)
+        
+        # Общая сумма ожидающих выплаты
+        pending_rewards = ReferralReward.query.filter_by(partner_id=user_id, status='pending').all()
+        pending_amount = sum(r.reward_amount for r in pending_rewards)
+        
+        # Общая сумма выплаченных
+        paid_rewards = ReferralReward.query.filter_by(partner_id=user_id, status='paid').all()
+        paid_amount = sum(r.reward_amount for r in paid_rewards)
+        
+        return {
+            'invited_count': invited_count,
+            'purchases_count': purchases_count,
+            'pending_amount': pending_amount,
+            'paid_amount': paid_amount
+        }
+    
+    def create_referral(self, referrer_id, invited_user_id):
+        """Создает запись о приглашении"""
+        from models.sqlite_users import Referral
+        
+        # Проверяем, не существует ли уже такая запись
+        existing = Referral.query.filter_by(
+            referrer_id=referrer_id,
+            invited_user_id=invited_user_id
+        ).first()
+        
+        if existing:
+            return existing
+        
+        referral = Referral(
+            referrer_id=referrer_id,
+            invited_user_id=invited_user_id,
+            created_at=datetime.now().isoformat(),
+            registered_at=datetime.now().isoformat()
+        )
+        self.db.session.add(referral)
+        self.db.session.commit()
+        
+        logger.info(f"🎁 Создано приглашение: {referrer_id} -> {invited_user_id}")
+        return referral
+    
+    def create_referral_reward(self, partner_id, invited_user_id, payment_id, purchase_amount, reward_percent=15.0):
+        """Создает запись о вознаграждении партнера"""
+        from models.sqlite_users import ReferralReward
+        
+        # Проверяем, не существует ли уже награда за этот платеж
+        existing = ReferralReward.query.filter_by(payment_id=payment_id).first()
+        if existing:
+            return existing
+        
+        reward_amount = purchase_amount * (reward_percent / 100)
+        
+        reward = ReferralReward(
+            partner_id=partner_id,
+            invited_user_id=invited_user_id,
+            payment_id=payment_id,
+            purchase_amount=purchase_amount,
+            reward_amount=reward_amount,
+            reward_percent=reward_percent,
+            status='pending',
+            created_at=datetime.now().isoformat()
+        )
+        self.db.session.add(reward)
+        self.db.session.commit()
+        
+        logger.info(f"💰 Создано вознаграждение: партнер {partner_id}, сумма покупки {purchase_amount}₽, вознаграждение {reward_amount}₽ ({reward_percent}%)")
+        return reward

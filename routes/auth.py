@@ -16,6 +16,11 @@ def register_page():
     """Страница регистрации"""
     return render_template('register.html')
 
+@auth_bp.route('/partners', methods=['GET'])
+def partners_page():
+    """Страница партнерской программы"""
+    return render_template('partners.html')
+
 @auth_bp.route('/api/register', methods=['POST'])
 def register():
     """API регистрации нового пользователя"""
@@ -43,6 +48,17 @@ def register():
         # Получаем IP адрес для связи с гостем
         real_ip = app.ip_limit_manager.get_client_ip(request)
         
+        # Проверяем реферальный код из запроса или cookie
+        referrer_code = data.get('referral_code') or request.cookies.get('ref')
+        referrer_id = None
+        
+        if referrer_code:
+            # Ищем пользователя с таким реферальным кодом
+            referrer = User.query.filter_by(referral_code=referrer_code).first()
+            if referrer:
+                referrer_id = referrer.user_id
+                logger.info(f"🎁 Найден реферер: {referrer_id} по коду {referrer_code}")
+        
         # Создаем нового пользователя с новым user_id
         import uuid
         user_id = str(uuid.uuid4())[:8]
@@ -58,7 +74,8 @@ def register():
             password_hash=hash_password(password),
             is_registered=True,
             email_verified=False,
-            free_analysis_used=False
+            free_analysis_used=False,
+            referrer_id=referrer_id  # Сохраняем кто пригласил
         )
         
         # Генерируем токен верификации
@@ -67,6 +84,11 @@ def register():
         
         db.session.add(user)
         db.session.commit()
+        
+        # Создаем запись о приглашении если есть реферер
+        if referrer_id:
+            app.user_manager.create_referral(referrer_id, user_id)
+            logger.info(f"✅ Создано приглашение: {referrer_id} -> {user_id}")
         
         # НОВАЯ ЛОГИКА: Связываем гостя с новым пользователем
         app.user_manager.link_guest_to_user(real_ip, user_id)
@@ -508,6 +530,90 @@ def update_notifications():
         
     except Exception as e:
         logger.error(f"❌ Ошибка обновления настроек уведомлений: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@auth_bp.route('/api/referral-data', methods=['GET'])
+def get_referral_data():
+    """API для получения данных партнерской программы"""
+    user_id = session.get('user_id')
+    
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+    
+    try:
+        from app import app
+        user = app.user_manager.get_user(user_id)
+        
+        if not user or not user.is_registered:
+            return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+        
+        # Генерируем или получаем реферальный код
+        referral_code = app.user_manager.get_or_generate_referral_code(user_id)
+        
+        # Формируем реферальную ссылку
+        from flask import request
+        base_url = request.host_url.rstrip('/')
+        referral_link = f"{base_url}/?ref={referral_code}"
+        
+        # Получаем статистику
+        stats = app.user_manager.get_referral_stats(user_id)
+        
+        return jsonify({
+            'success': True,
+            'referral_code': referral_code,
+            'referral_link': referral_link,
+            'stats': stats,
+            'payment_details': user.payment_details
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения данных партнерской программы: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@auth_bp.route('/api/save-payment-details', methods=['POST'])
+def save_payment_details():
+    """API для сохранения реквизитов для выплат"""
+    user_id = session.get('user_id')
+    
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Не авторизован'}), 401
+    
+    try:
+        from app import app
+        user = app.user_manager.get_user(user_id)
+        
+        if not user or not user.is_registered:
+            return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+        
+        data = request.get_json()
+        payment_method = data.get('payment_method', '')
+        payment_details = data.get('payment_details', '')
+        payment_contact = data.get('payment_contact', '')
+        
+        if not payment_method or not payment_details:
+            return jsonify({'success': False, 'error': 'Заполните все обязательные поля'}), 400
+        
+        # Сохраняем реквизиты в формате JSON
+        import json
+        payment_data = {
+            'method': payment_method,
+            'details': payment_details,
+            'contact': payment_contact,
+            'updated_at': datetime.now().isoformat()
+        }
+        user.payment_details = json.dumps(payment_data, ensure_ascii=False)
+        db.session.commit()
+        
+        logger.info(f"✅ Реквизиты для выплат сохранены для {user_id}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Реквизиты сохранены'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка сохранения реквизитов: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 

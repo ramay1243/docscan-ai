@@ -9,7 +9,23 @@ import sqlite3
 
 # Добавляем путь к проекту
 project_path = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(project_path, 'instance', 'users.db')
+
+# Определяем путь к БД - проверяем config.py
+try:
+    sys.path.insert(0, project_path)
+    from config import Config
+    db_uri = Config.SQLALCHEMY_DATABASE_URI
+    # Извлекаем путь из URI: sqlite:///path/to/db.db
+    if db_uri.startswith('sqlite:///'):
+        db_path = db_uri.replace('sqlite:///', '')
+    else:
+        # Fallback на стандартный путь
+        db_path = os.path.join(project_path, 'docscan.db')
+    print(f"📁 Используется база данных: {db_path}")
+except Exception as e:
+    # Fallback на стандартный путь
+    db_path = os.path.join(project_path, 'docscan.db')
+    print(f"⚠️ Не удалось определить путь из config, используем: {db_path}")
 
 def fix_table():
     """Принудительно добавляет поля в таблицу users"""

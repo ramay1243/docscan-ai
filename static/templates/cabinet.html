@@ -267,10 +267,22 @@
                         <div class="stat-number">{{ user.total_used }}</div>
                         <div class="stat-label">Всего анализов</div>
                     </div>
+                    {% if user.plan == 'free' %}
                     <div class="stat-card">
-                        <div class="stat-number">{{ user.used_today }}/{{ plan.daily_limit }}</div>
-                        <div class="stat-label">Анализов сегодня</div>
+                        {% if user.free_analysis_used %}
+                        <div class="stat-number" style="color: var(--danger);">Использован</div>
+                        <div class="stat-label">Бесплатный анализ</div>
+                        {% else %}
+                        <div class="stat-number" style="color: var(--success);">Доступен</div>
+                        <div class="stat-label">Бесплатный анализ</div>
+                        {% endif %}
                     </div>
+                    {% else %}
+                    <div class="stat-card">
+                        <div class="stat-number">{{ user.available_analyses or 0 }}</div>
+                        <div class="stat-label">Доступно анализов</div>
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <div class="section">

@@ -954,6 +954,268 @@ def home():
                 font-size: 10px;
             }
         }
+        
+        /* Support Widget */
+        .support-widget {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 9998;
+        }
+        
+        .support-widget-button {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 28px;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .support-widget-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(67, 97, 238, 0.6);
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(67, 97, 238, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 30px rgba(67, 97, 238, 0.7);
+            }
+        }
+        
+        .support-widget-modal {
+            position: fixed;
+            right: 20px;
+            bottom: 90px;
+            width: 400px;
+            max-width: calc(100vw - 40px);
+            max-height: calc(100vh - 120px);
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .support-widget-modal.show {
+            display: flex;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .support-widget-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .support-widget-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .support-widget-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .support-widget-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        
+        .support-widget-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .support-widget-subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .support-question-item {
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .support-question-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.1);
+        }
+        
+        .support-question-button {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--light);
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .support-question-button:hover {
+            background: #f0f0f0;
+        }
+        
+        .support-question-button.active {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(114, 9, 183, 0.1));
+            color: var(--primary);
+        }
+        
+        .support-question-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+        
+        .support-question-button.active .support-question-icon {
+            transform: rotate(180deg);
+        }
+        
+        .support-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            background: white;
+        }
+        
+        .support-answer.show {
+            max-height: 1000px;
+            padding: 20px;
+        }
+        
+        .support-answer-content {
+            color: var(--gray);
+            line-height: 1.7;
+        }
+        
+        .support-answer-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .support-answer-content li {
+            margin: 8px 0;
+        }
+        
+        .support-answer-content a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .support-answer-content a:hover {
+            text-decoration: underline;
+        }
+        
+        .support-widget-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--light);
+        }
+        
+        .support-contact-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        
+        .support-contact-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .support-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 9997;
+            display: none;
+        }
+        
+        .support-overlay.show {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .support-widget {
+                right: 15px;
+                bottom: 15px;
+            }
+            
+            .support-widget-button {
+                width: 55px;
+                height: 55px;
+                font-size: 24px;
+            }
+            
+            .support-widget-modal {
+                right: 15px;
+                bottom: 80px;
+                width: calc(100vw - 30px);
+                max-height: calc(100vh - 100px);
+            }
+        }
     </style>
     
     <!-- Yandex.RTB -->
@@ -2465,6 +2727,212 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
             "platform": "desktop"
         })
     })
+    </script>
+
+    <!-- Support Widget -->
+    <div class="support-overlay" id="supportOverlay" onclick="closeSupportWidget()"></div>
+    <div class="support-widget">
+        <button class="support-widget-button" onclick="toggleSupportWidget()" aria-label="Поддержка онлайн">
+            💬
+        </button>
+        <div class="support-widget-modal" id="supportModal">
+            <div class="support-widget-header">
+                <h3>💬 Поддержка</h3>
+                <button class="support-widget-close" onclick="closeSupportWidget()" aria-label="Закрыть">×</button>
+            </div>
+            <div class="support-widget-body">
+                <p class="support-widget-subtitle">Выберите вопрос, который вас интересует:</p>
+                
+                <div class="support-question-item">
+                    <button class="support-question-button" onclick="toggleSupportAnswer(1)">
+                        <span>У меня проблема с анализом документа</span>
+                        <span class="support-question-icon">▼</span>
+                    </button>
+                    <div class="support-answer" id="supportAnswer1">
+                        <div class="support-answer-content">
+                            <p><strong>Проверьте следующее:</strong></p>
+                            <ul>
+                                <li><strong>Формат файла:</strong> поддерживаются PDF, DOCX, TXT</li>
+                                <li><strong>Размер файла:</strong> не более 10 МБ</li>
+                                <li><strong>Интернет-соединение:</strong> убедитесь, что оно стабильное</li>
+                                <li><strong>Браузер:</strong> попробуйте обновить страницу (F5) или использовать другой браузер</li>
+                            </ul>
+                            <p><strong>Что делать:</strong></p>
+                            <ul>
+                                <li>Попробуйте загрузить файл заново</li>
+                                <li>Если файл большой, попробуйте разбить его на части</li>
+                                <li>Убедитесь, что файл не поврежден</li>
+                            </ul>
+                            <p>Если проблема сохраняется, обратитесь в <a href="/contact">техподдержку</a> или напишите нам в <a href="https://t.me/docscan_ai" target="_blank">Telegram</a>.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="support-question-item">
+                    <button class="support-question-button" onclick="toggleSupportAnswer(2)">
+                        <span>У меня проблема с покупкой тарифа</span>
+                        <span class="support-question-icon">▼</span>
+                    </button>
+                    <div class="support-answer" id="supportAnswer2">
+                        <div class="support-answer-content">
+                            <p><strong>Проверьте следующее:</strong></p>
+                            <ul>
+                                <li><strong>Авторизация:</strong> убедитесь, что вы вошли в аккаунт</li>
+                                <li><strong>Способ оплаты:</strong> проверьте, что ваша карта поддерживается</li>
+                                <li><strong>Баланс карты:</strong> убедитесь, что на карте достаточно средств</li>
+                                <li><strong>Банковские ограничения:</strong> некоторые банки блокируют онлайн-платежи</li>
+                            </ul>
+                            <p><strong>Что делать:</strong></p>
+                            <ul>
+                                <li>Попробуйте другую карту</li>
+                                <li>Проверьте email на наличие уведомлений от платежной системы</li>
+                                <li>Подождите несколько минут — платеж может обрабатываться</li>
+                                <li>Проверьте историю платежей в <a href="/cabinet">личном кабинете</a></li>
+                            </ul>
+                            <p>Если платеж не прошел, но деньги списались, обратитесь в <a href="/contact">техподдержку</a> с указанием суммы и времени платежа.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="support-question-item">
+                    <button class="support-question-button" onclick="toggleSupportAnswer(3)">
+                        <span>Вопрос о сотрудничестве</span>
+                        <span class="support-question-icon">▼</span>
+                    </button>
+                    <div class="support-answer" id="supportAnswer3">
+                        <div class="support-answer-content">
+                            <p><strong>Партнерская программа:</strong></p>
+                            <p>Мы предлагаем партнерскую программу с вознаграждением 15% с каждой покупки тарифа приглашенными пользователями.</p>
+                            <ul>
+                                <li>Получите уникальную реферальную ссылку в <a href="/partners">личном кабинете</a></li>
+                                <li>Делитесь ссылкой с друзьями и коллегами</li>
+                                <li>Получайте вознаграждения за каждую покупку</li>
+                            </ul>
+                            <p>Подробнее о партнерской программе: <a href="/partners">Партнерская программа</a></p>
+                            <p><strong>Другие вопросы о сотрудничестве:</strong></p>
+                            <p>Для деловых предложений и вопросов о сотрудничестве напишите нам на <a href="mailto:docscanhelp@gmail.com">docscanhelp@gmail.com</a> или в <a href="https://t.me/docscan_ai" target="_blank">Telegram</a>.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="support-question-item">
+                    <button class="support-question-button" onclick="toggleSupportAnswer(4)">
+                        <span>Как работает сервис?</span>
+                        <span class="support-question-icon">▼</span>
+                    </button>
+                    <div class="support-answer" id="supportAnswer4">
+                        <div class="support-answer-content">
+                            <p><strong>Процесс анализа документа:</strong></p>
+                            <ol>
+                                <li><strong>Загрузите документ</strong> в формате PDF, DOCX или TXT (до 10 МБ)</li>
+                                <li><strong>Нажмите "Начать анализ"</strong> — искусственный интеллект проверит документ</li>
+                                <li><strong>Получите результат</strong> через 30-60 секунд с детальным анализом рисков</li>
+                            </ol>
+                            <p><strong>Что анализируется:</strong></p>
+                            <ul>
+                                <li>Юридические риски в договорах</li>
+                                <li>Финансовые условия и скрытые платежи</li>
+                                <li>Операционные риски</li>
+                                <li>Рекомендации по улучшению документа</li>
+                            </ul>
+                            <p>Подробные инструкции и примеры использования вы найдете в разделе <a href="/articles">Статьи</a> и <a href="/faq">FAQ</a>.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="support-question-item">
+                    <button class="support-question-button" onclick="toggleSupportAnswer(5)">
+                        <span>Другие вопросы</span>
+                        <span class="support-question-icon">▼</span>
+                    </button>
+                    <div class="support-answer" id="supportAnswer5">
+                        <div class="support-answer-content">
+                            <p><strong>Полезные разделы:</strong></p>
+                            <ul>
+                                <li><a href="/faq">Часто задаваемые вопросы (FAQ)</a> — ответы на популярные вопросы</li>
+                                <li><a href="/articles">База знаний</a> — статьи и инструкции</li>
+                                <li><a href="/contact">Контакты</a> — форма обратной связи</li>
+                            </ul>
+                            <p><strong>Свяжитесь с нами:</strong></p>
+                            <ul>
+                                <li><strong>Email:</strong> <a href="mailto:docscanhelp@gmail.com">docscanhelp@gmail.com</a></li>
+                                <li><strong>Telegram:</strong> <a href="https://t.me/docscan_ai" target="_blank">@docscan_ai</a></li>
+                            </ul>
+                            <p>Мы отвечаем в течение 24 часов в рабочие дни.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="support-widget-footer">
+                <a href="/contact" class="support-contact-button">Связаться с поддержкой</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleSupportWidget() {
+            const modal = document.getElementById('supportModal');
+            const overlay = document.getElementById('supportOverlay');
+            const isOpen = modal.classList.contains('show');
+            
+            if (isOpen) {
+                closeSupportWidget();
+            } else {
+                modal.classList.add('show');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeSupportWidget() {
+            const modal = document.getElementById('supportModal');
+            const overlay = document.getElementById('supportOverlay');
+            modal.classList.remove('show');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+            
+            // Закрываем все открытые ответы
+            document.querySelectorAll('.support-answer.show').forEach(answer => {
+                answer.classList.remove('show');
+            });
+            document.querySelectorAll('.support-question-button.active').forEach(button => {
+                button.classList.remove('active');
+            });
+        }
+        
+        function toggleSupportAnswer(num) {
+            const answer = document.getElementById('supportAnswer' + num);
+            const button = answer.previousElementSibling;
+            const isOpen = answer.classList.contains('show');
+            
+            // Закрываем все другие ответы
+            document.querySelectorAll('.support-answer.show').forEach(item => {
+                if (item.id !== 'supportAnswer' + num) {
+                    item.classList.remove('show');
+                }
+            });
+            document.querySelectorAll('.support-question-button.active').forEach(item => {
+                if (item !== button) {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Переключаем текущий ответ
+            if (isOpen) {
+                answer.classList.remove('show');
+                button.classList.remove('active');
+            } else {
+                answer.classList.add('show');
+                button.classList.add('active');
+            }
+        }
+        
+        // Закрытие по Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSupportWidget();
+            }
+        });
     </script>
 
 </body>

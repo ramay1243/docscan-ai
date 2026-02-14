@@ -4,6 +4,8 @@ Disallow: /admin/
 Disallow: /admin-login
 Disallow: /cabinet/
 Disallow: /api/
+Disallow: /login
+Disallow: /register
 
 Sitemap: https://docscan-ai.ru/sitemap.xml
 

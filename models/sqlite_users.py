@@ -18,6 +18,7 @@ class User(db.Model):
     total_used = db.Column(db.Integer, default=0)
     created_at = db.Column(db.String(30), nullable=False)
     plan_expires = db.Column(db.String(10), nullable=True)
+    available_analyses = db.Column(db.Integer, default=0)  # Количество доступных анализов (для разовых тарифов)
     ip_address = db.Column(db.String(50), default='Не определен')
     calculator_uses = db.Column(db.Integer, default=0)
     last_calculator_use = db.Column(db.String(30), nullable=True)
@@ -46,6 +47,7 @@ class User(db.Model):
             'total_used': self.total_used,
             'created_at': self.created_at,
             'plan_expires': self.plan_expires,
+            'available_analyses': self.available_analyses,
             'ip_address': self.ip_address,
             'calculator_uses': self.calculator_uses,
             'last_calculator_use': self.last_calculator_use,
@@ -308,6 +310,7 @@ class SQLiteUserManager:
             total_used=user_data.get('total_used', 0),
             created_at=user_data.get('created_at', datetime.now().isoformat()),
             plan_expires=user_data.get('plan_expires'),
+            available_analyses=user_data.get('available_analyses', 0),
             ip_address=user_data.get('ip_address', 'Не определен')
         )
         self.db.session.add(user)
@@ -353,7 +356,7 @@ class SQLiteUserManager:
         
         # Логируем для диагностики
         if user:
-            logger.info(f"🔍 get_user({user_id}): plan={user.plan}, used_today={user.used_today}, last_reset={user.last_reset}, plan_expires={user.plan_expires}")
+            logger.info(f"🔍 get_user({user_id}): plan={user.plan}, used_today={user.used_today}, last_reset={user.last_reset}, available_analyses={user.available_analyses}")
         
         return user
 
@@ -372,6 +375,7 @@ class SQLiteUserManager:
                 'total_used': 0,
                 'created_at': datetime.now().isoformat(),
                 'plan_expires': None,
+                'available_analyses': 0,
                 'ip_address': 'Не определен'
             }
             user = self.create_user(user_data)
@@ -455,15 +459,18 @@ class SQLiteUserManager:
         # Импортируем здесь чтобы избежать циклических импортов
         from config import PLANS
         
-        # Проверяем просрочку тарифа
-        if user.plan != 'free' and user.plan_expires:
-            from datetime import date
-            if user.plan_expires < date.today().isoformat():
-                user.plan = 'free'
-                user.plan_expires = None
-                self.db.session.commit()
+        # Для бесплатного тарифа проверяем daily_limit
+        if user.plan == 'free':
+            can_analyze = user.used_today < PLANS[user.plan]['daily_limit']
+            return can_analyze
         
-        can_analyze = user.used_today < PLANS[user.plan]['daily_limit']
+        # Для платных тарифов проверяем available_analyses
+        if user.available_analyses is None:
+            user.available_analyses = 0
+            self.db.session.commit()
+        
+        # Пользователь может анализировать, если у него есть доступные анализы
+        can_analyze = user.available_analyses > 0
         return can_analyze
 
     def record_usage(self, user_id):
@@ -472,12 +479,21 @@ class SQLiteUserManager:
         if user:
             user.used_today += 1
             user.total_used += 1
+            
+            # Для платных тарифов уменьшаем счетчик доступных анализов
+            if user.plan != 'free' and user.available_analyses is not None and user.available_analyses > 0:
+                user.available_analyses -= 1
+                # Если анализы закончились, переводим на бесплатный тариф
+                if user.available_analyses <= 0:
+                    user.plan = 'free'
+                    user.available_analyses = 0
+                    logger.info(f"📊 У пользователя {user_id} закончились анализы, переведен на бесплатный тариф")
+            
             self.db.session.commit()
 
     def set_user_plan(self, user_id, plan_type):
-        """Устанавливает тариф пользователю"""
+        """Устанавливает тариф пользователю и добавляет анализы к балансу"""
         from config import PLANS
-        from datetime import date, timedelta
         
         if plan_type not in PLANS:
             return {'success': False, 'error': 'Неверный тариф'}
@@ -489,33 +505,40 @@ class SQLiteUserManager:
         if not user:
             return {'success': False, 'error': 'Пользователь не найден'}
         
-        # Обновляем тариф
-        user.plan = plan_type
-        user.used_today = 0  # Сбрасываем дневной лимит
+        # Получаем количество анализов из тарифа
+        analyses_to_add = PLANS[plan_type].get('analyses_count', 0)
         
-        # Устанавливаем срок действия (30 дней)
-        expire_date = date.today() + timedelta(days=30)
-        user.plan_expires = expire_date.isoformat()
+        # Для бесплатного тарифа не добавляем анализы (он работает по daily_limit)
+        if plan_type == 'free':
+            user.plan = plan_type
+            user.plan_expires = None
+            user.available_analyses = 0
+        else:
+            # Для платных тарифов: добавляем анализы к текущему балансу
+            if user.available_analyses is None:
+                user.available_analyses = 0
+            user.available_analyses += analyses_to_add
+            user.plan = plan_type  # Устанавливаем тип тарифа для статистики
+            user.plan_expires = None  # Убираем дату окончания (тарифы теперь разовые)
+        
+        user.used_today = 0  # Сбрасываем дневной лимит
         
         # Сохраняем изменения в БД
         self.db.session.commit()
         
         # ВАЖНО: После commit() проверяем что данные действительно записались в БД
-        # Делаем новый прямой запрос к БД, чтобы убедиться что изменения применены
         self.db.session.expire(user)  # Удаляем объект из кеша сессии
         
         # Проверяем что изменения действительно записались
         verify_user = self.User.query.filter_by(user_id=user_id).first()
-        if verify_user and verify_user.plan == plan_type:
-            logger.info(f"✅ Тариф изменен для {user_id}: {plan_type}, expire_date={expire_date.isoformat()}, проверка БД: OK")
+        if verify_user:
+            logger.info(f"✅ Тариф изменен для {user_id}: {plan_type}, добавлено анализов: {analyses_to_add}, всего доступно: {verify_user.available_analyses}, проверка БД: OK")
         else:
-            logger.error(f"❌ ОШИБКА: Тариф НЕ записался в БД для {user_id}! Ожидался {plan_type}, получен {verify_user.plan if verify_user else 'None'}")
-        
-        logger.info(f"✅ Тариф изменен для {user_id}: {plan_type}, expire_date={expire_date.isoformat()}, commit выполнен")
+            logger.error(f"❌ ОШИБКА: Пользователь не найден после commit для {user_id}!")
         
         return {
             'success': True,
-            'message': f'Пользователю {user_id} выдан тариф: {PLANS[plan_type]["name"]}'
+            'message': f'Пользователю {user_id} добавлено {analyses_to_add} анализов. Всего доступно: {verify_user.available_analyses if verify_user else 0}'
         }
         
     def record_calculator_use(self, user_id):

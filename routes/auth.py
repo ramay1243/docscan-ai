@@ -335,25 +335,16 @@ def cabinet():
     current_plan_type = user.plan
     plan = PLANS.get(current_plan_type, PLANS['free'])
     
-    # Вычисляем дни до окончания тарифа
-    days_left = None
-    if user.plan != 'free' and user.plan_expires:
-        try:
-            expiry_date = date.fromisoformat(user.plan_expires) if isinstance(user.plan_expires, str) else user.plan_expires
-            today = date.today()
-            delta = expiry_date - today
-            days_left = delta.days
-        except Exception as e:
-            logger.error(f"❌ Ошибка вычисления дней до окончания тарифа: {e}")
-            days_left = None
+    # Получаем количество доступных анализов
+    available_analyses = user.available_analyses if user.available_analyses is not None else 0
     
-    logger.info(f"📊 Cabinet: user_id={user_id}, plan={current_plan_type}, plan_name={plan['name']}, daily_limit={plan['daily_limit']}, used_today={user.used_today}, plan_expires={user.plan_expires}, days_left={days_left}")
+    logger.info(f"📊 Cabinet: user_id={user_id}, plan={current_plan_type}, plan_name={plan['name']}, daily_limit={plan['daily_limit']}, used_today={user.used_today}, available_analyses={available_analyses}")
     
     return render_template('cabinet.html', 
         user=user,
         history=history,
         plan=plan,
-        days_left=days_left
+        available_analyses=available_analyses
     )
 
 @auth_bp.route('/api/check-auth', methods=['GET'])

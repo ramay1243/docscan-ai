@@ -543,9 +543,8 @@ def admin_panel():
                                    style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
                             <select id="planSelect" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
                                 <option value="free">Бесплатный (1 анализ)</option>
-                                <option value="basic">Базовый (Неограниченное количество анализов)</option>
-                                <option value="premium">Премиум (50 анализов)</option>
-                                <option value="unlimited">Безлимитный</option>
+                                <option value="basic">Базовый (10 анализов за 290₽)</option>
+                                <option value="premium">Премиум (30 анализов за 690₽)</option>
                             </select>
                             <button onclick="setUserPlan()">Выдать тариф</button>
                         </div>
@@ -1329,12 +1328,12 @@ def admin_panel():
             }
 
             function getPlanName(plan) {
-                const names = {free: 'Бесплатный', basic: 'Базовый', premium: 'Премиум', unlimited: 'Безлимитный'};
+                const names = {free: 'Бесплатный', basic: 'Базовый', premium: 'Премиум'};
                 return names[plan] || plan;
             }
-
+            
             function getPlanLimit(plan) {
-                const limits = {free: 1, basic: 1000, premium: 50, unlimited: 1000};
+                const limits = {free: 1, basic: 10, premium: 30};
                 return limits[plan] || 0;
             }
 

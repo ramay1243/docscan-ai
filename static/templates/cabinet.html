@@ -240,23 +240,18 @@
                 <h1 style="color: var(--dark); margin-bottom: 30px; font-size: 2rem;">Личный кабинет</h1>
                 
                 <!-- Plan Expiry Indicator -->
-                {% if user.plan != 'free' and user.plan_expires %}
-                    {% if days_left is not none and days_left > 0 %}
-                        <div class="plan-expiry-card {% if days_left > 7 %}success{% elif days_left > 3 %}warning{% else %}danger{% endif %}">
-                            <div class="plan-expiry-title">Тариф действует до: {{ user.plan_expires[:10] }}</div>
-                            <div class="plan-expiry-days">Осталось: {{ days_left }} {% if days_left == 1 %}день{% elif days_left < 5 %}дня{% else %}дней{% endif %}</div>
-                        </div>
-                    {% elif days_left is not none and days_left <= 0 %}
-                        <div class="plan-expiry-card expired">
-                            <div class="plan-expiry-title">Тариф истек: {{ user.plan_expires[:10] }}</div>
-                            <div class="plan-expiry-days" style="margin-bottom: 15px;">Тариф не активен</div>
-                            <button onclick="buyPlan('basic')" class="cta-button" style="background: white; color: var(--primary); border: none; cursor: pointer;">Продлить тариф</button>
-                        </div>
-                    {% else %}
-                        <div class="plan-expiry-card">
-                            <div class="plan-expiry-title">Тариф действует до: {{ user.plan_expires[:10] }}</div>
-                        </div>
-                    {% endif %}
+                {% if user.plan != 'free' and available_analyses is not none and available_analyses > 0 %}
+                    <div class="plan-expiry-card {% if available_analyses > 20 %}success{% elif available_analyses > 5 %}warning{% else %}danger{% endif %}">
+                        <div class="plan-expiry-title">Доступно анализов</div>
+                        <div class="plan-expiry-days">{{ available_analyses }} {% if available_analyses == 1 %}анализ{% elif available_analyses < 5 %}анализа{% else %}анализов{% endif %}</div>
+                        <div class="plan-expiry-date" style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">Анализы не сгорают, используйте их в любое время</div>
+                    </div>
+                {% elif user.plan != 'free' and (available_analyses is none or available_analyses <= 0) %}
+                    <div class="plan-expiry-card expired">
+                        <div class="plan-expiry-title">Анализы закончились</div>
+                        <div class="plan-expiry-days" style="margin-bottom: 15px;">Купите тариф для продолжения работы</div>
+                        <button onclick="window.location.href='/tariffs'" class="cta-button" style="background: white; color: var(--primary); border: none; cursor: pointer;">Купить тариф</button>
+                    </div>
                 {% endif %}
                 
                 <div class="stats-grid">
@@ -284,8 +279,8 @@
                     {% if user.plan == 'free' %}
                     <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; color: white;">
                         <h3 style="margin: 0 0 15px 0; color: white;">💎 Улучшите свой тариф</h3>
-                        <p style="margin: 0 0 15px 0; opacity: 0.9;">Получите неограниченное количество анализов всего за 490₽/мес</p>
-                        <button onclick="buyPlan('basic')" class="cta-button" style="background: white; color: var(--primary); border: none; cursor: pointer;">Купить тариф за 490₽</button>
+                        <p style="margin: 0 0 15px 0; opacity: 0.9;">Получите 10 анализов всего за 290₽</p>
+                        <button onclick="window.location.href='/tariffs'" class="cta-button" style="background: white; color: var(--primary); border: none; cursor: pointer;">Купить тариф</button>
                     </div>
                     {% endif %}
                     <a href="/" class="cta-button">Начать анализ документа</a>
@@ -854,6 +849,7 @@
                         <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
                         <a href="/offer" class="footer-link">Публичная оферта</a>
                         <a href="/partners" class="footer-link">Партнерская программа</a>
+                        <a href="/tariffs" class="footer-link">Тарифы</a>
                     </div>
                 </div>
                 

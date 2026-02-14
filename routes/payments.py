@@ -184,12 +184,11 @@ def activate_plan(user_id, plan_type='basic'):
         result = app.user_manager.set_user_plan(user_id, plan_type)
         
         if result.get('success'):
-            from datetime import timedelta, date
-            expire_date = date.today() + timedelta(days=30)
-            logger.info(f"🎉 Активирован тариф {plan_type} для пользователя {user_id} до {expire_date}")
+            analyses_count = PLANS[plan_type].get('analyses_count', 0)
+            logger.info(f"🎉 Активирован тариф {plan_type} для пользователя {user_id}, добавлено {analyses_count} анализов")
             return {
                 'success': True,
-                'message': f'Тариф {PLANS[plan_type]["name"]} активирован до {expire_date}'
+                'message': result.get('message', f'Тариф {PLANS[plan_type]["name"]} активирован, добавлено {analyses_count} анализов')
             }
         else:
             # Если set_user_plan вернул ошибку, возвращаем её

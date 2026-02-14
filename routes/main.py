@@ -140,15 +140,11 @@ def sitemap():
 
 @main_bp.route('/robots.txt')
 def robots():
-    """Robots.txt для SEO"""
-    return """User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /admin-login
-Disallow: /cabinet/
-Disallow: /api/
-
-Sitemap: https://docscan-ai.ru/sitemap.xml""", 200, {'Content-Type': 'text/plain'}
+    """Robots.txt для SEO - отдает статический файл"""
+    from flask import send_from_directory
+    import os
+    static_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static')
+    return send_from_directory(static_folder, 'robots.txt', mimetype='text/plain')
 
 @main_bp.route('/articles')
 def articles():

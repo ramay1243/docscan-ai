@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin-login
+Disallow: /cabinet/
+Disallow: /api/
+
+Sitemap: https://docscan-ai.ru/sitemap.xml
+

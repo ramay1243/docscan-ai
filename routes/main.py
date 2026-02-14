@@ -829,132 +829,6 @@ def home():
             .upload-section { padding: 30px 20px; }
         }
         
-        /* Рекламный баннер */
-        .ad-banner {
-            position: fixed;
-            left: 20px;
-            bottom: 20px;
-            width: 240px;
-            max-width: calc(100vw - 40px);
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            z-index: 9999;
-            overflow: hidden;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            animation: slideInLeft 0.5s ease-out;
-        }
-        
-        .ad-banner.hidden {
-            display: none;
-        }
-        
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        .ad-banner-close {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 26px;
-            height: 26px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid rgba(0, 0, 0, 0.2);
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            transition: all 0.3s ease;
-            z-index: 10;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            line-height: 1;
-        }
-        
-        .ad-banner-close:hover {
-            background: #fff;
-            border-color: rgba(0, 0, 0, 0.4);
-            color: #000;
-            transform: rotate(90deg) scale(1.1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-        
-        .ad-banner-link {
-            display: block;
-            text-decoration: none;
-            color: inherit;
-            cursor: pointer;
-        }
-        
-        .ad-banner-image {
-            width: 100%;
-            height: 130px;
-            object-fit: cover;
-            display: block;
-        }
-        
-        .ad-banner-content {
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .ad-banner-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            line-height: 1.3;
-        }
-        
-        .ad-banner-description {
-            font-size: 11px;
-            opacity: 0.95;
-            line-height: 1.4;
-        }
-        
-        .ad-banner-telegram-icon {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            margin-right: 4px;
-            vertical-align: middle;
-        }
-        
-        @media (max-width: 768px) {
-            .ad-banner {
-                width: 220px;
-                left: 10px;
-                bottom: 10px;
-            }
-            
-            .ad-banner-image {
-                height: 110px;
-            }
-            
-            .ad-banner-content {
-                padding: 10px;
-            }
-            
-            .ad-banner-title {
-                font-size: 12px;
-            }
-            
-            .ad-banner-description {
-                font-size: 10px;
-            }
-        }
-        
         /* Support Widget */
         .support-widget {
             position: fixed;
@@ -2441,32 +2315,6 @@ def home():
             }
         });
         
-        // Управление рекламным баннером
-        function closeAdBanner() {
-            const banner = document.getElementById('adBanner');
-            if (banner) {
-                banner.classList.add('hidden');
-                // Не сохраняем в localStorage - баннер будет показываться при каждом обновлении страницы
-            }
-        }
-        
-        function trackAdClick() {
-            // Можно добавить аналитику кликов по баннеру
-            if (typeof ym !== 'undefined') {
-                ym(105562312, 'reachGoal', 'ad_banner_click');
-            }
-        }
-        
-        // Проверяем состояние баннера при загрузке
-        function initAdBanner() {
-            const banner = document.getElementById('adBanner');
-            if (!banner) return;
-            
-            // Баннер всегда показывается при загрузке страницы
-            // Не проверяем localStorage - баннер появляется при каждом обновлении
-            banner.classList.remove('hidden');
-        }
-        
         // Обработка реферального кода из URL
         function handleReferralCode() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -2486,7 +2334,6 @@ def home():
             loadUser();
             initCarousel();
             checkAuth();
-            initAdBanner();
             handleReferralCode();
         });
     </script>
@@ -2691,23 +2538,6 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/105562312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
-    <!-- Рекламный баннер -->
-    <div id="adBanner" class="ad-banner">
-        <button class="ad-banner-close" onclick="closeAdBanner()" aria-label="Закрыть баннер">×</button>
-        <a href="https://t.me/BirzhaAuditbot" target="_blank" class="ad-banner-link" onclick="trackAdClick()">
-            <img src="/static/ad-banner-image.jpg" alt="Биржа Аудитории" class="ad-banner-image" onerror="this.style.display='none'">
-            <div class="ad-banner-content">
-                <div class="ad-banner-title">
-                    📢 Биржа Аудитории
-                </div>
-                <div class="ad-banner-description">
-                    Для взаимного обмена подписчиками<br>
-                    Получайте реальных подписчиков
-                </div>
-            </div>
-        </a>
-    </div>
-    
     <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->
     <script>
     window.yaContextCb.push(() => {

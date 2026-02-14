@@ -71,6 +71,9 @@ def sitemap():
         '/articles/business-protection',
         '/articles/freelance-gph',
         '/articles/ipoteka-2025',
+        '/articles/lizing',
+        '/articles/strahovanie',
+        '/articles/okazanie-uslug',
     ]
     
     # Дополнительные страницы
@@ -293,6 +296,21 @@ def redirect_root_equals():
 @main_bp.route('/articles/ipoteka-2025')
 def article_ipoteka():
     return render_template('article_ipoteka_2025.html')
+
+@main_bp.route('/articles/lizing')
+def article_lizing():
+    """Статья 'Проверка договора лизинга'"""
+    return render_template('article_lizing.html')
+
+@main_bp.route('/articles/strahovanie')
+def article_strahovanie():
+    """Статья 'Договор страхования: что проверить перед подписанием'"""
+    return render_template('article_strahovanie.html')
+
+@main_bp.route('/articles/okazanie-uslug')
+def article_okazanie_uslug():
+    """Статья 'Проверка договора оказания услуг'"""
+    return render_template('article_okazanie-uslug.html')
     
 @main_bp.route('/calculator-penalty')
 def calculator_penalty():

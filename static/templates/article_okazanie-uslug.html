@@ -81,16 +81,35 @@
         }
         .nav-links {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .nav-link {
-            color: var(--dark);
+            color: var(--gray);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s;
+            position: relative;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
-        .nav-link:hover, .nav-link.active { color: var(--primary); }
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        .nav-link.active {
+            color: var(--primary);
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
         .cta-button {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;

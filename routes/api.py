@@ -164,11 +164,20 @@ def analyze_document():
             # Проверяем лимиты тарифа
             if not app.user_manager.can_analyze(user_id):
                 plan = PLANS[user.plan]
-                return jsonify({
-                    'success': False,
-                    'error': f'❌ Лимит исчерпан! Сегодня использовано {user.used_today}/{plan["daily_limit"]} анализов.',
-                    'upgrade_required': True
-                }), 402
+                if user.plan == 'free':
+                    # Для бесплатного тарифа - один анализ навсегда
+                    return jsonify({
+                        'success': False,
+                        'error': '❌ Бесплатный анализ уже использован! Приобретите тариф для продолжения работы.',
+                        'upgrade_required': True
+                    }), 402
+                else:
+                    # Для платных тарифов - закончились анализы
+                    return jsonify({
+                        'success': False,
+                        'error': f'❌ Анализы закончились! Доступно: {user.available_analyses or 0} анализов.',
+                        'upgrade_required': True
+                    }), 402
             
         else:
             # ========== НЕЗАРЕГИСТРИРОВАННЫЙ ПОЛЬЗОВАТЕЛЬ (ГОСТЬ) ==========
@@ -252,13 +261,24 @@ def analyze_document():
             # Для зарегистрированных - получаем актуальные данные пользователя
             user = app.user_manager.get_user(user_id)
             plan = PLANS[user.plan] if user else PLANS['free']
-            analysis_result['usage_info'] = {
-                'used_today': user.used_today if user else 0,
-                'daily_limit': plan['daily_limit'],
-                'remaining': plan['daily_limit'] - (user.used_today if user else 0),
-                'plan_name': plan['name'],
-                'is_registered': True
-            }
+            
+            # Для бесплатного тарифа используем free_analysis_used (один анализ навсегда)
+            if user and user.plan == 'free':
+                remaining = 0 if user.free_analysis_used else 1
+                analysis_result['usage_info'] = {
+                    'free_analysis_used': user.free_analysis_used,
+                    'remaining': remaining,
+                    'plan_name': plan['name'],
+                    'is_registered': True,
+                    'available_analyses': 0
+                }
+            else:
+                # Для платных тарифов используем available_analyses
+                analysis_result['usage_info'] = {
+                    'available_analyses': user.available_analyses if user else 0,
+                    'plan_name': plan['name'],
+                    'is_registered': True
+                }
         else:
             # Для незарегистрированных показываем что бесплатный анализ использован
             analysis_result['usage_info'] = {
@@ -338,16 +358,29 @@ def get_usage():
     
     plan = PLANS[user.plan]
     
-    return jsonify({
-        'user_id': user_id,
-        'plan': user.plan,
-        'plan_name': plan['name'],
-        'used_today': user.used_today,
-        'daily_limit': plan['daily_limit'],
-        'remaining': plan['daily_limit'] - user.used_today,
-        'total_used': user.total_used,
-        'is_registered': True
-    })
+    # Для бесплатного тарифа используем free_analysis_used (один анализ навсегда)
+    if user.plan == 'free':
+        remaining = 0 if user.free_analysis_used else 1
+        return jsonify({
+            'user_id': user_id,
+            'plan': user.plan,
+            'plan_name': plan['name'],
+            'free_analysis_used': user.free_analysis_used,
+            'remaining': remaining,
+            'total_used': user.total_used,
+            'is_registered': True,
+            'available_analyses': 0
+        })
+    else:
+        # Для платных тарифов используем available_analyses
+        return jsonify({
+            'user_id': user_id,
+            'plan': user.plan,
+            'plan_name': plan['name'],
+            'available_analyses': user.available_analyses or 0,
+            'total_used': user.total_used,
+            'is_registered': True
+        })
 
 @api_bp.route('/plans', methods=['GET'])
 def get_plans():

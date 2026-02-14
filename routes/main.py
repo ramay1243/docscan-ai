@@ -1712,7 +1712,20 @@ def home():
                 .then(data => {
                     const usageInfo = document.getElementById('usageInfo');
                     if (usageInfo) {
-                        usageInfo.textContent = `${data.used_today}/${data.daily_limit}`;
+                        // Для бесплатного тарифа показываем free_analysis_used
+                        if (data.plan === 'free') {
+                            if (data.free_analysis_used) {
+                                usageInfo.textContent = 'Использован';
+                            } else {
+                                usageInfo.textContent = 'Доступен';
+                            }
+                        } else if (data.available_analyses !== undefined) {
+                            // Для платных тарифов показываем available_analyses
+                            usageInfo.textContent = `${data.available_analyses} доступно`;
+                        } else {
+                            // Fallback для старых данных
+                            usageInfo.textContent = `${data.used_today || 0}/${data.daily_limit || 0}`;
+                        }
                     }
                 })
                 .catch(err => console.error('Ошибка получения статистики:', err));
@@ -1736,7 +1749,8 @@ def home():
                 .then(data => {
                     const usageInfo = document.getElementById('usageInfo');
                     if (usageInfo) {
-                        usageInfo.textContent = `${data.used_today}/${data.daily_limit}`;
+                        // Для незарегистрированных показываем used_today/daily_limit
+                        usageInfo.textContent = `${data.used_today || 0}/${data.daily_limit || 1}`;
                     }
                 })
                 .catch(err => console.error('Ошибка получения статистики:', err));

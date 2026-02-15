@@ -136,4 +136,4 @@ class IPLimitManager:
         
         self.ip_limits[real_ip]['used_today'] += 1
         self.save_ip_limits()
-        logger.info(f"📡 Записано использование для IP {real_ip}: {self.ip_limits[real_ip]['used_today']}/3 (user: {user_id})")
+        logger.info(f"📡 Записано использование для IP {real_ip}: {self.ip_limits[real_ip]['used_today']}/1 (user: {user_id})")

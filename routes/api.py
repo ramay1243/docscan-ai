@@ -184,7 +184,7 @@ def analyze_document():
             logger.info(f"👥 Обработка для НЕЗАРЕГИСТРИРОВАННОГО пользователя (IP: {real_ip})")
             
             # Проверяем IP-лимиты (1 анализ в день)
-            if not app.ip_limit_manager.can_analyze_by_ip(request):
+            if not app.ip_limit_manager.can_analyze_by_ip(request, app.user_manager):
                 # IP лимит превышен - обновляем флаг registration_prompted для гостя
                 # Ищем существующего гостя с этим IP или создаем нового
                 try:
@@ -331,7 +331,7 @@ def get_usage():
     if not is_authenticated:
         # Для незарегистрированных: проверяем IP-лимиты
         real_ip = app.ip_limit_manager.get_client_ip(request)
-        can_analyze = app.ip_limit_manager.can_analyze_by_ip(request)
+        can_analyze = app.ip_limit_manager.can_analyze_by_ip(request, app.user_manager)
         used = 0 if can_analyze else 1
         
         return jsonify({

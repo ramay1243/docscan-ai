@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import logging
 import sys
+from datetime import datetime
 from models.sqlite_users import db, User, AnalysisHistory, Guest, EmailCampaign, EmailSend, Article, Payment, Referral, ReferralReward
 
 # Настройка логирования
@@ -51,6 +52,41 @@ def create_app():
         import traceback
         logger.error(f"Трассировка: {traceback.format_exc()}")
         raise
+    
+    # Middleware для отслеживания визитов гостей
+    @app.before_request
+    def track_guest_visits():
+        """Отслеживает визиты гостей при каждом запросе"""
+        from flask import request, session
+        from models.limits import IPLimitManager
+        
+        # Пропускаем служебные запросы
+        if request.path.startswith(('/static/', '/api/', '/admin/', '/payments/', '/favicon.ico', '/robots.txt', '/sitemap.xml')):
+            return None
+        
+        # Пропускаем если пользователь авторизован
+        if session.get('user_id'):
+            return None
+        
+        try:
+            # Получаем IP и создаем/обновляем запись гостя
+            real_ip = app.ip_limit_manager.get_client_ip(request)
+            user_agent = request.headers.get('User-Agent', 'Не определен')
+            
+            # Исключаем локальные IP
+            if real_ip in ['127.0.0.1', 'localhost', 'None']:
+                return None
+            
+            # Создаем/обновляем запись гостя
+            guest = app.user_manager.get_or_create_guest(real_ip, user_agent)
+            guest.last_seen = datetime.now().isoformat()
+            from models.sqlite_users import db
+            db.session.commit()
+        except Exception as e:
+            # Не прерываем запрос при ошибке отслеживания
+            logger.debug(f"⚠️ Ошибка отслеживания визита гостя: {e}")
+        
+        return None
     
     logger.info("🚀 DocScan App инициализирован!")
     return app

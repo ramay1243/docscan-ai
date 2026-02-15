@@ -66,8 +66,8 @@ class IPLimitManager:
             logger.debug(f"🔍 IP определен из remote_addr: {ip}")
             return ip
 
-    def can_analyze_by_ip(self, request):
-        """Проверяет может ли IP сделать анализ"""
+    def can_analyze_by_ip(self, request, user_manager=None):
+        """Проверяет может ли IP сделать анализ и создает/обновляет запись гостя"""
         real_ip = self.get_client_ip(request)
         logger.info(f"🔍 IP клиента: {real_ip}")
         
@@ -99,6 +99,18 @@ class IPLimitManager:
             logger.info(f"📡 IP {real_ip} может сделать анализ ({ip_data['used_today']}/1)")
         else:
             logger.info(f"🚫 IP {real_ip} уже использовал бесплатный анализ сегодня ({ip_data['used_today']}/1)")
+        
+        # СОЗДАЕМ/ОБНОВЛЯЕМ ЗАПИСЬ ГОСТЯ В БД при каждом визите
+        if user_manager:
+            try:
+                user_agent = request.headers.get('User-Agent', 'Не определен')
+                guest = user_manager.get_or_create_guest(real_ip, user_agent)
+                # Обновляем last_seen уже сделано в get_or_create_guest, но на всякий случай
+                guest.last_seen = datetime.now().isoformat()
+                from models.sqlite_users import db
+                db.session.commit()
+            except Exception as e:
+                logger.error(f"❌ Ошибка создания/обновления гостя для IP {real_ip}: {e}")
         
         return can_analyze
 

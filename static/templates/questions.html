@@ -177,9 +177,103 @@
             color: rgba(255,255,255,0.5);
         }
         
+        /* Burger Menu */
+        .burger-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .burger-icon {
+            background: white;
+            padding: 15px 12px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+        
+        .burger-line {
+            width: 20px;
+            height: 2px;
+            background: var(--dark);
+            transition: all 0.3s ease;
+        }
+        
+        .burger-icon:hover .burger-line {
+            background: white;
+        }
+        
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 15px 0;
+            min-width: 200px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-dropdown a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .menu-dropdown a:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .menu-dropdown a:last-child {
+            border-bottom: none;
+        }
+        
+        #mobileAuthButtons, #mobileUserMenu {
+            border-top: 1px solid var(--border);
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        
+        #mobileAuthButtons a, #mobileUserMenu a {
+            display: block;
+        }
+        
+        .menu-dropdown.show {
+            display: block;
+        }
+        
         @media (max-width: 768px) {
             .nav-links { 
                 display: none; 
+            }
+            .burger-menu { 
+                display: block; 
             }
         }
     </style>
@@ -198,7 +292,7 @@
                     <a href="/" class="nav-link">Главная</a>
                     <a href="/news" class="nav-link">Новости</a>
                     <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
-                    <a href="/mobile-app" class="nav-link">Мобильное приложение</a>
+                    <a href="/questions" class="nav-link">Вопросы</a>
                     <a href="/articles" class="nav-link">Статьи</a>
                     <a href="/faq" class="nav-link">FAQ</a>
                     <a href="/contact" class="nav-link">Контакты</a>
@@ -215,6 +309,33 @@
             </div>
         </div>
     </header>
+
+    <!-- Burger Menu (Mobile) -->
+    <div class="burger-menu">
+        <div class="burger-icon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="/">🏠 Главная</a>
+            <a href="/news">📰 Новости</a>
+            <a href="/calculator-penalty">🧮 Калькулятор</a>
+            <a href="/questions">Вопросы</a>
+            <a href="/articles">📚 Статьи</a>
+            <a href="/faq">❓ FAQ</a>
+            <a href="/contact">📞 Контакты</a>
+            <div id="mobileAuthButtons">
+                <a href="/login">🔐 Войти</a>
+                <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+            </div>
+            <div id="mobileUserMenu" style="display: none;">
+                <a href="/cabinet">👤 Личный кабинет</a>
+                <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+            </div>
+            <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; text-align: center; color: white;">
@@ -317,6 +438,7 @@
                         <a href="/mobile-app" class="footer-link">📱 Приложение</a>
                         <a href="/contact" class="footer-link">Техподдержка</a>
                         <a href="/faq" class="footer-link">FAQ</a>
+                        <a href="/questions" class="footer-link">Спросить онлайн</a>
                     </div>
                 </div>
                 
@@ -368,6 +490,23 @@
                 console.error('Auth check error:', error);
             }
         }
+        
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+        
+        // Закрываем меню при клике вне его
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (menu && dropdown && !menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
         
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();

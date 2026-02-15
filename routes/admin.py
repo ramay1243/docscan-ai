@@ -1737,7 +1737,10 @@ def admin_panel():
                                                     👁️ ${q.views_count} | 💬 ${q.answers_count} | 📅 ${new Date(q.created_at).toLocaleDateString('ru-RU')}
                                                 </div>
                                             </div>
-                                            <div style="display: flex; gap: 5px;">
+                                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                                <button onclick="viewAdminQuestion(${q.id})" style="background: #667eea; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">👁️ Просмотр</button>
+                                                ${q.status !== 'closed' ? `<button onclick="closeAdminQuestion(${q.id})" style="background: #ed8936; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🔒 Закрыть</button>` : `<button onclick="openAdminQuestion(${q.id})" style="background: #48bb78; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🔓 Открыть</button>`}
+                                                ${q.status !== 'solved' ? `<button onclick="solveAdminQuestion(${q.id})" style="background: #48bb78; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">✅ Решен</button>` : ''}
                                                 <button onclick="deleteAdminQuestion(${q.id})" style="background: #f56565; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🗑️ Удалить</button>
                                             </div>
                                         </div>
@@ -1747,6 +1750,66 @@ def admin_panel():
                         }
                         questionsListEl.innerHTML = html;
                     });
+            }
+            
+            function viewAdminQuestion(questionId) {
+                window.open(`/questions/${questionId}`, '_blank');
+            }
+            
+            function closeAdminQuestion(questionId) {
+                if (!confirm('Закрыть вопрос?')) return;
+                
+                fetch(`/admin/questions/${questionId}/status`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({status: 'closed'})
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Вопрос закрыт!');
+                        loadQuestions();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            function openAdminQuestion(questionId) {
+                fetch(`/admin/questions/${questionId}/status`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({status: 'open'})
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Вопрос открыт!');
+                        loadQuestions();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            function solveAdminQuestion(questionId) {
+                fetch(`/admin/questions/${questionId}/status`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({status: 'solved'})
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Вопрос отмечен как решенный!');
+                        loadQuestions();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
             }
             
             function deleteAdminQuestion(questionId) {
@@ -1769,6 +1832,10 @@ def admin_panel():
             
             // Регистрируем функции для вопросов глобально
             window.loadQuestions = loadQuestions;
+            window.viewAdminQuestion = viewAdminQuestion;
+            window.closeAdminQuestion = closeAdminQuestion;
+            window.openAdminQuestion = openAdminQuestion;
+            window.solveAdminQuestion = solveAdminQuestion;
             window.deleteAdminQuestion = deleteAdminQuestion;
             
             function showUser(userId) {
@@ -3932,6 +3999,35 @@ def get_questions():
     except Exception as e:
         logger.error(f"❌ Ошибка получения вопросов: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/questions/<int:question_id>/status', methods=['POST'])
+@require_admin_auth
+def update_question_status(question_id):
+    """Изменить статус вопроса"""
+    from models.sqlite_users import db, Question
+    from datetime import datetime
+    
+    try:
+        data = request.get_json()
+        new_status = data.get('status')
+        
+        if new_status not in ['open', 'answered', 'solved', 'closed']:
+            return jsonify({'success': False, 'error': 'Неверный статус'}), 400
+        
+        question = Question.query.filter_by(id=question_id).first()
+        if not question:
+            return jsonify({'success': False, 'error': 'Вопрос не найден'}), 404
+        
+        question.status = new_status
+        question.updated_at = datetime.now().isoformat()
+        db.session.commit()
+        
+        logger.info(f"✅ Статус вопроса {question_id} изменен на {new_status}")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"❌ Ошибка изменения статуса вопроса: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @admin_bp.route('/questions/<int:question_id>', methods=['DELETE'])
 @require_admin_auth

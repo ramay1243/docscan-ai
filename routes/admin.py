@@ -1753,7 +1753,112 @@ def admin_panel():
             }
             
             function viewAdminQuestion(questionId) {
-                window.open(`/questions/${questionId}`, '_blank');
+                // Показываем модальное окно с ответами
+                showQuestionAnswers(questionId);
+            }
+            
+            function showQuestionAnswers(questionId) {
+                fetch(`/admin/questions/${questionId}/answers`, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(answers => {
+                        let html = '<div style="max-height: 70vh; overflow-y: auto; padding: 20px;">';
+                        html += '<h3 style="margin-bottom: 20px;">Ответы на вопрос</h3>';
+                        
+                        if (!answers || answers.length === 0) {
+                            html += '<p style="color: #999; padding: 20px;">Нет ответов</p>';
+                        } else {
+                            answers.forEach(answer => {
+                                const bestBadge = answer.is_best ? '<span style="background: #48bb78; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 10px; font-size: 0.85rem;">⭐ Лучший ответ</span>' : '';
+                                html += `
+                                    <div class="user-card" style="margin: 10px 0; border-left: 4px solid ${answer.is_best ? '#48bb78' : '#667eea'};">
+                                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                                            <div style="flex: 1;">
+                                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">
+                                                    ${bestBadge}
+                                                    Автор: ${answer.author_email || 'Неизвестно'} | 👍 ${answer.likes_count || 0}
+                                                </div>
+                                                <div style="color: #2d3748; margin-bottom: 10px;">
+                                                    ${answer.content}
+                                                </div>
+                                                <div style="color: #999; font-size: 0.85rem;">
+                                                    📅 ${new Date(answer.created_at).toLocaleString('ru-RU')}
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; gap: 5px;">
+                                                <button onclick="deleteAdminAnswer(${answer.id}, ${questionId})" style="background: #f56565; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🗑️ Удалить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        }
+                        
+                        html += '</div>';
+                        html += '<div style="text-align: right; padding: 15px; border-top: 1px solid #e2e8f0;">';
+                        html += '<button onclick="closeModal()" style="background: #e2e8f0; color: #2d3748; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Закрыть</button>';
+                        html += '</div>';
+                        
+                        showModal('Ответы на вопрос', html);
+                    })
+                    .catch(err => {
+                        console.error('Ошибка загрузки ответов:', err);
+                        alert('Ошибка загрузки ответов');
+                    });
+            }
+            
+            function deleteAdminAnswer(answerId, questionId) {
+                if (!confirm('Удалить ответ? Это действие нельзя отменить!')) return;
+                
+                fetch(`/admin/answers/${answerId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Ответ удален!');
+                        showQuestionAnswers(questionId); // Обновляем список
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Ошибка соединения: ' + err);
+                });
+            }
+            
+            function showModal(title, content) {
+                // Создаем модальное окно если его нет
+                let modal = document.getElementById('adminModal');
+                if (!modal) {
+                    modal = document.createElement('div');
+                    modal.id = 'adminModal';
+                    modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;';
+                    document.body.appendChild(modal);
+                    
+                    const modalContent = document.createElement('div');
+                    modalContent.id = 'adminModalContent';
+                    modalContent.style.cssText = 'background: white; border-radius: 10px; max-width: 800px; width: 90%; max-height: 90vh; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2);';
+                    modal.appendChild(modalContent);
+                }
+                
+                const modalContent = document.getElementById('adminModalContent');
+                modalContent.innerHTML = `
+                    <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin: 0; color: #2d3748;">${title}</h2>
+                        <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999;">&times;</button>
+                    </div>
+                    ${content}
+                `;
+                
+                modal.style.display = 'flex';
+            }
+            
+            function closeModal() {
+                const modal = document.getElementById('adminModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
             }
             
             function closeAdminQuestion(questionId) {
@@ -1837,6 +1942,9 @@ def admin_panel():
             window.openAdminQuestion = openAdminQuestion;
             window.solveAdminQuestion = solveAdminQuestion;
             window.deleteAdminQuestion = deleteAdminQuestion;
+            window.showQuestionAnswers = showQuestionAnswers;
+            window.deleteAdminAnswer = deleteAdminAnswer;
+            window.closeModal = closeModal;
             
             function showUser(userId) {
                 // Переключаемся на секцию пользователей
@@ -4050,3 +4158,62 @@ def delete_question(question_id):
         logger.error(f"❌ Ошибка удаления вопроса: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/answers/<int:answer_id>', methods=['DELETE'])
+@require_admin_auth
+def delete_answer(answer_id):
+    """Удалить ответ на вопрос"""
+    from models.sqlite_users import db, Answer, Question
+    
+    try:
+        answer = Answer.query.filter_by(id=answer_id).first()
+        if not answer:
+            return jsonify({'success': False, 'error': 'Ответ не найден'}), 404
+        
+        question_id = answer.question_id
+        db.session.delete(answer)
+        db.session.commit()
+        
+        # Обновляем счетчик ответов в вопросе
+        question = Question.query.filter_by(id=question_id).first()
+        if question:
+            question.answers_count = len(question.answers) if hasattr(question, 'answers') else 0
+            if question.best_answer_id == answer_id:
+                question.best_answer_id = None
+            db.session.commit()
+        
+        logger.info(f"✅ Ответ {answer_id} удален администратором")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления ответа: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/questions/<int:question_id>/answers')
+@require_admin_auth
+def get_question_answers(question_id):
+    """Получить все ответы на вопрос для админ-панели"""
+    from models.sqlite_users import Answer, User
+    
+    try:
+        answers = Answer.query.filter_by(question_id=question_id).order_by(Answer.created_at.desc()).all()
+        
+        answers_list = []
+        for answer in answers:
+            user = User.query.filter_by(user_id=answer.user_id).first()
+            answer_dict = {
+                'id': answer.id,
+                'question_id': answer.question_id,
+                'user_id': answer.user_id,
+                'author_email': user.email if user else 'Неизвестно',
+                'content': answer.content,
+                'is_best': answer.is_best,
+                'likes_count': answer.likes_count or 0,
+                'created_at': answer.created_at
+            }
+            answers_list.append(answer_dict)
+        
+        return jsonify(answers_list)
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения ответов: {e}")
+        return jsonify({'error': str(e)}), 500

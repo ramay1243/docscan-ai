@@ -4164,6 +4164,7 @@ def delete_question(question_id):
 def delete_answer(answer_id):
     """Удалить ответ на вопрос"""
     from models.sqlite_users import db, Answer, Question
+    from datetime import datetime
     
     try:
         answer = Answer.query.filter_by(id=answer_id).first()
@@ -4174,12 +4175,24 @@ def delete_answer(answer_id):
         db.session.delete(answer)
         db.session.commit()
         
-        # Обновляем счетчик ответов в вопросе
+        # Обновляем счетчик ответов и статус вопроса
         question = Question.query.filter_by(id=question_id).first()
         if question:
-            question.answers_count = len(question.answers) if hasattr(question, 'answers') else 0
+            # Пересчитываем количество ответов
+            remaining_answers = Answer.query.filter_by(question_id=question_id).count()
+            question.answers_count = remaining_answers
+            
+            # Если ответов не осталось, меняем статус на 'open'
+            if remaining_answers == 0:
+                if question.status == 'answered':
+                    question.status = 'open'
+                    logger.info(f"🔄 Статус вопроса {question_id} изменен на 'open' (ответов не осталось)")
+            
+            # Удаляем best_answer_id если удаляемый ответ был лучшим
             if question.best_answer_id == answer_id:
                 question.best_answer_id = None
+            
+            question.updated_at = datetime.now().isoformat()
             db.session.commit()
         
         logger.info(f"✅ Ответ {answer_id} удален администратором")

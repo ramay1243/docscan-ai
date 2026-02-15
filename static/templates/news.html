@@ -602,19 +602,6 @@
             </div>
         </div>
     </section>
-    
-    <!-- Yandex.RTB R-A-18680294-2 -->
-    <div style="text-align: center; margin: 30px auto; max-width: 1200px; padding: 0 20px;">
-        <div id="yandex_rtb_R-A-18680294-2"></div>
-        <script>
-        window.yaContextCb.push(() => {
-            Ya.Context.AdvManager.render({
-                "blockId": "R-A-18680294-2",
-                "renderTo": "yandex_rtb_R-A-18680294-2"
-            })
-        })
-        </script>
-    </div>
 
     <!-- Footer -->
     <footer class="main-footer">
@@ -734,6 +721,27 @@
             checkAuth();
             setTimeout(checkAuth, 500);
         }
+    </script>
+    
+    <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-18680294-2",
+            "type": "floorAd",
+            "platform": "touch"
+        })
+    })
+    </script>    
+    <!-- Yandex.RTB R-A-18680294-3 (floorAd для десктопа) -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-18680294-3",
+            "type": "floorAd",
+            "platform": "desktop"
+        })
+    })
     </script>
 </body>
 </html>

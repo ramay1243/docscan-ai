@@ -92,6 +92,46 @@ def get_bot_type(user_agent):
         return SEARCH_BOTS.get(bot_type, bot_type)
     return None
 
+def is_wordpress_scanner(request_path):
+    """
+    Проверяет является ли запрос сканером WordPress по пути запроса
+    
+    Args:
+        request_path: Путь запроса (например, '/wp-admin/setup-config.php')
+    
+    Returns:
+        bool: True если это WordPress-сканер, False если нет
+    """
+    if not request_path:
+        return False
+    
+    # Список путей, которые ищут WordPress-сканеры
+    wordpress_paths = [
+        '/wp-admin',
+        '/wp-login',
+        '/wp-content',
+        '/wp-includes',
+        '/wordpress',
+        '/wp-config',
+        '/xmlrpc.php',
+        '/wp-json',
+        '/wp-cron',
+        '/wp-mail.php',
+        '/wp-load.php',
+        '/wp-signup.php',
+        '/wp-trackback.php',
+        '/wp-comments-post.php'
+    ]
+    
+    request_path_lower = request_path.lower()
+    
+    for wp_path in wordpress_paths:
+        if wp_path in request_path_lower:
+            logger.warning(f"🔍 Обнаружен WordPress-сканер: {request_path}")
+            return True
+    
+    return False
+
 def should_block_request(user_agent):
     """
     Определяет нужно ли блокировать запрос

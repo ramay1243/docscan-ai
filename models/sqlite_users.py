@@ -876,7 +876,10 @@ class SQLiteUserManager:
             )
             self.db.session.add(bot)
             self.db.session.commit()
-            logger.info(f"🕷️ Создан новый поисковый бот: {bot_type} (IP={ip_address})")
+            if bot_type == 'WordPress Scanner':
+                logger.warning(f"🔍 Создан новый WordPress-сканер: {bot_type} (IP={ip_address})")
+            else:
+                logger.info(f"🕷️ Создан новый поисковый бот: {bot_type} (IP={ip_address})")
         else:
             # Обновляем last_seen и увеличиваем счетчик
             bot.last_seen = datetime.now().isoformat()

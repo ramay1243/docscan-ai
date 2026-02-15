@@ -975,7 +975,22 @@ def admin_panel():
                         const newsList = document.getElementById('newsList');
                         if (newsList && newsList.innerHTML === '') {
                             console.log('📥 Загрузка новостей...');
-                            loadNews();
+                            if (typeof loadNews === 'function') {
+                                loadNews();
+                            } else if (typeof window.loadNews === 'function') {
+                                window.loadNews();
+                            } else {
+                                console.error('⚠️ Функция loadNews не найдена, попытка загрузки через setTimeout...');
+                                setTimeout(function() {
+                                    if (typeof loadNews === 'function') {
+                                        loadNews();
+                                    } else if (typeof window.loadNews === 'function') {
+                                        window.loadNews();
+                                    } else {
+                                        console.error('❌ Функция loadNews все еще не найдена');
+                                    }
+                                }, 100);
+                            }
                         }
                     } else if (sectionName === 'campaigns') {
                         const campaignsList = document.getElementById('emailCampaignsList');
@@ -1440,6 +1455,209 @@ def admin_panel():
             window.loadBots = loadBots;
             window.searchBots = searchBots;
             window.clearBotSearch = clearBotSearch;
+            
+            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С НОВОСТЯМИ ==========
+            let editingNewsId = null;
+            
+            function loadNews() {
+                const categoryFilter = document.getElementById('newsCategoryFilter') ? document.getElementById('newsCategoryFilter').value : '';
+                let url = '/admin/news';
+                if (categoryFilter) {
+                    url += '?category=' + categoryFilter;
+                }
+                
+                fetch(url, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(news => {
+                        const newsListEl = document.getElementById('newsList');
+                        if (!newsListEl) return;
+                        
+                        let html = '';
+                        if (!news || news.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет новостей</p>';
+                        } else {
+                            // Группируем по категориям
+                            const updates = news.filter(n => n.category === 'updates');
+                            const newsItems = news.filter(n => n.category === 'news');
+                            
+                            if (categoryFilter === '' || categoryFilter === 'updates') {
+                                if (updates.length > 0) {
+                                    html += '<h3 style="margin-top: 20px; color: #667eea;">🔄 Обновления сайта</h3>';
+                                    updates.forEach(item => {
+                                        html += createNewsCard(item);
+                                    });
+                                }
+                            }
+                            
+                            if (categoryFilter === '' || categoryFilter === 'news') {
+                                if (newsItems.length > 0) {
+                                    html += '<h3 style="margin-top: 30px; color: #667eea;">📰 Новости</h3>';
+                                    newsItems.forEach(item => {
+                                        html += createNewsCard(item);
+                                    });
+                                }
+                            }
+                        }
+                        newsListEl.innerHTML = html;
+                    });
+            }
+            
+            function createNewsCard(item) {
+                const categoryName = item.category === 'updates' ? '🔄 Обновления сайта' : '📰 Новости';
+                const linkHtml = item.link ? `<a href="${item.link}" target="_blank" style="color: #667eea; text-decoration: underline;">${item.link_text || 'Читать →'}</a>` : '';
+                
+                return `
+                    <div class="user-card" style="margin: 10px 0; border-left: 4px solid ${item.category === 'updates' ? '#48bb78' : '#ed8936'};">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">${categoryName}</div>
+                                <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 5px;">${item.title}</div>
+                                <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">📅 ${formatNewsDate(item.date)}</div>
+                                <div style="color: #2d3748; margin-bottom: 10px;">${item.description}</div>
+                                ${linkHtml ? `<div style="margin-top: 10px;">${linkHtml}</div>` : ''}
+                            </div>
+                            <div style="display: flex; gap: 5px;">
+                                <button onclick="editNews(${item.id})" style="background: #4299e1; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">✏️ Редактировать</button>
+                                <button onclick="deleteNews(${item.id})" style="background: #f56565; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🗑️ Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function formatNewsDate(dateStr) {
+                if (!dateStr) return '';
+                try {
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+                } catch {
+                    return dateStr;
+                }
+            }
+            
+            function showNewsForm() {
+                editingNewsId = null;
+                document.getElementById('newsFormTitle').textContent = 'Добавить новость';
+                document.getElementById('saveNewsBtn').textContent = '💾 Сохранить';
+                document.getElementById('newsFormContainer').style.display = 'block';
+                
+                // Очищаем форму
+                document.getElementById('newsCategory').value = 'updates';
+                document.getElementById('newsTitle').value = '';
+                document.getElementById('newsDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('newsDescription').value = '';
+                document.getElementById('newsLink').value = '';
+                document.getElementById('newsLinkText').value = '';
+                
+                // Прокручиваем к форме
+                document.getElementById('newsFormContainer').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function editNews(newsId) {
+                fetch(`/admin/news/${newsId}`, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(result => {
+                        if (result.success) {
+                            const item = result.news;
+                            editingNewsId = newsId;
+                            
+                            document.getElementById('newsFormTitle').textContent = 'Редактировать новость';
+                            document.getElementById('saveNewsBtn').textContent = '💾 Сохранить изменения';
+                            document.getElementById('newsFormContainer').style.display = 'block';
+                            
+                            document.getElementById('newsCategory').value = item.category;
+                            document.getElementById('newsTitle').value = item.title;
+                            document.getElementById('newsDate').value = item.date.split(' ')[0] || item.date;
+                            document.getElementById('newsDescription').value = item.description;
+                            document.getElementById('newsLink').value = item.link || '';
+                            document.getElementById('newsLinkText').value = item.link_text || '';
+                            
+                            document.getElementById('newsFormContainer').scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            alert('❌ Ошибка загрузки новости');
+                        }
+                    });
+            }
+            
+            function saveNews() {
+                const category = document.getElementById('newsCategory').value;
+                const title = document.getElementById('newsTitle').value.trim();
+                const date = document.getElementById('newsDate').value;
+                const description = document.getElementById('newsDescription').value.trim();
+                const link = document.getElementById('newsLink').value.trim();
+                const linkText = document.getElementById('newsLinkText').value.trim();
+                
+                if (!title || !description || !date) {
+                    alert('Заполните все обязательные поля! (заголовок, дата, описание)');
+                    return;
+                }
+                
+                const data = {
+                    category: category,
+                    title: title,
+                    date: date,
+                    description: description,
+                    link: link || null,
+                    link_text: linkText || null
+                };
+                
+                const url = editingNewsId ? `/admin/news/${editingNewsId}` : '/admin/news';
+                const method = editingNewsId ? 'PUT' : 'POST';
+                
+                fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(editingNewsId ? '✅ Новость обновлена!' : '✅ Новость создана!');
+                        cancelNewsForm();
+                        loadNews();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Ошибка сохранения: ' + err);
+                });
+            }
+            
+            function cancelNewsForm() {
+                editingNewsId = null;
+                document.getElementById('newsFormContainer').style.display = 'none';
+            }
+            
+            function deleteNews(newsId) {
+                if (!confirm('Удалить новость? Это действие нельзя отменить!')) return;
+                
+                fetch(`/admin/news/${newsId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Новость удалена!');
+                        loadNews();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            // Регистрируем функции для новостей глобально СРАЗУ после определения
+            if (typeof window !== 'undefined') {
+                window.loadNews = loadNews;
+                window.showNewsForm = showNewsForm;
+                window.editNews = editNews;
+                window.saveNews = saveNews;
+                window.cancelNewsForm = cancelNewsForm;
+                window.deleteNews = deleteNews;
+                console.log('✅ Функции для новостей зарегистрированы глобально');
+            }
             
             function showUser(userId) {
                 // Переключаемся на секцию пользователей

@@ -4247,11 +4247,14 @@ def send_notification():
     
     try:
         data = request.get_json()
-        user_id_or_email = data.get('user_id_or_email', '').strip()
-        type = data.get('type', 'admin')
-        title = data.get('title', '').strip()
-        message = data.get('message', '').strip()
-        link = data.get('link', '').strip()
+        if not data:
+            return jsonify({'success': False, 'error': 'Отсутствуют данные'}), 400
+        
+        user_id_or_email = (data.get('user_id_or_email') or '').strip()
+        type = data.get('type') or 'admin'
+        title = (data.get('title') or '').strip()
+        message = (data.get('message') or '').strip()
+        link = (data.get('link') or '').strip()
         
         if not user_id_or_email or not title:
             return jsonify({'success': False, 'error': 'Укажите пользователя и заголовок'}), 400

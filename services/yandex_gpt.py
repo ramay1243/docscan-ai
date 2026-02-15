@@ -533,19 +533,32 @@ def create_smart_analysis_result(sections, document_type):
     if sections.get('key_risks'):
         cleaned_risks = []
         for risk in sections['key_risks']:
-            title = (risk.get('title') or '').lower()
-            desc = (risk.get('description') or '').lower()
+            title = (risk.get('title') or '').lower().strip('.,!?;:')
+            desc = (risk.get('description') or '').lower().strip('.,!?;:')
             combined = f"{title} {desc}"
-            # Частые формулировки "без рисков"
+            
+            # Убираем лишние пробелы для более точного сравнения
+            title_clean = ' '.join(title.split())
+            desc_clean = ' '.join(desc.split())
+            combined_clean = ' '.join(combined.split())
+            
+            # Частые формулировки "без рисков" (проверяем в разных вариантах)
             no_risk_phrases = [
                 'существенных рисков не выявлено',
                 'существенных рисков не обнаружено',
                 'существенные риски не выявлены',
                 'существенные риски отсутствуют',
                 'рисков не выявлено',
-                'рисков не обнаружено'
+                'рисков не обнаружено',
+                'не выявлено существенных рисков',
+                'не обнаружено существенных рисков'
             ]
-            if any(phrase in combined for phrase in no_risk_phrases):
+            
+            # Проверяем, если title или description полностью состоят из фразы "без рисков"
+            title_is_no_risk = any(phrase in title_clean for phrase in no_risk_phrases) or title_clean in no_risk_phrases
+            desc_is_no_risk = any(phrase in desc_clean for phrase in no_risk_phrases) or desc_clean in no_risk_phrases
+            
+            if title_is_no_risk or desc_is_no_risk or any(phrase in combined_clean for phrase in no_risk_phrases):
                 continue
             # Положительные формулировки без признаков риска (например "соответствует законодательству")
             positive_phrases = [
@@ -553,13 +566,28 @@ def create_smart_analysis_result(sections, document_type):
                 'соответствует требованиям законодательства',
                 'условия изложены полно и ясно',
                 'существенные условия изложены полно',
-                'формулировки ясные и недвусмысленные'
+                'формулировки ясные и недвусмысленные',
+                'не содержит существенных рисков',
+                'не содержит рисков',
+                'рисков не содержит',
+                'существенных рисков не содержит',
+                'не выявлено существенных рисков',
+                'не обнаружено существенных рисков',
+                'является стандартным',
+                'соответствует процессуальным нормам',
+                'начата корректно'
             ]
+            # Маркеры реальных рисков (должны быть в контексте проблемы, а не в положительном контексте)
             risk_markers = [
-                'риск', 'нарушен', 'недопустим', 'штраф', 'ответственность',
-                'оспариван', 'противоречит', 'может привести', 'опасн'
+                'нарушен', 'недопустим', 'штраф', 'ответственность',
+                'оспариван', 'противоречит', 'может привести', 'опасн',
+                'высокий риск', 'критический риск', 'существенный риск',
+                'риск потери', 'риск убытков', 'риск нарушения'
             ]
-            if any(p in combined for p in positive_phrases) and not any(m in combined for m in risk_markers):
+            # Если есть положительные формулировки И нет маркеров реальных рисков - пропускаем
+            has_positive = any(p in combined for p in positive_phrases)
+            has_real_risk = any(m in combined for m in risk_markers)
+            if has_positive and not has_real_risk:
                 continue
             cleaned_risks.append(risk)
         sections['key_risks'] = cleaned_risks

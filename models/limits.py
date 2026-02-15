@@ -100,10 +100,27 @@ class IPLimitManager:
         else:
             logger.info(f"🚫 IP {real_ip} уже использовал бесплатный анализ сегодня ({ip_data['used_today']}/1)")
         
-        # СОЗДАЕМ/ОБНОВЛЯЕМ ЗАПИСЬ ГОСТЯ В БД при каждом визите
+        # СОЗДАЕМ/ОБНОВЛЯЕМ ЗАПИСЬ ГОСТЯ В БД при каждом визите (только для реальных пользователей, не ботов)
         if user_manager:
             try:
                 user_agent = request.headers.get('User-Agent', 'Не определен')
+                from utils.bot_detector import is_search_bot, should_block_request
+                
+                # Проверяем на вредоносных ботов - не создаем запись
+                if should_block_request(user_agent):
+                    logger.warning(f"🚫 Вредоносный бот заблокирован, запись не создана: IP={real_ip}")
+                    return can_analyze
+                
+                # Проверяем на поисковых ботов - записываем в отдельную таблицу
+                is_bot, bot_type = is_search_bot(user_agent)
+                if is_bot:
+                    from utils.bot_detector import get_bot_type
+                    bot_display_type = get_bot_type(user_agent)
+                    user_manager.get_or_create_search_bot(real_ip, user_agent, bot_type)
+                    logger.info(f"🕷️ Поисковый бот записан: {bot_display_type} (IP={real_ip})")
+                    return can_analyze
+                
+                # Если это реальный пользователь - создаем запись гостя
                 guest = user_manager.get_or_create_guest(real_ip, user_agent)
                 # Обновляем last_seen уже сделано в get_or_create_guest, но на всякий случай
                 guest.last_seen = datetime.now().isoformat()

@@ -113,6 +113,30 @@ class Guest(db.Model):
         }
 
 
+class SearchBot(db.Model):
+    """Таблица для хранения поисковых ботов"""
+    __tablename__ = 'search_bots'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    ip_address = db.Column(db.String(50), nullable=False, index=True)
+    user_agent = db.Column(db.String(500), nullable=True)
+    bot_type = db.Column(db.String(50), nullable=False)  # YandexBot, Googlebot и т.д.
+    first_seen = db.Column(db.String(30), nullable=False)
+    last_seen = db.Column(db.String(30), nullable=False)
+    visits_count = db.Column(db.Integer, default=0)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'ip_address': self.ip_address,
+            'user_agent': self.user_agent,
+            'bot_type': self.bot_type,
+            'first_seen': self.first_seen,
+            'last_seen': self.last_seen,
+            'visits_count': self.visits_count
+        }
+
+
 class EmailCampaign(db.Model):
     """Таблица для хранения email-рассылок"""
     __tablename__ = 'email_campaigns'
@@ -727,6 +751,69 @@ class SQLiteUserManager:
             return True
         
         return False
+    
+    def get_or_create_search_bot(self, ip_address, user_agent, bot_type):
+        """Получает или создает запись поискового бота"""
+        from models.sqlite_users import SearchBot
+        
+        # Ищем существующего бота по IP и типу
+        bot = SearchBot.query.filter_by(ip_address=ip_address, bot_type=bot_type).first()
+        
+        if not bot:
+            # Создаем нового бота
+            now = datetime.now().isoformat()
+            bot = SearchBot(
+                ip_address=ip_address,
+                user_agent=user_agent or 'Не определен',
+                bot_type=bot_type,
+                first_seen=now,
+                last_seen=now,
+                visits_count=0
+            )
+            self.db.session.add(bot)
+            self.db.session.commit()
+            logger.info(f"🕷️ Создан новый поисковый бот: {bot_type} (IP={ip_address})")
+        else:
+            # Обновляем last_seen и увеличиваем счетчик
+            bot.last_seen = datetime.now().isoformat()
+            bot.visits_count += 1
+            if user_agent and bot.user_agent != user_agent:
+                bot.user_agent = user_agent  # Обновляем User-Agent если изменился
+            self.db.session.commit()
+        
+        return bot
+    
+    def get_all_search_bots(self, limit=500):
+        """Получает всех поисковых ботов"""
+        from models.sqlite_users import SearchBot
+        bots = SearchBot.query.order_by(SearchBot.last_seen.desc()).limit(limit).all()
+        return [bot.to_dict() for bot in bots]
+    
+    def get_search_bots_stats(self):
+        """Получает статистику по поисковым ботам"""
+        from models.sqlite_users import SearchBot
+        from datetime import date
+        
+        today_str = date.today().isoformat()
+        
+        # Новые боты за сегодня
+        new_bots_24h = SearchBot.query.filter(SearchBot.first_seen.like(f'{today_str}%')).count()
+        
+        # Всего ботов
+        total_bots = SearchBot.query.count()
+        
+        # Активность ботов сегодня (визиты)
+        today_visits = SearchBot.query.filter(SearchBot.last_seen.like(f'{today_str}%')).count()
+        
+        # Количество уникальных типов ботов
+        unique_bot_types = self.db.session.query(SearchBot.bot_type).distinct().count()
+        
+        return {
+            'new_bots_24h': new_bots_24h,
+            'total_bots': total_bots,
+            'today_visits': today_visits,
+            'unique_bot_types': unique_bot_types
+        }
     
     def get_analysis_history(self, user_id, limit=50):
         """Получает историю анализов пользователя"""

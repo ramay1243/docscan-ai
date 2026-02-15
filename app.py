@@ -4,7 +4,7 @@ import os
 import logging
 import sys
 from datetime import datetime
-from models.sqlite_users import db, User, AnalysisHistory, Guest, EmailCampaign, EmailSend, Article, Payment, Referral, ReferralReward
+from models.sqlite_users import db, User, AnalysisHistory, Guest, SearchBot, EmailCampaign, EmailSend, Article, Payment, Referral, ReferralReward
 
 # Настройка логирования
 # Настройка логирования на русском
@@ -77,7 +77,22 @@ def create_app():
             if real_ip in ['127.0.0.1', 'localhost', 'None']:
                 return None
             
-            # Создаем/обновляем запись гостя
+            # Проверяем на ботов перед созданием записи гостя
+            from utils.bot_detector import is_search_bot, should_block_request, get_bot_type
+            
+            # Блокируем вредоносных ботов
+            if should_block_request(user_agent):
+                logger.debug(f"🚫 Вредоносный бот заблокирован в middleware: IP={real_ip}")
+                return None
+            
+            # Записываем поисковых ботов в отдельную таблицу
+            is_bot, bot_type = is_search_bot(user_agent)
+            if is_bot:
+                app.user_manager.get_or_create_search_bot(real_ip, user_agent, bot_type)
+                logger.debug(f"🕷️ Поисковый бот записан в middleware: {bot_type} (IP={real_ip})")
+                return None
+            
+            # Создаем/обновляем запись гостя только для реальных пользователей
             guest = app.user_manager.get_or_create_guest(real_ip, user_agent)
             guest.last_seen = datetime.now().isoformat()
             from models.sqlite_users import db

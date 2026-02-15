@@ -38,9 +38,30 @@ def create_user():
 def analyze_document():
     """Анализ документа - поддерживает multipart/form-data и application/json с base64"""
     from app import app
+    from utils.bot_detector import should_block_request, is_search_bot, get_bot_type
     
     real_ip = app.ip_limit_manager.get_client_ip(request)
     user_agent = request.headers.get('User-Agent', 'Не определен')
+    
+    # ПРОВЕРКА НА ВРЕДОНОСНЫХ БОТОВ - БЛОКИРОВКА
+    if should_block_request(user_agent):
+        logger.warning(f"🚫 Запрос заблокирован: вредоносный бот (IP: {real_ip}, User-Agent: {user_agent[:50]}...)")
+        return jsonify({
+            'success': False,
+            'error': 'Доступ запрещен'
+        }), 403
+    
+    # ПРОВЕРКА НА ПОИСКОВЫХ БОТОВ - ЗАПИСЬ В ОТДЕЛЬНУЮ ТАБЛИЦУ
+    is_bot, bot_type = is_search_bot(user_agent)
+    if is_bot:
+        bot_display_type = get_bot_type(user_agent)
+        app.user_manager.get_or_create_search_bot(real_ip, user_agent, bot_type)
+        logger.info(f"🕷️ Поисковый бот обнаружен: {bot_display_type} (IP: {real_ip})")
+        # Поисковые боты не должны делать анализ, но мы их записали
+        return jsonify({
+            'success': False,
+            'error': 'Этот функционал доступен только для пользователей'
+        }), 403
     
     # ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ IP для диагностики
     x_forwarded_for = request.headers.get('X-Forwarded-For', '')

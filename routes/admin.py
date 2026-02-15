@@ -441,6 +441,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="guests">
                     <span>👤</span> Гости
                 </a>
+                <a href="#" class="menu-item" data-section="search-bots">
+                    <span>🕷️</span> Поисковые боты
+                </a>
                 <a href="#" class="menu-item" data-section="campaigns">
                     <span>📧</span> Email-рассылки
                 </a>
@@ -482,6 +485,14 @@ def admin_panel():
                 <div class="stat-card">
                     <h3>👤 Всего гостей</h3>
                     <div id="totalGuests" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🕷️ Поисковых ботов за 24 часа</h3>
+                    <div id="newBots24h" style="font-size: 2rem; font-weight: bold; color: #ed8936; margin-top: 10px;">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🕷️ Всего ботов</h3>
+                    <div id="totalBots" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                 </div>
                 <div class="stat-card">
                     <h3>📊 Всего анализов</h3>
@@ -586,6 +597,42 @@ def admin_panel():
                             <span id="guestSearchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
                         </div>
                         <div id="guestsList"></div>
+                    </div>
+                </div>
+                
+                <!-- Секция: Поисковые боты -->
+                <div id="section-search-bots" class="content-section">
+                    <h2 class="section-header">🕷️ Поисковые боты</h2>
+                    <p>Боты поисковых систем, которые индексируют сайт</p>
+                    
+                    <div class="stats" style="margin: 20px 0;">
+                        <div class="stat-card">
+                            <h3>🕷️ Новых ботов за 24 часа</h3>
+                            <div id="newBots24hDetail" style="font-size: 2rem; font-weight: bold; color: #ed8936; margin-top: 10px;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>🕷️ Всего ботов</h3>
+                            <div id="totalBotsDetail" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>📊 Активность ботов сегодня</h3>
+                            <div id="todayBotVisits" style="font-size: 2rem; font-weight: bold; color: #48bb78; margin-top: 10px;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>🌐 Типы ботов</h3>
+                            <div id="uniqueBotTypes" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="searchBot" placeholder="🔍 Поиск по IP, типу бота..." 
+                                   style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"
+                                   onkeyup="searchBots()">
+                            <button onclick="clearBotSearch()" style="background: #e2e8f0; color: #2d3748;">Очистить</button>
+                            <span id="botSearchStatus" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
+                        </div>
+                        <div id="botsList"></div>
                     </div>
                 </div>
                 
@@ -829,6 +876,7 @@ def admin_panel():
                         'dashboard': '📊 Главная',
                         'users': '👥 Пользователи',
                         'guests': '👤 Гости',
+                        'search-bots': '🕷️ Поисковые боты',
                         'campaigns': '📧 Email-рассылки',
                         'articles': '📝 Статьи',
                         'partners': '🎁 Партнерская программа'
@@ -851,6 +899,14 @@ def admin_panel():
                             console.log('📥 Загрузка гостей...');
                             loadGuests();
                         }
+                    } else if (sectionName === 'search-bots') {
+                        const botsList = document.getElementById('botsList');
+                        if (botsList && botsList.innerHTML === '') {
+                            console.log('📥 Загрузка ботов...');
+                            loadBots();
+                        }
+                        // Обновляем статистику ботов
+                        loadStats();
                     } else if (sectionName === 'campaigns') {
                         const campaignsList = document.getElementById('emailCampaignsList');
                         if (campaignsList && campaignsList.innerHTML === '') {
@@ -1098,6 +1154,15 @@ def admin_panel():
                         document.getElementById('newUsers24h').textContent = stats.new_users_24h || 0;
                         document.getElementById('newGuests24h').textContent = stats.new_guests_24h || 0;
                         document.getElementById('totalGuests').textContent = stats.total_guests || 0;
+                        document.getElementById('newBots24h').textContent = stats.new_bots_24h || 0;
+                        document.getElementById('totalBots').textContent = stats.total_bots || 0;
+                        // Обновляем статистику в секции ботов, если она открыта
+                        if (document.getElementById('newBots24hDetail')) {
+                            document.getElementById('newBots24hDetail').textContent = stats.new_bots_24h || 0;
+                            document.getElementById('totalBotsDetail').textContent = stats.total_bots || 0;
+                            document.getElementById('todayBotVisits').textContent = stats.today_visits || 0;
+                            document.getElementById('uniqueBotTypes').textContent = stats.unique_bot_types || 0;
+                        }
                         document.getElementById('totalAnalyses').textContent = stats.total_analyses;
                         document.getElementById('todayAnalyses').textContent = stats.today_analyses;
                         document.getElementById('todayRevenue').textContent = (stats.today_revenue || 0).toFixed(2) + ' ₽';
@@ -1243,6 +1308,68 @@ def admin_panel():
             // Регистрируем функции поиска гостей глобально
             window.searchGuests = searchGuests;
             window.clearGuestSearch = clearGuestSearch;
+            
+            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ПОИСКОВЫМИ БОТАМИ ==========
+            function loadBots() {
+                fetch('/admin/search-bots', {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(bots => {
+                        let html = '';
+                        if (!bots || bots.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет записей о поисковых ботах</p>';
+                        } else {
+                            bots.forEach(bot => {
+                                html += `
+                                    <div class="user-card bot-card">
+                                        <strong>IP:</strong> ${bot.ip_address}<br>
+                                        <strong>Тип бота:</strong> ${bot.bot_type}<br>
+                                        <strong>User-Agent:</strong> ${bot.user_agent ? (bot.user_agent.substring(0, 80) + (bot.user_agent.length > 80 ? '...' : '')) : 'Не определен'}<br>
+                                        <strong>Первый визит:</strong> ${new Date(bot.first_seen).toLocaleString('ru-RU')}<br>
+                                        <strong>Последний визит:</strong> ${new Date(bot.last_seen).toLocaleString('ru-RU')}<br>
+                                        <strong>Количество визитов:</strong> ${bot.visits_count}
+                                    </div>
+                                `;
+                            });
+                        }
+                        document.getElementById('botsList').innerHTML = html;
+                    });
+            }
+            
+            function searchBots() {
+                const searchTerm = document.getElementById('searchBot').value.toLowerCase().trim();
+                const botCards = document.querySelectorAll('.bot-card');
+                let foundCount = 0;
+                
+                botCards.forEach(card => {
+                    const cardText = card.textContent.toLowerCase();
+                    if (searchTerm === '' || cardText.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        foundCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                const statusEl = document.getElementById('botSearchStatus');
+                if (searchTerm) {
+                    statusEl.textContent = `Найдено: ${foundCount}`;
+                    statusEl.style.color = '#2d3748';
+                    statusEl.style.fontWeight = 'bold';
+                } else {
+                    statusEl.textContent = '';
+                }
+            }
+            
+            function clearBotSearch() {
+                document.getElementById('searchBot').value = '';
+                if (!window.clearBotSearch) window.clearBotSearch = clearBotSearch;
+                searchBots();
+            }
+            
+            // Регистрируем функции для ботов глобально
+            window.loadBots = loadBots;
+            window.searchBots = searchBots;
+            window.clearBotSearch = clearBotSearch;
             
             function showUser(userId) {
                 // Переключаемся на секцию пользователей
@@ -2498,6 +2625,15 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 if (typeof loadGuests === 'function') {
                     window.loadGuests = loadGuests;
                 }
+                if (typeof loadBots === 'function') {
+                    window.loadBots = loadBots;
+                }
+                if (typeof searchBots === 'function') {
+                    window.searchBots = searchBots;
+                }
+                if (typeof clearBotSearch === 'function') {
+                    window.clearBotSearch = clearBotSearch;
+                }
                 if (typeof loadArticles === 'function') {
                     window.loadArticles = loadArticles;
                 }
@@ -2644,6 +2780,17 @@ def get_all_guests():
     
     return jsonify(guests_dict_list)
 
+@admin_bp.route('/search-bots')
+@require_admin_auth
+def get_all_search_bots():
+    """Получить всех поисковых ботов"""
+    from app import app
+    
+    # Получаем всех ботов через user_manager
+    bots_list = app.user_manager.get_all_search_bots(limit=500)
+    
+    return jsonify(bots_list)
+
 @admin_bp.route('/stats')
 @require_admin_auth
 def admin_stats():
@@ -2663,9 +2810,13 @@ def admin_stats():
     new_users_24h = User.query.filter(User.created_at.like(f'{today_str}%')).count()
     stats['new_users_24h'] = new_users_24h
     
-    # Новые гости за сегодня (с 0:00)
+    # Новые гости за сегодня (с 0:00) - только реальные пользователи, исключаем ботов
     new_guests_24h = Guest.query.filter(Guest.first_seen.like(f'{today_str}%')).count()
     stats['new_guests_24h'] = new_guests_24h
+    
+    # Статистика по поисковым ботам
+    bots_stats = app.user_manager.get_search_bots_stats()
+    stats.update(bots_stats)
     
     # Статистика доходов
     all_payments = Payment.query.filter_by(status='success').all()

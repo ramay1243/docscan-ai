@@ -3887,3 +3887,45 @@ def mark_reward_paid(reward_id):
         logger.error(f"❌ Ошибка обновления вознаграждения: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/questions')
+@require_admin_auth
+def get_questions():
+    """Получить список всех вопросов"""
+    from app import app
+    from flask import request
+    
+    try:
+        status_filter = request.args.get('status', '')
+        # get_questions уже возвращает список словарей
+        questions = app.user_manager.get_questions(
+            status=status_filter if status_filter else None,
+            limit=1000  # Большой лимит для админ-панели
+        )
+        
+        return jsonify(questions)
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения вопросов: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/questions/<int:question_id>', methods=['DELETE'])
+@require_admin_auth
+def delete_question(question_id):
+    """Удалить вопрос"""
+    from app import app
+    from models.sqlite_users import db, Question
+    
+    try:
+        question = Question.query.filter_by(id=question_id).first()
+        if not question:
+            return jsonify({'success': False, 'error': 'Вопрос не найден'}), 404
+        
+        db.session.delete(question)
+        db.session.commit()
+        
+        logger.info(f"✅ Вопрос {question_id} удален администратором")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления вопроса: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500

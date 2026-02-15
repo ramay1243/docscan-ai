@@ -184,6 +184,8 @@ class Question(db.Model):
     best_answer_id = db.Column(db.Integer, nullable=True)  # ID лучшего ответа
     
     def to_dict(self):
+        # Подсчитываем реальное количество ответов
+        answers_count = len(self.answers) if hasattr(self, 'answers') and self.answers else self.answers_count
         return {
             'id': self.id,
             'user_id': self.user_id,
@@ -192,10 +194,11 @@ class Question(db.Model):
             'category': self.category,
             'status': self.status,
             'views_count': self.views_count,
-            'answers_count': self.answers_count,
+            'answers_count': answers_count,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
-            'best_answer_id': self.best_answer_id
+            'best_answer_id': self.best_answer_id,
+            'author_email': self.user.email if hasattr(self, 'user') and self.user else 'Неизвестно'
         }
 
 
@@ -1341,8 +1344,9 @@ class SQLiteUserManager:
     def get_questions(self, category=None, status=None, limit=50, offset=0, sort_by='newest'):
         """Получает список вопросов с фильтрацией"""
         from models.sqlite_users import Question
+        from sqlalchemy.orm import joinedload
         
-        query = Question.query
+        query = Question.query.options(joinedload(Question.user), joinedload(Question.answers))
         
         if category:
             query = query.filter_by(category=category)

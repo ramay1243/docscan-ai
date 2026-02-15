@@ -41,6 +41,7 @@
             padding: 0 20px;
         }
         
+        /* Header */
         .main-header {
             background: white;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -124,36 +125,54 @@
             transition: all 0.3s;
             border: none;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.85rem;
         }
         
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Footer */
         .main-footer {
             background: var(--dark);
             color: white;
-            padding: 40px 0 25px;
-            margin-top: 60px;
+            padding: 60px 0 30px;
+            margin-top: 80px;
         }
         
         .footer-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
         }
         
         .footer-links {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         
         .footer-link {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255,255,255,0.7);
             text-decoration: none;
             transition: color 0.3s;
         }
         
         .footer-link:hover {
             color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
         }
         
         @media (max-width: 768px) {
@@ -175,8 +194,12 @@
                 
                 <nav class="nav-links">
                     <a href="/" class="nav-link">Главная</a>
-                    <a href="/articles" class="nav-link">Статьи</a>
                     <a href="/news" class="nav-link">Новости</a>
+                    <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
+                    <a href="/mobile-app" class="nav-link">Мобильное приложение</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/faq" class="nav-link">FAQ</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
                     <a href="/questions" class="nav-link active">Вопросы</a>
                     <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
                         <a href="/login" class="nav-link">Войти</a>
@@ -248,26 +271,27 @@
                         <div class="logo-icon">🤖</div>
                         DocScan AI
                     </a>
-                    <p style="color: rgba(255, 255, 255, 0.8); line-height: 1.6;">
-                        Автоматический анализ документов с искусственным интеллектом. 
-                        Проверка договоров, выявление рисков, защита ваших интересов.
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Проверка документов онлайн бесплатно с ИИ. Автоматическая проверка документов и договоров с искусственным интеллектом за 60 секунд.
                     </p>
                 </div>
                 
                 <div>
-                    <h4 style="margin-bottom: 15px; font-size: 1.1rem;">Навигация</h4>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
                     <div class="footer-links">
-                        <a href="/" class="footer-link">Главная</a>
+                        <a href="/proverka-dokumentov-onlayn" class="footer-link">Проверка документов онлайн</a>
                         <a href="/news" class="footer-link">Новости</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
                         <a href="/articles" class="footer-link">База знаний</a>
-                        <a href="/questions" class="footer-link">Вопросы и ответы</a>
                         <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/mobile-app" class="footer-link">📱 Приложение</a>
                         <a href="/contact" class="footer-link">Техподдержка</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
                     </div>
                 </div>
                 
                 <div>
-                    <h4 style="margin-bottom: 15px; font-size: 1.1rem;">Информация</h4>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
                     <div class="footer-links">
                         <a href="/terms" class="footer-link">Пользовательское соглашение</a>
                         <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
@@ -278,7 +302,7 @@
                 </div>
                 
                 <div>
-                    <h4 style="margin-bottom: 15px; font-size: 1.1rem;">Контакты</h4>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
                     <div class="footer-links">
                         <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
                         <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
@@ -286,23 +310,38 @@
                 </div>
             </div>
             
-            <div style="text-align: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                <p style="color: rgba(255, 255, 255, 0.6);">&copy; 2024 DocScan AI. Все права защищены.</p>
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
             </div>
         </div>
     </footer>
     
     <script>
-        // Проверка авторизации для отображения меню
-        fetch('/api/usage', {credentials: 'include'})
-            .then(r => r.json())
-            .then(data => {
-                if (data.user_id) {
-                    document.getElementById('authButtons').style.display = 'none';
-                    document.getElementById('userMenu').style.display = 'flex';
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                
+                if (data.authenticated) {
+                    if (authButtons) authButtons.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'flex';
+                } else {
+                    if (authButtons) authButtons.style.display = 'flex';
+                    if (userMenu) userMenu.style.display = 'none';
                 }
-            })
-            .catch(() => {});
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
     </script>
 
     <script>

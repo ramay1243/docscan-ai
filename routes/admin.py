@@ -450,6 +450,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="articles">
                     <span>📝</span> Статьи
                 </a>
+                <a href="#" class="menu-item" data-section="news">
+                    <span>📰</span> Новости
+                </a>
                 <a href="#" class="menu-item" data-section="partners">
                     <span>🎁</span> Партнерская программа
                 </a>
@@ -796,6 +799,66 @@ def admin_panel():
                     </div>
                 </div>
                 
+                <!-- Секция: Новости -->
+                <div id="section-news" class="content-section">
+                    <h2 class="section-header">📰 Управление новостями</h2>
+                    <p>Добавляйте и редактируйте новости для раздела "Обновления сайта" и "Новости"</p>
+                    
+                    <div class="card">
+                        <div style="margin-bottom: 20px;">
+                            <button onclick="showNewsForm()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; margin-right: 10px;">➕ Добавить новость</button>
+                            <select id="newsCategoryFilter" onchange="loadNews()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <option value="">Все новости</option>
+                                <option value="updates">🔄 Обновления сайта</option>
+                                <option value="news">📰 Новости</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Форма добавления/редактирования новости -->
+                        <div id="newsFormContainer" style="display: none; background: #f7fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 id="newsFormTitle">Добавить новость</h3>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Раздел:</label>
+                                <select id="newsCategory" style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                                    <option value="updates">🔄 Обновления сайта</option>
+                                    <option value="news">📰 Новости</option>
+                                </select>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Заголовок:</label>
+                                <input type="text" id="newsTitle" placeholder="Введите заголовок новости" 
+                                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Дата публикации:</label>
+                                <input type="date" id="newsDate" 
+                                       style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Описание:</label>
+                                <textarea id="newsDescription" rows="5" placeholder="Введите описание новости" 
+                                          style="width: 100%; max-width: 800px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Ссылка (опционально):</label>
+                                <input type="text" id="newsLink" placeholder="https://example.com" 
+                                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Текст ссылки (опционально):</label>
+                                <input type="text" id="newsLinkText" placeholder="Читать статью →" 
+                                       style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <button onclick="saveNews()" id="saveNewsBtn" style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">💾 Сохранить</button>
+                                <button onclick="cancelNewsForm()" style="background: #e2e8f0; color: #2d3748; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Отмена</button>
+                            </div>
+                        </div>
+                        
+                        <div id="newsList"></div>
+                    </div>
+                </div>
+                
                 <!-- Секция: Партнерская программа -->
                 <div id="section-partners" class="content-section">
                     <div class="card">
@@ -879,6 +942,7 @@ def admin_panel():
                         'search-bots': '🕷️ Поисковые боты',
                         'campaigns': '📧 Email-рассылки',
                         'articles': '📝 Статьи',
+                        'news': '📰 Новости',
                         'partners': '🎁 Партнерская программа'
                     };
                     const pageTitle = document.getElementById('pageTitle');
@@ -907,6 +971,12 @@ def admin_panel():
                         }
                         // Обновляем статистику ботов
                         loadStats();
+                    } else if (sectionName === 'news') {
+                        const newsList = document.getElementById('newsList');
+                        if (newsList && newsList.innerHTML === '') {
+                            console.log('📥 Загрузка новостей...');
+                            loadNews();
+                        }
                     } else if (sectionName === 'campaigns') {
                         const campaignsList = document.getElementById('emailCampaignsList');
                         if (campaignsList && campaignsList.innerHTML === '') {
@@ -2640,6 +2710,24 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 if (typeof createArticle === 'function') {
                     window.createArticle = createArticle;
                 }
+                if (typeof loadNews === 'function') {
+                    window.loadNews = loadNews;
+                }
+                if (typeof showNewsForm === 'function') {
+                    window.showNewsForm = showNewsForm;
+                }
+                if (typeof editNews === 'function') {
+                    window.editNews = editNews;
+                }
+                if (typeof saveNews === 'function') {
+                    window.saveNews = saveNews;
+                }
+                if (typeof cancelNewsForm === 'function') {
+                    window.cancelNewsForm = cancelNewsForm;
+                }
+                if (typeof deleteNews === 'function') {
+                    window.deleteNews = deleteNews;
+                }
                 if (typeof createCampaign === 'function') {
                     window.createCampaign = createCampaign;
                 }
@@ -2790,6 +2878,95 @@ def get_all_search_bots():
     bots_list = app.user_manager.get_all_search_bots(limit=500)
     
     return jsonify(bots_list)
+
+@admin_bp.route('/news')
+@require_admin_auth
+def get_news():
+    """Получить список новостей"""
+    from app import app
+    from flask import request
+    
+    category = request.args.get('category', None)
+    news_list = app.user_manager.get_news_items(category=category, limit=100)
+    
+    return jsonify(news_list)
+
+@admin_bp.route('/news/<int:news_id>')
+@require_admin_auth
+def get_news_item(news_id):
+    """Получить новость по ID"""
+    from app import app
+    
+    news = app.user_manager.get_news_item(news_id)
+    if not news:
+        return jsonify({'success': False, 'error': 'Новость не найдена'}), 404
+    
+    return jsonify({'success': True, 'news': news.to_dict()})
+
+@admin_bp.route('/news', methods=['POST'])
+@require_admin_auth
+def create_news():
+    """Создать новую новость"""
+    from app import app
+    from flask import request, session
+    
+    data = request.get_json()
+    
+    if not data or not data.get('title') or not data.get('description') or not data.get('date'):
+        return jsonify({'success': False, 'error': 'Заполните все обязательные поля'}), 400
+    
+    try:
+        news = app.user_manager.create_news_item(
+            category=data.get('category', 'updates'),
+            title=data['title'],
+            description=data['description'],
+            date=data['date'],
+            link=data.get('link'),
+            link_text=data.get('link_text'),
+            created_by=session.get('admin_username', 'admin')
+        )
+        
+        return jsonify({'success': True, 'news': news.to_dict()})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/news/<int:news_id>', methods=['PUT'])
+@require_admin_auth
+def update_news(news_id):
+    """Обновить новость"""
+    from app import app
+    from flask import request
+    
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'success': False, 'error': 'Нет данных для обновления'}), 400
+    
+    try:
+        news = app.user_manager.update_news_item(news_id, **data)
+        
+        if not news:
+            return jsonify({'success': False, 'error': 'Новость не найдена'}), 404
+        
+        return jsonify({'success': True, 'news': news.to_dict()})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/news/<int:news_id>', methods=['DELETE'])
+@require_admin_auth
+def delete_news(news_id):
+    """Удалить новость"""
+    from app import app
+    
+    try:
+        success = app.user_manager.delete_news_item(news_id)
+        
+        if not success:
+            return jsonify({'success': False, 'error': 'Новость не найдена'}), 404
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @admin_bp.route('/stats')
 @require_admin_auth

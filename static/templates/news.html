@@ -519,46 +519,28 @@
                     Обновления сайта
                 </h2>
                 
-                <div class="news-item">
-                    <div class="news-date">15 февраля 2026</div>
-                    <div class="news-title">Добавлена новая статья: Договор лизинга</div>
-                    <div class="news-description">
-                        Опубликована подробная статья о проверке договора лизинга с описанием 11 опасных пунктов, которые могут привести к финансовым потерям.
+                {% if updates and updates|length > 0 %}
+                    {% for item in updates %}
+                    <div class="news-item">
+                        <div class="news-date">{{ item.date }}</div>
+                        <div class="news-title">{{ item.title }}</div>
+                        <div class="news-description">
+                            {{ item.description }}
+                        </div>
+                        {% if item.link %}
+                        <a href="{{ item.link }}" class="news-link">
+                            {{ item.link_text or 'Читать →' }}
+                        </a>
+                        {% endif %}
                     </div>
-                    <a href="/articles/lizing" class="news-link">
-                        Читать статью →
-                    </a>
-                </div>
-                
-                <div class="news-item">
-                    <div class="news-date">10 февраля 2026</div>
-                    <div class="news-title">Улучшен алгоритм анализа рисков</div>
-                    <div class="news-description">
-                        Обновлен алгоритм определения рисков в документах. Теперь анализ стал более точным и быстрым.
+                    {% endfor %}
+                {% else %}
+                    <div class="news-item">
+                        <div class="news-description" style="color: #999;">
+                            Пока нет обновлений. Следите за новостями!
+                        </div>
                     </div>
-                </div>
-                
-                <div class="news-item">
-                    <div class="news-date">5 февраля 2026</div>
-                    <div class="news-title">Добавлена функция проверки договоров страхования</div>
-                    <div class="news-description">
-                        Теперь вы можете проверить договор страхования на скрытые условия и риски с помощью ИИ.
-                    </div>
-                    <a href="/articles/strahovanie" class="news-link">
-                        Узнать больше →
-                    </a>
-                </div>
-                
-                <div class="news-item">
-                    <div class="news-date">1 февраля 2026</div>
-                    <div class="news-title">Расширена база знаний</div>
-                    <div class="news-description">
-                        Добавлены новые статьи о проверке договоров оказания услуг, лизинга и страхования. Все статьи содержат подробные инструкции и примеры.
-                    </div>
-                    <a href="/articles" class="news-link">
-                        Смотреть все статьи →
-                    </a>
-                </div>
+                {% endif %}
             </div>
             
             <!-- Новости -->
@@ -568,37 +550,28 @@
                     Новости
                 </h2>
                 
-                <div class="news-item">
-                    <div class="news-date">12 февраля 2026</div>
-                    <div class="news-title">Новые правила проверки договоров в 2026 году</div>
-                    <div class="news-description">
-                        В 2026 году вступили в силу новые требования к проверке договоров. Узнайте, что изменилось и как защитить свои права.
+                {% if news_items and news_items|length > 0 %}
+                    {% for item in news_items %}
+                    <div class="news-item">
+                        <div class="news-date">{{ item.date }}</div>
+                        <div class="news-title">{{ item.title }}</div>
+                        <div class="news-description">
+                            {{ item.description }}
+                        </div>
+                        {% if item.link %}
+                        <a href="{{ item.link }}" class="news-link">
+                            {{ item.link_text or 'Читать →' }}
+                        </a>
+                        {% endif %}
                     </div>
-                </div>
-                
-                <div class="news-item">
-                    <div class="news-date">8 февраля 2026</div>
-                    <div class="news-title">Как защитить себя от мошенничества в договорах</div>
-                    <div class="news-description">
-                        Мошенники постоянно придумывают новые схемы обмана. Узнайте, как распознать подозрительные условия в договорах и защитить свои интересы.
+                    {% endfor %}
+                {% else %}
+                    <div class="news-item">
+                        <div class="news-description" style="color: #999;">
+                            Пока нет новостей. Следите за обновлениями!
+                        </div>
                     </div>
-                </div>
-                
-                <div class="news-item">
-                    <div class="news-date">3 февраля 2026</div>
-                    <div class="news-title">Статистика: какие договоры чаще всего содержат риски</div>
-                    <div class="news-description">
-                        Проанализировав тысячи документов, мы выявили типичные ошибки и риски в различных типах договоров. Поделимся статистикой и рекомендациями.
-                    </div>
-                </div>
-                
-                <div class="news-item">
-                    <div class="news-date">28 января 2026</div>
-                    <div class="news-title">Искусственный интеллект в юридической практике</div>
-                    <div class="news-description">
-                        Как ИИ помогает юристам и обычным людям проверять документы. Обзор современных технологий и их применения в правовой сфере.
-                    </div>
-                </div>
+                {% endif %}
             </div>
         </div>
     </section>

@@ -252,8 +252,14 @@ def redirect_article_freelance():
 @main_bp.route('/news')
 def news():
     """Страница новостей и обновлений"""
+    from app import app
     RussianLogger.log_page_view("Новости и обновления")
-    return render_template('news.html')
+    
+    # Загружаем новости из базы данных
+    updates = app.user_manager.get_news_items(category='updates', limit=50)
+    news_items = app.user_manager.get_news_items(category='news', limit=50)
+    
+    return render_template('news.html', updates=updates, news_items=news_items)
 
 @main_bp.route('/analiz-dokumentov')
 def analiz_dokumentov():

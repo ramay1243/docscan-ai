@@ -137,6 +137,36 @@ class SearchBot(db.Model):
         }
 
 
+class NewsItem(db.Model):
+    """Таблица для хранения новостей"""
+    __tablename__ = 'news_items'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(20), nullable=False)  # 'updates' или 'news'
+    title = db.Column(db.String(500), nullable=False)  # Заголовок новости
+    description = db.Column(db.Text, nullable=False)  # Описание/текст новости
+    date = db.Column(db.String(30), nullable=False)  # Дата публикации
+    link = db.Column(db.String(500), nullable=True)  # Опциональная ссылка
+    link_text = db.Column(db.String(100), nullable=True)  # Текст ссылки
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания записи
+    updated_at = db.Column(db.String(30), nullable=True)  # Дата последнего обновления
+    created_by = db.Column(db.String(50), nullable=True)  # Кто создал (username админа)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'category': self.category,
+            'title': self.title,
+            'description': self.description,
+            'date': self.date,
+            'link': self.link,
+            'link_text': self.link_text,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'created_by': self.created_by
+        }
+
+
 class EmailCampaign(db.Model):
     """Таблица для хранения email-рассылок"""
     __tablename__ = 'email_campaigns'
@@ -1129,6 +1159,90 @@ class SQLiteUserManager:
         
         logger.info(f"🔒 Снята с публикации статья: {article.title} (ID: {article_id})")
         return article
+    
+    # ========== МЕТОДЫ ДЛЯ РАБОТЫ С НОВОСТЯМИ ==========
+    
+    def create_news_item(self, category, title, description, date, link=None, link_text=None, created_by=None):
+        """Создает новую новость"""
+        from models.sqlite_users import NewsItem
+        
+        news = NewsItem(
+            category=category,
+            title=title,
+            description=description,
+            date=date,
+            link=link,
+            link_text=link_text,
+            created_at=datetime.now().isoformat(),
+            created_by=created_by
+        )
+        
+        self.db.session.add(news)
+        self.db.session.commit()
+        
+        logger.info(f"📰 Создана новость: {title} (категория: {category})")
+        return news
+    
+    def get_news_items(self, category=None, limit=100):
+        """Получает список новостей"""
+        from models.sqlite_users import NewsItem
+        
+        query = NewsItem.query
+        
+        if category:
+            query = query.filter_by(category=category)
+        
+        news_items = query.order_by(NewsItem.date.desc()).limit(limit).all()
+        
+        return [news.to_dict() for news in news_items]
+    
+    def get_news_item(self, news_id):
+        """Получает новость по ID"""
+        from models.sqlite_users import NewsItem
+        
+        return NewsItem.query.filter_by(id=news_id).first()
+    
+    def update_news_item(self, news_id, **kwargs):
+        """Обновляет новость"""
+        from models.sqlite_users import NewsItem
+        
+        news = NewsItem.query.filter_by(id=news_id).first()
+        if not news:
+            return None
+        
+        # Обновляем только переданные поля
+        if 'category' in kwargs:
+            news.category = kwargs['category']
+        if 'title' in kwargs:
+            news.title = kwargs['title']
+        if 'description' in kwargs:
+            news.description = kwargs['description']
+        if 'date' in kwargs:
+            news.date = kwargs['date']
+        if 'link' in kwargs:
+            news.link = kwargs['link']
+        if 'link_text' in kwargs:
+            news.link_text = kwargs['link_text']
+        
+        news.updated_at = datetime.now().isoformat()
+        self.db.session.commit()
+        
+        logger.info(f"📰 Обновлена новость: {news.title} (ID: {news_id})")
+        return news
+    
+    def delete_news_item(self, news_id):
+        """Удаляет новость"""
+        from models.sqlite_users import NewsItem
+        
+        news = NewsItem.query.filter_by(id=news_id).first()
+        if not news:
+            return False
+        
+        self.db.session.delete(news)
+        self.db.session.commit()
+        
+        logger.info(f"🗑️ Удалена новость: {news.title} (ID: {news_id})")
+        return True
     
     def get_or_generate_referral_code(self, user_id):
         """Получает или генерирует реферальный код для пользователя"""

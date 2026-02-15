@@ -3894,18 +3894,43 @@ def get_questions():
     """Получить список всех вопросов"""
     from app import app
     from flask import request
+    from models.sqlite_users import Question
     
     try:
         status_filter = request.args.get('status', '')
-        # get_questions уже возвращает список словарей
-        questions = app.user_manager.get_questions(
-            status=status_filter if status_filter else None,
-            limit=1000  # Большой лимит для админ-панели
-        )
         
-        return jsonify(questions)
+        # Прямой запрос к базе для отладки
+        query = Question.query
+        
+        if status_filter:
+            query = query.filter_by(status=status_filter)
+        
+        query = query.order_by(Question.created_at.desc())
+        questions = query.limit(1000).all()
+        
+        # Преобразуем в словари
+        questions_list = []
+        for q in questions:
+            q_dict = {
+                'id': q.id,
+                'user_id': q.user_id,
+                'title': q.title,
+                'content': q.content,
+                'category': q.category,
+                'status': q.status,
+                'views_count': q.views_count or 0,
+                'answers_count': q.answers_count or 0,
+                'created_at': q.created_at,
+                'updated_at': q.updated_at,
+                'best_answer_id': q.best_answer_id,
+                'author_email': q.user.email if hasattr(q, 'user') and q.user else 'Неизвестно'
+            }
+            questions_list.append(q_dict)
+        
+        logger.info(f"📋 Загружено вопросов: {len(questions_list)}")
+        return jsonify(questions_list)
     except Exception as e:
-        logger.error(f"❌ Ошибка получения вопросов: {e}")
+        logger.error(f"❌ Ошибка получения вопросов: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @admin_bp.route('/questions/<int:question_id>', methods=['DELETE'])

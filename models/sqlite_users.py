@@ -1344,9 +1344,8 @@ class SQLiteUserManager:
     def get_questions(self, category=None, status=None, limit=50, offset=0, sort_by='newest'):
         """Получает список вопросов с фильтрацией"""
         from models.sqlite_users import Question
-        from sqlalchemy.orm import joinedload
         
-        query = Question.query.options(joinedload(Question.user), joinedload(Question.answers))
+        query = Question.query
         
         if category:
             query = query.filter_by(category=category)
@@ -1359,7 +1358,7 @@ class SQLiteUserManager:
         elif sort_by == 'popular':
             query = query.order_by(Question.views_count.desc(), Question.answers_count.desc())
         elif sort_by == 'unanswered':
-            query = query.filter_by(answers_count=0).order_by(Question.created_at.desc())
+            query = query.filter(Question.answers_count == 0).order_by(Question.created_at.desc())
         elif sort_by == 'solved':
             query = query.filter_by(status='solved').order_by(Question.updated_at.desc())
         else:

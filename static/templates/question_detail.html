@@ -650,8 +650,9 @@
             "@type": "Question",
             "name": "{{ question.title|e }}",
             "text": "{{ question.content|e|replace('"', '\\"')|replace('\n', ' ') }}",
-            "dateCreated": "{{ question.created_at }}",
+            "datePublished": "{{ question.created_at }}",
             "dateModified": "{{ question.updated_at or question.created_at }}",
+            "keywords": "{{ category_keywords }}",
             "author": {
                 "@type": "Person",
                 "name": "{{ question.author_email|e }}"
@@ -661,7 +662,7 @@
             "acceptedAnswer": {
                 "@type": "Answer",
                 "text": "{% for answer in answers %}{% if answer.is_best %}{{ answer.content|e|replace('"', '\\"')|replace('\n', ' ') }}{% endif %}{% endfor %}",
-                "dateCreated": "{% for answer in answers %}{% if answer.is_best %}{{ answer.created_at }}{% endif %}{% endfor %}",
+                "datePublished": "{% for answer in answers %}{% if answer.is_best %}{{ answer.created_at }}{% endif %}{% endfor %}",
                 "author": {
                     "@type": "Person",
                     "name": "{% for answer in answers %}{% if answer.is_best %}{{ answer.author_email|e }}{% endif %}{% endfor %}"
@@ -672,7 +673,7 @@
                 {% for answer in answers %}{% if not answer.is_best %}{
                     "@type": "Answer",
                     "text": "{{ answer.content|e|replace('"', '\\"')|replace('\n', ' ') }}",
-                    "dateCreated": "{{ answer.created_at }}",
+                    "datePublished": "{{ answer.created_at }}",
                     "author": {
                         "@type": "Person",
                         "name": "{{ answer.author_email|e }}"

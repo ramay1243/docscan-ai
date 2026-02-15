@@ -352,6 +352,20 @@ def ask_question():
     
     return render_template('ask_question.html', categories=categories)
 
+def get_category_keywords(category):
+    """Возвращает keywords для категории вопроса"""
+    keywords_map = {
+        'Договоры': 'договор, контракт, соглашение, сделка, документ, подписание, условия, обязательства',
+        'Трудовое право': 'трудовой договор, работник, работодатель, зарплата, отпуск, увольнение, трудовые отношения',
+        'Недвижимость': 'недвижимость, квартира, дом, ипотека, покупка, продажа, аренда, собственность',
+        'Семейное право': 'семья, брак, развод, алименты, дети, наследство, имущество, супруги',
+        'Налоги': 'налог, НДФЛ, декларация, вычет, налоговая, доход, расходы, отчетность',
+        'Банкротство': 'банкротство, долги, кредиторы, процедура, реструктуризация, списание',
+        'Защита прав потребителей': 'потребитель, права, возврат, обмен, гарантия, качество, претензия',
+        'Другое': 'юридический вопрос, консультация, помощь, совет'
+    }
+    return keywords_map.get(category, 'юридический вопрос, консультация, помощь, совет')
+
 @main_bp.route('/questions/<int:question_id>')
 def question_detail(question_id):
     """Страница просмотра вопроса с ответами"""
@@ -411,11 +425,15 @@ def question_detail(question_id):
         answer_author = app.user_manager.get_user(answer['user_id'])
         answer['author_email'] = answer_author.email if answer_author else 'Неизвестно'
     
+    # Получаем keywords для категории
+    category_keywords = get_category_keywords(question_dict.get('category', 'Другое'))
+    
     return render_template('question_detail.html',
                          question=question_dict,
                          answers=answers,
                          is_author=is_author,
-                         current_sort=sort_by)
+                         current_sort=sort_by,
+                         category_keywords=category_keywords)
 
 @main_bp.route('/analiz-dokumentov')
 def analiz_dokumentov():

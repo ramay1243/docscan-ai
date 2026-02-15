@@ -335,6 +335,8 @@ def question_detail(question_id):
     """Страница просмотра вопроса с ответами"""
     from app import app
     from flask import request, session
+    from models.sqlite_users import db, Question, Answer
+    from datetime import datetime
     RussianLogger.log_page_view(f"Вопрос #{question_id}")
     
     # Получаем вопрос
@@ -343,11 +345,32 @@ def question_detail(question_id):
         from flask import abort
         abort(404)
     
-    question_dict = question.to_dict()
-    
     # Получаем ответы
     sort_by = request.args.get('sort', 'best_first')
     answers = app.user_manager.get_answers(question_id, sort_by=sort_by)
+    
+    # ИСПРАВЛЕНИЕ: Проверяем и обновляем статус вопроса на основе реального количества ответов
+    real_answers_count = len(answers)
+    if real_answers_count == 0 and question.status == 'answered':
+        # Если ответов нет, но статус "answered", меняем на "open"
+        question.status = 'open'
+        question.answers_count = 0
+        question.updated_at = datetime.now().isoformat()
+        db.session.commit()
+        logger.info(f"🔄 Статус вопроса {question_id} обновлен на 'open' (ответов нет)")
+    elif real_answers_count > 0 and question.status == 'open':
+        # Если есть ответы, но статус "open", меняем на "answered"
+        question.status = 'answered'
+        question.answers_count = real_answers_count
+        question.updated_at = datetime.now().isoformat()
+        db.session.commit()
+        logger.info(f"🔄 Статус вопроса {question_id} обновлен на 'answered' ({real_answers_count} ответов)")
+    elif question.answers_count != real_answers_count:
+        # Синхронизируем счетчик ответов
+        question.answers_count = real_answers_count
+        db.session.commit()
+    
+    question_dict = question.to_dict()
     
     # Проверяем, лайкнул ли пользователь каждый ответ
     user_id = session.get('user_id')

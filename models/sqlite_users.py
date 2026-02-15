@@ -1343,7 +1343,8 @@ class SQLiteUserManager:
     
     def get_questions(self, category=None, status=None, limit=50, offset=0, sort_by='newest'):
         """Получает список вопросов с фильтрацией"""
-        from models.sqlite_users import Question
+        from models.sqlite_users import Question, Answer
+        from datetime import datetime
         
         query = Question.query
         
@@ -1365,6 +1366,29 @@ class SQLiteUserManager:
             query = query.order_by(Question.created_at.desc())
         
         questions = query.limit(limit).offset(offset).all()
+        
+        # ИСПРАВЛЕНИЕ: Синхронизируем статусы вопросов с реальным количеством ответов
+        for question in questions:
+            real_answers_count = Answer.query.filter_by(question_id=question.id).count()
+            
+            # Обновляем счетчик ответов
+            if question.answers_count != real_answers_count:
+                question.answers_count = real_answers_count
+            
+            # Обновляем статус если нужно
+            if real_answers_count == 0 and question.status == 'answered':
+                question.status = 'open'
+                question.updated_at = datetime.now().isoformat()
+                logger.info(f"🔄 Статус вопроса {question.id} обновлен на 'open' (ответов нет)")
+            elif real_answers_count > 0 and question.status == 'open':
+                question.status = 'answered'
+                question.updated_at = datetime.now().isoformat()
+                logger.info(f"🔄 Статус вопроса {question.id} обновлен на 'answered' ({real_answers_count} ответов)")
+        
+        # Сохраняем изменения
+        if questions:
+            self.db.session.commit()
+        
         return [q.to_dict() for q in questions]
     
     def get_question(self, question_id):

@@ -456,6 +456,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="questions">
                     <span>❓</span> Вопросы и ответы
                 </a>
+                <a href="#" class="menu-item" data-section="notifications">
+                    <span>🔔</span> Уведомления
+                </a>
                 <a href="#" class="menu-item" data-section="partners">
                     <span>🎁</span> Партнерская программа
                 </a>
@@ -882,6 +885,61 @@ def admin_panel():
                     </div>
                 </div>
                 
+                <!-- Секция: Уведомления -->
+                <div id="section-notifications" class="content-section">
+                    <h2 class="section-header">🔔 Отправка уведомлений пользователям</h2>
+                    <p>Отправьте уведомление конкретному пользователю в личный кабинет</p>
+                    
+                    <div class="card">
+                        <h3 style="margin-bottom: 20px; color: #2d3748;">Создать уведомление</h3>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2d3748;">Пользователь (User ID или Email):</label>
+                            <input type="text" id="notificationUserId" placeholder="Введите User ID или Email" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 0.9rem;">
+                            <small style="color: #666; font-size: 0.85rem;">Можно указать User ID (например: abc12345) или Email пользователя</small>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2d3748;">Тип уведомления:</label>
+                            <select id="notificationType" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 0.9rem;">
+                                <option value="admin">Административное</option>
+                                <option value="info">Информационное</option>
+                                <option value="warning">Предупреждение</option>
+                                <option value="success">Успех</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2d3748;">Заголовок уведомления:</label>
+                            <input type="text" id="notificationTitle" placeholder="Например: Важное обновление" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 0.9rem;">
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2d3748;">Сообщение:</label>
+                            <textarea id="notificationMessage" rows="4" placeholder="Текст уведомления..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 0.9rem; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #2d3748;">Ссылка (опционально):</label>
+                            <input type="text" id="notificationLink" placeholder="/cabinet или /questions/123" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 0.9rem;">
+                            <small style="color: #666; font-size: 0.85rem;">При клике на уведомление пользователь перейдет по этой ссылке</small>
+                        </div>
+                        
+                        <button onclick="sendAdminNotification()" style="background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                            📤 Отправить уведомление
+                        </button>
+                        
+                        <div id="notificationMessageDiv" style="margin-top: 15px;"></div>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 20px;">
+                        <h3 style="margin-bottom: 20px; color: #2d3748;">Последние отправленные уведомления</h3>
+                        <div id="notificationsHistory" style="min-height: 100px;">
+                            <p style="color: #999; padding: 20px; text-align: center;">Загрузка истории уведомлений...</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Секция: Партнерская программа -->
                 <div id="section-partners" class="content-section">
                     <div class="card">
@@ -967,6 +1025,7 @@ def admin_panel():
                         'articles': '📝 Статьи',
                         'news': '📰 Новости',
                         'questions': '❓ Вопросы и ответы',
+                        'notifications': '🔔 Уведомления',
                         'partners': '🎁 Партнерская программа'
                     };
                     const pageTitle = document.getElementById('pageTitle');
@@ -1037,6 +1096,16 @@ def admin_panel():
                         if (articlesList && articlesList.innerHTML === '') {
                             console.log('📥 Загрузка статей...');
                             loadArticles();
+                        }
+                    } else if (sectionName === 'notifications') {
+                        const notificationsHistory = document.getElementById('notificationsHistory');
+                        if (notificationsHistory) {
+                            console.log('📥 Загрузка истории уведомлений...');
+                            if (typeof loadNotificationsHistory === 'function') {
+                                loadNotificationsHistory();
+                            } else if (typeof window.loadNotificationsHistory === 'function') {
+                                window.loadNotificationsHistory();
+                            }
                         }
                     } else if (sectionName === 'partners') {
                         loadPartners();
@@ -1861,6 +1930,100 @@ def admin_panel():
                 }
             }
             
+            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С УВЕДОМЛЕНИЯМИ ==========
+            
+            function sendAdminNotification() {
+                const userIdOrEmail = document.getElementById('notificationUserId').value.trim();
+                const type = document.getElementById('notificationType').value;
+                const title = document.getElementById('notificationTitle').value.trim();
+                const message = document.getElementById('notificationMessage').value.trim();
+                const link = document.getElementById('notificationLink').value.trim();
+                
+                if (!userIdOrEmail || !title) {
+                    document.getElementById('notificationMessageDiv').innerHTML = 
+                        '<div style="color: #f56565; padding: 10px; background: #fed7d7; border-radius: 5px;">❌ Заполните User ID/Email и заголовок!</div>';
+                    return;
+                }
+                
+                fetch('/admin/notifications/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        user_id_or_email: userIdOrEmail,
+                        type: type,
+                        title: title,
+                        message: message,
+                        link: link || null
+                    })
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        document.getElementById('notificationMessageDiv').innerHTML = 
+                            '<div style="color: #48bb78; padding: 10px; background: #c6f6d5; border-radius: 5px;">✅ Уведомление отправлено!</div>';
+                        
+                        // Очищаем форму
+                        document.getElementById('notificationUserId').value = '';
+                        document.getElementById('notificationTitle').value = '';
+                        document.getElementById('notificationMessage').value = '';
+                        document.getElementById('notificationLink').value = '';
+                        
+                        // Обновляем историю
+                        loadNotificationsHistory();
+                    } else {
+                        document.getElementById('notificationMessageDiv').innerHTML = 
+                            '<div style="color: #f56565; padding: 10px; background: #fed7d7; border-radius: 5px;">❌ Ошибка: ' + (result.error || 'Неизвестная ошибка') + '</div>';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('notificationMessageDiv').innerHTML = 
+                        '<div style="color: #f56565; padding: 10px; background: #fed7d7; border-radius: 5px;">❌ Ошибка соединения: ' + err.message + '</div>';
+                });
+            }
+            
+            function loadNotificationsHistory() {
+                fetch('/admin/notifications/history', {
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    const historyEl = document.getElementById('notificationsHistory');
+                    if (!historyEl) return;
+                    
+                    if (!result.success || !result.notifications || result.notifications.length === 0) {
+                        historyEl.innerHTML = '<p style="color: #999; padding: 20px; text-align: center;">Нет отправленных уведомлений</p>';
+                        return;
+                    }
+                    
+                    let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Пользователь</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тип</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Заголовок</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th></tr></thead><tbody>';
+                    
+                    result.notifications.slice(0, 20).forEach(notif => {
+                        const typeColors = {
+                            'admin': '#667eea',
+                            'info': '#4299e1',
+                            'warning': '#ed8936',
+                            'success': '#48bb78'
+                        };
+                        html += `<tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 12px;">${notif.user_id}</td>
+                            <td style="padding: 12px;"><span style="background: ${typeColors[notif.type] || '#cbd5e0'}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${notif.type}</span></td>
+                            <td style="padding: 12px;">${notif.title}</td>
+                            <td style="padding: 12px;">${new Date(notif.created_at).toLocaleString('ru-RU')}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</tbody></table>';
+                    historyEl.innerHTML = html;
+                })
+                .catch(err => {
+                    const historyEl = document.getElementById('notificationsHistory');
+                    if (historyEl) {
+                        historyEl.innerHTML = '<p style="color: #f56565; padding: 20px;">Ошибка загрузки истории</p>';
+                    }
+                });
+            }
+            
             function closeAdminQuestion(questionId) {
                 if (!confirm('Закрыть вопрос?')) return;
                 
@@ -2437,6 +2600,11 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
             loadStats();
             loadNewUsers();
             loadPayments();
+            
+            // Загружаем историю уведомлений при открытии секции
+            if (document.getElementById('notificationsHistory')) {
+                loadNotificationsHistory();
+            }
             
             // Инициализируем TinyMCE для статей при загрузке страницы (если раздел статей доступен)
             
@@ -3235,6 +3403,12 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 }
                 if (typeof createCampaign === 'function') {
                     window.createCampaign = createCampaign;
+                }
+                if (typeof sendAdminNotification === 'function') {
+                    window.sendAdminNotification = sendAdminNotification;
+                }
+                if (typeof loadNotificationsHistory === 'function') {
+                    window.loadNotificationsHistory = loadNotificationsHistory;
                 }
                 console.log('✅ Функции зарегистрированы глобально (fallback)');
             }
@@ -4061,6 +4235,90 @@ def mark_reward_paid(reward_id):
     except Exception as e:
         logger.error(f"❌ Ошибка обновления вознаграждения: {e}")
         db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/notifications/send', methods=['POST'])
+@require_admin_auth
+def send_notification():
+    """Отправить уведомление пользователю из админ панели"""
+    from app import app
+    from models.sqlite_users import User, Notification, db
+    from datetime import datetime
+    
+    try:
+        data = request.get_json()
+        user_id_or_email = data.get('user_id_or_email', '').strip()
+        type = data.get('type', 'admin')
+        title = data.get('title', '').strip()
+        message = data.get('message', '').strip()
+        link = data.get('link', '').strip()
+        
+        if not user_id_or_email or not title:
+            return jsonify({'success': False, 'error': 'Укажите пользователя и заголовок'}), 400
+        
+        # Ищем пользователя по user_id или email
+        user = None
+        if '@' in user_id_or_email:
+            # Это email
+            user = User.query.filter_by(email=user_id_or_email).first()
+        else:
+            # Это user_id
+            user = User.query.filter_by(user_id=user_id_or_email).first()
+        
+        if not user:
+            return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+        
+        # Создаем уведомление
+        notification = Notification(
+            user_id=user.user_id,
+            type=type,
+            question_id=None,
+            answer_id=None,
+            title=title,
+            message=message,
+            link=link if link else None,
+            is_read=False,
+            created_at=datetime.now().isoformat()
+        )
+        
+        db.session.add(notification)
+        db.session.commit()
+        
+        logger.info(f"🔔 Админ отправил уведомление пользователю {user.user_id}: {title}")
+        return jsonify({'success': True, 'message': 'Уведомление отправлено'})
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка отправки уведомления: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/notifications/history', methods=['GET'])
+@require_admin_auth
+def get_notifications_history():
+    """Получить историю отправленных уведомлений"""
+    from models.sqlite_users import Notification
+    
+    try:
+        # Получаем последние 50 уведомлений, отсортированные по дате
+        notifications = Notification.query.order_by(Notification.created_at.desc()).limit(50).all()
+        
+        notifications_list = []
+        for notif in notifications:
+            notifications_list.append({
+                'id': notif.id,
+                'user_id': notif.user_id,
+                'type': notif.type,
+                'title': notif.title,
+                'message': notif.message,
+                'link': notif.link,
+                'is_read': notif.is_read,
+                'created_at': notif.created_at
+            })
+        
+        return jsonify({'success': True, 'notifications': notifications_list})
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения истории уведомлений: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @admin_bp.route('/questions')

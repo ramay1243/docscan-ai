@@ -2368,7 +2368,26 @@
                 </div>
             ` : '';
             
-            return mobileStyles + registrationPrompt + mainHeader + expertAnalysis + risksSection + recommendationsSection + downloadButton;
+            // Блок "Спросите помощь онлайн" (для всех пользователей)
+            const helpSection = `
+                <div class="analysis-block" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; margin: 30px 0; text-align: center; box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3); width: 100%; max-width: 100%;">
+                    <div style="color: white;">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">💬</div>
+                        <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.5rem; font-weight: 700;">Спросите помощь онлайн</h3>
+                        <p style="margin: 0 0 25px 0; opacity: 0.95; font-size: 1.1rem; line-height: 1.6;">
+                            Остались вопросы по анализу? Задайте их и получите ответ от юристов и других пользователей
+                        </p>
+                        <a href="/questions" style="background: white; color: #667eea; padding: 16px 40px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; display: inline-block; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                            ❓ Задать вопрос
+                        </a>
+                        <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+                            ✨ Бесплатная консультация от сообщества экспертов
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return mobileStyles + registrationPrompt + mainHeader + expertAnalysis + risksSection + recommendationsSection + downloadButton + helpSection;
         }
         
         // FAQ Toggle

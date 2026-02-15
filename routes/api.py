@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session, send_file
+from flask import Blueprint, request, jsonify, session, send_file, redirect
 from utils.logger import RussianLogger
 import tempfile
 import os
@@ -509,4 +509,153 @@ def calculator_click():
         logger.error(f"❌ Calculator click error: {e}")
         import traceback
         logger.error(traceback.format_exc())
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ========== API ДЛЯ ВОПРОСОВ И ОТВЕТОВ ==========
+
+@api_bp.route('/questions', methods=['POST'])
+def create_question():
+    """Создать новый вопрос"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    data = request.get_json()
+    
+    if not data or not data.get('title') or not data.get('content') or not data.get('category'):
+        return jsonify({'success': False, 'error': 'Заполните все поля'}), 400
+    
+    try:
+        question = app.user_manager.create_question(
+            user_id=session['user_id'],
+            title=data['title'],
+            content=data['content'],
+            category=data['category']
+        )
+        
+        return jsonify({'success': True, 'question_id': question.id, 'message': 'Вопрос создан'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания вопроса: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/questions/<int:question_id>/answers', methods=['POST'])
+def create_answer():
+    """Создать ответ на вопрос"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    data = request.get_json()
+    
+    if not data or not data.get('content'):
+        return jsonify({'success': False, 'error': 'Введите текст ответа'}), 400
+    
+    try:
+        answer = app.user_manager.create_answer(
+            question_id=question_id,
+            user_id=session['user_id'],
+            content=data['content']
+        )
+        
+        return jsonify({'success': True, 'answer_id': answer.id, 'message': 'Ответ добавлен'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания ответа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/answers/<int:answer_id>/like', methods=['POST'])
+def toggle_answer_like():
+    """Переключить лайк на ответе"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        result = app.user_manager.toggle_answer_like(
+            answer_id=answer_id,
+            user_id=session['user_id']
+        )
+        
+        return jsonify({'success': True, **result})
+    except Exception as e:
+        logger.error(f"❌ Ошибка лайка: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/questions/<int:question_id>/best-answer', methods=['POST'])
+def set_best_answer():
+    """Установить лучший ответ"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    data = request.get_json()
+    answer_id = data.get('answer_id')
+    
+    if not answer_id:
+        return jsonify({'success': False, 'error': 'Укажите ID ответа'}), 400
+    
+    try:
+        success = app.user_manager.set_best_answer(
+            question_id=question_id,
+            answer_id=answer_id,
+            user_id=session['user_id']
+        )
+        
+        if success:
+            return jsonify({'success': True, 'message': 'Лучший ответ установлен'})
+        else:
+            return jsonify({'success': False, 'error': 'Недостаточно прав или ответ не найден'}), 403
+    except Exception as e:
+        logger.error(f"❌ Ошибка установки лучшего ответа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/questions/<int:question_id>', methods=['PUT'])
+def update_question():
+    """Обновить вопрос"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    data = request.get_json()
+    
+    # Проверяем, что пользователь является автором вопроса
+    question = app.user_manager.get_question(question_id)
+    if not question or question.user_id != session['user_id']:
+        return jsonify({'success': False, 'error': 'Недостаточно прав'}), 403
+    
+    try:
+        updated = app.user_manager.update_question(question_id, **data)
+        if updated:
+            return jsonify({'success': True, 'message': 'Вопрос обновлен'})
+        else:
+            return jsonify({'success': False, 'error': 'Вопрос не найден'}), 404
+    except Exception as e:
+        logger.error(f"❌ Ошибка обновления вопроса: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/questions/<int:question_id>', methods=['DELETE'])
+def delete_question():
+    """Удалить вопрос"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем, что пользователь является автором вопроса
+    question = app.user_manager.get_question(question_id)
+    if not question or question.user_id != session['user_id']:
+        return jsonify({'success': False, 'error': 'Недостаточно прав'}), 403
+    
+    try:
+        success = app.user_manager.delete_question(question_id)
+        if success:
+            return jsonify({'success': True, 'message': 'Вопрос удален'})
+        else:
+            return jsonify({'success': False, 'error': 'Вопрос не найден'}), 404
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления вопроса: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500

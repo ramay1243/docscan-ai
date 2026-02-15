@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ question.title }} | DocScan AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">DocScan AI</a>
+                <nav class="main-nav">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/news" class="nav-link">Новости</a>
+                    <a href="/questions" class="nav-link active">Вопросы</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="container" style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
+        <!-- Question -->
+        <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px;">
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                <span class="category-badge" style="background: #667eea; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">{{ question.category }}</span>
+                {% if question.status == 'solved' %}
+                <span style="background: #48bb78; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">✅ Решен</span>
+                {% elif question.status == 'answered' %}
+                <span style="background: #ed8936; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">💬 Есть ответы</span>
+                {% else %}
+                <span style="background: #e2e8f0; color: #2d3748; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">❓ Открыт</span>
+                {% endif %}
+            </div>
+            
+            <h1 style="font-size: 2rem; margin-bottom: 20px; color: #2d3748;">{{ question.title }}</h1>
+            
+            <div style="color: #666; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
+                <span>👤 {{ question.author_email }}</span>
+                <span style="margin-left: 20px;">📅 {{ question.created_at[:10] }}</span>
+                <span style="margin-left: 20px;">👁️ {{ question.views_count }} просмотров</span>
+                <span style="margin-left: 20px;">💬 {{ question.answers_count }} ответов</span>
+            </div>
+            
+            <div style="line-height: 1.8; color: #2d3748; margin-bottom: 20px; white-space: pre-wrap;">{{ question.content }}</div>
+            
+            {% if is_author %}
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <button onclick="editQuestion()" style="background: #4299e1; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 10px;">✏️ Редактировать</button>
+                <button onclick="deleteQuestion()" style="background: #f56565; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">🗑️ Удалить</button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Answers Section -->
+        <div style="margin-bottom: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.5rem; color: #2d3748;">Ответы ({{ answers|length }})</h2>
+                <select id="sortAnswers" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 5px;">
+                    <option value="best_first" {% if current_sort == 'best_first' %}selected{% endif %}>Лучший ответ первым</option>
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Новые первыми</option>
+                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>По популярности</option>
+                </select>
+            </div>
+
+            <!-- Answers List -->
+            <div id="answersList">
+                {% if answers and answers|length > 0 %}
+                    {% for answer in answers %}
+                    <div class="answer-card" data-answer-id="{{ answer.id }}" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; {% if answer.is_best %}border-left: 4px solid #48bb78;{% endif %}">
+                        {% if answer.is_best %}
+                        <div style="background: #48bb78; color: white; padding: 8px 15px; border-radius: 5px; margin-bottom: 15px; display: inline-block; font-weight: 600;">⭐ Лучший ответ</div>
+                        {% endif %}
+                        
+                        <div style="line-height: 1.8; color: #2d3748; margin-bottom: 20px; white-space: pre-wrap;">{{ answer.content }}</div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                            <div style="color: #666; font-size: 0.9rem;">
+                                <span>👤 {{ answer.author_email }}</span>
+                                <span style="margin-left: 15px;">📅 {{ answer.created_at[:10] }}</span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <button onclick="toggleLike({{ answer.id }})" 
+                                        class="like-btn" 
+                                        data-answer-id="{{ answer.id }}"
+                                        style="background: {% if answer.is_liked %}#f56565{% else %}#e2e8f0{% endif %}; color: {% if answer.is_liked %}white{% else %}#2d3748{% endif %}; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                    ❤️ <span class="likes-count">{{ answer.likes_count }}</span>
+                                </button>
+                                
+                                {% if is_author and not question.best_answer_id %}
+                                <button onclick="setBestAnswer({{ answer.id }})" 
+                                        style="background: #48bb78; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
+                                    ⭐ Отметить лучшим
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <p style="color: #999; margin-bottom: 20px;">Пока нет ответов. Будьте первым!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Answer Form -->
+        <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom: 20px; color: #2d3748;">💬 Ваш ответ</h3>
+            <form id="answerForm">
+                <textarea id="answerContent" required rows="8" placeholder="Введите ваш ответ на вопрос..." 
+                          style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 5px; font-size: 1rem; font-family: inherit; resize: vertical; margin-bottom: 15px;"></textarea>
+                <button type="submit" style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 5px; font-size: 1rem; font-weight: 600; cursor: pointer;">📤 Отправить ответ</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer" style="margin-top: 60px;">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2024 DocScan AI. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const questionId = {{ question.id }};
+        
+        // Сортировка ответов
+        document.getElementById('sortAnswers').addEventListener('change', function() {
+            const sort = this.value;
+            window.location.href = '/questions/' + questionId + '?sort=' + sort;
+        });
+        
+        // Форма ответа
+        document.getElementById('answerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const content = document.getElementById('answerContent').value.trim();
+            if (!content) {
+                alert('Введите текст ответа');
+                return;
+            }
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
+            
+            try {
+                const response = await fetch('/api/questions/' + questionId + '/answers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ content })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert('Ошибка: ' + result.error);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '📤 Отправить ответ';
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📤 Отправить ответ';
+            }
+        });
+        
+        // Лайк ответа
+        async function toggleLike(answerId) {
+            try {
+                const response = await fetch('/api/answers/' + answerId + '/like', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const btn = document.querySelector(`.like-btn[data-answer-id="${answerId}"]`);
+                    const countSpan = btn.querySelector('.likes-count');
+                    
+                    countSpan.textContent = result.likes_count;
+                    
+                    if (result.liked) {
+                        btn.style.background = '#f56565';
+                        btn.style.color = 'white';
+                    } else {
+                        btn.style.background = '#e2e8f0';
+                        btn.style.color = '#2d3748';
+                    }
+                } else {
+                    if (result.error.includes('авторизация')) {
+                        window.location.href = '/login?redirect=' + window.location.pathname;
+                    } else {
+                        alert('Ошибка: ' + result.error);
+                    }
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error);
+            }
+        }
+        
+        // Установить лучший ответ
+        async function setBestAnswer(answerId) {
+            if (!confirm('Отметить этот ответ как лучший?')) return;
+            
+            try {
+                const response = await fetch('/api/questions/' + questionId + '/best-answer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ answer_id: answerId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error);
+            }
+        }
+        
+        // Редактировать вопрос
+        function editQuestion() {
+            const newTitle = prompt('Новый заголовок:', '{{ question.title }}');
+            if (!newTitle) return;
+            
+            const newContent = prompt('Новый текст:', '{{ question.content }}');
+            if (!newContent) return;
+            
+            // TODO: Реализовать редактирование через API
+            alert('Функция редактирования будет реализована');
+        }
+        
+        // Удалить вопрос
+        async function deleteQuestion() {
+            if (!confirm('Удалить вопрос? Это действие нельзя отменить!')) return;
+            
+            try {
+                const response = await fetch('/api/questions/' + questionId, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.href = '/questions';
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error);
+            }
+        }
+    </script>
+</body>
+</html>
+

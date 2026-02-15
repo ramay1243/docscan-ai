@@ -167,6 +167,77 @@ class NewsItem(db.Model):
         }
 
 
+class Question(db.Model):
+    """Таблица для хранения вопросов пользователей"""
+    __tablename__ = 'questions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)
+    title = db.Column(db.String(500), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(50), nullable=False)  # Договоры, Трудовое право, Недвижимость и т.д.
+    status = db.Column(db.String(20), default='open')  # open, answered, solved, closed
+    views_count = db.Column(db.Integer, default=0)
+    answers_count = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.String(30), nullable=False)
+    updated_at = db.Column(db.String(30), nullable=True)
+    best_answer_id = db.Column(db.Integer, nullable=True)  # ID лучшего ответа
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'title': self.title,
+            'content': self.content,
+            'category': self.category,
+            'status': self.status,
+            'views_count': self.views_count,
+            'answers_count': self.answers_count,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'best_answer_id': self.best_answer_id
+        }
+
+
+class Answer(db.Model):
+    """Таблица для хранения ответов на вопросы"""
+    __tablename__ = 'answers'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    is_best = db.Column(db.Boolean, default=False)
+    likes_count = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.String(30), nullable=False)
+    updated_at = db.Column(db.String(30), nullable=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'question_id': self.question_id,
+            'user_id': self.user_id,
+            'content': self.content,
+            'is_best': self.is_best,
+            'likes_count': self.likes_count,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+
+
+class AnswerLike(db.Model):
+    """Таблица для хранения лайков ответов"""
+    __tablename__ = 'answer_likes'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answers.id'), nullable=False)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)
+    created_at = db.Column(db.String(30), nullable=False)
+    
+    # Уникальный индекс для предотвращения двойных лайков
+    __table_args__ = (db.UniqueConstraint('answer_id', 'user_id', name='unique_answer_like'),)
+
+
 class EmailCampaign(db.Model):
     """Таблица для хранения email-рассылок"""
     __tablename__ = 'email_campaigns'
@@ -1243,6 +1314,248 @@ class SQLiteUserManager:
         
         logger.info(f"🗑️ Удалена новость: {news.title} (ID: {news_id})")
         return True
+    
+    # ========== МЕТОДЫ ДЛЯ РАБОТЫ С ВОПРОСАМИ И ОТВЕТАМИ ==========
+    
+    def create_question(self, user_id, title, content, category):
+        """Создает новый вопрос"""
+        from models.sqlite_users import Question
+        
+        question = Question(
+            user_id=user_id,
+            title=title,
+            content=content,
+            category=category,
+            status='open',
+            views_count=0,
+            answers_count=0,
+            created_at=datetime.now().isoformat()
+        )
+        
+        self.db.session.add(question)
+        self.db.session.commit()
+        
+        logger.info(f"❓ Создан вопрос: {title} (ID: {question.id}, пользователь: {user_id})")
+        return question
+    
+    def get_questions(self, category=None, status=None, limit=50, offset=0, sort_by='newest'):
+        """Получает список вопросов с фильтрацией"""
+        from models.sqlite_users import Question
+        
+        query = Question.query
+        
+        if category:
+            query = query.filter_by(category=category)
+        if status:
+            query = query.filter_by(status=status)
+        
+        # Сортировка
+        if sort_by == 'newest':
+            query = query.order_by(Question.created_at.desc())
+        elif sort_by == 'popular':
+            query = query.order_by(Question.views_count.desc(), Question.answers_count.desc())
+        elif sort_by == 'unanswered':
+            query = query.filter_by(answers_count=0).order_by(Question.created_at.desc())
+        elif sort_by == 'solved':
+            query = query.filter_by(status='solved').order_by(Question.updated_at.desc())
+        else:
+            query = query.order_by(Question.created_at.desc())
+        
+        questions = query.limit(limit).offset(offset).all()
+        return [q.to_dict() for q in questions]
+    
+    def get_question(self, question_id):
+        """Получает вопрос по ID и увеличивает счетчик просмотров"""
+        from models.sqlite_users import Question
+        
+        question = Question.query.filter_by(id=question_id).first()
+        if question:
+            question.views_count += 1
+            self.db.session.commit()
+        return question
+    
+    def update_question(self, question_id, **kwargs):
+        """Обновляет вопрос"""
+        from models.sqlite_users import Question
+        
+        question = Question.query.filter_by(id=question_id).first()
+        if not question:
+            return None
+        
+        if 'title' in kwargs:
+            question.title = kwargs['title']
+        if 'content' in kwargs:
+            question.content = kwargs['content']
+        if 'category' in kwargs:
+            question.category = kwargs['category']
+        if 'status' in kwargs:
+            question.status = kwargs['status']
+        
+        question.updated_at = datetime.now().isoformat()
+        self.db.session.commit()
+        
+        logger.info(f"✏️ Обновлен вопрос ID: {question_id}")
+        return question
+    
+    def delete_question(self, question_id):
+        """Удаляет вопрос и все связанные ответы"""
+        from models.sqlite_users import Question, Answer, AnswerLike
+        
+        question = Question.query.filter_by(id=question_id).first()
+        if not question:
+            return False
+        
+        # Удаляем все лайки ответов этого вопроса
+        answers = Answer.query.filter_by(question_id=question_id).all()
+        for answer in answers:
+            AnswerLike.query.filter_by(answer_id=answer.id).delete()
+        
+        # Удаляем все ответы
+        Answer.query.filter_by(question_id=question_id).delete()
+        
+        # Удаляем вопрос
+        self.db.session.delete(question)
+        self.db.session.commit()
+        
+        logger.info(f"🗑️ Удален вопрос ID: {question_id}")
+        return True
+    
+    def create_answer(self, question_id, user_id, content):
+        """Создает ответ на вопрос"""
+        from models.sqlite_users import Answer, Question
+        
+        answer = Answer(
+            question_id=question_id,
+            user_id=user_id,
+            content=content,
+            is_best=False,
+            likes_count=0,
+            created_at=datetime.now().isoformat()
+        )
+        
+        self.db.session.add(answer)
+        
+        # Обновляем счетчик ответов в вопросе
+        question = Question.query.filter_by(id=question_id).first()
+        if question:
+            question.answers_count += 1
+            if question.status == 'open':
+                question.status = 'answered'
+            question.updated_at = datetime.now().isoformat()
+        
+        self.db.session.commit()
+        
+        logger.info(f"💬 Создан ответ на вопрос ID: {question_id} (пользователь: {user_id})")
+        return answer
+    
+    def get_answers(self, question_id, sort_by='best_first'):
+        """Получает ответы на вопрос"""
+        from models.sqlite_users import Answer
+        
+        query = Answer.query.filter_by(question_id=question_id)
+        
+        if sort_by == 'best_first':
+            # Сначала лучший ответ, потом по дате
+            query = query.order_by(Answer.is_best.desc(), Answer.created_at.asc())
+        elif sort_by == 'newest':
+            query = query.order_by(Answer.created_at.desc())
+        elif sort_by == 'popular':
+            query = query.order_by(Answer.likes_count.desc(), Answer.created_at.asc())
+        else:
+            query = query.order_by(Answer.created_at.asc())
+        
+        answers = query.all()
+        return [a.to_dict() for a in answers]
+    
+    def set_best_answer(self, question_id, answer_id, user_id):
+        """Устанавливает лучший ответ (только автор вопроса может)"""
+        from models.sqlite_users import Question, Answer
+        
+        question = Question.query.filter_by(id=question_id).first()
+        if not question or question.user_id != user_id:
+            return False
+        
+        # Снимаем статус лучшего с предыдущего ответа
+        if question.best_answer_id:
+            old_best = Answer.query.filter_by(id=question.best_answer_id).first()
+            if old_best:
+                old_best.is_best = False
+        
+        # Устанавливаем новый лучший ответ
+        answer = Answer.query.filter_by(id=answer_id, question_id=question_id).first()
+        if not answer:
+            return False
+        
+        answer.is_best = True
+        question.best_answer_id = answer_id
+        question.status = 'solved'
+        question.updated_at = datetime.now().isoformat()
+        
+        self.db.session.commit()
+        
+        logger.info(f"⭐ Установлен лучший ответ ID: {answer_id} для вопроса ID: {question_id}")
+        return True
+    
+    def toggle_answer_like(self, answer_id, user_id):
+        """Переключает лайк на ответе (добавляет или убирает)"""
+        from models.sqlite_users import Answer, AnswerLike
+        
+        # Проверяем, есть ли уже лайк
+        existing_like = AnswerLike.query.filter_by(answer_id=answer_id, user_id=user_id).first()
+        
+        answer = Answer.query.filter_by(id=answer_id).first()
+        if not answer:
+            return False
+        
+        if existing_like:
+            # Убираем лайк
+            self.db.session.delete(existing_like)
+            answer.likes_count = max(0, answer.likes_count - 1)
+            liked = False
+        else:
+            # Добавляем лайк
+            like = AnswerLike(
+                answer_id=answer_id,
+                user_id=user_id,
+                created_at=datetime.now().isoformat()
+            )
+            self.db.session.add(like)
+            answer.likes_count += 1
+            liked = True
+        
+        self.db.session.commit()
+        return {'liked': liked, 'likes_count': answer.likes_count}
+    
+    def check_answer_liked(self, answer_id, user_id):
+        """Проверяет, лайкнул ли пользователь ответ"""
+        from models.sqlite_users import AnswerLike
+        
+        if not user_id:
+            return False
+        
+        return AnswerLike.query.filter_by(answer_id=answer_id, user_id=user_id).first() is not None
+    
+    def get_user_questions(self, user_id, limit=50):
+        """Получает вопросы пользователя"""
+        from models.sqlite_users import Question
+        
+        questions = Question.query.filter_by(user_id=user_id)\
+            .order_by(Question.created_at.desc())\
+            .limit(limit)\
+            .all()
+        
+        return [q.to_dict() for q in questions]
+    
+    def get_user_answers(self, user_id, limit=50):
+        """Получает ответы пользователя"""
+        from models.sqlite_users import Answer
+        
+        answers = Answer.query.filter_by(user_id=user_id)\
+            .order_by(Answer.created_at.desc())\
+            .limit(limit)\
+            .all()
+        
+        return [a.to_dict() for a in answers]
     
     def get_or_generate_referral_code(self, user_id):
         """Получает или генерирует реферальный код для пользователя"""

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вопросы и ответы | DocScan AI</title>
+    <link rel="canonical" href="https://docscan-ai.ru/questions">
+    <meta name="description" content="Задавайте юридические вопросы и получайте ответы от юристов и экспертов. Бесплатная юридическая консультация от сообщества DocScan AI.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">DocScan AI</a>
+                <nav class="main-nav">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/news" class="nav-link">Новости</a>
+                    <a href="/questions" class="nav-link active">Вопросы</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; text-align: center; color: white;">
+        <div class="container">
+            <h1 style="font-size: 2.5rem; margin-bottom: 20px;">❓ Вопросы и ответы</h1>
+            <p style="font-size: 1.2rem; opacity: 0.9;">Задавайте юридические вопросы и получайте ответы от экспертов</p>
+            <a href="/questions/ask" class="btn" style="background: white; color: #667eea; margin-top: 20px; display: inline-block; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 600;">➕ Задать вопрос</a>
+        </div>
+    </section>
+
+    <!-- Filters and Search -->
+    <section class="container" style="margin-top: 40px;">
+        <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px;">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                <input type="text" id="searchInput" placeholder="🔍 Поиск по вопросам..." 
+                       style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 5px;">
+                
+                <select id="categoryFilter" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 5px;">
+                    <option value="">Все категории</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                
+                <select id="statusFilter" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 5px;">
+                    <option value="">Все статусы</option>
+                    <option value="open" {% if current_status == 'open' %}selected{% endif %}>Открытые</option>
+                    <option value="answered" {% if current_status == 'answered' %}selected{% endif %}>С ответами</option>
+                    <option value="solved" {% if current_status == 'solved' %}selected{% endif %}>Решенные</option>
+                </select>
+                
+                <select id="sortFilter" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 5px;">
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Новые</option>
+                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>Популярные</option>
+                    <option value="unanswered" {% if current_sort == 'unanswered' %}selected{% endif %}>Без ответов</option>
+                    <option value="solved" {% if current_sort == 'solved' %}selected{% endif %}>Решенные</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Questions List -->
+        <div id="questionsList">
+            {% if questions and questions|length > 0 %}
+                {% for question in questions %}
+                <div class="question-card" style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; cursor: pointer;" onclick="window.location.href='/questions/{{ question.id }}'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 20px;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                                <span class="category-badge" style="background: #667eea; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">{{ question.category }}</span>
+                                {% if question.status == 'solved' %}
+                                <span style="background: #48bb78; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">✅ Решен</span>
+                                {% elif question.status == 'answered' %}
+                                <span style="background: #ed8936; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">💬 Есть ответы</span>
+                                {% else %}
+                                <span style="background: #e2e8f0; color: #2d3748; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">❓ Открыт</span>
+                                {% endif %}
+                            </div>
+                            <h2 style="font-size: 1.5rem; margin-bottom: 10px; color: #2d3748;">{{ question.title }}</h2>
+                            <p style="color: #666; margin-bottom: 15px; line-height: 1.6;">{{ question.content[:200] }}{% if question.content|length > 200 %}...{% endif %}</p>
+                            <div style="display: flex; gap: 20px; color: #999; font-size: 0.9rem;">
+                                <span>👁️ {{ question.views_count }} просмотров</span>
+                                <span>💬 {{ question.answers_count }} ответов</span>
+                                <span>📅 {{ question.created_at[:10] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: #999; margin-bottom: 20px;">Пока нет вопросов</h3>
+                    <a href="/questions/ask" class="btn" style="background: #667eea; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; display: inline-block;">Задать первый вопрос</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer" style="margin-top: 60px;">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2024 DocScan AI. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Фильтрация и поиск
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('sortFilter').addEventListener('change', applyFilters);
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+
+        function applyFilters() {
+            const category = document.getElementById('categoryFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const sort = document.getElementById('sortFilter').value;
+            const search = document.getElementById('searchInput').value;
+            
+            let url = '/questions?';
+            const params = [];
+            if (category) params.push('category=' + encodeURIComponent(category));
+            if (status) params.push('status=' + encodeURIComponent(status));
+            if (sort) params.push('sort=' + encodeURIComponent(sort));
+            if (search) params.push('search=' + encodeURIComponent(search));
+            
+            if (params.length > 0) {
+                url += params.join('&');
+            }
+            
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>
+

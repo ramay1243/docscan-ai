@@ -261,6 +261,117 @@ def news():
     
     return render_template('news.html', updates=updates, news_items=news_items)
 
+@main_bp.route('/questions')
+def questions():
+    """Страница со списком вопросов"""
+    from app import app
+    from flask import request
+    RussianLogger.log_page_view("Вопросы и ответы")
+    
+    # Параметры фильтрации
+    category = request.args.get('category', None)
+    status = request.args.get('status', None)
+    sort_by = request.args.get('sort', 'newest')
+    page = int(request.args.get('page', 1))
+    limit = 20
+    offset = (page - 1) * limit
+    
+    # Получаем вопросы
+    questions_list = app.user_manager.get_questions(
+        category=category,
+        status=status,
+        limit=limit,
+        offset=offset,
+        sort_by=sort_by
+    )
+    
+    # Категории для фильтра
+    categories = [
+        'Договоры',
+        'Трудовое право',
+        'Недвижимость',
+        'Семейное право',
+        'Налоги',
+        'Банкротство',
+        'Защита прав потребителей',
+        'Другое'
+    ]
+    
+    return render_template('questions.html', 
+                         questions=questions_list,
+                         categories=categories,
+                         current_category=category,
+                         current_status=status,
+                         current_sort=sort_by,
+                         current_page=page)
+
+@main_bp.route('/questions/ask')
+def ask_question():
+    """Страница для задавания вопроса"""
+    from flask import session
+    from app import app
+    
+    # Проверяем авторизацию
+    if not session.get('user_id'):
+        return redirect('/login?redirect=/questions/ask')
+    
+    RussianLogger.log_page_view("Задать вопрос")
+    
+    categories = [
+        'Договоры',
+        'Трудовое право',
+        'Недвижимость',
+        'Семейное право',
+        'Налоги',
+        'Банкротство',
+        'Защита прав потребителей',
+        'Другое'
+    ]
+    
+    return render_template('ask_question.html', categories=categories)
+
+@main_bp.route('/questions/<int:question_id>')
+def question_detail(question_id):
+    """Страница просмотра вопроса с ответами"""
+    from app import app
+    from flask import request, session
+    RussianLogger.log_page_view(f"Вопрос #{question_id}")
+    
+    # Получаем вопрос
+    question = app.user_manager.get_question(question_id)
+    if not question:
+        from flask import abort
+        abort(404)
+    
+    question_dict = question.to_dict()
+    
+    # Получаем ответы
+    sort_by = request.args.get('sort', 'best_first')
+    answers = app.user_manager.get_answers(question_id, sort_by=sort_by)
+    
+    # Проверяем, лайкнул ли пользователь каждый ответ
+    user_id = session.get('user_id')
+    for answer in answers:
+        answer['is_liked'] = app.user_manager.check_answer_liked(answer['id'], user_id) if user_id else False
+    
+    # Проверяем, является ли пользователь автором вопроса
+    is_author = user_id == question.user_id if user_id else False
+    
+    # Получаем информацию об авторе вопроса
+    question_author = app.user_manager.get_user(question.user_id)
+    question_dict['author_email'] = question_author.email if question_author else 'Неизвестно'
+    
+    # Получаем информацию об авторах ответов
+    for answer in answers:
+        answer_author = app.user_manager.get_user(answer['user_id'])
+        answer['author_email'] = answer_author.email if answer_author else 'Неизвестно'
+    
+    return render_template('question_detail.html',
+                         question=question_dict,
+                         answers=answers,
+                         is_author=is_author,
+                         current_sort=sort_by)
+
 @main_bp.route('/analiz-dokumentov')
 def analiz_dokumentov():
     return render_template('analiz-dokumentov.html')

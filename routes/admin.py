@@ -453,6 +453,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="news">
                     <span>📰</span> Новости
                 </a>
+                <a href="#" class="menu-item" data-section="questions">
+                    <span>❓</span> Вопросы и ответы
+                </a>
                 <a href="#" class="menu-item" data-section="partners">
                     <span>🎁</span> Партнерская программа
                 </a>
@@ -859,6 +862,26 @@ def admin_panel():
                     </div>
                 </div>
                 
+                <!-- Секция: Вопросы и ответы -->
+                <div id="section-questions" class="content-section">
+                    <h2 class="section-header">❓ Управление вопросами и ответами</h2>
+                    <p>Модерация вопросов и ответов пользователей</p>
+                    
+                    <div class="card">
+                        <div style="margin-bottom: 20px;">
+                            <select id="questionFilter" onchange="loadQuestions()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <option value="">Все вопросы</option>
+                                <option value="open">Открытые</option>
+                                <option value="answered">С ответами</option>
+                                <option value="solved">Решенные</option>
+                                <option value="closed">Закрытые</option>
+                            </select>
+                            <button onclick="loadQuestions()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">🔄 Обновить</button>
+                        </div>
+                        <div id="questionsList"></div>
+                    </div>
+                </div>
+                
                 <!-- Секция: Партнерская программа -->
                 <div id="section-partners" class="content-section">
                     <div class="card">
@@ -943,6 +966,7 @@ def admin_panel():
                         'campaigns': '📧 Email-рассылки',
                         'articles': '📝 Статьи',
                         'news': '📰 Новости',
+                        'questions': '❓ Вопросы и ответы',
                         'partners': '🎁 Партнерская программа'
                     };
                     const pageTitle = document.getElementById('pageTitle');
@@ -990,6 +1014,16 @@ def admin_panel():
                                         console.error('❌ Функция loadNews все еще не найдена');
                                     }
                                 }, 100);
+                            }
+                        }
+                    } else if (sectionName === 'questions') {
+                        const questionsList = document.getElementById('questionsList');
+                        if (questionsList && questionsList.innerHTML === '') {
+                            console.log('📥 Загрузка вопросов...');
+                            if (typeof loadQuestions === 'function') {
+                                loadQuestions();
+                            } else if (typeof window.loadQuestions === 'function') {
+                                window.loadQuestions();
                             }
                         }
                     } else if (sectionName === 'campaigns') {
@@ -1658,6 +1692,84 @@ def admin_panel():
                 window.deleteNews = deleteNews;
                 console.log('✅ Функции для новостей зарегистрированы глобально');
             }
+            
+            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВОПРОСАМИ ==========
+            function loadQuestions() {
+                const statusFilter = document.getElementById('questionFilter') ? document.getElementById('questionFilter').value : '';
+                let url = '/admin/questions';
+                if (statusFilter) {
+                    url += '?status=' + statusFilter;
+                }
+                
+                fetch(url, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(questions => {
+                        const questionsListEl = document.getElementById('questionsList');
+                        if (!questionsListEl) return;
+                        
+                        let html = '';
+                        if (!questions || questions.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет вопросов</p>';
+                        } else {
+                            questions.forEach(q => {
+                                const statusBadge = q.status === 'solved' ? '✅ Решен' : 
+                                                   q.status === 'answered' ? '💬 Есть ответы' : 
+                                                   q.status === 'closed' ? '🔒 Закрыт' : '❓ Открыт';
+                                const statusColor = q.status === 'solved' ? '#48bb78' : 
+                                                   q.status === 'answered' ? '#ed8936' : 
+                                                   q.status === 'closed' ? '#999' : '#667eea';
+                                
+                                html += `
+                                    <div class="user-card" style="margin: 10px 0; border-left: 4px solid ${statusColor};">
+                                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                                            <div style="flex: 1;">
+                                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">
+                                                    <span style="background: ${statusColor}; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 10px;">${statusBadge}</span>
+                                                    ${q.category}
+                                                </div>
+                                                <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 5px;">
+                                                    <a href="/questions/${q.id}" target="_blank" style="color: #667eea; text-decoration: none;">${q.title}</a>
+                                                </div>
+                                                <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">
+                                                    ${q.content.substring(0, 150)}${q.content.length > 150 ? '...' : ''}
+                                                </div>
+                                                <div style="color: #999; font-size: 0.85rem;">
+                                                    👁️ ${q.views_count} | 💬 ${q.answers_count} | 📅 ${new Date(q.created_at).toLocaleDateString('ru-RU')}
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; gap: 5px;">
+                                                <button onclick="deleteAdminQuestion(${q.id})" style="background: #f56565; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🗑️ Удалить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        }
+                        questionsListEl.innerHTML = html;
+                    });
+            }
+            
+            function deleteAdminQuestion(questionId) {
+                if (!confirm('Удалить вопрос? Это действие нельзя отменить!')) return;
+                
+                fetch(`/admin/questions/${questionId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Вопрос удален!');
+                        loadQuestions();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            // Регистрируем функции для вопросов глобально
+            window.loadQuestions = loadQuestions;
+            window.deleteAdminQuestion = deleteAdminQuestion;
             
             function showUser(userId) {
                 // Переключаемся на секцию пользователей

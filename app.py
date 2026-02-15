@@ -4,7 +4,7 @@ import os
 import logging
 import sys
 from datetime import datetime
-from models.sqlite_users import db, User, AnalysisHistory, Guest, SearchBot, NewsItem, EmailCampaign, EmailSend, Article, Payment, Referral, ReferralReward
+from models.sqlite_users import db, User, AnalysisHistory, Guest, SearchBot, NewsItem, Question, Answer, AnswerLike, EmailCampaign, EmailSend, Article, Payment, Referral, ReferralReward
 
 # Настройка логирования
 # Настройка логирования на русском

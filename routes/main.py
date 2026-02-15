@@ -52,6 +52,7 @@ def sitemap():
         ('/analiz-dokumentov', 'weekly', '0.9'),
         ('/proverka-dogovorov', 'weekly', '0.9'),
         ('/articles', 'weekly', '0.9'),
+        ('/questions', 'daily', '0.9'),
         ('/faq', 'monthly', '0.8'),
         ('/calculator-penalty', 'monthly', '0.8'),
         ('/mobile-app', 'weekly', '0.8'),
@@ -136,6 +137,27 @@ def sitemap():
         <changefreq>{changefreq}</changefreq>
         <priority>{priority}</priority>
     </url>'''
+    
+    # Вопросы (динамически из базы данных)
+    try:
+        from app import app
+        questions = app.user_manager.get_questions(limit=1000, offset=0, sort_by='newest')
+        for question in questions:
+            question_date = question.get('updated_at', question.get('created_at', today))
+            if isinstance(question_date, str) and len(question_date) > 10:
+                question_date = question_date[:10]
+            elif isinstance(question_date, str):
+                question_date = today
+            sitemap_xml += f'''
+    <url>
+        <loc>{base_url}/questions/{question['id']}</loc>
+        <lastmod>{question_date}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>'''
+    except Exception as e:
+        # Если ошибка при получении вопросов, просто пропускаем
+        pass
     
     sitemap_xml += '''
 </urlset>'''

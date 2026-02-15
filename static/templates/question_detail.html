@@ -4,6 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ question.title }} | DocScan AI</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% if question.content %}{{ question.content[:155] }}{% if question.content|length > 155 %}...{% endif %}. Ответы юристов и экспертов на DocScan AI.{% else %}{{ question.title }}. Бесплатная юридическая консультация на DocScan AI.{% endif %}">
+    <meta name="keywords" content="{{ question.category }}, {{ question.title }}, юридические вопросы, консультация юриста">
+    <meta name="author" content="DocScan AI">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ question.title }} | DocScan AI">
+    <meta property="og:description" content="{% if question.content %}{{ question.content[:200] }}{% if question.content|length > 200 %}...{% endif %}{% else %}{{ question.title }}{% endif %}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://docscan-ai.ru/questions/{{ question.id }}">
+    <meta property="og:site_name" content="DocScan AI">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ question.title }} | DocScan AI">
+    <meta name="twitter:description" content="{% if question.content %}{{ question.content[:200] }}{% if question.content|length > 200 %}...{% endif %}{% else %}{{ question.title }}{% endif %}">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://docscan-ai.ru/questions/{{ question.id }}">
+    
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -217,6 +238,34 @@
         </div>
     </header>
 
+    <!-- Breadcrumb Navigation -->
+    <div class="container" style="margin-top: 20px; margin-bottom: 10px; max-width: 1000px;">
+        <nav style="font-size: 0.9rem; color: var(--gray);" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="/" itemprop="item" style="color: var(--primary); text-decoration: none;">
+                    <span itemprop="name">Главная</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </span>
+            <span style="margin: 0 8px;">/</span>
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="/questions" itemprop="item" style="color: var(--primary); text-decoration: none;">
+                    <span itemprop="name">Вопросы</span>
+                </a>
+                <meta itemprop="position" content="2" />
+            </span>
+            <span style="margin: 0 8px;">/</span>
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="/questions?category={{ question.category|urlencode }}" itemprop="item" style="color: var(--primary); text-decoration: none;">
+                    <span itemprop="name">{{ question.category }}</span>
+                </a>
+                <meta itemprop="position" content="3" />
+            </span>
+            <span style="margin: 0 8px;">/</span>
+            <span style="color: var(--dark);">{{ question.title[:50] }}{% if question.title|length > 50 %}...{% endif %}</span>
+        </nav>
+    </div>
+
     <!-- Main Content -->
     <section class="container" style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
         <!-- Question -->
@@ -284,7 +333,8 @@
                         <div style="background: #48bb78; color: white; padding: 8px 15px; border-radius: 5px; margin-bottom: 15px; display: inline-block; font-weight: 600;">⭐ Лучший ответ</div>
                         {% endif %}
                         
-                        <div style="line-height: 1.8; color: #2d3748; margin-bottom: 20px; white-space: pre-wrap;">{{ answer.content }}</div>
+                        <h3 style="font-size: 1.1rem; color: #2d3748; margin-bottom: 15px; font-weight: 600;">Ответ</h3>
+                        <div style="line-height: 1.8; color: #2d3748; margin-bottom: 20px; white-space: pre-wrap;" class="answer-content">{{ answer.content }}</div>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #e2e8f0;">
                             <div style="color: #666; font-size: 0.9rem;">
@@ -589,6 +639,69 @@
             "platform": "desktop"
         })
     })
+    </script>
+    
+    <!-- Schema.org Structured Data (QAPage) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "QAPage",
+        "mainEntity": {
+            "@type": "Question",
+            "name": "{{ question.title|e }}",
+            "text": "{{ question.content|e|replace('"', '\\"')|replace('\n', ' ') }}",
+            "dateCreated": "{{ question.created_at }}",
+            "dateModified": "{{ question.updated_at or question.created_at }}",
+            "author": {
+                "@type": "Person",
+                "name": "{{ question.author_email|e }}"
+            },
+            "upvoteCount": {{ question.views_count }},
+            "answerCount": {{ question.answers_count }}{% if question.best_answer_id %},
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "{% for answer in answers %}{% if answer.is_best %}{{ answer.content|e|replace('"', '\\"')|replace('\n', ' ') }}{% endif %}{% endfor %}",
+                "dateCreated": "{% for answer in answers %}{% if answer.is_best %}{{ answer.created_at }}{% endif %}{% endfor %}",
+                "author": {
+                    "@type": "Person",
+                    "name": "{% for answer in answers %}{% if answer.is_best %}{{ answer.author_email|e }}{% endif %}{% endfor %}"
+                },
+                "upvoteCount": {% for answer in answers %}{% if answer.is_best %}{{ answer.likes_count }}{% endif %}{% endfor %}
+            }{% endif %}{% if answers|length > 0 %},
+            "suggestedAnswer": [
+                {% for answer in answers %}{% if not answer.is_best %}{
+                    "@type": "Answer",
+                    "text": "{{ answer.content|e|replace('"', '\\"')|replace('\n', ' ') }}",
+                    "dateCreated": "{{ answer.created_at }}",
+                    "author": {
+                        "@type": "Person",
+                        "name": "{{ answer.author_email|e }}"
+                    },
+                    "upvoteCount": {{ answer.likes_count }}
+                }{% if not loop.last %},{% endif %}
+                {% endif %}{% endfor %}
+            ]{% endif %}
+        }
+    }
+    </script>
+    
+    <!-- Обработка внешних ссылок в ответах (добавление rel="nofollow") -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const answerContents = document.querySelectorAll('.answer-content');
+            answerContents.forEach(function(content) {
+                const links = content.querySelectorAll('a');
+                links.forEach(function(link) {
+                    const href = link.getAttribute('href');
+                    if (href && !href.startsWith('/') && !href.startsWith('#')) {
+                        if (!href.startsWith('https://docscan-ai.ru') && !href.startsWith('http://docscan-ai.ru')) {
+                            link.setAttribute('rel', 'nofollow noopener');
+                            link.setAttribute('target', '_blank');
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

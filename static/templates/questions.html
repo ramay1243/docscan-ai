@@ -4,8 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вопросы и ответы | DocScan AI</title>
-    <link rel="canonical" href="https://docscan-ai.ru/questions">
+    
+    <!-- SEO Meta Tags -->
     <meta name="description" content="Задавайте юридические вопросы и получайте ответы от юристов и экспертов. Бесплатная юридическая консультация от сообщества DocScan AI.">
+    <meta name="keywords" content="юридические вопросы, консультация юриста, вопросы и ответы, правовые консультации">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Вопросы и ответы | DocScan AI">
+    <meta property="og:description" content="Задавайте юридические вопросы и получайте ответы от юристов и экспертов. Бесплатная юридическая консультация от сообщества DocScan AI.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://docscan-ai.ru/questions">
+    <meta property="og:site_name" content="DocScan AI">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Вопросы и ответы | DocScan AI">
+    <meta name="twitter:description" content="Задавайте юридические вопросы и получайте ответы от юристов и экспертов.">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://docscan-ai.ru/questions{% if current_category %}?category={{ current_category|urlencode }}{% endif %}">
+    
+    <!-- Pagination -->
+    {% if current_page > 1 %}
+    <link rel="prev" href="https://docscan-ai.ru/questions?page={{ current_page - 1 }}{% if current_category %}&category={{ current_category|urlencode }}{% endif %}">
+    {% endif %}
+    {% if questions|length == 20 %}
+    <link rel="next" href="https://docscan-ai.ru/questions?page={{ current_page + 1 }}{% if current_category %}&category={{ current_category|urlencode }}{% endif %}">
+    {% endif %}
+    
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -340,6 +366,20 @@
         </div>
     </div>
 
+    <!-- Breadcrumb Navigation -->
+    <div class="container" style="margin-top: 20px; margin-bottom: 10px;">
+        <nav style="font-size: 0.9rem; color: var(--gray);" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="/" itemprop="item" style="color: var(--primary); text-decoration: none;">
+                    <span itemprop="name">Главная</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </span>
+            <span style="margin: 0 8px;">/</span>
+            <span style="color: var(--dark);">Вопросы и ответы</span>
+        </nav>
+    </div>
+
     <!-- Hero Section -->
     <section class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; text-align: center; color: white;">
         <div class="container">
@@ -387,7 +427,9 @@
                     <div style="display: flex; justify-content: space-between; align-items: start; gap: 20px;">
                         <div style="flex: 1;">
                             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-                                <span class="category-badge" style="background: #667eea; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">{{ question.category }}</span>
+                                <span class="category-badge" itemprop="about" itemscope itemtype="https://schema.org/Thing" style="background: #667eea; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">
+                                    <span itemprop="name">{{ question.category }}</span>
+                                </span>
                                 {% if question.status == 'solved' %}
                                 <span style="background: #48bb78; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">✅ Решен</span>
                                 {% elif question.status == 'answered' %}
@@ -414,6 +456,37 @@
                 </div>
             {% endif %}
         </div>
+        
+        <!-- Pagination -->
+        {% if questions|length == 20 or current_page > 1 %}
+        <div style="text-align: center; margin: 30px 0; padding: 20px;">
+            <div style="display: inline-flex; gap: 10px; align-items: center;">
+                {% if current_page > 1 %}
+                <a href="/questions?page={{ current_page - 1 }}{% if current_category %}&category={{ current_category|urlencode }}{% endif %}{% if current_status %}&status={{ current_status|urlencode }}{% endif %}{% if current_sort %}&sort={{ current_sort|urlencode }}{% endif %}" 
+                   rel="prev"
+                   style="padding: 10px 20px; background: white; border: 1px solid #e2e8f0; border-radius: 5px; text-decoration: none; color: #2d3748; transition: all 0.3s;"
+                   onmouseover="this.style.background='#f7fafc'; this.style.borderColor='#667eea';"
+                   onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0';">
+                    ← Предыдущая
+                </a>
+                {% endif %}
+                
+                <span style="padding: 10px 20px; background: #667eea; color: white; border-radius: 5px; font-weight: 600;">
+                    Страница {{ current_page }}
+                </span>
+                
+                {% if questions|length == 20 %}
+                <a href="/questions?page={{ current_page + 1 }}{% if current_category %}&category={{ current_category|urlencode }}{% endif %}{% if current_status %}&status={{ current_status|urlencode }}{% endif %}{% if current_sort %}&sort={{ current_sort|urlencode }}{% endif %}" 
+                   rel="next"
+                   style="padding: 10px 20px; background: white; border: 1px solid #e2e8f0; border-radius: 5px; text-decoration: none; color: #2d3748; transition: all 0.3s;"
+                   onmouseover="this.style.background='#f7fafc'; this.style.borderColor='#667eea';"
+                   onmouseout="this.style.background='white'; this.style.borderColor='#e2e8f0';">
+                    Следующая →
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
         
         <!-- Yandex.RTB R-A-18680294-1 -->
         <div style="text-align: center; margin: 30px auto; max-width: 1200px; padding: 0 20px;">
@@ -559,6 +632,39 @@
             
             window.location.href = url;
         }
+    </script>
+    
+    <!-- Schema.org Structured Data (CollectionPage) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Вопросы и ответы | DocScan AI",
+        "description": "Задавайте юридические вопросы и получайте ответы от юристов и экспертов. Бесплатная юридическая консультация от сообщества DocScan AI.",
+        "url": "https://docscan-ai.ru/questions",
+        "mainEntity": {
+            "@type": "ItemList",
+            "numberOfItems": {{ questions|length }},
+            "itemListElement": [
+                {% for question in questions %}{
+                    "@type": "ListItem",
+                    "position": {{ loop.index }},
+                    "item": {
+                        "@type": "Question",
+                        "name": "{{ question.title|e }}",
+                        "url": "https://docscan-ai.ru/questions/{{ question.id }}",
+                        "dateCreated": "{{ question.created_at }}",
+                        "answerCount": {{ question.answers_count }},
+                        "about": {
+                            "@type": "Thing",
+                            "name": "{{ question.category|e }}"
+                        }
+                    }
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }
+    }
     </script>
     
     <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->

@@ -2224,7 +2224,9 @@
             `;
             
             // Риски (разные для гостей и зарегистрированных)
-            const risksSection = `
+            // Для гостей показываем блок только если есть риски
+            const hasRisks = (analysis.risk_analysis?.risk_statistics?.total || 0) > 0 || (analysis.risk_analysis?.key_risks || []).length > 0;
+            const risksSection = (!isGuest || hasRisks) ? `
                 <div class="analysis-block" style="background: white; padding: 30px; border-radius: 15px; margin: 20px 0; border-left: 5px solid var(--warning); box-shadow: 0 5px 25px rgba(0,0,0,0.1); width: 100%; max-width: 100%;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
                         <div class="analysis-icon" style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--warning), #f94144); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0;">⚠️</div>
@@ -2240,7 +2242,28 @@
                     ` : `
                     <div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;">
                         <strong style="color: var(--dark);">📊 Статистика:</strong> 
-                        <span style="color: #6c757d;">${analysis.risk_analysis.risk_summary}</span>
+                        <span style="color: #6c757d;">
+                            ${(() => {
+                                const stats = analysis.risk_analysis?.risk_statistics || {};
+                                const total = stats.total || 0;
+                                const critical = stats.CRITICAL || 0;
+                                const high = stats.HIGH || 0;
+                                const medium = stats.MEDIUM || 0;
+                                const low = stats.LOW || 0;
+                                
+                                if (total === 0) {
+                                    return 'Существенных рисков не выявлено';
+                                }
+                                
+                                const parts = [];
+                                if (critical > 0) parts.push(`${critical} критических`);
+                                if (high > 0) parts.push(`${high} высоких`);
+                                if (medium > 0) parts.push(`${medium} средних`);
+                                if (low > 0) parts.push(`${low} низких`);
+                                
+                                return `Выявлено ${total} рисков: ${parts.join(', ')}`;
+                            })()}
+                        </span>
                     </div>
                     `}
                     ${(analysis.risk_analysis.key_risks || []).map((risk, index) => `
@@ -2264,7 +2287,7 @@
                         </div>
                     ` : ''}
                 </div>
-            `;
+            ` : '';
             
             // Рекомендации (только для зарегистрированных)
             const recommendationsSection = !isGuest && analysis.recommendations && typeof analysis.recommendations === 'object' ? `

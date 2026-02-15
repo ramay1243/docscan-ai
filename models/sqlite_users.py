@@ -241,6 +241,36 @@ class AnswerLike(db.Model):
     __table_args__ = (db.UniqueConstraint('answer_id', 'user_id', name='unique_answer_like'),)
 
 
+class Notification(db.Model):
+    """Таблица для хранения уведомлений пользователей"""
+    __tablename__ = 'notifications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False, index=True)
+    type = db.Column(db.String(50), nullable=False)  # 'answer', 'like', 'best_answer'
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=True)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answers.id'), nullable=True)
+    title = db.Column(db.String(500), nullable=False)
+    message = db.Column(db.Text, nullable=True)
+    link = db.Column(db.String(500), nullable=True)
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.String(30), nullable=False)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'type': self.type,
+            'question_id': self.question_id,
+            'answer_id': self.answer_id,
+            'title': self.title,
+            'message': self.message,
+            'link': self.link,
+            'is_read': self.is_read,
+            'created_at': self.created_at
+        }
+
+
 class EmailCampaign(db.Model):
     """Таблица для хранения email-рассылок"""
     __tablename__ = 'email_campaigns'
@@ -1475,6 +1505,100 @@ class SQLiteUserManager:
         
         self.db.session.commit()
         
+        # Создаем уведомление для автора вопроса (если это не он сам отвечает)
+        if question and question.user_id != user_id:
+            answer_preview = content[:100] + '...' if len(content) > 100 else content
+            from models.sqlite_users import Notification
+            notification = Notification(
+                user_id=question.user_id,
+                type='answer',
+                question_id=question_id,
+                answer_id=answer.id,
+                title=f'Новый ответ на ваш вопрос "{question.title[:50]}{"..." if len(question.title) > 50 else ""}"',
+                message=f'Пользователь ответил: {answer_preview}',
+                link=f'/questions/{question_id}',
+                is_read=False,
+                created_at=datetime.now().isoformat()
+            )
+            self.db.session.add(notification)
+            self.db.session.commit()
+            
+            # Отправляем email-уведомление
+            try:
+                question_author = self.get_user(question.user_id)
+                if question_author and question_author.email and question_author.email_subscribed:
+                    from utils.email_service import send_email
+                    email_subject = f'Новый ответ на ваш вопрос "{question.title[:50]}{"..." if len(question.title) > 50 else ""}"'
+                    
+                    text_content = f'''Здравствуйте!
+
+На ваш вопрос ответил пользователь:
+
+Вопрос: "{question.title}"
+{question.content[:200]}{"..." if len(question.content) > 200 else ""}
+
+Ответ:
+{content[:300]}{"..." if len(content) > 300 else ""}
+
+Перейти к вопросу: https://docscan-ai.ru/questions/{question_id}
+
+---
+DocScan AI
+                    '''
+                    
+                    html_content = f'''<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #4361ee, #7209b7); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+        .content {{ background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }}
+        .button {{ display: inline-block; background: #4361ee; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+        .question-box {{ background: white; padding: 15px; border-left: 4px solid #4361ee; margin: 15px 0; border-radius: 5px; }}
+        .answer-box {{ background: #e6f3ff; padding: 15px; border-left: 4px solid #7209b7; margin: 15px 0; border-radius: 5px; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 DocScan AI</h1>
+            <p>Новый ответ на ваш вопрос</p>
+        </div>
+        <div class="content">
+            <p>Здравствуйте!</p>
+            
+            <p>На ваш вопрос ответил пользователь:</p>
+            
+            <div class="question-box">
+                <strong>Вопрос: "{question.title}"</strong>
+                <p>{question.content[:200]}{"..." if len(question.content) > 200 else ""}</p>
+            </div>
+            
+            <div class="answer-box">
+                <strong>Ответ:</strong>
+                <p>{content[:300]}{"..." if len(content) > 300 else ""}</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="https://docscan-ai.ru/questions/{question_id}" class="button">Перейти к вопросу →</a>
+            </div>
+            
+            <p style="margin-top: 30px; color: #666; font-size: 0.9rem;">
+                С уважением,<br>Команда DocScan AI
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+                    '''
+                    
+                    send_email(question_author.email, email_subject, html_content, text_content)
+                    logger.info(f"📧 Email-уведомление отправлено на {question_author.email}")
+            except Exception as e:
+                logger.error(f"❌ Ошибка отправки email-уведомления: {e}")
+        
         logger.info(f"💬 Создан ответ на вопрос ID: {question_id} (пользователь: {user_id})")
         return answer
     
@@ -1684,3 +1808,79 @@ class SQLiteUserManager:
         
         logger.info(f"💰 Создано вознаграждение: партнер {partner_id}, сумма покупки {purchase_amount}₽, вознаграждение {reward_amount}₽ ({reward_percent}%)")
         return reward
+    
+    # ========== МЕТОДЫ ДЛЯ РАБОТЫ С УВЕДОМЛЕНИЯМИ ==========
+    
+    def create_notification(self, user_id, type, question_id=None, answer_id=None, title=None, message=None, link=None):
+        """Создает уведомление для пользователя"""
+        from models.sqlite_users import Notification
+        
+        notification = Notification(
+            user_id=user_id,
+            type=type,
+            question_id=question_id,
+            answer_id=answer_id,
+            title=title or 'Новое уведомление',
+            message=message,
+            link=link,
+            is_read=False,
+            created_at=datetime.now().isoformat()
+        )
+        
+        self.db.session.add(notification)
+        self.db.session.commit()
+        
+        logger.info(f"🔔 Создано уведомление для пользователя {user_id}: {title}")
+        return notification
+    
+    def get_notifications(self, user_id, limit=50, unread_only=False):
+        """Получает уведомления пользователя"""
+        from models.sqlite_users import Notification
+        
+        query = Notification.query.filter_by(user_id=user_id)
+        
+        if unread_only:
+            query = query.filter_by(is_read=False)
+        
+        notifications = query.order_by(Notification.created_at.desc()).limit(limit).all()
+        
+        return [n.to_dict() for n in notifications]
+    
+    def get_unread_count(self, user_id):
+        """Получает количество непрочитанных уведомлений"""
+        from models.sqlite_users import Notification
+        
+        count = Notification.query.filter_by(user_id=user_id, is_read=False).count()
+        return count
+    
+    def mark_notification_read(self, notification_id, user_id):
+        """Отмечает уведомление как прочитанное"""
+        from models.sqlite_users import Notification
+        
+        notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
+        if notification:
+            notification.is_read = True
+            self.db.session.commit()
+            return True
+        return False
+    
+    def mark_all_notifications_read(self, user_id):
+        """Отмечает все уведомления пользователя как прочитанные"""
+        from models.sqlite_users import Notification
+        
+        count = Notification.query.filter_by(user_id=user_id, is_read=False).update({'is_read': True})
+        self.db.session.commit()
+        
+        logger.info(f"✅ Отмечено {count} уведомлений как прочитанные для пользователя {user_id}")
+        return count
+    
+    def delete_notification(self, notification_id, user_id):
+        """Удаляет уведомление"""
+        from models.sqlite_users import Notification
+        
+        notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
+        if notification:
+            self.db.session.delete(notification)
+            self.db.session.commit()
+            return True
+        return False

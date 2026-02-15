@@ -585,6 +585,90 @@ def toggle_answer_like(answer_id):
         logger.error(f"❌ Ошибка лайка: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@api_bp.route('/notifications', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def get_notifications():
+    """Получить уведомления пользователя"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        unread_only = request.args.get('unread_only', 'false').lower() == 'true'
+        limit = int(request.args.get('limit', 50))
+        
+        notifications = app.user_manager.get_notifications(
+            user_id=session['user_id'],
+            limit=limit,
+            unread_only=unread_only
+        )
+        
+        unread_count = app.user_manager.get_unread_count(session['user_id'])
+        
+        return jsonify({
+            'success': True,
+            'notifications': notifications,
+            'unread_count': unread_count
+        })
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения уведомлений: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/notifications/<int:notification_id>/read', methods=['POST'])
+@cross_origin(supports_credentials=True)
+def mark_notification_read(notification_id):
+    """Отметить уведомление как прочитанное"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success = app.user_manager.mark_notification_read(notification_id, session['user_id'])
+        if success:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'Уведомление не найдено'}), 404
+    except Exception as e:
+        logger.error(f"❌ Ошибка отметки уведомления: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/notifications/read-all', methods=['POST'])
+@cross_origin(supports_credentials=True)
+def mark_all_notifications_read():
+    """Отметить все уведомления как прочитанные"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        count = app.user_manager.mark_all_notifications_read(session['user_id'])
+        return jsonify({'success': True, 'count': count})
+    except Exception as e:
+        logger.error(f"❌ Ошибка отметки всех уведомлений: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/notifications/<int:notification_id>', methods=['DELETE'])
+@cross_origin(supports_credentials=True)
+def delete_notification(notification_id):
+    """Удалить уведомление"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success = app.user_manager.delete_notification(notification_id, session['user_id'])
+        if success:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'Уведомление не найдено'}), 404
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления уведомления: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @api_bp.route('/questions/<int:question_id>/best-answer', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def set_best_answer(question_id):

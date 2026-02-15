@@ -206,6 +206,15 @@
                 <span class="sidebar-menu-item-icon">🏠</span>
                 <span>Главная</span>
             </a>
+            <a href="#" class="sidebar-menu-item" data-section="notifications" onclick="showSection('notifications'); return false;">
+                <span class="sidebar-menu-item-icon">🔔</span>
+                <span>Уведомления</span>
+                {% if unread_notifications_count and unread_notifications_count > 0 %}
+                <span id="unreadCount" style="margin-left: auto; background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">{{ unread_notifications_count }}</span>
+                {% else %}
+                <span id="unreadCount" style="margin-left: auto; background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: none;">0</span>
+                {% endif %}
+            </a>
             <a href="#" class="sidebar-menu-item" data-section="history" onclick="showSection('history'); return false;">
                 <span class="sidebar-menu-item-icon">📄</span>
                 <span>История анализов</span>
@@ -460,6 +469,21 @@
                     </p>
                 </div>
             </div>
+            
+            <!-- Section: Notifications -->
+            <div id="section-notifications" class="content-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h1 style="color: var(--dark); font-size: 2rem;">🔔 Уведомления</h1>
+                    <button onclick="markAllNotificationsRead()" class="cta-button" style="padding: 10px 20px; font-size: 0.9rem;">Отметить все как прочитанные</button>
+                </div>
+                
+                <div id="notificationsList" style="min-height: 200px;">
+                    <div style="text-align: center; padding: 40px; color: var(--gray);">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">⏳</div>
+                        <div>Загрузка уведомлений...</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -491,7 +515,166 @@
             if (sectionName === 'partners') {
                 loadReferralData();
             }
+            
+            // Загружаем уведомления при открытии секции
+            if (sectionName === 'notifications') {
+                loadNotifications();
+            }
         }
+        
+        // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С УВЕДОМЛЕНИЯМИ ==========
+        
+        function loadNotifications() {
+            fetch('/api/notifications', {
+                credentials: 'include'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    displayNotifications(data.notifications);
+                    updateUnreadCount(data.unread_count);
+                } else {
+                    document.getElementById('notificationsList').innerHTML = 
+                        '<div style="text-align: center; padding: 40px; color: var(--gray);">Ошибка загрузки уведомлений</div>';
+                }
+            })
+            .catch(err => {
+                console.error('Ошибка загрузки уведомлений:', err);
+                document.getElementById('notificationsList').innerHTML = 
+                    '<div style="text-align: center; padding: 40px; color: var(--danger);">Ошибка загрузки уведомлений</div>';
+            });
+        }
+        
+        function displayNotifications(notifications) {
+            const listEl = document.getElementById('notificationsList');
+            
+            if (!notifications || notifications.length === 0) {
+                listEl.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--gray);">
+                        <div style="font-size: 3rem; margin-bottom: 15px;">🔔</div>
+                        <div style="font-size: 1.1rem; margin-bottom: 10px;">Нет уведомлений</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Когда кто-то ответит на ваш вопрос, здесь появится уведомление</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            notifications.forEach(notif => {
+                const readClass = notif.is_read ? '' : 'unread';
+                const typeIcon = notif.type === 'answer' ? '💬' : notif.type === 'like' ? '❤️' : '⭐';
+                
+                html += `
+                    <div class="history-item ${readClass}" style="background: ${notif.is_read ? 'white' : '#f0f7ff'}; border-left: ${notif.is_read ? '3px solid transparent' : '3px solid var(--primary)'}; border-radius: 8px; margin-bottom: 15px; padding: 20px; cursor: pointer;" onclick="openNotification(${notif.id}, '${notif.link || ''}')">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                <span style="font-size: 1.2rem;">${typeIcon}</span>
+                                <span style="font-weight: ${notif.is_read ? '400' : '600'}; color: var(--dark); font-size: 1rem;">${notif.title}</span>
+                            </div>
+                            ${notif.message ? `<div style="color: var(--gray); font-size: 0.9rem; margin-bottom: 8px; line-height: 1.5;">${notif.message}</div>` : ''}
+                            <div style="color: var(--gray); font-size: 0.85rem;">${new Date(notif.created_at).toLocaleString('ru-RU')}</div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            ${!notif.is_read ? '<span style="background: var(--primary); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">Новое</span>' : ''}
+                            <button onclick="event.stopPropagation(); deleteNotification(${notif.id})" style="background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listEl.innerHTML = html;
+        }
+        
+        function openNotification(notificationId, link) {
+            // Отмечаем как прочитанное
+            fetch(`/api/notifications/${notificationId}/read`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Обновляем счетчик
+                    loadNotifications();
+                    updateUnreadCount();
+                    
+                    // Переходим по ссылке
+                    if (link) {
+                        window.location.href = link;
+                    }
+                }
+            });
+        }
+        
+        function markAllNotificationsRead() {
+            if (!confirm('Отметить все уведомления как прочитанные?')) return;
+            
+            fetch('/api/notifications/read-all', {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                    updateUnreadCount();
+                } else {
+                    alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+                }
+            });
+        }
+        
+        function deleteNotification(notificationId) {
+            if (!confirm('Удалить уведомление?')) return;
+            
+            fetch(`/api/notifications/${notificationId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                    updateUnreadCount();
+                } else {
+                    alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+                }
+            });
+        }
+        
+        function updateUnreadCount(count) {
+            const countEl = document.getElementById('unreadCount');
+            if (!countEl) return;
+            
+            if (count === undefined) {
+                // Загружаем счетчик с сервера
+                fetch('/api/notifications?limit=1', {
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        count = data.unread_count;
+                        if (count > 0) {
+                            countEl.textContent = count;
+                            countEl.style.display = 'inline-block';
+                        } else {
+                            countEl.style.display = 'none';
+                        }
+                    }
+                });
+            } else {
+                if (count > 0) {
+                    countEl.textContent = count;
+                    countEl.style.display = 'inline-block';
+                } else {
+                    countEl.style.display = 'none';
+                }
+            }
+        }
+        
+        // Загружаем счетчик уведомлений при загрузке страницы
+        updateUnreadCount();
         
         // Toggle menu
         function toggleMenu() {

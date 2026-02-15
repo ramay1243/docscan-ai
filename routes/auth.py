@@ -338,13 +338,17 @@ def cabinet():
     # Получаем количество доступных анализов
     available_analyses = user.available_analyses if user.available_analyses is not None else 0
     
+    # Получаем количество непрочитанных уведомлений
+    unread_notifications_count = app.user_manager.get_unread_count(user_id)
+    
     logger.info(f"📊 Cabinet: user_id={user_id}, plan={current_plan_type}, plan_name={plan['name']}, daily_limit={plan['daily_limit']}, used_today={user.used_today}, available_analyses={available_analyses}")
     
     return render_template('cabinet.html', 
         user=user,
         history=history,
         plan=plan,
-        available_analyses=available_analyses
+        available_analyses=available_analyses,
+        unread_notifications_count=unread_notifications_count
     )
 
 @auth_bp.route('/api/check-auth', methods=['GET'])

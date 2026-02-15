@@ -48,6 +48,7 @@ def sitemap():
     # Приоритетные страницы (обновляются часто)
     priority_pages = [
         ('/', 'daily', '1.0'),
+        ('/news', 'weekly', '0.9'),
         ('/analiz-dokumentov', 'weekly', '0.9'),
         ('/proverka-dogovorov', 'weekly', '0.9'),
         ('/articles', 'weekly', '0.9'),
@@ -247,6 +248,12 @@ def article_freelance_gph():
 def redirect_article_freelance():
     """Редирект со старого URL на новый"""
     return redirect('/articles/freelance-gph', code=301)
+
+@main_bp.route('/news')
+def news():
+    """Страница новостей и обновлений"""
+    RussianLogger.log_page_view("Новости и обновления")
+    return render_template('news.html')
 
 @main_bp.route('/analiz-dokumentov')
 def analiz_dokumentov():

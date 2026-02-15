@@ -181,6 +181,10 @@
             }
         }
     </style>
+    
+    <!-- Yandex.RTB -->
+    <script>window.yaContextCb=window.yaContextCb||[]</script>
+    <script src="https://yandex.ru/ads/system/context.js" async></script>
 </head>
 <body>
     <!-- Header -->
@@ -246,6 +250,19 @@
             </div>
             {% endif %}
         </div>
+        
+        <!-- Yandex.RTB R-A-18680294-1 -->
+        <div style="text-align: center; margin: 30px auto; max-width: 1200px; padding: 0 20px;">
+            <div id="yandex_rtb_R-A-18680294-1"></div>
+            <script>
+            window.yaContextCb.push(() => {
+                Ya.Context.AdvManager.render({
+                    "blockId": "R-A-18680294-1",
+                    "renderTo": "yandex_rtb_R-A-18680294-1"
+                })
+            })
+            </script>
+        </div>
 
         <!-- Answers Section -->
         <div style="margin-bottom: 30px;">
@@ -298,6 +315,19 @@
                         <p style="color: #999; margin-bottom: 20px;">Пока нет ответов. Будьте первым!</p>
                     </div>
                 {% endif %}
+            </div>
+            
+            <!-- Yandex.RTB R-A-18680294-4 (после ответов) -->
+            <div style="text-align: center; margin: 30px auto; max-width: 1200px; padding: 0 20px;">
+                <div id="yandex_rtb_R-A-18680294-4"></div>
+                <script>
+                window.yaContextCb.push(() => {
+                    Ya.Context.AdvManager.render({
+                        "blockId": "R-A-18680294-4",
+                        "renderTo": "yandex_rtb_R-A-18680294-4"
+                    })
+                })
+                </script>
             </div>
         </div>
 
@@ -538,6 +568,27 @@
                 alert('Ошибка соединения: ' + error);
             }
         }
+    </script>
+    
+    <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-18680294-2",
+            "type": "floorAd",
+            "platform": "touch"
+        })
+    })
+    </script>    
+    <!-- Yandex.RTB R-A-18680294-3 (floorAd для десктопа) -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-18680294-3",
+            "type": "floorAd",
+            "platform": "desktop"
+        })
+    })
     </script>
 </body>
 </html>

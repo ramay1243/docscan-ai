@@ -540,7 +540,8 @@ def create_question():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @api_bp.route('/questions/<int:question_id>/answers', methods=['POST'])
-def create_answer():
+@cross_origin(supports_credentials=True)
+def create_answer(question_id):
     """Создать ответ на вопрос"""
     from app import app
     
@@ -565,7 +566,8 @@ def create_answer():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @api_bp.route('/answers/<int:answer_id>/like', methods=['POST'])
-def toggle_answer_like():
+@cross_origin(supports_credentials=True)
+def toggle_answer_like(answer_id):
     """Переключить лайк на ответе"""
     from app import app
     
@@ -584,7 +586,8 @@ def toggle_answer_like():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @api_bp.route('/questions/<int:question_id>/best-answer', methods=['POST'])
-def set_best_answer():
+@cross_origin(supports_credentials=True)
+def set_best_answer(question_id):
     """Установить лучший ответ"""
     from app import app
     

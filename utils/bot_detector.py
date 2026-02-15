@@ -30,7 +30,27 @@ SEARCH_BOTS = {
     'Twitterbot': 'Twitter',
     'LinkedInBot': 'LinkedIn',
     'WhatsApp': 'WhatsApp',
-    'TelegramBot': 'Telegram'
+    'TelegramBot': 'Telegram',
+    'AhrefsBot': 'Ahrefs',
+    'Chrome Privacy Preserving Prefetch Proxy': 'Google Prefetch',
+    'Chrome-Lighthouse': 'Google Lighthouse',
+    'SemrushBot': 'Semrush',
+    'MJ12bot': 'Majestic',
+    'DotBot': 'DotBot',
+    'Barkrowler': 'Barkrowler',
+    'BLEXBot': 'BLEXBot',
+    'CCBot': 'Common Crawl',
+    'GPTBot': 'OpenAI',
+    'ChatGPT-User': 'OpenAI ChatGPT',
+    'anthropic-ai': 'Anthropic',
+    'Claude-Web': 'Anthropic Claude',
+    'PerplexityBot': 'Perplexity',
+    'YouBot': 'You.com',
+    'Bytespider': 'ByteDance',
+    'PetalBot': 'Huawei',
+    'Sogou': 'Sogou',
+    '360Spider': '360',
+    'YisouSpider': 'Yisou'
 }
 
 def is_malicious_bot(user_agent):
@@ -70,10 +90,30 @@ def is_search_bot(user_agent):
     
     user_agent_lower = user_agent.lower()
     
+    # Проверяем по точным совпадениям из списка
     for bot_name, bot_type in SEARCH_BOTS.items():
         if bot_name.lower() in user_agent_lower:
             logger.info(f"🕷️ Обнаружен поисковый бот: {bot_type} ({bot_name})")
             return True, bot_name
+    
+    # Дополнительные проверки по характерным признакам ботов
+    bot_indicators = [
+        'bot', 'crawler', 'spider', 'scraper', 'fetcher', 'indexer',
+        'preview', 'proxy', 'lighthouse', 'headless', 'phantom',
+        'selenium', 'webdriver', 'puppeteer', 'playwright'
+    ]
+    
+    # Проверяем наличие индикаторов ботов (но исключаем обычные браузеры)
+    has_bot_indicator = any(indicator in user_agent_lower for indicator in bot_indicators)
+    
+    # Исключаем обычные браузеры, которые могут содержать слово "bot" в других контекстах
+    browser_indicators = ['mozilla', 'chrome', 'safari', 'firefox', 'edge', 'opera', 'webkit']
+    is_browser = any(browser in user_agent_lower for browser in browser_indicators)
+    
+    # Если есть индикатор бота, но это не обычный браузер - считаем ботом
+    if has_bot_indicator and not is_browser:
+        logger.info(f"🕷️ Обнаружен бот по индикаторам: {user_agent[:50]}...")
+        return True, 'Unknown Bot'
     
     return False, None
 

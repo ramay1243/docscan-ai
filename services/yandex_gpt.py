@@ -331,6 +331,11 @@ def parse_smart_analysis(ai_response, document_type):
                         risk_title = parts[1].strip()
                         risk_description = parts[2].strip()
                         
+                        # Пропускаем риски, которые содержат текст "существенных рисков не выявлено"
+                        combined_text = f"{risk_title} {risk_description}".lower()
+                        if 'существенных рисков не выявлено' in combined_text or 'существенных рисков не обнаружено' in combined_text:
+                            continue
+                        
                         if risk_level in RISK_LEVELS:
                             sections['key_risks'].append({
                                 'level': risk_level,
@@ -351,6 +356,11 @@ def parse_smart_analysis(ai_response, document_type):
                                 else:
                                     title = title_desc[:50]
                                     desc = title_desc[50:] if len(title_desc) > 50 else title_desc
+                                
+                                # Пропускаем риски, которые содержат текст "существенных рисков не выявлено"
+                                combined_text = f"{title} {desc}".lower()
+                                if 'существенных рисков не выявлено' in combined_text or 'существенных рисков не обнаружено' in combined_text:
+                                    break
                                 
                                 sections['key_risks'].append({
                                     'level': level,
@@ -374,6 +384,11 @@ def parse_smart_analysis(ai_response, document_type):
                                 else:
                                     title = rest
                                     desc = rest
+                                
+                                # Пропускаем риски, которые содержат текст "существенных рисков не выявлено"
+                                combined_text = f"{title} {desc}".lower()
+                                if 'существенных рисков не выявлено' in combined_text or 'существенных рисков не обнаружено' in combined_text:
+                                    break
                                 
                                 sections['key_risks'].append({
                                     'level': level,

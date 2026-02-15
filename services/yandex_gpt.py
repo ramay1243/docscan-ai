@@ -564,6 +564,7 @@ def create_smart_analysis_result(sections, document_type):
             positive_phrases = [
                 'соответствует законодательству',
                 'соответствует требованиям законодательства',
+                'соответствует процессуальным нормам',
                 'условия изложены полно и ясно',
                 'существенные условия изложены полно',
                 'формулировки ясные и недвусмысленные',
@@ -573,21 +574,44 @@ def create_smart_analysis_result(sections, document_type):
                 'существенных рисков не содержит',
                 'не выявлено существенных рисков',
                 'не обнаружено существенных рисков',
+                'не содержит недостатков',
+                'не содержит существенных недостатков',
                 'является стандартным',
-                'соответствует процессуальным нормам',
-                'начата корректно'
+                'является надлежащим',
+                'является надлежащим судебным актом',
+                'надлежащий судебный акт',
+                'начата корректно',
+                'чётко регламентирует',
+                'регламентирует процессуальные аспекты'
             ]
             # Маркеры реальных рисков (должны быть в контексте проблемы, а не в положительном контексте)
             risk_markers = [
                 'нарушен', 'недопустим', 'штраф', 'ответственность',
                 'оспариван', 'противоречит', 'может привести', 'опасн',
                 'высокий риск', 'критический риск', 'существенный риск',
-                'риск потери', 'риск убытков', 'риск нарушения'
+                'риск потери', 'риск убытков', 'риск нарушения',
+                'проблема', 'недостаток', 'недостатки', 'негативн',
+                'требует доработки', 'требует исправления'
             ]
             # Если есть положительные формулировки И нет маркеров реальных рисков - пропускаем
-            has_positive = any(p in combined for p in positive_phrases)
-            has_real_risk = any(m in combined for m in risk_markers)
-            if has_positive and not has_real_risk:
+            has_positive = any(p in combined_clean for p in positive_phrases)
+            has_real_risk = any(m in combined_clean for m in risk_markers)
+            
+            # Дополнительная проверка: если title или description содержат положительные фразы
+            title_has_positive = any(p in title_clean for p in positive_phrases)
+            desc_has_positive = any(p in desc_clean for p in positive_phrases)
+            
+            # Если title или description содержат положительные формулировки и нет реальных рисков - пропускаем
+            if (has_positive and not has_real_risk) or (title_has_positive and not has_real_risk) or (desc_has_positive and not has_real_risk):
+                continue
+            
+            # Специальная проверка: если title или description полностью состоят из положительных формулировок
+            # (например, "Документ является надлежащим судебным актом, соответствующим законодательству РФ")
+            if title_has_positive and len(title_clean) < 150 and not has_real_risk:
+                # Если title короткий и содержит только положительные формулировки - пропускаем
+                continue
+            if desc_has_positive and 'не содержит' in desc_clean and 'риск' in desc_clean and not has_real_risk:
+                # Если description содержит "не содержит рисков" - пропускаем
                 continue
             cleaned_risks.append(risk)
         sections['key_risks'] = cleaned_risks

@@ -10,11 +10,18 @@ from datetime import datetime
 
 def migrate():
     """Выполняет миграцию"""
-    # Путь к базе данных
-    db_path = os.path.join(os.path.dirname(__file__), 'instance', 'docscan.db')
+    # Путь к базе данных (сначала пробуем корень проекта, потом instance)
+    base_dir = os.path.dirname(__file__)
+    db_path = os.path.join(base_dir, 'docscan.db')
+    
+    # Если база не найдена в корне, пробуем instance
+    if not os.path.exists(db_path):
+        db_path = os.path.join(base_dir, 'instance', 'docscan.db')
     
     if not os.path.exists(db_path):
-        print(f"❌ База данных не найдена: {db_path}")
+        print(f"❌ База данных не найдена. Проверенные пути:")
+        print(f"   - {os.path.join(base_dir, 'docscan.db')}")
+        print(f"   - {os.path.join(base_dir, 'instance', 'docscan.db')}")
         return False
     
     try:

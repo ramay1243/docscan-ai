@@ -110,6 +110,31 @@ def create_app():
         
         return None
     
+    # Обработчик ошибок для API эндпоинтов - всегда возвращаем JSON
+    @app.errorhandler(500)
+    def handle_500_error(e):
+        """Обработчик ошибок 500 для API - возвращает JSON вместо HTML"""
+        from flask import request, jsonify
+        if request.path.startswith('/api/'):
+            import traceback
+            logger.error(f"❌ Ошибка 500 в API {request.path}: {e}")
+            logger.error(f"Трассировка: {traceback.format_exc()}")
+            return jsonify({'error': f'Внутренняя ошибка сервера: {str(e)}'}), 500
+        # Для не-API запросов возвращаем стандартную обработку
+        raise e
+    
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        """Обработчик всех исключений для API - возвращает JSON"""
+        from flask import request, jsonify
+        if request.path.startswith('/api/'):
+            import traceback
+            logger.error(f"❌ Необработанное исключение в API {request.path}: {e}")
+            logger.error(f"Трассировка: {traceback.format_exc()}")
+            return jsonify({'error': f'Ошибка сервера: {str(e)}'}), 500
+        # Для не-API запросов пробрасываем исключение дальше
+        raise e
+    
     logger.info("🚀 DocScan App инициализирован!")
     return app
 

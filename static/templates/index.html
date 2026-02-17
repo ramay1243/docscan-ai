@@ -2187,14 +2187,31 @@
                         button.disabled = false;
                     }, 2000);
                 } else {
-                    const error = await response.json();
-                    alert(`Ошибка при генерации ${formatNames[format]}: ` + (error.error || 'Неизвестная ошибка'));
+                    // Проверяем Content-Type перед парсингом JSON
+                    const contentType = response.headers.get('content-type');
+                    let errorMessage = 'Неизвестная ошибка';
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        try {
+                            const error = await response.json();
+                            errorMessage = error.error || error.message || 'Неизвестная ошибка';
+                        } catch (e) {
+                            errorMessage = `Ошибка сервера (код ${response.status})`;
+                        }
+                    } else {
+                        // Если ответ не JSON, читаем как текст
+                        const text = await response.text();
+                        errorMessage = `Ошибка сервера (код ${response.status})`;
+                        console.error('Сервер вернул не JSON:', text.substring(0, 200));
+                    }
+                    
+                    alert(`Ошибка при генерации ${formatNames[format]}: ${errorMessage}`);
                     button.innerHTML = originalText;
                     button.disabled = false;
                 }
             } catch (error) {
                 console.error('Ошибка скачивания:', error);
-                alert('Ошибка соединения: ' + error.message);
+                alert('Ошибка соединения: ' + (error.message || 'Не удалось подключиться к серверу'));
                 if (event && event.target) {
                     event.target.disabled = false;
                     event.target.innerHTML = `${formatIcons[format]} Скачать анализ в ${formatNames[format]}`;

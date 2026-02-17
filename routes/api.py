@@ -511,6 +511,10 @@ def download_analysis():
             logger.warning(f"⚠️ Ошибка получения user_id: {user_error}")
         
         # Генерируем файл в зависимости от формата
+        file_content = None
+        mime_type = None
+        file_extension = None
+        
         try:
             if export_format == 'word' or export_format == 'docx':
                 logger.info(f"📄 Генерация Word: filename={filename}, branding={branding_settings is not None}")
@@ -527,6 +531,23 @@ def download_analysis():
                 file_content = generate_analysis_pdf(analysis_data, filename, branding_settings)
                 mime_type = 'application/pdf'
                 file_extension = 'pdf'
+            
+            # Проверяем, что файл был сгенерирован
+            if file_content is None:
+                logger.error(f"❌ Функция генерации вернула None для формата {export_format}")
+                return jsonify({'error': 'Ошибка генерации файла: функция вернула пустой результат'}), 500
+            
+            # Проверяем тип данных
+            if not isinstance(file_content, bytes):
+                logger.error(f"❌ file_content не является bytes, тип: {type(file_content)}")
+                # Пытаемся преобразовать в bytes
+                if isinstance(file_content, BytesIO):
+                    file_content = file_content.getvalue()
+                elif hasattr(file_content, 'read'):
+                    file_content = file_content.read()
+                else:
+                    return jsonify({'error': f'Ошибка: неправильный тип данных файла: {type(file_content)}'}), 500
+                
         except TypeError as e:
             logger.error(f"❌ Ошибка типа при генерации {export_format}: {e}")
             import traceback

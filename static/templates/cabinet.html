@@ -661,6 +661,47 @@
             </div>
             {% endif %}
             
+            <!-- Section: API Keys -->
+            {% if user.plan == 'premium' %}
+            <div id="section-api-keys" class="content-section">
+                <h1 style="color: var(--dark); margin-bottom: 30px; font-size: 2rem;">🔑 API-ключи</h1>
+                <p style="color: var(--gray); margin-bottom: 30px;">Управляйте API-ключами для интеграции с внешними системами. API-ключи позволяют автоматизировать анализ документов через API.</p>
+                
+                <div class="section">
+                    <h2 class="section-title">Мои API-ключи</h2>
+                    <div id="apiKeysList" style="margin-top: 20px;"></div>
+                    <button onclick="loadUserAPIKeys()" class="cta-button" style="background: var(--primary); margin-top: 15px;">🔄 Обновить список</button>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">Создать новый API-ключ</h2>
+                    <div class="form-group">
+                        <label class="form-label">Название ключа (опционально):</label>
+                        <input type="text" id="newApiKeyName" class="form-input" placeholder="Например: Для CRM системы">
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 5px;">Укажите название для удобства идентификации ключа</p>
+                    </div>
+                    <button onclick="createUserAPIKey()" class="cta-button" style="background: var(--success); margin-top: 15px;">➕ Создать API-ключ</button>
+                    <div id="newApiKeyResult" style="margin-top: 20px; padding: 20px; background: var(--light); border-radius: 8px; display: none;">
+                        <p style="margin: 0 0 15px 0; font-weight: 600; color: var(--warning);">⚠️ ВАЖНО: Сохраните этот ключ! Он больше не будет показан:</p>
+                        <code id="newApiKeyValue" style="display: block; padding: 15px; background: var(--dark); color: var(--success); border-radius: 5px; font-family: monospace; word-break: break-all; font-size: 0.9rem;"></code>
+                        <button onclick="copyAPIKey()" class="cta-button" style="background: var(--primary); margin-top: 10px;">📋 Копировать ключ</button>
+                    </div>
+                </div>
+                
+                <div class="section" style="background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%); border-left: 4px solid var(--primary);">
+                    <h2 class="section-title">ℹ️ Информация об API</h2>
+                    <ul style="color: var(--gray); line-height: 1.8; padding-left: 20px;">
+                        <li>API-ключи позволяют интегрировать DocScan AI с вашими системами</li>
+                        <li>Используйте заголовок <code>X-API-Key</code> или <code>Authorization: Bearer &lt;ключ&gt;</code> в запросах</li>
+                        <li>API доступен по адресу: <code>/api/v1/analyze</code></li>
+                        <li>Вы можете создать несколько ключей для разных систем</li>
+                        <li>Деактивированные ключи можно активировать снова</li>
+                        <li>Удаленные ключи восстановить нельзя</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Section: Partners -->
             <div id="section-partners" class="content-section">
                 <h1 style="color: var(--dark); margin-bottom: 30px; font-size: 2rem;">Партнерская программа</h1>
@@ -1403,6 +1444,12 @@
         
         // Управление API-ключами
         async function loadUserAPIKeys() {
+            const listDiv = document.getElementById('apiKeysList');
+            if (!listDiv) {
+                console.warn('Элемент apiKeysList не найден. Секция API-ключей может быть недоступна для вашего тарифа.');
+                return;
+            }
+            
             try {
                 const response = await fetch('/api/user/api-keys', {
                     method: 'GET',
@@ -1410,7 +1457,6 @@
                 });
                 const result = await response.json();
                 
-                const listDiv = document.getElementById('apiKeysList');
                 if (!result.success || !result.keys || result.keys.length === 0) {
                     listDiv.innerHTML = '<p style="color: var(--gray);">У вас нет API-ключей. Создайте первый ключ ниже.</p>';
                     return;
@@ -1447,7 +1493,10 @@
                 listDiv.innerHTML = html;
             } catch (error) {
                 console.error('Ошибка загрузки API-ключей:', error);
-                document.getElementById('apiKeysList').innerHTML = '<p style="color: var(--danger);">Ошибка загрузки API-ключей</p>';
+                const listDiv = document.getElementById('apiKeysList');
+                if (listDiv) {
+                    listDiv.innerHTML = '<p style="color: var(--danger);">Ошибка загрузки API-ключей</p>';
+                }
             }
         }
         

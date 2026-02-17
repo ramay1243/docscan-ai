@@ -493,6 +493,7 @@ def download_analysis():
         branding_settings = None
         user_id = data.get('user_id') or session.get('user_id')
         if user_id:
+            from app import app
             branding_settings = app.user_manager.get_branding_settings(user_id)
         
         # Генерируем файл в зависимости от формата

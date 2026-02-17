@@ -2986,8 +2986,11 @@ def admin_panel():
                         document.getElementById('usersList').innerHTML = html;
                     });
             }
-            
-            registerFunction('loadUsers', loadUsers);
+            // Регистрируем loadUsers глобально сразу после определения
+            if (typeof loadUsers === 'function') {
+                window.loadUsers = loadUsers;
+                console.log('✅ loadUsers зарегистрирована глобально');
+            }
 
             function getPlanName(plan) {
                 const names = {free: 'Бесплатный', basic: 'Базовый', premium: 'Премиум'};
@@ -3172,8 +3175,11 @@ def admin_panel():
                     loadWhitelistedIPs();
                 });
             }
-            
-            registerFunction('loadWhitelistedIPs', loadWhitelistedIPs);
+            // Регистрируем loadWhitelistedIPs глобально сразу после определения
+            if (typeof loadWhitelistedIPs === 'function') {
+                window.loadWhitelistedIPs = loadWhitelistedIPs;
+                console.log('✅ loadWhitelistedIPs зарегистрирована глобально');
+            }
             
             // Загружаем белый список IP при загрузке страницы
             document.addEventListener('DOMContentLoaded', function() {

@@ -3269,6 +3269,16 @@ def admin_panel():
                         }
                         
                         document.getElementById('backupsList').innerHTML = html;
+                        
+                        // Привязываем обработчики для кнопок удаления
+                        document.querySelectorAll('.delete-backup-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const filename = this.getAttribute('data-filename');
+                                if (filename && typeof deleteBackup === 'function') {
+                                    deleteBackup(filename);
+                                }
+                            });
+                        });
                     } else {
                         document.getElementById('backupsList').innerHTML = '<div style="color: #e53e3e; padding: 20px;">❌ Ошибка загрузки: ' + result.error + '</div>';
                     }

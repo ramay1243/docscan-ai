@@ -283,6 +283,31 @@ def news():
     
     return render_template('news.html', updates=updates, news_items=news_items)
 
+@main_bp.route('/news/<slug>')
+def full_news(slug):
+    """Страница полной новости"""
+    from app import app
+    from flask import abort
+    
+    full_news = app.user_manager.get_full_news_by_slug(slug)
+    
+    if not full_news:
+        abort(404)
+    
+    RussianLogger.log_page_view(f"Полная новость: {full_news.title}")
+    
+    # Получаем похожие новости
+    related_news = app.user_manager.get_related_full_news(slug, category=full_news.category, limit=5)
+    
+    # Получаем последние новости
+    latest_news = app.user_manager.get_all_full_news(limit=10, is_published=True)
+    latest_news = [n for n in latest_news if n['slug'] != slug][:5]
+    
+    return render_template('full_news.html', 
+                         full_news=full_news,
+                         related_news=related_news,
+                         latest_news=latest_news)
+
 @main_bp.route('/questions')
 def questions():
     """Страница со списком вопросов"""

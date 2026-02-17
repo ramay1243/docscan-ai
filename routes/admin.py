@@ -453,6 +453,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="news">
                     <span>📰</span> Новости
                 </a>
+                <a href="#" class="menu-item" data-section="full-news">
+                    <span>📄</span> Полные новости
+                </a>
                 <a href="#" class="menu-item" data-section="questions">
                     <span>❓</span> Вопросы и ответы
                 </a>
@@ -865,6 +868,106 @@ def admin_panel():
                     </div>
                 </div>
                 
+                <!-- Секция: Полные новости -->
+                <div id="section-full-news" class="content-section">
+                    <h2 class="section-header">📄 Управление полными новостями</h2>
+                    <p>Создавайте и редактируйте полные новостные статьи с HTML-контентом</p>
+                    
+                    <div class="card">
+                        <div style="margin-bottom: 20px;">
+                            <button onclick="showFullNewsForm()" style="background: #48bb78; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; margin-right: 10px;">➕ Создать полную новость</button>
+                            <select id="fullNewsCategoryFilter" onchange="loadFullNews()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <option value="">Все категории</option>
+                                <option value="Недвижимость">Недвижимость</option>
+                                <option value="Финансы">Финансы</option>
+                                <option value="Юридические новости">Юридические новости</option>
+                                <option value="Технологии">Технологии</option>
+                                <option value="Общие новости">Общие новости</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Форма добавления/редактирования полной новости -->
+                        <div id="fullNewsFormContainer" style="display: none; background: #f7fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 id="fullNewsFormTitle">Создать полную новость</h3>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Slug (URL):</label>
+                                <input type="text" id="fullNewsSlug" placeholder="kak-poluchit-semejnuyu-ipoteku" 
+                                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                                <small style="color: #666;">Только латинские буквы, цифры и дефисы. URL будет: /news/[slug]</small>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Заголовок:</label>
+                                <input type="text" id="fullNewsTitle" placeholder="Введите заголовок новости" 
+                                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Краткое описание (для карточки):</label>
+                                <textarea id="fullNewsShortDescription" rows="3" placeholder="Краткое описание, которое будет отображаться в карточке новости..." 
+                                          style="width: 100%; max-width: 800px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Полный HTML-контент:</label>
+                                <textarea id="fullNewsContent" rows="15" placeholder="Полный текст новости в формате HTML..." 
+                                          style="width: 100%; max-width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace;"></textarea>
+                                <small style="color: #666;">Можно использовать HTML-теги: &lt;p&gt;, &lt;h2&gt;, &lt;h3&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;, &lt;img&gt; и др.</small>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Категория:</label>
+                                <select id="fullNewsCategory" style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                                    <option value="">Без категории</option>
+                                    <option value="Недвижимость">Недвижимость</option>
+                                    <option value="Финансы">Финансы</option>
+                                    <option value="Юридические новости">Юридические новости</option>
+                                    <option value="Технологии">Технологии</option>
+                                    <option value="Общие новости">Общие новости</option>
+                                </select>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL изображения обложки:</label>
+                                <input type="text" id="fullNewsImageUrl" placeholder="https://example.com/image.jpg" 
+                                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Автор:</label>
+                                <input type="text" id="fullNewsAuthor" placeholder="Редакция DocScan" 
+                                       style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Meta Title (для SEO, опционально):</label>
+                                <input type="text" id="fullNewsMetaTitle" placeholder="Если не указан, будет использован заголовок" 
+                                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Meta Description (для SEO, опционально):</label>
+                                <textarea id="fullNewsMetaDescription" rows="2" placeholder="Краткое описание для поисковых систем..." 
+                                          style="width: 100%; max-width: 800px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;"></textarea>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Meta Keywords (для SEO, опционально):</label>
+                                <input type="text" id="fullNewsMetaKeywords" placeholder="ключевое слово 1, ключевое слово 2" 
+                                       style="width: 100%; max-width: 600px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Дата публикации:</label>
+                                <input type="date" id="fullNewsPublishedAt" 
+                                       style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="checkbox" id="fullNewsIsPublished" checked style="width: 20px; height: 20px;">
+                                    <span>Опубликовано (если снять галочку, новость будет в черновиках)</span>
+                                </label>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <button onclick="saveFullNews()" id="saveFullNewsBtn" style="background: #4299e1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">💾 Сохранить</button>
+                                <button onclick="cancelFullNewsForm()" style="background: #e2e8f0; color: #2d3748; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Отмена</button>
+                            </div>
+                        </div>
+                        
+                        <div id="fullNewsList"></div>
+                    </div>
+                </div>
+                
                 <!-- Секция: Вопросы и ответы -->
                 <div id="section-questions" class="content-section">
                     <h2 class="section-header">❓ Управление вопросами и ответами</h2>
@@ -1024,6 +1127,7 @@ def admin_panel():
                         'campaigns': '📧 Email-рассылки',
                         'articles': '📝 Статьи',
                         'news': '📰 Новости',
+                        'full-news': '📄 Полные новости',
                         'questions': '❓ Вопросы и ответы',
                         'notifications': '🔔 Уведомления',
                         'partners': '🎁 Партнерская программа'
@@ -1071,6 +1175,27 @@ def admin_panel():
                                         window.loadNews();
                                     } else {
                                         console.error('❌ Функция loadNews все еще не найдена');
+                                    }
+                                }, 100);
+                            }
+                        }
+                    } else if (sectionName === 'full-news') {
+                        const fullNewsList = document.getElementById('fullNewsList');
+                        if (fullNewsList && fullNewsList.innerHTML === '') {
+                            console.log('📥 Загрузка полных новостей...');
+                            if (typeof loadFullNews === 'function') {
+                                loadFullNews();
+                            } else if (typeof window.loadFullNews === 'function') {
+                                window.loadFullNews();
+                            } else {
+                                console.error('⚠️ Функция loadFullNews не найдена, попытка загрузки через setTimeout...');
+                                setTimeout(function() {
+                                    if (typeof loadFullNews === 'function') {
+                                        loadFullNews();
+                                    } else if (typeof window.loadFullNews === 'function') {
+                                        window.loadFullNews();
+                                    } else {
+                                        console.error('❌ Функция loadFullNews все еще не найдена');
                                     }
                                 }, 100);
                             }
@@ -1760,6 +1885,222 @@ def admin_panel():
                 window.cancelNewsForm = cancelNewsForm;
                 window.deleteNews = deleteNews;
                 console.log('✅ Функции для новостей зарегистрированы глобально');
+            }
+            
+            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ПОЛНЫМИ НОВОСТЯМИ ==========
+            let editingFullNewsId = null;
+            
+            function loadFullNews() {
+                const categoryFilter = document.getElementById('fullNewsCategoryFilter') ? document.getElementById('fullNewsCategoryFilter').value : '';
+                let url = '/admin/full-news';
+                if (categoryFilter) {
+                    url += '?category=' + categoryFilter;
+                }
+                
+                fetch(url, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(news => {
+                        const newsListEl = document.getElementById('fullNewsList');
+                        if (!newsListEl) return;
+                        
+                        let html = '';
+                        if (!news || news.length === 0) {
+                            html = '<p style="color: #999; padding: 20px;">Нет полных новостей</p>';
+                        } else {
+                            news.forEach(item => {
+                                html += createFullNewsCard(item);
+                            });
+                        }
+                        newsListEl.innerHTML = html;
+                    })
+                    .catch(err => {
+                        console.error('Ошибка загрузки полных новостей:', err);
+                        const newsListEl = document.getElementById('fullNewsList');
+                        if (newsListEl) newsListEl.innerHTML = '<p style="color: #f56565; padding: 20px;">Ошибка загрузки данных</p>';
+                    });
+            }
+            
+            function createFullNewsCard(item) {
+                const statusBadge = item.is_published ? '<span style="background: #48bb78; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px;">Опубликовано</span>' : '<span style="background: #cbd5e0; color: #2d3748; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px;">Черновик</span>';
+                const categoryBadge = item.category ? `<span style="background: #667eea; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px;">${item.category}</span>` : '';
+                const viewsCount = item.views_count || 0;
+                
+                return `
+                    <div class="user-card" style="margin: 10px 0; border-left: 4px solid #667eea;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">
+                                    ${categoryBadge}
+                                    ${statusBadge}
+                                    <span style="color: #999;">👁️ ${viewsCount} просмотров</span>
+                                </div>
+                                <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 5px;">
+                                    <a href="/news/${item.slug}" target="_blank" style="color: #667eea; text-decoration: none;">${item.title}</a>
+                                </div>
+                                <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">
+                                    📅 ${item.published_at ? item.published_at.substring(0, 10) : 'Не указана'} | 
+                                    ✍️ ${item.author || 'Редакция DocScan'} | 
+                                    🔗 /news/${item.slug}
+                                </div>
+                                <div style="color: #2d3748; margin-bottom: 10px; line-height: 1.5;">
+                                    ${item.short_description.substring(0, 200)}${item.short_description.length > 200 ? '...' : ''}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 5px; flex-direction: column;">
+                                <button onclick="editFullNews(${item.id})" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">✏️ Редактировать</button>
+                                <button onclick="deleteFullNews(${item.id})" style="background: #e53e3e; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">🗑️ Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function showFullNewsForm() {
+                editingFullNewsId = null;
+                document.getElementById('fullNewsFormTitle').textContent = 'Создать полную новость';
+                document.getElementById('saveFullNewsBtn').textContent = '💾 Создать';
+                document.getElementById('fullNewsFormContainer').style.display = 'block';
+                
+                // Очищаем форму
+                document.getElementById('fullNewsSlug').value = '';
+                document.getElementById('fullNewsTitle').value = '';
+                document.getElementById('fullNewsShortDescription').value = '';
+                document.getElementById('fullNewsContent').value = '';
+                document.getElementById('fullNewsCategory').value = '';
+                document.getElementById('fullNewsImageUrl').value = '';
+                document.getElementById('fullNewsAuthor').value = 'Редакция DocScan';
+                document.getElementById('fullNewsMetaTitle').value = '';
+                document.getElementById('fullNewsMetaDescription').value = '';
+                document.getElementById('fullNewsMetaKeywords').value = '';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fullNewsPublishedAt').value = today;
+                document.getElementById('fullNewsIsPublished').checked = true;
+                
+                document.getElementById('fullNewsFormContainer').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function editFullNews(newsId) {
+                fetch(`/admin/full-news/${newsId}`, {credentials: 'include'})
+                    .then(r => r.json())
+                    .then(result => {
+                        if (result.success) {
+                            const item = result.news;
+                            editingFullNewsId = newsId;
+                            
+                            document.getElementById('fullNewsFormTitle').textContent = 'Редактировать полную новость';
+                            document.getElementById('saveFullNewsBtn').textContent = '💾 Сохранить изменения';
+                            document.getElementById('fullNewsFormContainer').style.display = 'block';
+                            
+                            document.getElementById('fullNewsSlug').value = item.slug;
+                            document.getElementById('fullNewsTitle').value = item.title;
+                            document.getElementById('fullNewsShortDescription').value = item.short_description;
+                            document.getElementById('fullNewsContent').value = item.full_content;
+                            document.getElementById('fullNewsCategory').value = item.category || '';
+                            document.getElementById('fullNewsImageUrl').value = item.image_url || '';
+                            document.getElementById('fullNewsAuthor').value = item.author || 'Редакция DocScan';
+                            document.getElementById('fullNewsMetaTitle').value = item.meta_title || '';
+                            document.getElementById('fullNewsMetaDescription').value = item.meta_description || '';
+                            document.getElementById('fullNewsMetaKeywords').value = item.meta_keywords || '';
+                            document.getElementById('fullNewsPublishedAt').value = item.published_at ? item.published_at.substring(0, 10) : new Date().toISOString().split('T')[0];
+                            document.getElementById('fullNewsIsPublished').checked = item.is_published !== false;
+                            
+                            document.getElementById('fullNewsFormContainer').scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            alert('❌ Ошибка загрузки новости');
+                        }
+                    });
+            }
+            
+            function saveFullNews() {
+                const slug = document.getElementById('fullNewsSlug').value.trim();
+                const title = document.getElementById('fullNewsTitle').value.trim();
+                const shortDescription = document.getElementById('fullNewsShortDescription').value.trim();
+                const fullContent = document.getElementById('fullNewsContent').value.trim();
+                const category = document.getElementById('fullNewsCategory').value;
+                const imageUrl = document.getElementById('fullNewsImageUrl').value.trim();
+                const author = document.getElementById('fullNewsAuthor').value.trim();
+                const metaTitle = document.getElementById('fullNewsMetaTitle').value.trim();
+                const metaDescription = document.getElementById('fullNewsMetaDescription').value.trim();
+                const metaKeywords = document.getElementById('fullNewsMetaKeywords').value.trim();
+                const publishedAt = document.getElementById('fullNewsPublishedAt').value;
+                const isPublished = document.getElementById('fullNewsIsPublished').checked;
+                
+                if (!slug || !title || !shortDescription || !fullContent) {
+                    alert('❌ Заполните все обязательные поля (slug, заголовок, краткое описание, полный контент)');
+                    return;
+                }
+                
+                const data = {
+                    slug: slug,
+                    title: title,
+                    short_description: shortDescription,
+                    full_content: fullContent,
+                    category: category || null,
+                    image_url: imageUrl || null,
+                    author: author || 'Редакция DocScan',
+                    meta_title: metaTitle || null,
+                    meta_description: metaDescription || null,
+                    meta_keywords: metaKeywords || null,
+                    published_at: publishedAt ? publishedAt + 'T00:00:00' : null,
+                    is_published: isPublished
+                };
+                
+                const url = editingFullNewsId ? `/admin/full-news/${editingFullNewsId}` : '/admin/full-news';
+                const method = editingFullNewsId ? 'PUT' : 'POST';
+                
+                fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(editingFullNewsId ? '✅ Полная новость обновлена!' : '✅ Полная новость создана!');
+                        cancelFullNewsForm();
+                        loadFullNews();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Ошибка сохранения: ' + err);
+                });
+            }
+            
+            function cancelFullNewsForm() {
+                editingFullNewsId = null;
+                document.getElementById('fullNewsFormContainer').style.display = 'none';
+            }
+            
+            function deleteFullNews(newsId) {
+                if (!confirm('Удалить полную новость? Это действие нельзя отменить!')) return;
+                
+                fetch(`/admin/full-news/${newsId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Полная новость удалена!');
+                        loadFullNews();
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                });
+            }
+            
+            // Регистрируем функции для полных новостей глобально
+            if (typeof window !== 'undefined') {
+                window.loadFullNews = loadFullNews;
+                window.showFullNewsForm = showFullNewsForm;
+                window.editFullNews = editFullNews;
+                window.saveFullNews = saveFullNews;
+                window.cancelFullNewsForm = cancelFullNewsForm;
+                window.deleteFullNews = deleteFullNews;
+                console.log('✅ Функции для полных новостей зарегистрированы глобально');
             }
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВОПРОСАМИ ==========
@@ -3628,6 +3969,103 @@ def update_news(news_id):
             return jsonify({'success': False, 'error': 'Новость не найдена'}), 404
         
         return jsonify({'success': True, 'news': news.to_dict()})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/full-news')
+@require_admin_auth
+def get_full_news():
+    """Получить список полных новостей"""
+    from app import app
+    from flask import request
+    
+    category = request.args.get('category', None)
+    news_list = app.user_manager.get_all_full_news(category=category, limit=100)
+    
+    return jsonify(news_list)
+
+@admin_bp.route('/full-news/<int:news_id>')
+@require_admin_auth
+def get_full_news_item(news_id):
+    """Получить полную новость по ID"""
+    from app import app
+    
+    news = app.user_manager.get_full_news(news_id)
+    if not news:
+        return jsonify({'success': False, 'error': 'Новость не найдена'}), 404
+    
+    return jsonify({'success': True, 'news': news.to_dict()})
+
+@admin_bp.route('/full-news', methods=['POST'])
+@require_admin_auth
+def create_full_news():
+    """Создать новую полную новость"""
+    from app import app
+    from flask import request, session
+    
+    data = request.get_json()
+    
+    if not data or not data.get('slug') or not data.get('title') or not data.get('short_description') or not data.get('full_content'):
+        return jsonify({'success': False, 'error': 'Заполните все обязательные поля (slug, title, short_description, full_content)'}), 400
+    
+    try:
+        news = app.user_manager.create_full_news(
+            slug=data['slug'],
+            title=data['title'],
+            short_description=data['short_description'],
+            full_content=data['full_content'],
+            category=data.get('category'),
+            image_url=data.get('image_url'),
+            author=data.get('author'),
+            meta_title=data.get('meta_title'),
+            meta_description=data.get('meta_description'),
+            meta_keywords=data.get('meta_keywords'),
+            published_at=data.get('published_at'),
+            created_by=session.get('admin_username', 'admin')
+        )
+        
+        if not news:
+            return jsonify({'success': False, 'error': 'Новость с таким slug уже существует'}), 400
+        
+        return jsonify({'success': True, 'news': news.to_dict()})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/full-news/<int:news_id>', methods=['PUT'])
+@require_admin_auth
+def update_full_news(news_id):
+    """Обновить полную новость"""
+    from app import app
+    from flask import request
+    
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'success': False, 'error': 'Нет данных для обновления'}), 400
+    
+    try:
+        news = app.user_manager.update_full_news(news_id, **data)
+        
+        if not news:
+            return jsonify({'success': False, 'error': 'Новость не найдена'}), 404
+        
+        return jsonify({'success': True, 'news': news.to_dict()})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/full-news/<int:news_id>', methods=['DELETE'])
+@require_admin_auth
+def delete_full_news(news_id):
+    """Удалить полную новость"""
+    from app import app
+    
+    try:
+        success = app.user_manager.delete_full_news(news_id)
+        
+        if not success:
+            return jsonify({'success': False, 'error': 'Новость не найдена'}), 404
+        
+        return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 

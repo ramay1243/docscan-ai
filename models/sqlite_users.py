@@ -151,6 +151,7 @@ class NewsItem(db.Model):
     created_at = db.Column(db.String(30), nullable=False)  # Дата создания записи
     updated_at = db.Column(db.String(30), nullable=True)  # Дата последнего обновления
     created_by = db.Column(db.String(50), nullable=True)  # Кто создал (username админа)
+    full_news_id = db.Column(db.Integer, db.ForeignKey('full_news.id'), nullable=True)  # Связь с полной новостью
     
     def to_dict(self):
         return {
@@ -163,6 +164,51 @@ class NewsItem(db.Model):
             'link_text': self.link_text,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
+            'created_by': self.created_by,
+            'full_news_id': self.full_news_id
+        }
+
+
+class FullNews(db.Model):
+    """Таблица для хранения полных новостей (статей)"""
+    __tablename__ = 'full_news'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(200), unique=True, nullable=False)  # URL-адрес новости
+    title = db.Column(db.String(500), nullable=False)  # Заголовок
+    short_description = db.Column(db.Text, nullable=False)  # Краткое описание для карточки
+    full_content = db.Column(db.Text, nullable=False)  # Полный HTML-контент
+    category = db.Column(db.String(50), nullable=True)  # Категория (Недвижимость, Финансы, и т.д.)
+    image_url = db.Column(db.String(500), nullable=True)  # URL изображения обложки
+    author = db.Column(db.String(100), nullable=True, default='Редакция DocScan')  # Автор
+    meta_title = db.Column(db.String(200), nullable=True)  # Meta title для SEO
+    meta_description = db.Column(db.String(500), nullable=True)  # Meta description для SEO
+    meta_keywords = db.Column(db.String(300), nullable=True)  # Meta keywords для SEO
+    published_at = db.Column(db.String(30), nullable=False)  # Дата публикации
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания записи
+    updated_at = db.Column(db.String(30), nullable=True)  # Дата последнего обновления
+    is_published = db.Column(db.Boolean, default=True)  # Опубликовано или черновик
+    views_count = db.Column(db.Integer, default=0)  # Количество просмотров
+    created_by = db.Column(db.String(50), nullable=True)  # Кто создал (username админа)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'slug': self.slug,
+            'title': self.title,
+            'short_description': self.short_description,
+            'full_content': self.full_content,
+            'category': self.category,
+            'image_url': self.image_url,
+            'author': self.author,
+            'meta_title': self.meta_title,
+            'meta_description': self.meta_description,
+            'meta_keywords': self.meta_keywords,
+            'published_at': self.published_at,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'is_published': self.is_published,
+            'views_count': self.views_count,
             'created_by': self.created_by
         }
 
@@ -1350,6 +1396,135 @@ class SQLiteUserManager:
         
         logger.info(f"🗑️ Удалена новость: {news.title} (ID: {news_id})")
         return True
+    
+    # ========== МЕТОДЫ ДЛЯ РАБОТЫ С ПОЛНЫМИ НОВОСТЯМИ ==========
+    
+    def create_full_news(self, slug, title, short_description, full_content, category=None,
+                         image_url=None, author=None, meta_title=None, meta_description=None,
+                         meta_keywords=None, published_at=None, created_by=None):
+        """Создает полную новость"""
+        from models.sqlite_users import FullNews
+        
+        # Проверяем уникальность slug
+        existing = FullNews.query.filter_by(slug=slug).first()
+        if existing:
+            logger.error(f"❌ Новость с slug '{slug}' уже существует")
+            return None
+        
+        if not published_at:
+            published_at = datetime.now().isoformat()
+        
+        full_news = FullNews(
+            slug=slug,
+            title=title,
+            short_description=short_description,
+            full_content=full_content,
+            category=category,
+            image_url=image_url,
+            author=author or 'Редакция DocScan',
+            meta_title=meta_title,
+            meta_description=meta_description,
+            meta_keywords=meta_keywords,
+            published_at=published_at,
+            created_at=datetime.now().isoformat(),
+            is_published=True,
+            views_count=0,
+            created_by=created_by
+        )
+        
+        self.db.session.add(full_news)
+        self.db.session.commit()
+        
+        logger.info(f"✅ Создана полная новость: {title} (slug: {slug})")
+        return full_news
+    
+    def get_full_news_by_slug(self, slug):
+        """Получает полную новость по slug"""
+        from models.sqlite_users import FullNews
+        
+        full_news = FullNews.query.filter_by(slug=slug, is_published=True).first()
+        if full_news:
+            # Увеличиваем счетчик просмотров
+            full_news.views_count = (full_news.views_count or 0) + 1
+            self.db.session.commit()
+        
+        return full_news
+    
+    def get_all_full_news(self, limit=100, category=None, is_published=None):
+        """Получает список всех полных новостей"""
+        from models.sqlite_users import FullNews
+        
+        query = FullNews.query
+        
+        if category:
+            query = query.filter_by(category=category)
+        
+        if is_published is not None:
+            query = query.filter_by(is_published=is_published)
+        
+        news_list = query.order_by(FullNews.published_at.desc()).limit(limit).all()
+        return [news.to_dict() for news in news_list]
+    
+    def get_full_news(self, news_id):
+        """Получает полную новость по ID"""
+        from models.sqlite_users import FullNews
+        
+        return FullNews.query.filter_by(id=news_id).first()
+    
+    def update_full_news(self, news_id, **kwargs):
+        """Обновляет полную новость"""
+        from models.sqlite_users import FullNews
+        
+        full_news = FullNews.query.filter_by(id=news_id).first()
+        if not full_news:
+            return None
+        
+        # Обновляем только переданные поля
+        updatable_fields = ['slug', 'title', 'short_description', 'full_content', 'category',
+                           'image_url', 'author', 'meta_title', 'meta_description', 'meta_keywords',
+                           'published_at', 'is_published']
+        
+        for field in updatable_fields:
+            if field in kwargs:
+                setattr(full_news, field, kwargs[field])
+        
+        full_news.updated_at = datetime.now().isoformat()
+        self.db.session.commit()
+        
+        logger.info(f"✅ Обновлена полная новость ID: {news_id}")
+        return full_news
+    
+    def delete_full_news(self, news_id):
+        """Удаляет полную новость"""
+        from models.sqlite_users import FullNews
+        
+        full_news = FullNews.query.filter_by(id=news_id).first()
+        if not full_news:
+            return False
+        
+        # Удаляем связь в NewsItem если есть
+        from models.sqlite_users import NewsItem
+        news_items = NewsItem.query.filter_by(full_news_id=news_id).all()
+        for item in news_items:
+            item.full_news_id = None
+        
+        self.db.session.delete(full_news)
+        self.db.session.commit()
+        
+        logger.info(f"✅ Удалена полная новость ID: {news_id}")
+        return True
+    
+    def get_related_full_news(self, current_slug, category=None, limit=5):
+        """Получает похожие полные новости"""
+        from models.sqlite_users import FullNews
+        
+        query = FullNews.query.filter_by(is_published=True).filter(FullNews.slug != current_slug)
+        
+        if category:
+            query = query.filter_by(category=category)
+        
+        related = query.order_by(FullNews.published_at.desc()).limit(limit).all()
+        return [news.to_dict() for news in related]
     
     # ========== МЕТОДЫ ДЛЯ РАБОТЫ С ВОПРОСАМИ И ОТВЕТАМИ ==========
     

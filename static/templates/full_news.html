@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if full_news.meta_title %}{{ full_news.meta_title }}{% else %}{{ full_news.title }} | DocScan AI{% endif %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% if full_news.meta_description %}{{ full_news.meta_description }}{% else %}{{ full_news.short_description[:155] }}{% if full_news.short_description|length > 155 %}...{% endif %}{% endif %}">
+    {% if full_news.meta_keywords %}
+    <meta name="keywords" content="{{ full_news.meta_keywords }}">
+    {% endif %}
+    <meta name="author" content="{{ full_news.author or 'DocScan AI' }}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% if full_news.meta_title %}{{ full_news.meta_title }}{% else %}{{ full_news.title }}{% endif %}">
+    <meta property="og:description" content="{% if full_news.meta_description %}{{ full_news.meta_description }}{% else %}{{ full_news.short_description[:200] }}{% if full_news.short_description|length > 200 %}...{% endif %}{% endif %}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://docscan-ai.ru/news/{{ full_news.slug }}">
+    <meta property="og:site_name" content="DocScan AI">
+    {% if full_news.image_url %}
+    <meta property="og:image" content="{{ full_news.image_url }}">
+    {% endif %}
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% if full_news.meta_title %}{{ full_news.meta_title }}{% else %}{{ full_news.title }}{% endif %}">
+    <meta name="twitter:description" content="{% if full_news.meta_description %}{{ full_news.meta_description }}{% else %}{{ full_news.short_description[:200] }}{% if full_news.short_description|length > 200 %}...{% endif %}{% endif %}">
+    {% if full_news.image_url %}
+    <meta name="twitter:image" content="{{ full_news.image_url }}">
+    {% endif %}
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://docscan-ai.ru/news/{{ full_news.slug }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Yandex.RTB -->
+    <script>window.yaContextCb=window.yaContextCb||[]</script>
+    <script src="https://yandex.ru/ads/system/context.js" async></script>
+    
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --secondary: #7209b7;
+        --accent: #f72585;
+        --success: #4cc9f0;
+        --warning: #f8961e;
+        --danger: #f94144;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --border: #e9ecef;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    /* Header */
+    .main-header {
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+    }
+    
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .logo-icon {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .nav-links {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .nav-link {
+        color: var(--gray);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+        position: relative;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    .nav-link:hover {
+        color: var(--primary);
+    }
+    
+    .nav-link.active {
+        color: var(--primary);
+    }
+    
+    .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--primary);
+        border-radius: 2px;
+    }
+    
+    .cta-button {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 10px 20px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        font-size: 0.85rem;
+    }
+    
+    .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+    }
+    
+    /* Burger Menu */
+    .burger-menu {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .burger-icon {
+        background: white;
+        padding: 15px 12px;
+        border-radius: 50%;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+    
+    .burger-icon:hover {
+        background: var(--primary);
+        transform: scale(1.1);
+    }
+    
+    .burger-line {
+        width: 20px;
+        height: 2px;
+        background: var(--dark);
+        transition: all 0.3s ease;
+    }
+    
+    .burger-icon:hover .burger-line {
+        background: white;
+    }
+    
+    .menu-dropdown {
+        display: none;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        padding: 15px 0;
+        min-width: 200px;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .menu-dropdown a {
+        display: block;
+        padding: 12px 20px;
+        text-decoration: none;
+        color: var(--dark);
+        transition: all 0.2s ease;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .menu-dropdown a:hover {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .menu-dropdown a:last-child {
+        border-bottom: none;
+    }
+    
+    .menu-dropdown.show {
+        display: block;
+    }
+    
+    /* Breadcrumbs */
+    .breadcrumbs {
+        padding: 20px 0;
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+    
+    .breadcrumbs a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .breadcrumbs a:hover {
+        text-decoration: underline;
+    }
+    
+    /* News Content */
+    .news-container {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin: 40px 0;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+    
+    .news-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--border);
+    }
+    
+    .news-category {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    
+    .news-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 15px;
+        color: var(--dark);
+    }
+    
+    .news-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+    
+    .news-meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .news-image {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: 15px;
+        margin: 30px 0;
+    }
+    
+    .news-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: var(--dark);
+    }
+    
+    .news-content h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 30px 0 15px;
+        color: var(--dark);
+    }
+    
+    .news-content h3 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 25px 0 12px;
+        color: var(--dark);
+    }
+    
+    .news-content p {
+        margin-bottom: 15px;
+    }
+    
+    .news-content ul, .news-content ol {
+        margin: 15px 0 15px 30px;
+    }
+    
+    .news-content li {
+        margin-bottom: 8px;
+    }
+    
+    .news-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+    
+    .news-content a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .news-content a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Related News */
+    .related-news {
+        margin: 40px 0;
+    }
+    
+    .related-news-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 25px;
+        color: var(--dark);
+    }
+    
+    .related-news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .related-news-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        text-decoration: none;
+        color: var(--dark);
+        display: block;
+    }
+    
+    .related-news-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .related-news-card h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--dark);
+    }
+    
+    .related-news-card p {
+        color: var(--gray);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    /* Footer */
+    .main-footer {
+        background: var(--dark);
+        color: white;
+        padding: 50px 0 30px;
+        margin-top: 80px;
+    }
+    
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-bottom: 40px;
+    }
+    
+    .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .footer-link {
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    
+    .footer-link:hover {
+        color: white;
+    }
+    
+    .copyright {
+        text-align: center;
+        padding-top: 30px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.5);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .nav-links { display: none; }
+        .burger-menu { display: block; }
+        .news-title { font-size: 1.8rem; }
+        .news-container { padding: 20px; }
+        .related-news-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/news" class="nav-link active">Новости</a>
+                    <a href="/calculator-penalty" class="nav-link">Калькулятор</a>
+                    <a href="/questions" class="nav-link">Вопросы</a>
+                    <a href="/articles" class="nav-link">Статьи</a>
+                    <a href="/faq" class="nav-link">FAQ</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
+                </nav>
+                
+                <!-- Burger Menu -->
+                <div class="burger-menu">
+                    <div class="burger-icon" onclick="toggleMenu()">
+                        <div class="burger-line"></div>
+                        <div class="burger-line"></div>
+                        <div class="burger-line"></div>
+                    </div>
+                    <div class="menu-dropdown" id="menuDropdown">
+                        <a href="/">🏠 Главная</a>
+                        <a href="/news">📰 Новости</a>
+                        <a href="/calculator-penalty">🧮 Калькулятор</a>
+                        <a href="/questions">Вопросы</a>
+                        <a href="/articles">📚 Статьи</a>
+                        <a href="/faq">❓ FAQ</a>
+                        <a href="/contact">📞 Контакты</a>
+                        <div id="mobileAuthButtons" style="border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
+                            <a href="/login">🔐 Войти</a>
+                            <a href="/register" style="background: var(--primary); color: white; font-weight: 600;">📝 Регистрация</a>
+                        </div>
+                        <div id="mobileUserMenu" style="display: none; border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
+                            <a href="/cabinet">👤 Личный кабинет</a>
+                            <a href="/logout" style="color: var(--danger);">🚪 Выход</a>
+                        </div>
+                        <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumbs -->
+    <div class="container">
+        <nav class="breadcrumbs">
+            <a href="/">Главная</a> / 
+            <a href="/news">Новости</a> / 
+            <span>{{ full_news.title[:50] }}{% if full_news.title|length > 50 %}...{% endif %}</span>
+        </nav>
+    </div>
+
+    <!-- Yandex.RTB R-A-18680294-1 -->
+    <div style="text-align: center; margin: 30px auto; max-width: 1200px; padding: 0 20px;">
+        <div id="yandex_rtb_R-A-18680294-1"></div>
+        <script>
+        window.yaContextCb.push(() => {
+            Ya.Context.AdvManager.render({
+                "blockId": "R-A-18680294-1",
+                "renderTo": "yandex_rtb_R-A-18680294-1"
+            })
+        })
+        </script>
+    </div>
+
+    <!-- News Content -->
+    <div class="container">
+        <article class="news-container">
+            <div class="news-header">
+                {% if full_news.category %}
+                <span class="news-category">{{ full_news.category }}</span>
+                {% endif %}
+                <h1 class="news-title">{{ full_news.title }}</h1>
+                <div class="news-meta">
+                    <span>📅 {{ full_news.published_at[:10] }}</span>
+                    {% if full_news.author %}
+                    <span>✍️ {{ full_news.author }}</span>
+                    {% endif %}
+                    {% if full_news.views_count %}
+                    <span>👁️ {{ full_news.views_count }} просмотров</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if full_news.image_url %}
+            <img src="{{ full_news.image_url }}" alt="{{ full_news.title }}" class="news-image">
+            {% endif %}
+            
+            <div class="news-content">
+                {{ full_news.full_content|safe }}
+            </div>
+        </article>
+        
+        <!-- Yandex.RTB R-A-18680294-4 -->
+        <div style="text-align: center; margin: 30px auto; max-width: 100%;">
+            <div id="yandex_rtb_R-A-18680294-4"></div>
+            <script>
+            window.yaContextCb.push(() => {
+                Ya.Context.AdvManager.render({
+                    "blockId": "R-A-18680294-4",
+                    "renderTo": "yandex_rtb_R-A-18680294-4"
+                })
+            })
+            </script>
+        </div>
+        
+        <!-- Related News -->
+        {% if related_news and related_news|length > 0 %}
+        <div class="related-news">
+            <h2 class="related-news-title">Похожие новости</h2>
+            <div class="related-news-grid">
+                {% for news in related_news %}
+                <a href="/news/{{ news.slug }}" class="related-news-card">
+                    <h3>{{ news.title }}</h3>
+                    <p>{{ news.short_description[:150] }}{% if news.short_description|length > 150 %}...{% endif %}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if latest_news and latest_news|length > 0 %}
+        <div class="related-news">
+            <h2 class="related-news-title">Последние новости</h2>
+            <div class="related-news-grid">
+                {% for news in latest_news %}
+                <a href="/news/{{ news.slug }}" class="related-news-card">
+                    <h3>{{ news.title }}</h3>
+                    <p>{{ news.short_description[:150] }}{% if news.short_description|length > 150 %}...{% endif %}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Проверка документов онлайн бесплатно с ИИ. Автоматическая проверка документов и договоров с искусственным интеллектом за 60 секунд.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/proverka-dokumentov-onlayn" class="footer-link">Проверка документов онлайн</a>
+                        <a href="/news" class="footer-link">Новости</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/mobile-app" class="footer-link">📱 Приложение</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
+                        <a href="/questions" class="footer-link">Спросить онлайн</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                        <a href="/partners" class="footer-link">Партнерская программа</a>
+                        <a href="/tariffs" class="footer-link">Тарифы</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Burger menu toggle
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.burger-menu');
+            const dropdown = document.getElementById('menuDropdown');
+            
+            if (!menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Проверяем авторизацию при загрузке
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include',
+                    cache: 'no-cache'
+                });
+                
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
+                
+                if (data.authenticated) {
+                    if (authButtons) authButtons.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'flex';
+                    if (mobileAuth) mobileAuth.style.display = 'none';
+                    if (mobileUser) mobileUser.style.display = 'block';
+                } else {
+                    if (authButtons) authButtons.style.display = 'flex';
+                    if (userMenu) userMenu.style.display = 'none';
+                    if (mobileAuth) mobileAuth.style.display = 'block';
+                    if (mobileUser) mobileUser.style.display = 'none';
+                }
+            } catch (error) {
+                // Auth check error handled silently
+                const authButtons = document.getElementById('authButtons');
+                const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
+                if (authButtons) authButtons.style.display = 'flex';
+                if (userMenu) userMenu.style.display = 'none';
+                if (mobileAuth) mobileAuth.style.display = 'block';
+                if (mobileUser) mobileUser.style.display = 'none';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            setTimeout(checkAuth, 500);
+        });
+        if (document.readyState !== 'loading') {
+            checkAuth();
+            setTimeout(checkAuth, 500);
+        }
+    </script>
+    
+    <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-18680294-2",
+            "type": "floorAd",
+            "platform": "touch"
+        })
+    })
+    </script>    
+    <!-- Yandex.RTB R-A-18680294-3 (floorAd для десктопа) -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-18680294-3",
+            "type": "floorAd",
+            "platform": "desktop"
+        })
+    })
+    </script>
+</body>
+</html>
+

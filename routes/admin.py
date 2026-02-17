@@ -2946,8 +2946,8 @@ def admin_panel():
                                     <td style="padding: 10px;">${user.total_used || 0}</td>
                                     <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}/${getPlanLimit(user.plan || 'free')}</td>
                                     <td style="padding: 10px;">
-                                        <button onclick="setUserPlanQuick('${user.userId}', 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
-                                        <button onclick="setUserPlanQuick('${user.userId}', 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
+                                        <button onclick="setUserPlanQuick('${String(user.userId).replace(/'/g, "\\'")}', 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
+                                        <button onclick="setUserPlanQuick('${String(user.userId).replace(/'/g, "\\'")}', 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
                                     </td>
                                 </tr>
                             `;
@@ -2960,6 +2960,9 @@ def admin_panel():
             // Регистрируем loadUsers глобально сразу после определения
             if (typeof loadUsers === 'function') {
                 window.loadUsers = loadUsers;
+                console.log('✅ loadUsers зарегистрирована глобально');
+            } else {
+                console.error('❌ loadUsers не найдена при регистрации');
             }
 
             function getPlanName(plan) {
@@ -3209,7 +3212,7 @@ def admin_panel():
                                         <td style="padding: 10px;">${backup.size_mb} MB</td>
                                         <td style="padding: 10px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${backup.filename}</code></td>
                                         <td style="padding: 10px;">
-                                            <button onclick="deleteBackup('${backup.filename}')" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                            <button onclick="deleteBackup('${String(backup.filename).replace(/'/g, "\\'")}')" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                                 🗑️ Удалить
                                             </button>
                                         </td>

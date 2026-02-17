@@ -2976,14 +2976,25 @@ def admin_panel():
                                     <td style="padding: 10px;">${user.total_used || 0}</td>
                                     <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}/${getPlanLimit(user.plan || 'free')}</td>
                                     <td style="padding: 10px;">
-                                        <button onclick="setUserPlanQuick('${(user.userId || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}', 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
-                                        <button onclick="setUserPlanQuick('${(user.userId || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}', 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
+                                        <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="basic" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
+                                        <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="premium" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
                                     </td>
                                 </tr>
                             `;
                         });
                         html += '</tbody></table></div>';
                         document.getElementById('usersList').innerHTML = html;
+                        
+                        // Привязываем обработчики для кнопок быстрой установки тарифа
+                        document.querySelectorAll('.set-plan-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const userId = this.getAttribute('data-user-id');
+                                const plan = this.getAttribute('data-plan');
+                                if (userId && plan && typeof setUserPlanQuick === 'function') {
+                                    setUserPlanQuick(userId, plan);
+                                }
+                            });
+                        });
                     });
             }
             // Регистрируем loadUsers глобально сразу после определения
@@ -3347,7 +3358,9 @@ def admin_panel():
                         
                         // Показываем логотип, если есть
                         if (branding.logo_path) {
-                            document.getElementById('brandingLogoPreviewImg').src = '/' + branding.logo_path.replace(/\\/g, '/');
+                            // Заменяем обратные слеши на прямые для URL (безопасный способ)
+                            const logoPath = branding.logo_path.split('\\\\').join('/').split('\\').join('/');
+                            document.getElementById('brandingLogoPreviewImg').src = '/' + logoPath;
                             document.getElementById('brandingLogoPreview').style.display = 'block';
                         } else {
                             document.getElementById('brandingLogoPreview').style.display = 'none';

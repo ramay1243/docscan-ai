@@ -1615,6 +1615,9 @@ def admin_panel():
         </script>
         
         <script>
+            // НЕМЕДЛЕННАЯ РЕГИСТРАЦИЯ ВСЕХ ФУНКЦИЙ В WINDOW ПРИ ОПРЕДЕЛЕНИИ
+            // Это гарантирует, что функции будут доступны глобально сразу после определения
+            
             // Загружаем статистику и пользователей
             function loadStats() {
                 fetch('/admin/stats', {credentials: 'include'})
@@ -1640,6 +1643,8 @@ def admin_panel():
                         document.getElementById('todayPayments').textContent = stats.today_payments || 0;
                     });
             }
+            // Регистрируем loadStats глобально сразу после определения
+            window.loadStats = loadStats;
             
             function loadNewUsers() {
                 fetch('/admin/new-users', {credentials: 'include'})
@@ -3222,19 +3227,20 @@ def admin_panel():
                             backups.forEach((backup, index) => {
                                 const date = new Date(backup.date);
                                 const dateStr = date.toLocaleString('ru-RU');
+                                const sizeMb = backup.size_mb || 0;
+                                const filename = backup.filename || '';
+                                const filenameEscaped = filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
                                 
-                                html += `
-                                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                                        <td style="padding: 10px;">${dateStr}</td>
-                                        <td style="padding: 10px;">${backup.size_mb} MB</td>
-                                        <td style="padding: 10px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${backup.filename}</code></td>
-                                        <td style="padding: 10px;">
-                                            <button onclick="deleteBackup(${JSON.stringify(backup.filename)})" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                                🗑️ Удалить
-                                            </button>
-                                        </td>
-                                    </tr>
-                                `;
+                                html += '<tr style="border-bottom: 1px solid #e2e8f0;">';
+                                html += '<td style="padding: 10px;">' + dateStr + '</td>';
+                                html += '<td style="padding: 10px;">' + sizeMb + ' MB</td>';
+                                html += '<td style="padding: 10px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">' + filenameEscaped + '</code></td>';
+                                html += '<td style="padding: 10px;">';
+                                html += '<button onclick="deleteBackup(' + JSON.stringify(filename) + ')" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">';
+                                html += '🗑️ Удалить';
+                                html += '</button>';
+                                html += '</td>';
+                                html += '</tr>';
                             });
                             
                             html += '</tbody></table>';
@@ -3251,6 +3257,8 @@ def admin_panel():
                     document.getElementById('backupsList').innerHTML = '<div style="color: #e53e3e; padding: 20px;">❌ Ошибка соединения: ' + error.message + '</div>';
                 });
             }
+            // Регистрируем loadBackups глобально сразу после определения
+            window.loadBackups = loadBackups;
             
             function deleteBackup(filename) {
                 if (!confirm('Удалить бэкап ' + filename + '?')) return;
@@ -3663,12 +3671,8 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         document.getElementById('emailCampaignsList').innerHTML = html;
                     });
             }
-            
-            // Регистрируем loadEmailCampaigns глобально
-            if (typeof loadEmailCampaigns === 'function') {
-                window.loadEmailCampaigns = loadEmailCampaigns;
-                console.log('✅ loadEmailCampaigns зарегистрирована глобально');
-            }
+            // Регистрируем loadEmailCampaigns глобально сразу после определения
+            window.loadEmailCampaigns = loadEmailCampaigns;
             
             function getRecipientFilterText(filter) {
                 const filters = {
@@ -4257,12 +4261,8 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         articlesListEl.innerHTML = html;
                     });
             }
-            
-            // Регистрируем loadArticles глобально
-            if (typeof loadArticles === 'function') {
-                window.loadArticles = loadArticles;
-                console.log('✅ loadArticles зарегистрирована глобально');
-            }
+            // Регистрируем loadArticles глобально сразу после определения
+            window.loadArticles = loadArticles;
             
             function createArticle() {
                 const title = document.getElementById('articleTitle').value.trim();

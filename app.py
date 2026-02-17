@@ -4,7 +4,7 @@ import os
 import logging
 import sys
 from datetime import datetime
-from models.sqlite_users import db, User, AnalysisHistory, Guest, SearchBot, NewsItem, FullNews, Question, Answer, AnswerLike, EmailCampaign, EmailSend, Article, Payment, Referral, ReferralReward, Notification, WhitelistedIP, BrandingSettings
+from models.sqlite_users import db, User, AnalysisHistory, Guest, SearchBot, NewsItem, FullNews, Question, Answer, AnswerLike, EmailCampaign, EmailSend, Article, Payment, Referral, ReferralReward, Notification, WhitelistedIP, BrandingSettings, APIKey
 
 # Настройка логирования
 # Настройка логирования на русском
@@ -189,6 +189,10 @@ def register_routes(app):
         from routes.api import api_bp
         logger.info("✅ routes.api импортирован")
         
+        logger.info("📦 Импорт routes.api_v1...")
+        from routes.api_v1 import api_v1_bp
+        logger.info("✅ routes.api_v1 импортирован")
+        
         logger.info("📦 Импорт routes.admin...")
         from routes.admin import admin_bp
         logger.info("✅ routes.admin импортирован")
@@ -209,6 +213,10 @@ def register_routes(app):
         logger.info("📝 Регистрация api_bp...")
         app.register_blueprint(api_bp, url_prefix='/api')
         logger.info("✅ api_bp зарегистрирован")
+        
+        logger.info("📝 Регистрация api_v1_bp...")
+        app.register_blueprint(api_v1_bp)
+        logger.info("✅ api_v1_bp зарегистрирован")
         
         logger.info("📝 Регистрация admin_bp...")
         app.register_blueprint(admin_bp, url_prefix='/admin')

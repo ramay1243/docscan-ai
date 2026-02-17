@@ -546,6 +546,34 @@ class BrandingSettings(db.Model):
             'updated_at': self.updated_at
         }
 
+class APIKey(db.Model):
+    """Таблица для хранения API-ключей для бизнес-пользователей"""
+    __tablename__ = 'api_keys'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Пользователь, которому принадлежит ключ
+    api_key = db.Column(db.String(64), unique=True, nullable=False, index=True)  # Сам API-ключ (хеш)
+    api_key_hash = db.Column(db.String(128), nullable=False)  # Хеш ключа для проверки
+    name = db.Column(db.String(255), nullable=True)  # Название ключа (для удобства управления)
+    is_active = db.Column(db.Boolean, default=True)  # Активен ли ключ
+    last_used = db.Column(db.String(30), nullable=True)  # Дата последнего использования
+    requests_count = db.Column(db.Integer, default=0)  # Количество запросов через этот ключ
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания
+    expires_at = db.Column(db.String(30), nullable=True)  # Дата истечения (опционально)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'api_key': self.api_key[:8] + '...' + self.api_key[-4:] if len(self.api_key) > 12 else '***',  # Показываем только часть ключа
+            'name': self.name,
+            'is_active': self.is_active,
+            'last_used': self.last_used,
+            'requests_count': self.requests_count,
+            'created_at': self.created_at,
+            'expires_at': self.expires_at
+        }
+
 
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""

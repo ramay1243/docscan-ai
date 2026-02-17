@@ -674,6 +674,36 @@ def admin_panel():
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="card">
+                        <h3>🔑 API-ключи (для бизнес-тарифов)</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Управление API-ключами для интеграции с внешними системами. API-ключи позволяют автоматизировать анализ документов через API.
+                        </p>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="apiKeyUserId" placeholder="ID пользователя" 
+                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <button onclick="loadAPIKeys()" style="background: #667eea; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">📥 Загрузить ключи</button>
+                        </div>
+                        <div id="apiKeyStatus" style="margin: 10px 0; color: #666; font-size: 14px;"></div>
+                        
+                        <div id="apiKeysList" style="margin-top: 20px;"></div>
+                        
+                        <div style="margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 8px;">
+                            <h4 style="margin-bottom: 15px;">Создать новый API-ключ</h4>
+                            <div style="margin: 15px 0;">
+                                <input type="text" id="newApiKeyUserId" placeholder="ID пользователя" 
+                                       style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <input type="text" id="newApiKeyName" placeholder="Название ключа (опционально)" 
+                                       style="width: 250px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <button onclick="createAPIKey()" style="background: #48bb78; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">➕ Создать ключ</button>
+                            </div>
+                            <div id="newApiKeyResult" style="margin-top: 15px; padding: 15px; background: #edf2f7; border-radius: 5px; display: none;">
+                                <p style="margin: 0 0 10px 0; font-weight: 600;">⚠️ ВАЖНО: Сохраните этот ключ! Он больше не будет показан:</p>
+                                <code id="newApiKeyValue" style="display: block; padding: 10px; background: #2d3748; color: #48bb78; border-radius: 5px; font-family: monospace; word-break: break-all;"></code>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Секция: Гости -->
@@ -5095,6 +5125,100 @@ def admin_toggle_branding():
 def admin_delete_branding():
     """Удалить настройки брендинга для пользователя"""
     from app import app
+
+@admin_bp.route('/api-keys', methods=['GET'])
+@require_admin_auth
+def admin_get_api_keys():
+    """Получить список API-ключей пользователя"""
+    from app import app
+    from utils.api_key_manager import APIKeyManager
+    
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'ID пользователя не указан'}), 400
+    
+    try:
+        keys = APIKeyManager.get_user_api_keys(user_id)
+        return jsonify({'success': True, 'keys': keys})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения API-ключей: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/api-keys/create', methods=['POST'])
+@require_admin_auth
+def admin_create_api_key():
+    """Создать новый API-ключ для пользователя"""
+    from app import app
+    from utils.api_key_manager import APIKeyManager
+    
+    data = request.get_json()
+    user_id = data.get('user_id')
+    name = data.get('name')
+    
+    if not user_id:
+        return jsonify({'success': False, 'error': 'ID пользователя не указан'}), 400
+    
+    try:
+        api_key, error = APIKeyManager.create_api_key(user_id, name)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({
+            'success': True,
+            'api_key': api_key,
+            'message': 'API-ключ успешно создан'
+        })
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/api-keys/deactivate', methods=['POST'])
+@require_admin_auth
+def admin_deactivate_api_key():
+    """Деактивировать API-ключ"""
+    from app import app
+    from utils.api_key_manager import APIKeyManager
+    
+    data = request.get_json()
+    api_key_id = data.get('api_key_id')
+    user_id = data.get('user_id')
+    
+    if not api_key_id or not user_id:
+        return jsonify({'success': False, 'error': 'Не указаны обязательные параметры'}), 400
+    
+    try:
+        success, error = APIKeyManager.deactivate_api_key(api_key_id, user_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'API-ключ деактивирован'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка деактивации API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/api-keys/delete', methods=['POST'])
+@require_admin_auth
+def admin_delete_api_key():
+    """Удалить API-ключ"""
+    from app import app
+    from utils.api_key_manager import APIKeyManager
+    
+    data = request.get_json()
+    api_key_id = data.get('api_key_id')
+    user_id = data.get('user_id')
+    
+    if not api_key_id or not user_id:
+        return jsonify({'success': False, 'error': 'Не указаны обязательные параметры'}), 400
+    
+    try:
+        success, error = APIKeyManager.delete_api_key(api_key_id, user_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'API-ключ удален'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
     
     try:
         data = request.get_json()

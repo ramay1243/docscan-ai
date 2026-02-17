@@ -178,3 +178,4 @@ sudo systemctl restart docscan
 2. Проверьте структуру БД: `sqlite3 /var/www/docscan/instance/users.db ".schema"`
 3. Убедитесь, что все зависимости установлены: `pip3 list | grep -i sqlalchemy`
 
+

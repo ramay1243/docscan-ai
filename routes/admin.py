@@ -3003,8 +3003,16 @@ def admin_panel():
                 .then(r => r.json())
                 .then(result => {
                     alert(result.success ? '✅ ' + result.message : '❌ ' + result.error);
-                    loadUsers();
-                    loadStats();
+                    if (typeof window.loadUsers === 'function') {
+                        window.loadUsers();
+                    } else if (typeof loadUsers === 'function') {
+                        loadUsers();
+                    }
+                    if (typeof window.loadStats === 'function') {
+                        window.loadStats();
+                    } else if (typeof loadStats === 'function') {
+                        loadStats();
+                    }
                 });
             }
 
@@ -3236,7 +3244,7 @@ def admin_panel():
             }
             
             function deleteBackup(filename) {
-                if (!confirm(`Удалить бэкап ${filename}?`)) return;
+                if (!confirm('Удалить бэкап ' + filename + '?')) return;
                 
                 fetch('/admin/delete-backup', {
                     method: 'POST',

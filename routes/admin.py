@@ -1618,6 +1618,14 @@ def admin_panel():
             // НЕМЕДЛЕННАЯ РЕГИСТРАЦИЯ ВСЕХ ФУНКЦИЙ В WINDOW ПРИ ОПРЕДЕЛЕНИИ
             // Это гарантирует, что функции будут доступны глобально сразу после определения
             
+            // Функция для автоматической регистрации функций в window
+            function registerFunction(funcName, func) {
+                if (typeof func === 'function') {
+                    window[funcName] = func;
+                    console.log('✅ ' + funcName + ' зарегистрирована глобально');
+                }
+            }
+            
             // Загружаем статистику и пользователей
             function loadStats() {
                 fetch('/admin/stats', {credentials: 'include'})
@@ -1747,11 +1755,7 @@ def admin_panel():
                     });
             }
             
-            // Регистрируем loadGuests глобально
-            if (typeof loadGuests === 'function') {
-                window.loadGuests = loadGuests;
-                console.log('✅ loadGuests зарегистрирована глобально');
-            }
+            registerFunction('loadGuests', loadGuests);
             
             function searchGuests() {
                 const searchTerm = document.getElementById('searchGuest').value.toLowerCase().trim();
@@ -1816,11 +1820,7 @@ def admin_panel():
                     });
             }
             
-            // Регистрируем loadBots глобально
-            if (typeof loadBots === 'function') {
-                window.loadBots = loadBots;
-                console.log('✅ loadBots зарегистрирована глобально');
-            }
+            registerFunction('loadBots', loadBots);
             
             function searchBots() {
                 const searchTerm = document.getElementById('searchBot').value.toLowerCase().trim();
@@ -2051,15 +2051,13 @@ def admin_panel():
             }
             
             // Регистрируем функции для новостей глобально СРАЗУ после определения
-            if (typeof window !== 'undefined') {
-                window.loadNews = loadNews;
-                window.showNewsForm = showNewsForm;
-                window.editNews = editNews;
-                window.saveNews = saveNews;
-                window.cancelNewsForm = cancelNewsForm;
-                window.deleteNews = deleteNews;
-                console.log('✅ Функции для новостей зарегистрированы глобально');
-            }
+            registerFunction('loadNews', loadNews);
+            registerFunction('showNewsForm', showNewsForm);
+            registerFunction('editNews', editNews);
+            registerFunction('saveNews', saveNews);
+            registerFunction('cancelNewsForm', cancelNewsForm);
+            registerFunction('deleteNews', deleteNews);
+            console.log('✅ Функции для новостей зарегистрированы глобально');
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ПОЛНЫМИ НОВОСТЯМИ ==========
             let editingFullNewsId = null;
@@ -2528,15 +2526,15 @@ def admin_panel():
             }
             
             // Регистрируем функции для полных новостей глобально сразу после определения
-            window.loadFullNews = loadFullNews;
-            window.showFullNewsForm = showFullNewsForm;
-            window.editFullNews = editFullNews;
-            window.saveFullNews = saveFullNews;
-            window.cancelFullNewsForm = cancelFullNewsForm;
-            window.deleteFullNews = deleteFullNews;
-            window.initFullNewsTinyMCE = initFullNewsTinyMCE;
-            window.toggleFullNewsEditorMode = toggleFullNewsEditorMode;
-            window.initFullNewsEditorOnShow = initFullNewsEditorOnShow;
+            registerFunction('loadFullNews', loadFullNews);
+            registerFunction('showFullNewsForm', showFullNewsForm);
+            registerFunction('editFullNews', editFullNews);
+            registerFunction('saveFullNews', saveFullNews);
+            registerFunction('cancelFullNewsForm', cancelFullNewsForm);
+            registerFunction('deleteFullNews', deleteFullNews);
+            registerFunction('initFullNewsTinyMCE', initFullNewsTinyMCE);
+            registerFunction('toggleFullNewsEditorMode', toggleFullNewsEditorMode);
+            registerFunction('initFullNewsEditorOnShow', initFullNewsEditorOnShow);
             console.log('✅ Функции для полных новостей зарегистрированы глобально');
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВОПРОСАМИ ==========
@@ -2806,8 +2804,7 @@ def admin_panel():
                     }
                 });
             }
-            // Регистрируем loadNotificationsHistory глобально сразу после определения
-            window.loadNotificationsHistory = loadNotificationsHistory;
+            registerFunction('loadNotificationsHistory', loadNotificationsHistory);
             
             function closeAdminQuestion(questionId) {
                 if (!confirm('Закрыть вопрос?')) return;
@@ -2884,15 +2881,15 @@ def admin_panel():
             }
             
             // Регистрируем функции для вопросов глобально
-            window.loadQuestions = loadQuestions;
-            window.viewAdminQuestion = viewAdminQuestion;
-            window.closeAdminQuestion = closeAdminQuestion;
-            window.openAdminQuestion = openAdminQuestion;
-            window.solveAdminQuestion = solveAdminQuestion;
-            window.deleteAdminQuestion = deleteAdminQuestion;
-            window.showQuestionAnswers = showQuestionAnswers;
-            window.deleteAdminAnswer = deleteAdminAnswer;
-            window.closeModal = closeModal;
+            registerFunction('loadQuestions', loadQuestions);
+            registerFunction('viewAdminQuestion', viewAdminQuestion);
+            registerFunction('closeAdminQuestion', closeAdminQuestion);
+            registerFunction('openAdminQuestion', openAdminQuestion);
+            registerFunction('solveAdminQuestion', solveAdminQuestion);
+            registerFunction('deleteAdminQuestion', deleteAdminQuestion);
+            registerFunction('showQuestionAnswers', showQuestionAnswers);
+            registerFunction('deleteAdminAnswer', deleteAdminAnswer);
+            registerFunction('closeModal', closeModal);
             
             function showUser(userId) {
                 // Переключаемся на секцию пользователей
@@ -2977,13 +2974,7 @@ def admin_panel():
                     });
             }
             
-            // Регистрируем loadUsers глобально сразу после определения
-            if (typeof loadUsers === 'function') {
-                window.loadUsers = loadUsers;
-                console.log('✅ loadUsers зарегистрирована глобально');
-            } else {
-                console.error('❌ loadUsers не найдена при регистрации');
-            }
+            registerFunction('loadUsers', loadUsers);
 
             function getPlanName(plan) {
                 const names = {free: 'Бесплатный', basic: 'Базовый', premium: 'Премиум'};
@@ -3264,8 +3255,7 @@ def admin_panel():
                     document.getElementById('backupsList').innerHTML = '<div style="color: #e53e3e; padding: 20px;">❌ Ошибка соединения: ' + error.message + '</div>';
                 });
             }
-            // Регистрируем loadBackups глобально сразу после определения
-            window.loadBackups = loadBackups;
+            registerFunction('loadBackups', loadBackups);
             
             function deleteBackup(filename) {
                 if (!confirm('Удалить бэкап ' + filename + '?')) return;
@@ -3678,8 +3668,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         document.getElementById('emailCampaignsList').innerHTML = html;
                     });
             }
-            // Регистрируем loadEmailCampaigns глобально сразу после определения
-            window.loadEmailCampaigns = loadEmailCampaigns;
+            registerFunction('loadEmailCampaigns', loadEmailCampaigns);
             
             function getRecipientFilterText(filter) {
                 const filters = {
@@ -4268,8 +4257,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         articlesListEl.innerHTML = html;
                     });
             }
-            // Регистрируем loadArticles глобально сразу после определения
-            window.loadArticles = loadArticles;
+            registerFunction('loadArticles', loadArticles);
             
             function createArticle() {
                 const title = document.getElementById('articleTitle').value.trim();
@@ -4517,11 +4505,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     });
             }
             
-            // Регистрируем loadPartners глобально
-            if (typeof loadPartners === 'function') {
-                window.loadPartners = loadPartners;
-                console.log('✅ loadPartners зарегистрирована глобально');
-            }
+            registerFunction('loadPartners', loadPartners);
             
             function loadReferrals() {
                 fetch('/admin/referrals', {credentials: 'include'})
@@ -4555,11 +4539,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     });
             }
             
-            // Регистрируем loadReferrals глобально
-            if (typeof loadReferrals === 'function') {
-                window.loadReferrals = loadReferrals;
-                console.log('✅ loadReferrals зарегистрирована глобально');
-            }
+            registerFunction('loadReferrals', loadReferrals);
             
             function loadRewards() {
                 fetch('/admin/rewards', {credentials: 'include'})
@@ -4600,11 +4580,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     });
             }
             
-            // Регистрируем loadRewards глобально
-            if (typeof loadRewards === 'function') {
-                window.loadRewards = loadRewards;
-                console.log('✅ loadRewards зарегистрирована глобально');
-            }
+            registerFunction('loadRewards', loadRewards);
             
             function markRewardPaid(rewardId) {
                 if (!confirm('Отметить вознаграждение как выплаченное?')) return;

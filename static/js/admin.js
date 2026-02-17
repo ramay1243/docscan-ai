@@ -144,6 +144,10 @@
                 }
             } else if (sectionName === 'api-keys') {
                 console.log('📥 Секция API-ключей открыта');
+                // Загружаем все API-ключи при открытии секции
+                if (typeof loadAllAPIKeys === 'function') {
+                    loadAllAPIKeys();
+                }
                 // Очищаем форму при открытии секции
                 if (document.getElementById('apiKeyUserId')) {
                     document.getElementById('apiKeyUserId').value = '';
@@ -3572,6 +3576,64 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         }, 100);
         
         // Функции для управления API-ключами
+        function loadAllAPIKeys() {
+            fetch('/admin/api-keys')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const listDiv = document.getElementById('allApiKeysList');
+                        if (result.keys.length === 0) {
+                            listDiv.innerHTML = '<p style="color: #666;">API-ключей не найдено</p>';
+                            return;
+                        }
+                        
+                        let html = '<table style="width: 100%; border-collapse: collapse;">';
+                        html += '<thead><tr style="background: #edf2f7; border-bottom: 2px solid #cbd5e0;">';
+                        html += '<th style="padding: 10px; text-align: left;">ID пользователя</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Email</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Тариф</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Название ключа</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Ключ</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Запросов</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Последнее использование</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Дата создания</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Статус</th>';
+                        html += '<th style="padding: 10px; text-align: left;">Действия</th>';
+                        html += '</tr></thead><tbody>';
+                        
+                        result.keys.forEach(key => {
+                            html += '<tr style="border-bottom: 1px solid #e2e8f0;">';
+                            html += `<td style="padding: 10px; font-family: monospace; font-size: 0.9rem;">${key.user_id}</td>`;
+                            html += `<td style="padding: 10px;">${key.user_email || 'Не указан'}</td>`;
+                            html += `<td style="padding: 10px;"><span style="padding: 3px 8px; background: #e6f2ff; border-radius: 3px; font-size: 0.85rem;">${key.user_plan || 'unknown'}</span></td>`;
+                            html += `<td style="padding: 10px;">${key.name || 'Без названия'}</td>`;
+                            html += `<td style="padding: 10px; font-family: monospace; font-size: 0.85rem;">${key.api_key}</td>`;
+                            html += `<td style="padding: 10px;">${key.requests_count || 0}</td>`;
+                            html += `<td style="padding: 10px; font-size: 0.9rem;">${key.last_used || 'Никогда'}</td>`;
+                            html += `<td style="padding: 10px; font-size: 0.9rem;">${key.created_at ? new Date(key.created_at).toLocaleString('ru-RU') : 'Не указана'}</td>`;
+                            html += `<td style="padding: 10px;">${key.is_active ? '<span style="color: #48bb78; font-weight: 600;">Активен</span>' : '<span style="color: #e53e3e; font-weight: 600;">Неактивен</span>'}</td>`;
+                            html += '<td style="padding: 10px;">';
+                            if (key.is_active) {
+                                html += `<button onclick="deactivateAPIKey(${key.id}, '${key.user_id}')" style="background: #ed8936; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px; font-size: 0.85rem;">Деактивировать</button>`;
+                            } else {
+                                html += `<button onclick="activateAPIKey(${key.id}, '${key.user_id}')" style="background: #48bb78; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px; font-size: 0.85rem;">Активировать</button>`;
+                            }
+                            html += `<button onclick="deleteAPIKey(${key.id}, '${key.user_id}')" style="background: #e53e3e; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85rem;">Удалить</button>`;
+                            html += '</td></tr>';
+                        });
+                        
+                        html += '</tbody></table>';
+                        listDiv.innerHTML = html;
+                    } else {
+                        alert('Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    console.error('Ошибка загрузки всех API-ключей:', err);
+                    alert('Ошибка соединения');
+                });
+        }
+        
         function loadAPIKeys() {
             const userId = document.getElementById('apiKeyUserId').value.trim();
             if (!userId) {
@@ -3651,6 +3713,8 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                         if (document.getElementById('apiKeyUserId').value === userId) {
                             loadAPIKeys();
                         }
+                        // Обновляем общий список
+                        loadAllAPIKeys();
                     } else {
                         alert('Ошибка: ' + result.error);
                     }
@@ -3674,6 +3738,27 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                 .then(result => {
                     if (result.success) {
                         loadAPIKeys();
+                        loadAllAPIKeys();
+                    } else {
+                        alert('Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('Ошибка соединения');
+                });
+        }
+        
+        function activateAPIKey(apiKeyId, userId) {
+            fetch('/admin/api-keys/activate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({api_key_id: apiKeyId, user_id: userId})
+            })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        loadAPIKeys();
+                        loadAllAPIKeys();
                     } else {
                         alert('Ошибка: ' + result.error);
                     }
@@ -3697,6 +3782,7 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                 .then(result => {
                     if (result.success) {
                         loadAPIKeys();
+                        loadAllAPIKeys();
                     } else {
                         alert('Ошибка: ' + result.error);
                     }
@@ -3707,11 +3793,17 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         }
         
         // Регистрируем функции API-ключей глобально
+        if (typeof loadAllAPIKeys === 'function') {
+            window.loadAllAPIKeys = loadAllAPIKeys;
+        }
         if (typeof loadAPIKeys === 'function') {
             window.loadAPIKeys = loadAPIKeys;
         }
         if (typeof createAPIKey === 'function') {
             window.createAPIKey = createAPIKey;
+        }
+        if (typeof activateAPIKey === 'function') {
+            window.activateAPIKey = activateAPIKey;
         }
         if (typeof deactivateAPIKey === 'function') {
             window.deactivateAPIKey = deactivateAPIKey;

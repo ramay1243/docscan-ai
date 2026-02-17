@@ -855,7 +855,19 @@ def admin_panel():
                     </p>
                     
                     <div class="card">
-                        <h3>Просмотр API-ключей пользователя</h3>
+                        <h3>Все API-ключи</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Полный список всех API-ключей всех пользователей с полной информацией.
+                        </p>
+                        <div style="margin: 15px 0;">
+                            <button onclick="loadAllAPIKeys()" style="background: #667eea; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">🔄 Обновить список</button>
+                            <button onclick="loadAPIKeys()" style="background: #ed8936; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">🔍 Поиск по пользователю</button>
+                        </div>
+                        <div id="allApiKeysList" style="margin-top: 20px;"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Просмотр API-ключей конкретного пользователя</h3>
                         <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
                             Введите ID пользователя для просмотра всех его API-ключей.
                         </p>
@@ -5143,19 +5155,47 @@ def admin_delete_branding():
 @admin_bp.route('/api-keys', methods=['GET'])
 @require_admin_auth
 def admin_get_api_keys():
-    """Получить список API-ключей пользователя"""
+    """Получить список API-ключей пользователя или всех ключей"""
     from app import app
     from utils.api_key_manager import APIKeyManager
+    from models.sqlite_users import APIKey, User, db
     
     user_id = request.args.get('user_id')
-    if not user_id:
-        return jsonify({'success': False, 'error': 'ID пользователя не указан'}), 400
     
+    # Если указан user_id - возвращаем ключи конкретного пользователя
+    if user_id:
+        try:
+            keys = APIKeyManager.get_user_api_keys(user_id)
+            return jsonify({'success': True, 'keys': keys})
+        except Exception as e:
+            logger.error(f"❌ Ошибка получения API-ключей: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 500
+    
+    # Если user_id не указан - возвращаем все ключи со всей информацией
     try:
-        keys = APIKeyManager.get_user_api_keys(user_id)
-        return jsonify({'success': True, 'keys': keys})
+        all_keys = APIKey.query.order_by(APIKey.created_at.desc()).all()
+        keys_with_user_info = []
+        
+        for key in all_keys:
+            user = User.query.filter_by(user_id=key.user_id).first()
+            key_info = {
+                'id': key.id,
+                'user_id': key.user_id,
+                'user_email': user.email if user else 'Не найден',
+                'api_key': key.api_key[:8] + '...' + key.api_key[-4:] if len(key.api_key) > 12 else '***',
+                'name': key.name,
+                'is_active': key.is_active,
+                'last_used': key.last_used,
+                'requests_count': key.requests_count,
+                'created_at': key.created_at,
+                'expires_at': key.expires_at,
+                'user_plan': user.plan if user else 'unknown'
+            }
+            keys_with_user_info.append(key_info)
+        
+        return jsonify({'success': True, 'keys': keys_with_user_info})
     except Exception as e:
-        logger.error(f"❌ Ошибка получения API-ключей: {e}")
+        logger.error(f"❌ Ошибка получения всех API-ключей: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @admin_bp.route('/api-keys/create', methods=['POST'])
@@ -5208,6 +5248,34 @@ def admin_deactivate_api_key():
         return jsonify({'success': True, 'message': 'API-ключ деактивирован'})
     except Exception as e:
         logger.error(f"❌ Ошибка деактивации API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/api-keys/activate', methods=['POST'])
+@require_admin_auth
+def admin_activate_api_key():
+    """Активировать API-ключ"""
+    from app import app
+    from models.sqlite_users import APIKey, db
+    
+    data = request.get_json()
+    api_key_id = data.get('api_key_id')
+    user_id = data.get('user_id')
+    
+    if not api_key_id or not user_id:
+        return jsonify({'success': False, 'error': 'Не указаны обязательные параметры'}), 400
+    
+    try:
+        key = APIKey.query.filter_by(id=api_key_id, user_id=user_id).first()
+        if not key:
+            return jsonify({'success': False, 'error': 'API-ключ не найден'}), 404
+        
+        key.is_active = True
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'API-ключ активирован'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"❌ Ошибка активации API-ключа: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @admin_bp.route('/api-keys/delete', methods=['POST'])

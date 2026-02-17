@@ -1281,7 +1281,13 @@ def admin_panel():
                         const usersList = document.getElementById('usersList');
                         if (usersList && usersList.innerHTML === '') {
                             console.log('📥 Загрузка пользователей...');
-                            loadUsers();
+                            if (typeof window.loadUsers === 'function') {
+                                window.loadUsers();
+                            } else if (typeof loadUsers === 'function') {
+                                loadUsers();
+                            } else {
+                                console.error('❌ Функция loadUsers не найдена');
+                            }
                         }
                     } else if (sectionName === 'guests') {
                         const guestsList = document.getElementById('guestsList');
@@ -2950,6 +2956,11 @@ def admin_panel():
                         document.getElementById('usersList').innerHTML = html;
                     });
             }
+            
+            // Регистрируем loadUsers глобально сразу после определения
+            if (typeof loadUsers === 'function') {
+                window.loadUsers = loadUsers;
+            }
 
             function getPlanName(plan) {
                 const names = {free: 'Бесплатный', basic: 'Базовый', premium: 'Премиум'};
@@ -3180,9 +3191,10 @@ def admin_panel():
                         let html = '';
                         
                         if (result.total > 0) {
+                            const totalSize = result.total_size_mb || 0;
                             html += `<div style="margin-bottom: 15px; padding: 10px; background: #f7fafc; border-radius: 5px;">
                                 <strong>Всего бэкапов:</strong> ${result.total} | 
-                                <strong>Общий размер:</strong> ${result.total_size_mb} MB
+                                <strong>Общий размер:</strong> ${totalSize} MB
                             </div>`;
                             
                             html += '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc; border-bottom: 2px solid #e2e8f0;"><th style="padding: 10px; text-align: left;">Дата создания</th><th style="padding: 10px; text-align: left;">Размер</th><th style="padding: 10px; text-align: left;">Имя файла</th><th style="padding: 10px; text-align: left;">Действия</th></tr></thead><tbody>';

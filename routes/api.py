@@ -478,7 +478,13 @@ def upgrade_plan():
 def download_analysis():
     """Скачать анализ в PDF"""
     try:
-        data = request.get_json()
+        # Парсим JSON с обработкой ошибок
+        try:
+            data = request.get_json(force=True)
+        except Exception as json_error:
+            logger.error(f"❌ Ошибка парсинга JSON: {json_error}")
+            return jsonify({'error': 'Неверный формат JSON данных'}), 400
+        
         if not data:
             return jsonify({'error': 'Нет данных'}), 400
         
@@ -491,10 +497,17 @@ def download_analysis():
         
         # Получаем настройки брендинга для пользователя (если авторизован)
         branding_settings = None
-        user_id = data.get('user_id') or session.get('user_id')
-        if user_id:
-            from app import app
-            branding_settings = app.user_manager.get_branding_settings(user_id)
+        try:
+            user_id = data.get('user_id') or session.get('user_id')
+            if user_id:
+                from app import app
+                try:
+                    branding_settings = app.user_manager.get_branding_settings(user_id)
+                except Exception as branding_error:
+                    logger.warning(f"⚠️ Ошибка получения брендинга: {branding_error}")
+                    branding_settings = None
+        except Exception as user_error:
+            logger.warning(f"⚠️ Ошибка получения user_id: {user_error}")
         
         # Генерируем файл в зависимости от формата
         try:
@@ -516,31 +529,40 @@ def download_analysis():
         except TypeError as e:
             logger.error(f"❌ Ошибка типа при генерации {export_format}: {e}")
             import traceback
-            logger.error(f"Трассировка: {traceback.format_exc()}")
+            error_trace = traceback.format_exc()
+            logger.error(f"Трассировка: {error_trace}")
             return jsonify({'error': f'Ошибка генерации файла: неправильные аргументы функции. {str(e)}'}), 500
         except Exception as e:
             logger.error(f"❌ Ошибка при генерации {export_format}: {e}")
             import traceback
-            logger.error(f"Трассировка: {traceback.format_exc()}")
+            error_trace = traceback.format_exc()
+            logger.error(f"Трассировка: {error_trace}")
             return jsonify({'error': f'Ошибка генерации файла: {str(e)}'}), 500
         
         from flask import Response
-        response = Response(
-            file_content,
-            mimetype=mime_type,
-            headers={
-                'Content-Disposition': f'attachment; filename=analysis_{filename.rsplit(".", 1)[0] if "." in filename else filename}_{datetime.now().strftime("%Y%m%d")}.{file_extension}'
-            }
-        )
-        
-        logger.info(f"✅ Файл экспортирован: формат={export_format}, файл={filename}")
-        return response
+        try:
+            response = Response(
+                file_content,
+                mimetype=mime_type,
+                headers={
+                    'Content-Disposition': f'attachment; filename=analysis_{filename.rsplit(".", 1)[0] if "." in filename else filename}_{datetime.now().strftime("%Y%m%d")}.{file_extension}'
+                }
+            )
+            
+            logger.info(f"✅ Файл экспортирован: формат={export_format}, файл={filename}")
+            return response
+        except Exception as response_error:
+            logger.error(f"❌ Ошибка создания Response: {response_error}")
+            import traceback
+            logger.error(f"Трассировка: {traceback.format_exc()}")
+            return jsonify({'error': f'Ошибка создания ответа: {str(response_error)}'}), 500
         
     except Exception as e:
-        logger.error(f"❌ Ошибка экспорта: {e}")
+        logger.error(f"❌ Критическая ошибка экспорта: {e}")
         import traceback
-        logger.error(traceback.format_exc())
-        return jsonify({'error': f'Ошибка генерации файла: {str(e)}'}), 500
+        error_trace = traceback.format_exc()
+        logger.error(f"Полная трассировка: {error_trace}")
+        return jsonify({'error': f'Внутренняя ошибка сервера: {str(e)}'}), 500
 
 @api_bp.route('/')
 def api_info():

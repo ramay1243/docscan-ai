@@ -117,8 +117,10 @@ def create_app():
         from flask import request, jsonify
         if request.path.startswith('/api/'):
             import traceback
+            error_trace = traceback.format_exc()
             logger.error(f"❌ Ошибка 500 в API {request.path}: {e}")
-            logger.error(f"Трассировка: {traceback.format_exc()}")
+            logger.error(f"Трассировка: {error_trace}")
+            # ВСЕГДА возвращаем JSON для API, не пробрасываем исключение
             return jsonify({'error': f'Внутренняя ошибка сервера: {str(e)}'}), 500
         # Для не-API запросов возвращаем стандартную обработку
         raise e
@@ -132,10 +134,27 @@ def create_app():
             error_trace = traceback.format_exc()
             logger.error(f"❌ Необработанное исключение в API {request.path}: {e}")
             logger.error(f"Трассировка: {error_trace}")
-            # Всегда возвращаем JSON для API
+            # ВСЕГДА возвращаем JSON для API, не пробрасываем исключение
             return jsonify({'error': f'Ошибка сервера: {str(e)}'}), 500
         # Для не-API запросов пробрасываем исключение дальше
         raise e
+    
+    # Дополнительный обработчик для всех HTTP ошибок
+    @app.errorhandler(404)
+    def not_found(error):
+        from flask import request, jsonify
+        if request.path.startswith('/api/'):
+            return jsonify({'error': 'Not Found', 'message': str(error)}), 404
+        from flask import render_template
+        return render_template('404.html'), 404
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        from flask import request, jsonify
+        if request.path.startswith('/api/'):
+            return jsonify({'error': 'Forbidden', 'message': str(error)}), 403
+        from flask import render_template
+        return render_template('403.html'), 403
     
     logger.info("🚀 DocScan App инициализирован!")
     return app

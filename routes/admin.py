@@ -3160,22 +3160,22 @@ def admin_panel():
                 });
             }
             
+            registerFunction('loadWhitelistedIPs', loadWhitelistedIPs);
+            
             // Загружаем белый список IP при загрузке страницы
-            if (typeof loadWhitelistedIPs === 'function') {
-                window.loadWhitelistedIPs = loadWhitelistedIPs;
-                // Загружаем при переключении на секцию пользователей
-                document.addEventListener('DOMContentLoaded', function() {
-                    const userSection = document.getElementById('section-users');
-                    if (userSection) {
-                        const observer = new MutationObserver(function(mutations) {
-                            if (userSection.style.display !== 'none') {
-                                loadWhitelistedIPs();
+            document.addEventListener('DOMContentLoaded', function() {
+                const userSection = document.getElementById('section-users');
+                if (userSection) {
+                    const observer = new MutationObserver(function(mutations) {
+                        if (userSection.style.display !== 'none') {
+                            if (typeof window.loadWhitelistedIPs === 'function') {
+                                window.loadWhitelistedIPs();
                             }
-                        });
-                        observer.observe(userSection, { attributes: true, attributeFilter: ['style'] });
-                    }
-                });
-            }
+                        }
+                    });
+                    observer.observe(userSection, { attributes: true, attributeFilter: ['style'] });
+                }
+            });
             
             // ========== ФУНКЦИИ ДЛЯ РЕЗЕРВНЫХ КОПИЙ ==========
             

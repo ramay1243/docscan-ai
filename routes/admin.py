@@ -3248,14 +3248,13 @@ def admin_panel():
                                 const filename = backup.filename || '';
                                 // Экранируем HTML специальные символы для безопасного отображения
                                 const filenameEscaped = filename.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                                // Экранируем для использования в одинарных кавычках JavaScript
-                                const filenameForJS = filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
                                 
                                 html += '<tr style="border-bottom: 1px solid #e2e8f0;">';
                                 html += '<td style="padding: 10px;">' + dateStr + '</td>';
                                 html += '<td style="padding: 10px;">' + sizeMb + ' MB</td>';
                                 html += '<td style="padding: 10px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">' + filenameEscaped + '</code></td>';
                                 html += '<td style="padding: 10px;">';
+                                // Используем JSON.stringify для безопасного экранирования в data-атрибуте
                                 html += '<button class="delete-backup-btn" data-filename="' + filenameEscaped.replace(/"/g, '&quot;') + '" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">';
                                 html += '🗑️ Удалить';
                                 html += '</button>';

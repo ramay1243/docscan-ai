@@ -1073,3 +1073,127 @@ def delete_user_branding():
     except Exception as e:
         logger.error(f"❌ Ошибка удаления брендинга: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/api-keys', methods=['GET'])
+def get_user_api_keys():
+    """Получить список API-ключей текущего пользователя"""
+    from app import app
+    from utils.api_key_manager import APIKeyManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'API-ключи доступны только для бизнес-тарифа'}), 403
+    
+    try:
+        keys = APIKeyManager.get_user_api_keys(user_id)
+        return jsonify({'success': True, 'keys': keys})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения API-ключей: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/api-keys/create', methods=['POST'])
+def create_user_api_key():
+    """Создать новый API-ключ для текущего пользователя"""
+    from app import app
+    from utils.api_key_manager import APIKeyManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'API-ключи доступны только для бизнес-тарифа'}), 403
+    
+    data = request.get_json()
+    name = data.get('name') if data else None
+    
+    try:
+        api_key, error = APIKeyManager.create_api_key(user_id, name)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({
+            'success': True,
+            'api_key': api_key,
+            'message': 'API-ключ успешно создан'
+        })
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/api-keys/<int:api_key_id>/deactivate', methods=['POST'])
+def deactivate_user_api_key(api_key_id):
+    """Деактивировать API-ключ текущего пользователя"""
+    from app import app
+    from utils.api_key_manager import APIKeyManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success, error = APIKeyManager.deactivate_api_key(api_key_id, user_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'API-ключ деактивирован'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка деактивации API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/api-keys/<int:api_key_id>/activate', methods=['POST'])
+def activate_user_api_key(api_key_id):
+    """Активировать API-ключ текущего пользователя"""
+    from app import app
+    from models.sqlite_users import APIKey, db
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        key = APIKey.query.filter_by(id=api_key_id, user_id=user_id).first()
+        if not key:
+            return jsonify({'success': False, 'error': 'API-ключ не найден'}), 404
+        
+        key.is_active = True
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'API-ключ активирован'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"❌ Ошибка активации API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/api-keys/<int:api_key_id>/delete', methods=['POST'])
+def delete_user_api_key(api_key_id):
+    """Удалить API-ключ текущего пользователя"""
+    from app import app
+    from utils.api_key_manager import APIKeyManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success, error = APIKeyManager.delete_api_key(api_key_id, user_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'API-ключ удален'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

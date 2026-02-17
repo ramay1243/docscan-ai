@@ -497,18 +497,32 @@ def download_analysis():
             branding_settings = app.user_manager.get_branding_settings(user_id)
         
         # Генерируем файл в зависимости от формата
-        if export_format == 'word' or export_format == 'docx':
-            file_content = generate_analysis_word(analysis_data, filename, branding_settings)
-            mime_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            file_extension = 'docx'
-        elif export_format == 'excel' or export_format == 'xlsx':
-            file_content = generate_analysis_excel(analysis_data, filename, branding_settings)
-            mime_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            file_extension = 'xlsx'
-        else:  # pdf по умолчанию
-            file_content = generate_analysis_pdf(analysis_data, filename, branding_settings)
-            mime_type = 'application/pdf'
-            file_extension = 'pdf'
+        try:
+            if export_format == 'word' or export_format == 'docx':
+                logger.info(f"📄 Генерация Word: filename={filename}, branding={branding_settings is not None}")
+                file_content = generate_analysis_word(analysis_data, filename, branding_settings)
+                mime_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                file_extension = 'docx'
+            elif export_format == 'excel' or export_format == 'xlsx':
+                logger.info(f"📊 Генерация Excel: filename={filename}, branding={branding_settings is not None}")
+                file_content = generate_analysis_excel(analysis_data, filename, branding_settings)
+                mime_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                file_extension = 'xlsx'
+            else:  # pdf по умолчанию
+                logger.info(f"📄 Генерация PDF: filename={filename}, branding={branding_settings is not None}")
+                file_content = generate_analysis_pdf(analysis_data, filename, branding_settings)
+                mime_type = 'application/pdf'
+                file_extension = 'pdf'
+        except TypeError as e:
+            logger.error(f"❌ Ошибка типа при генерации {export_format}: {e}")
+            import traceback
+            logger.error(f"Трассировка: {traceback.format_exc()}")
+            return jsonify({'error': f'Ошибка генерации файла: неправильные аргументы функции. {str(e)}'}), 500
+        except Exception as e:
+            logger.error(f"❌ Ошибка при генерации {export_format}: {e}")
+            import traceback
+            logger.error(f"Трассировка: {traceback.format_exc()}")
+            return jsonify({'error': f'Ошибка генерации файла: {str(e)}'}), 500
         
         from flask import Response
         response = Response(

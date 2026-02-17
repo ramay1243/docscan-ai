@@ -129,8 +129,10 @@ def create_app():
         from flask import request, jsonify
         if request.path.startswith('/api/'):
             import traceback
+            error_trace = traceback.format_exc()
             logger.error(f"❌ Необработанное исключение в API {request.path}: {e}")
-            logger.error(f"Трассировка: {traceback.format_exc()}")
+            logger.error(f"Трассировка: {error_trace}")
+            # Всегда возвращаем JSON для API
             return jsonify({'error': f'Ошибка сервера: {str(e)}'}), 500
         # Для не-API запросов пробрасываем исключение дальше
         raise e

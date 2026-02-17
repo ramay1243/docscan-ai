@@ -3362,9 +3362,6 @@ def admin_panel():
                             const logoPath = branding.logo_path.split('\\\\').join('/').split('\\').join('/');
                             document.getElementById('brandingLogoPreviewImg').src = '/' + logoPath;
                             document.getElementById('brandingLogoPreview').style.display = 'block';
-                        } else {\\\\').join('/').split('\\').join('/');
-                            document.getElementById('brandingLogoPreviewImg').src = '/' + logoPath;
-                            document.getElementById('brandingLogoPreview').style.display = 'block';
                         } else {
                             document.getElementById('brandingLogoPreview').style.display = 'none';
                         }

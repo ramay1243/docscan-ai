@@ -1277,172 +1277,115 @@ def admin_panel():
                     }
                     
                     // Загружаем данные секции при первом открытии
+                    // Используем отложенную загрузку для всех функций, так как они могут быть определены в другом script блоке
+                    function tryLoadFunction(funcName, delay) {
+                        delay = delay || 0;
+                        setTimeout(function() {
+                            if (typeof window[funcName] === 'function') {
+                                window[funcName]();
+                            } else if (typeof eval(funcName) === 'function') {
+                                eval(funcName + '()');
+                            } else {
+                                console.error('❌ Функция ' + funcName + ' не найдена');
+                            }
+                        }, delay);
+                    }
+                    
                     if (sectionName === 'users') {
                         const usersList = document.getElementById('usersList');
                         if (usersList && usersList.innerHTML === '') {
                             console.log('📥 Загрузка пользователей...');
-                            if (typeof window.loadUsers === 'function') {
-                                window.loadUsers();
-                            } else if (typeof loadUsers === 'function') {
-                                loadUsers();
-                            } else {
-                                console.error('❌ Функция loadUsers не найдена');
-                            }
+                            tryLoadFunction('loadUsers', 0);
+                            tryLoadFunction('loadUsers', 100);
+                            tryLoadFunction('loadUsers', 300);
                         }
                     } else if (sectionName === 'guests') {
                         const guestsList = document.getElementById('guestsList');
                         if (guestsList && guestsList.innerHTML === '') {
                             console.log('📥 Загрузка гостей...');
-                            if (typeof window.loadGuests === 'function') {
-                                window.loadGuests();
-                            } else if (typeof loadGuests === 'function') {
-                                loadGuests();
-                            } else {
-                                console.error('❌ Функция loadGuests не найдена');
-                            }
+                            tryLoadFunction('loadGuests', 0);
+                            tryLoadFunction('loadGuests', 100);
+                            tryLoadFunction('loadGuests', 300);
                         }
                     } else if (sectionName === 'search-bots') {
                         const botsList = document.getElementById('botsList');
                         if (botsList && botsList.innerHTML === '') {
                             console.log('📥 Загрузка ботов...');
-                            if (typeof window.loadBots === 'function') {
-                                window.loadBots();
-                            } else if (typeof loadBots === 'function') {
-                                loadBots();
-                            } else {
-                                console.error('❌ Функция loadBots не найдена');
-                            }
+                            tryLoadFunction('loadBots', 0);
+                            tryLoadFunction('loadBots', 100);
+                            tryLoadFunction('loadBots', 300);
                         }
                         // Обновляем статистику ботов
-                        if (typeof window.loadStats === 'function') {
-                            window.loadStats();
-                        } else if (typeof loadStats === 'function') {
-                            loadStats();
-                        }
+                        tryLoadFunction('loadStats', 0);
+                        tryLoadFunction('loadStats', 100);
                     } else if (sectionName === 'news') {
                         const newsList = document.getElementById('newsList');
                         if (newsList && newsList.innerHTML === '') {
                             console.log('📥 Загрузка новостей...');
-                            if (typeof loadNews === 'function') {
-                                loadNews();
-                            } else if (typeof window.loadNews === 'function') {
-                                window.loadNews();
-                            } else {
-                                console.error('⚠️ Функция loadNews не найдена, попытка загрузки через setTimeout...');
-                                setTimeout(function() {
-                                    if (typeof loadNews === 'function') {
-                                        loadNews();
-                                    } else if (typeof window.loadNews === 'function') {
-                                        window.loadNews();
-                                    } else {
-                                        console.error('❌ Функция loadNews все еще не найдена');
-                                    }
-                                }, 100);
-                            }
+                            tryLoadFunction('loadNews', 0);
+                            tryLoadFunction('loadNews', 100);
+                            tryLoadFunction('loadNews', 300);
                         }
                     } else if (sectionName === 'full-news') {
                         const fullNewsList = document.getElementById('fullNewsList');
                         if (fullNewsList && fullNewsList.innerHTML === '') {
                             console.log('📥 Загрузка полных новостей...');
-                            if (typeof loadFullNews === 'function') {
-                                loadFullNews();
-                            } else if (typeof window.loadFullNews === 'function') {
-                                window.loadFullNews();
-                            } else {
-                                console.error('⚠️ Функция loadFullNews не найдена, попытка загрузки через setTimeout...');
-                                setTimeout(function() {
-                                    if (typeof loadFullNews === 'function') {
-                                        loadFullNews();
-                                    } else if (typeof window.loadFullNews === 'function') {
-                                        window.loadFullNews();
-                                    } else {
-                                        console.error('❌ Функция loadFullNews все еще не найдена');
-                                    }
-                                }, 100);
-                            }
+                            tryLoadFunction('loadFullNews', 0);
+                            tryLoadFunction('loadFullNews', 100);
+                            tryLoadFunction('loadFullNews', 300);
                         }
                         // Инициализируем TinyMCE при открытии секции полных новостей
-                        if (typeof initFullNewsEditorOnShow === 'function') {
-                            initFullNewsEditorOnShow();
-                        } else if (typeof window.initFullNewsEditorOnShow === 'function') {
-                            window.initFullNewsEditorOnShow();
-                        }
+                        tryLoadFunction('initFullNewsEditorOnShow', 500);
                     } else if (sectionName === 'backups') {
                         const backupsList = document.getElementById('backupsList');
                         if (backupsList && backupsList.innerHTML === '') {
                             console.log('📥 Загрузка бэкапов...');
-                            if (typeof loadBackups === 'function') {
-                                loadBackups();
-                            } else if (typeof window.loadBackups === 'function') {
-                                window.loadBackups();
-                            }
+                            tryLoadFunction('loadBackups', 0);
+                            tryLoadFunction('loadBackups', 100);
+                            tryLoadFunction('loadBackups', 300);
                         }
                     } else if (sectionName === 'questions') {
                         const questionsList = document.getElementById('questionsList');
                         if (questionsList && questionsList.innerHTML === '') {
                             console.log('📥 Загрузка вопросов...');
-                            if (typeof loadQuestions === 'function') {
-                                loadQuestions();
-                            } else if (typeof window.loadQuestions === 'function') {
-                                window.loadQuestions();
-                            }
+                            tryLoadFunction('loadQuestions', 0);
+                            tryLoadFunction('loadQuestions', 100);
+                            tryLoadFunction('loadQuestions', 300);
                         }
                     } else if (sectionName === 'campaigns') {
                         const campaignsList = document.getElementById('emailCampaignsList');
                         if (campaignsList && campaignsList.innerHTML === '') {
                             console.log('📥 Загрузка рассылок...');
-                            if (typeof window.loadEmailCampaigns === 'function') {
-                                window.loadEmailCampaigns();
-                            } else if (typeof loadEmailCampaigns === 'function') {
-                                loadEmailCampaigns();
-                            } else {
-                                console.error('❌ Функция loadEmailCampaigns не найдена');
-                            }
+                            tryLoadFunction('loadEmailCampaigns', 0);
+                            tryLoadFunction('loadEmailCampaigns', 100);
+                            tryLoadFunction('loadEmailCampaigns', 300);
                         }
                     } else if (sectionName === 'articles') {
                         const articlesList = document.getElementById('articlesList');
                         if (articlesList && articlesList.innerHTML === '') {
                             console.log('📥 Загрузка статей...');
-                            if (typeof window.loadArticles === 'function') {
-                                window.loadArticles();
-                            } else if (typeof loadArticles === 'function') {
-                                loadArticles();
-                            } else {
-                                console.error('❌ Функция loadArticles не найдена');
-                            }
+                            tryLoadFunction('loadArticles', 0);
+                            tryLoadFunction('loadArticles', 100);
+                            tryLoadFunction('loadArticles', 300);
                         }
                     } else if (sectionName === 'notifications') {
                         const notificationsHistory = document.getElementById('notificationsHistory');
                         if (notificationsHistory) {
                             console.log('📥 Загрузка истории уведомлений...');
-                            if (typeof loadNotificationsHistory === 'function') {
-                                loadNotificationsHistory();
-                            } else if (typeof window.loadNotificationsHistory === 'function') {
-                                window.loadNotificationsHistory();
-                            }
+                            tryLoadFunction('loadNotificationsHistory', 0);
+                            tryLoadFunction('loadNotificationsHistory', 100);
+                            tryLoadFunction('loadNotificationsHistory', 300);
                         }
                     } else if (sectionName === 'partners') {
-                        if (typeof window.loadPartners === 'function') {
-                            window.loadPartners();
-                        } else if (typeof loadPartners === 'function') {
-                            loadPartners();
-                        } else {
-                            console.error('❌ Функция loadPartners не найдена');
-                        }
-                        if (typeof window.loadReferrals === 'function') {
-                            window.loadReferrals();
-                        } else if (typeof loadReferrals === 'function') {
-                            loadReferrals();
-                        } else {
-                            console.error('❌ Функция loadReferrals не найдена');
-                        }
-                        if (typeof window.loadRewards === 'function') {
-                            window.loadRewards();
-                        } else if (typeof loadRewards === 'function') {
-                            loadRewards();
-                        } else {
-                            console.error('❌ Функция loadRewards не найдена');
-                        }
+                        tryLoadFunction('loadPartners', 0);
+                        tryLoadFunction('loadPartners', 100);
+                        tryLoadFunction('loadPartners', 300);
+                        tryLoadFunction('loadReferrals', 0);
+                        tryLoadFunction('loadReferrals', 100);
+                        tryLoadFunction('loadReferrals', 300);
+                        tryLoadFunction('loadRewards', 0);
+                        tryLoadFunction('loadRewards', 100);
+                        tryLoadFunction('loadRewards', 300);
                     }
                     
                     console.log('✅ Переключение завершено успешно');
@@ -4731,7 +4674,22 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 console.log('✅ Функции зарегистрированы глобально (fallback)');
             }
             
-            console.log('✅ Все скрипты загружены и функции зарегистрированы');
+                // Финальная регистрация всех функций глобально
+                const functionNames = [
+                    'loadUsers', 'loadGuests', 'loadBots', 'loadEmailCampaigns', 
+                    'loadArticles', 'loadPartners', 'loadReferrals', 'loadRewards',
+                    'loadNews', 'loadFullNews', 'loadQuestions', 'loadBackups',
+                    'loadNotificationsHistory', 'loadStats', 'loadWhitelistedIPs'
+                ];
+                
+                functionNames.forEach(funcName => {
+                    if (typeof eval(funcName) === 'function') {
+                        window[funcName] = eval(funcName);
+                        console.log('✅ ' + funcName + ' зарегистрирована глобально');
+                    }
+                });
+                
+                console.log('✅ Все скрипты загружены и функции зарегистрированы');
         </script>
     </body>
     </html>

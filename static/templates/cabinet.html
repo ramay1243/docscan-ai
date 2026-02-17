@@ -788,6 +788,11 @@
                 loadUserBranding();
             }
             
+            // Загружаем API-ключи при открытии секции
+            if (sectionName === 'api-keys' && typeof loadUserAPIKeys === 'function') {
+                loadUserAPIKeys();
+            }
+            
             // Загружаем данные партнерской программы при открытии секции
             if (sectionName === 'partners') {
                 loadReferralData();
@@ -1395,6 +1400,156 @@
                 observer.observe(brandingSection, { attributes: true, attributeFilter: ['class'] });
             }
         });
+        
+        // Управление API-ключами
+        async function loadUserAPIKeys() {
+            try {
+                const response = await fetch('/api/user/api-keys', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                const listDiv = document.getElementById('apiKeysList');
+                if (!result.success || !result.keys || result.keys.length === 0) {
+                    listDiv.innerHTML = '<p style="color: var(--gray);">У вас нет API-ключей. Создайте первый ключ ниже.</p>';
+                    return;
+                }
+                
+                let html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;">';
+                html += '<thead><tr style="background: var(--light); border-bottom: 2px solid var(--border);">';
+                html += '<th style="padding: 12px; text-align: left;">Название</th>';
+                html += '<th style="padding: 12px; text-align: left;">Ключ</th>';
+                html += '<th style="padding: 12px; text-align: left;">Запросов</th>';
+                html += '<th style="padding: 12px; text-align: left;">Последнее использование</th>';
+                html += '<th style="padding: 12px; text-align: left;">Статус</th>';
+                html += '<th style="padding: 12px; text-align: left;">Действия</th>';
+                html += '</tr></thead><tbody>';
+                
+                result.keys.forEach(key => {
+                    html += '<tr style="border-bottom: 1px solid var(--border);">';
+                    html += `<td style="padding: 12px;">${key.name || 'Без названия'}</td>`;
+                    html += `<td style="padding: 12px; font-family: monospace; font-size: 0.85rem;">${key.api_key}</td>`;
+                    html += `<td style="padding: 12px;">${key.requests_count || 0}</td>`;
+                    html += `<td style="padding: 12px;">${key.last_used || 'Никогда'}</td>`;
+                    html += `<td style="padding: 12px;">${key.is_active ? '<span style="color: var(--success);">Активен</span>' : '<span style="color: var(--danger);">Неактивен</span>'}</td>`;
+                    html += '<td style="padding: 12px;">';
+                    if (key.is_active) {
+                        html += `<button onclick="deactivateUserAPIKey(${key.id})" class="cta-button" style="background: var(--warning); padding: 5px 10px; font-size: 0.85rem; margin-right: 5px;">Деактивировать</button>`;
+                    } else {
+                        html += `<button onclick="activateUserAPIKey(${key.id})" class="cta-button" style="background: var(--success); padding: 5px 10px; font-size: 0.85rem; margin-right: 5px;">Активировать</button>`;
+                    }
+                    html += `<button onclick="deleteUserAPIKey(${key.id})" class="cta-button" style="background: var(--danger); padding: 5px 10px; font-size: 0.85rem;">Удалить</button>`;
+                    html += '</td></tr>';
+                });
+                
+                html += '</tbody></table>';
+                listDiv.innerHTML = html;
+            } catch (error) {
+                console.error('Ошибка загрузки API-ключей:', error);
+                document.getElementById('apiKeysList').innerHTML = '<p style="color: var(--danger);">Ошибка загрузки API-ключей</p>';
+            }
+        }
+        
+        async function createUserAPIKey() {
+            const name = document.getElementById('newApiKeyName').value.trim();
+            
+            try {
+                const response = await fetch('/api/user/api-keys/create', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({name: name || null})
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('newApiKeyValue').textContent = result.api_key;
+                    document.getElementById('newApiKeyResult').style.display = 'block';
+                    document.getElementById('newApiKeyName').value = '';
+                    loadUserAPIKeys();
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Ошибка создания API-ключа:', error);
+                alert('Ошибка соединения');
+            }
+        }
+        
+        function copyAPIKey() {
+            const keyText = document.getElementById('newApiKeyValue').textContent;
+            navigator.clipboard.writeText(keyText).then(() => {
+                alert('Ключ скопирован в буфер обмена');
+            }).catch(() => {
+                alert('Не удалось скопировать ключ');
+            });
+        }
+        
+        async function deactivateUserAPIKey(apiKeyId) {
+            if (!confirm('Вы уверены, что хотите деактивировать этот API-ключ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/user/api-keys/${apiKeyId}/deactivate`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadUserAPIKeys();
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Ошибка деактивации API-ключа:', error);
+                alert('Ошибка соединения');
+            }
+        }
+        
+        async function activateUserAPIKey(apiKeyId) {
+            try {
+                const response = await fetch(`/api/user/api-keys/${apiKeyId}/activate`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadUserAPIKeys();
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Ошибка активации API-ключа:', error);
+                alert('Ошибка соединения');
+            }
+        }
+        
+        async function deleteUserAPIKey(apiKeyId) {
+            if (!confirm('Вы уверены, что хотите удалить этот API-ключ? Это действие нельзя отменить!')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/user/api-keys/${apiKeyId}/delete`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadUserAPIKeys();
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Ошибка удаления API-ключа:', error);
+                alert('Ошибка соединения');
+            }
+        }
         
         // Copy referral link
         function copyReferralLink() {

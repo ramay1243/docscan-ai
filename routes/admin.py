@@ -2976,8 +2976,8 @@ def admin_panel():
                                     <td style="padding: 10px;">${user.total_used || 0}</td>
                                     <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}/${getPlanLimit(user.plan || 'free')}</td>
                                     <td style="padding: 10px;">
-                                        <button onclick="setUserPlanQuick(${JSON.stringify(user.userId)}, 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
-                                        <button onclick="setUserPlanQuick(${JSON.stringify(user.userId)}, 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
+                                        <button onclick="setUserPlanQuick('${(user.userId || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}', 'basic')" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
+                                        <button onclick="setUserPlanQuick('${(user.userId || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}', 'premium')" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
                                     </td>
                                 </tr>
                             `;
@@ -3248,13 +3248,15 @@ def admin_panel():
                                 const filename = backup.filename || '';
                                 // Экранируем HTML специальные символы для безопасного отображения
                                 const filenameEscaped = filename.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                                // Экранируем для использования в одинарных кавычках JavaScript
+                                const filenameForJS = filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
                                 
                                 html += '<tr style="border-bottom: 1px solid #e2e8f0;">';
                                 html += '<td style="padding: 10px;">' + dateStr + '</td>';
                                 html += '<td style="padding: 10px;">' + sizeMb + ' MB</td>';
                                 html += '<td style="padding: 10px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">' + filenameEscaped + '</code></td>';
                                 html += '<td style="padding: 10px;">';
-                                html += '<button onclick="deleteBackup(' + JSON.stringify(filename) + ')" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">';
+                                html += '<button onclick="deleteBackup(\'' + filenameForJS + '\')" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">';
                                 html += '🗑️ Удалить';
                                 html += '</button>';
                                 html += '</td>';

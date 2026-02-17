@@ -4642,6 +4642,12 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     });
             }
             
+            // Регистрируем loadRewards глобально
+            if (typeof loadRewards === 'function') {
+                window.loadRewards = loadRewards;
+                console.log('✅ loadRewards зарегистрирована глобально');
+            }
+            
             function markRewardPaid(rewardId) {
                 if (!confirm('Отметить вознаграждение как выплаченное?')) return;
                 

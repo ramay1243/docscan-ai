@@ -240,15 +240,35 @@ def generate_analysis_word(analysis_data, filename="document.pdf", branding_sett
         raise
 
 
-def generate_analysis_excel(analysis_data, filename="document.pdf"):
-    """Генерирует Excel файл (XLSX) с результатами анализа"""
+def generate_analysis_excel(analysis_data, filename="document.pdf", branding_settings=None):
+    """Генерирует Excel файл (XLSX) с результатами анализа
+    
+    Args:
+        analysis_data: Данные анализа
+        filename: Имя файла
+        branding_settings: Настройки брендинга (dict с logo_path, primary_color, secondary_color, company_name)
+    """
     try:
+        # Получаем настройки брендинга или используем значения по умолчанию
+        if branding_settings and branding_settings.get('is_active'):
+            primary_color = branding_settings.get('primary_color', '#4361ee')
+            secondary_color = branding_settings.get('secondary_color', '#764ba2')
+            company_name = branding_settings.get('company_name')
+            logo_path = branding_settings.get('logo_path')
+        else:
+            primary_color = '#4361ee'
+            secondary_color = '#764ba2'
+            company_name = None
+            logo_path = None
+        
         wb = Workbook()
         ws = wb.active
-        ws.title = "Анализ документа"
+        ws.title = company_name if company_name else "Анализ документа"
+        
+        # Конвертируем hex в RGB для Excel (убираем #)
+        primary_color_excel = primary_color.lstrip('#')
         
         # Стили
-        primary_color_excel = primary_color.lstrip('#')
         header_fill = PatternFill(start_color=primary_color_excel, end_color=primary_color_excel, fill_type="solid")
         header_font = Font(bold=True, color="FFFFFF", size=12)
         title_font = Font(bold=True, size=16, color=primary_color_excel)

@@ -519,6 +519,33 @@ class WhitelistedIP(db.Model):
             'notes': self.notes
         }
 
+class BrandingSettings(db.Model):
+    """Таблица для хранения настроек кастомного брендинга для пользователей"""
+    __tablename__ = 'branding_settings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False, unique=True)  # Пользователь (один брендинг на пользователя)
+    logo_path = db.Column(db.String(500), nullable=True)  # Путь к файлу логотипа
+    primary_color = db.Column(db.String(7), default='#4361ee')  # Основной цвет (hex, например #4361ee)
+    secondary_color = db.Column(db.String(7), default='#764ba2')  # Вторичный цвет (hex)
+    company_name = db.Column(db.String(255), nullable=True)  # Название компании (для отображения в отчетах)
+    is_active = db.Column(db.Boolean, default=True)  # Активен ли брендинг
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания
+    updated_at = db.Column(db.String(30), nullable=True)  # Дата обновления
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'logo_path': self.logo_path,
+            'primary_color': self.primary_color,
+            'secondary_color': self.secondary_color,
+            'company_name': self.company_name,
+            'is_active': self.is_active,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+
 
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""
@@ -2171,6 +2198,91 @@ DocScan AI
         
         logger.warning(f"🚫 IP {ip_address} НЕ найден в белом списке для пользователя {user_id}")
         return False
+    
+    # ========== МЕТОДЫ ДЛЯ КАСТОМНОГО БРЕНДИНГА ==========
+    
+    def get_branding_settings(self, user_id):
+        """Получает настройки брендинга для пользователя"""
+        from models.sqlite_users import BrandingSettings
+        
+        branding = BrandingSettings.query.filter_by(user_id=user_id, is_active=True).first()
+        if branding:
+            return branding.to_dict()
+        return None
+    
+    def save_branding_settings(self, user_id, logo_path=None, primary_color=None, secondary_color=None, company_name=None):
+        """Сохраняет или обновляет настройки брендинга"""
+        from models.sqlite_users import BrandingSettings
+        from datetime import datetime
+        
+        branding = BrandingSettings.query.filter_by(user_id=user_id).first()
+        
+        if branding:
+            # Обновляем существующие настройки
+            if logo_path is not None:
+                branding.logo_path = logo_path
+            if primary_color is not None:
+                branding.primary_color = primary_color
+            if secondary_color is not None:
+                branding.secondary_color = secondary_color
+            if company_name is not None:
+                branding.company_name = company_name
+            branding.updated_at = datetime.now().isoformat()
+        else:
+            # Создаем новые настройки
+            branding = BrandingSettings(
+                user_id=user_id,
+                logo_path=logo_path,
+                primary_color=primary_color or '#4361ee',
+                secondary_color=secondary_color or '#764ba2',
+                company_name=company_name,
+                is_active=True,
+                created_at=datetime.now().isoformat(),
+                updated_at=datetime.now().isoformat()
+            )
+            self.db.session.add(branding)
+        
+        self.db.session.commit()
+        logger.info(f"✅ Настройки брендинга сохранены для пользователя {user_id}")
+        return {'success': True, 'branding': branding.to_dict()}
+    
+    def toggle_branding(self, user_id, is_active=None):
+        """Включает/выключает брендинг для пользователя"""
+        from models.sqlite_users import BrandingSettings
+        
+        branding = BrandingSettings.query.filter_by(user_id=user_id).first()
+        if branding:
+            if is_active is not None:
+                branding.is_active = is_active
+            else:
+                branding.is_active = not branding.is_active
+            self.db.session.commit()
+            logger.info(f"✅ Брендинг {'активирован' if branding.is_active else 'деактивирован'} для пользователя {user_id}")
+            return {'success': True, 'is_active': branding.is_active}
+        
+        return {'success': False, 'error': 'Настройки брендинга не найдены'}
+    
+    def delete_branding(self, user_id):
+        """Удаляет настройки брендинга и логотип"""
+        from models.sqlite_users import BrandingSettings
+        import os
+        
+        branding = BrandingSettings.query.filter_by(user_id=user_id).first()
+        if branding:
+            # Удаляем файл логотипа, если он существует
+            if branding.logo_path and os.path.exists(branding.logo_path):
+                try:
+                    os.remove(branding.logo_path)
+                    logger.info(f"🗑️ Логотип удален: {branding.logo_path}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Не удалось удалить логотип: {e}")
+            
+            self.db.session.delete(branding)
+            self.db.session.commit()
+            logger.info(f"✅ Настройки брендинга удалены для пользователя {user_id}")
+            return {'success': True, 'message': 'Настройки брендинга удалены'}
+        
+        return {'success': False, 'error': 'Настройки брендинга не найдены'}
     
     def toggle_whitelisted_ip(self, ip_id, user_id=None):
         """Включает/выключает IP-адрес в белом списке"""

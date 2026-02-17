@@ -617,6 +617,63 @@ def admin_panel():
                         <div id="whitelistStatus" style="margin: 10px 0; color: #666; font-size: 14px;"></div>
                         <div id="whitelistList" style="margin-top: 20px;"></div>
                     </div>
+                    
+                    <div class="card">
+                        <h3>🎨 Кастомный брендинг (для бизнес-тарифов)</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Настройка кастомного брендинга для пользователей. Логотип и цвета будут применяться ко всем отчетам (PDF, Word, Excel).
+                        </p>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="brandingUserId" placeholder="ID пользователя" 
+                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <button onclick="loadBranding()" style="background: #667eea; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">📥 Загрузить настройки</button>
+                        </div>
+                        <div id="brandingStatus" style="margin: 10px 0; color: #666; font-size: 14px;"></div>
+                        
+                        <div id="brandingForm" style="display: none; margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 8px;">
+                            <h4 style="margin-bottom: 15px;">Настройки брендинга</h4>
+                            
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Название компании:</label>
+                                <input type="text" id="brandingCompanyName" placeholder="Например: ООО Рога и Копыта" 
+                                       style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Основной цвет (hex):</label>
+                                <input type="color" id="brandingPrimaryColor" value="#4361ee" 
+                                       style="width: 100px; height: 40px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <input type="text" id="brandingPrimaryColorText" value="#4361ee" placeholder="#4361ee" 
+                                       style="width: 150px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Вторичный цвет (hex):</label>
+                                <input type="color" id="brandingSecondaryColor" value="#764ba2" 
+                                       style="width: 100px; height: 40px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                <input type="text" id="brandingSecondaryColorText" value="#764ba2" placeholder="#764ba2" 
+                                       style="width: 150px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                            </div>
+                            
+                            <div style="margin: 15px 0;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Логотип (PNG, JPG, JPEG, GIF, SVG):</label>
+                                <input type="file" id="brandingLogo" accept="image/png,image/jpeg,image/jpg,image/gif,image/svg+xml" 
+                                       style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                                <small style="color: #666; font-size: 0.85rem;">Рекомендуемый размер: 200x80px. Максимальный размер: 2MB.</small>
+                            </div>
+                            
+                            <div id="brandingLogoPreview" style="margin: 15px 0; display: none;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Текущий логотип:</label>
+                                <img id="brandingLogoPreviewImg" src="" alt="Логотип" style="max-width: 200px; max-height: 80px; border: 1px solid #cbd5e0; border-radius: 5px; padding: 5px;">
+                            </div>
+                            
+                            <div style="margin: 20px 0;">
+                                <button onclick="saveBranding()" style="background: #48bb78; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">💾 Сохранить настройки</button>
+                                <button onclick="toggleBrandingActive()" id="brandingToggleBtn" style="background: #ed8936; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">⏸️ Деактивировать</button>
+                                <button onclick="deleteBranding()" style="background: #e53e3e; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">🗑️ Удалить брендинг</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Секция: Гости -->
@@ -3193,6 +3250,193 @@ def admin_panel():
                 });
             }
             
+            // ========== ФУНКЦИИ ДЛЯ КАСТОМНОГО БРЕНДИНГА ==========
+            
+            function loadBranding() {
+                const userId = document.getElementById('brandingUserId').value.trim();
+                if (!userId) {
+                    document.getElementById('brandingStatus').innerHTML = '<span style="color: #e53e3e;">❌ Введите ID пользователя</span>';
+                    return;
+                }
+                
+                fetch(`/admin/get-branding?user_id=${userId}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success && result.branding) {
+                        const branding = result.branding;
+                        document.getElementById('brandingCompanyName').value = branding.company_name || '';
+                        document.getElementById('brandingPrimaryColor').value = branding.primary_color || '#4361ee';
+                        document.getElementById('brandingPrimaryColorText').value = branding.primary_color || '#4361ee';
+                        document.getElementById('brandingSecondaryColor').value = branding.secondary_color || '#764ba2';
+                        document.getElementById('brandingSecondaryColorText').value = branding.secondary_color || '#764ba2';
+                        
+                        // Показываем логотип, если есть
+                        if (branding.logo_path) {
+                            document.getElementById('brandingLogoPreviewImg').src = '/' + branding.logo_path.replace(/\\/g, '/');
+                            document.getElementById('brandingLogoPreview').style.display = 'block';
+                        } else {
+                            document.getElementById('brandingLogoPreview').style.display = 'none';
+                        }
+                        
+                        // Обновляем кнопку активации
+                        const toggleBtn = document.getElementById('brandingToggleBtn');
+                        if (branding.is_active) {
+                            toggleBtn.textContent = '⏸️ Деактивировать';
+                            toggleBtn.style.background = '#ed8936';
+                        } else {
+                            toggleBtn.textContent = '▶️ Активировать';
+                            toggleBtn.style.background = '#48bb78';
+                        }
+                        
+                        document.getElementById('brandingForm').style.display = 'block';
+                        document.getElementById('brandingStatus').innerHTML = '<span style="color: #48bb78;">✅ Настройки загружены</span>';
+                    } else {
+                        // Нет настроек, показываем форму для создания
+                        document.getElementById('brandingForm').style.display = 'block';
+                        document.getElementById('brandingStatus').innerHTML = '<span style="color: #667eea;">ℹ️ Настройки не найдены. Заполните форму для создания.</span>';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('brandingStatus').innerHTML = '<span style="color: #e53e3e;">❌ Ошибка: ' + error.message + '</span>';
+                });
+            }
+            
+            function saveBranding() {
+                const userId = document.getElementById('brandingUserId').value.trim();
+                if (!userId) {
+                    alert('❌ Введите ID пользователя');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('user_id', userId);
+                formData.append('company_name', document.getElementById('brandingCompanyName').value.trim());
+                formData.append('primary_color', document.getElementById('brandingPrimaryColorText').value.trim());
+                formData.append('secondary_color', document.getElementById('brandingSecondaryColorText').value.trim());
+                
+                const logoFile = document.getElementById('brandingLogo').files[0];
+                if (logoFile) {
+                    formData.append('logo', logoFile);
+                }
+                
+                const statusEl = document.getElementById('brandingStatus');
+                statusEl.innerHTML = '<span style="color: #667eea;">⏳ Сохранение...</span>';
+                
+                fetch('/admin/save-branding', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        statusEl.innerHTML = '<span style="color: #48bb78;">✅ Настройки сохранены!</span>';
+                        loadBranding(); // Перезагружаем для обновления превью
+                    } else {
+                        statusEl.innerHTML = '<span style="color: #e53e3e;">❌ ' + result.error + '</span>';
+                    }
+                })
+                .catch(error => {
+                    statusEl.innerHTML = '<span style="color: #e53e3e;">❌ Ошибка: ' + error.message + '</span>';
+                });
+            }
+            
+            function toggleBrandingActive() {
+                const userId = document.getElementById('brandingUserId').value.trim();
+                if (!userId) {
+                    alert('❌ Введите ID пользователя');
+                    return;
+                }
+                
+                fetch('/admin/toggle-branding', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({user_id: userId})
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Брендинг ' + (result.is_active ? 'активирован' : 'деактивирован'));
+                        loadBranding(); // Перезагружаем для обновления кнопки
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(error => {
+                    alert('❌ Ошибка: ' + error.message);
+                });
+            }
+            
+            function deleteBranding() {
+                const userId = document.getElementById('brandingUserId').value.trim();
+                if (!userId) {
+                    alert('❌ Введите ID пользователя');
+                    return;
+                }
+                
+                if (!confirm('Удалить настройки брендинга? Логотип также будет удален.')) return;
+                
+                fetch('/admin/delete-branding', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({user_id: userId})
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✅ Брендинг удален');
+                        document.getElementById('brandingForm').style.display = 'none';
+                        document.getElementById('brandingStatus').innerHTML = '<span style="color: #48bb78;">✅ Брендинг удален</span>';
+                    } else {
+                        alert('❌ Ошибка: ' + result.error);
+                    }
+                })
+                .catch(error => {
+                    alert('❌ Ошибка: ' + error.message);
+                });
+            }
+            
+            // Синхронизация color picker с текстовым полем
+            document.addEventListener('DOMContentLoaded', function() {
+                const primaryColorPicker = document.getElementById('brandingPrimaryColor');
+                const primaryColorText = document.getElementById('brandingPrimaryColorText');
+                const secondaryColorPicker = document.getElementById('brandingSecondaryColor');
+                const secondaryColorText = document.getElementById('brandingSecondaryColorText');
+                
+                if (primaryColorPicker && primaryColorText) {
+                    primaryColorPicker.addEventListener('input', function() {
+                        primaryColorText.value = primaryColorPicker.value;
+                    });
+                    primaryColorText.addEventListener('input', function() {
+                        if (/^#[0-9A-F]{6}$/i.test(primaryColorText.value)) {
+                            primaryColorPicker.value = primaryColorText.value;
+                        }
+                    });
+                }
+                
+                if (secondaryColorPicker && secondaryColorText) {
+                    secondaryColorPicker.addEventListener('input', function() {
+                        secondaryColorText.value = secondaryColorPicker.value;
+                    });
+                    secondaryColorText.addEventListener('input', function() {
+                        if (/^#[0-9A-F]{6}$/i.test(secondaryColorText.value)) {
+                            secondaryColorPicker.value = secondaryColorText.value;
+                        }
+                    });
+                }
+            });
+            
+            // Регистрируем функции глобально
+            window.loadBranding = loadBranding;
+            window.saveBranding = saveBranding;
+            window.toggleBrandingActive = toggleBrandingActive;
+            window.deleteBranding = deleteBranding;
+            
             // Регистрируем функции глобально
             if (typeof createBackup === 'function') {
                 window.createBackup = createBackup;
@@ -4585,6 +4829,137 @@ def admin_get_whitelist_ips():
         
     except Exception as e:
         logger.error(f"❌ Ошибка получения белого списка IP: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+# ========== API ДЛЯ УПРАВЛЕНИЯ БРЕНДИНГОМ ==========
+
+@admin_bp.route('/get-branding', methods=['GET'])
+@require_admin_auth
+def admin_get_branding():
+    """Получить настройки брендинга для пользователя"""
+    from app import app
+    
+    try:
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Не указан user_id'}), 400
+        
+        branding = app.user_manager.get_branding_settings(user_id)
+        
+        return jsonify({
+            'success': True,
+            'branding': branding
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения настроек брендинга: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/save-branding', methods=['POST'])
+@require_admin_auth
+def admin_save_branding():
+    """Сохранить настройки брендинга для пользователя"""
+    from app import app
+    from werkzeug.utils import secure_filename
+    import uuid
+    
+    try:
+        user_id = request.form.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Не указан user_id'}), 400
+        
+        # Получаем данные формы
+        primary_color = request.form.get('primary_color')
+        secondary_color = request.form.get('secondary_color')
+        company_name = request.form.get('company_name')
+        
+        # Обработка загрузки логотипа
+        logo_path = None
+        if 'logo' in request.files:
+            logo_file = request.files['logo']
+            if logo_file and logo_file.filename:
+                # Проверяем расширение
+                allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
+                filename = secure_filename(logo_file.filename)
+                file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                
+                if file_ext not in allowed_extensions:
+                    return jsonify({'success': False, 'error': 'Недопустимый формат файла. Разрешены: PNG, JPG, JPEG, GIF, SVG'}), 400
+                
+                # Создаем папку для логотипов, если её нет
+                logos_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'logos')
+                os.makedirs(logos_dir, exist_ok=True)
+                
+                # Генерируем уникальное имя файла
+                unique_filename = f"{user_id}_{uuid.uuid4().hex[:8]}.{file_ext}"
+                logo_path = os.path.join(logos_dir, unique_filename)
+                
+                # Сохраняем файл
+                logo_file.save(logo_path)
+                logger.info(f"✅ Логотип сохранен: {logo_path}")
+                
+                # Удаляем старый логотип, если есть
+                old_branding = app.user_manager.get_branding_settings(user_id)
+                if old_branding and old_branding.get('logo_path') and os.path.exists(old_branding['logo_path']):
+                    try:
+                        os.remove(old_branding['logo_path'])
+                    except Exception as e:
+                        logger.warning(f"⚠️ Не удалось удалить старый логотип: {e}")
+        
+        # Сохраняем настройки
+        result = app.user_manager.save_branding_settings(
+            user_id=user_id,
+            logo_path=logo_path,
+            primary_color=primary_color,
+            secondary_color=secondary_color,
+            company_name=company_name
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка сохранения настроек брендинга: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/toggle-branding', methods=['POST'])
+@require_admin_auth
+def admin_toggle_branding():
+    """Включить/выключить брендинг для пользователя"""
+    from app import app
+    
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        is_active = data.get('is_active')
+        
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Не указан user_id'}), 400
+        
+        result = app.user_manager.toggle_branding(user_id, is_active)
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка переключения брендинга: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/delete-branding', methods=['POST'])
+@require_admin_auth
+def admin_delete_branding():
+    """Удалить настройки брендинга для пользователя"""
+    from app import app
+    
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Не указан user_id'}), 400
+        
+        result = app.user_manager.delete_branding(user_id)
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления брендинга: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 @admin_bp.route('/create-backup', methods=['POST'])

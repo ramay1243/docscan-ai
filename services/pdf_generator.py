@@ -2,7 +2,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
@@ -353,7 +353,8 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             alignment=TA_CENTER,
             fontName=FONT_NAME
         )
-        story.append(Paragraph("Сгенерировано DocScan AI - https://docscan-ai.ru", footer_style))
+        footer_text = f"Сгенерировано {company_name if company_name else 'DocScan AI'} - https://docscan-ai.ru"
+        story.append(Paragraph(footer_text, footer_style))
         
         # Собираем PDF
         doc.build(story)
@@ -722,7 +723,8 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             alignment=TA_CENTER,
             fontName=FONT_NAME
         )
-        story.append(Paragraph("Сгенерировано DocScan AI - https://docscan-ai.ru", footer_style))
+        footer_text = f"Сгенерировано {company_name if company_name else 'DocScan AI'} - https://docscan-ai.ru"
+        story.append(Paragraph(footer_text, footer_style))
         
         # Собираем PDF
         doc.build(story)
@@ -1091,7 +1093,8 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             alignment=TA_CENTER,
             fontName=FONT_NAME
         )
-        story.append(Paragraph("Сгенерировано DocScan AI - https://docscan-ai.ru", footer_style))
+        footer_text = f"Сгенерировано {company_name if company_name else 'DocScan AI'} - https://docscan-ai.ru"
+        story.append(Paragraph(footer_text, footer_style))
         
         # Собираем PDF
         doc.build(story)
@@ -1460,7 +1463,8 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
             alignment=TA_CENTER,
             fontName=FONT_NAME
         )
-        story.append(Paragraph("Сгенерировано DocScan AI - https://docscan-ai.ru", footer_style))
+        footer_text = f"Сгенерировано {company_name if company_name else 'DocScan AI'} - https://docscan-ai.ru"
+        story.append(Paragraph(footer_text, footer_style))
         
         # Собираем PDF
         doc.build(story)

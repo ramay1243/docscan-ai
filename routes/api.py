@@ -489,17 +489,23 @@ def download_analysis():
         if not analysis_data:
             return jsonify({'error': 'Нет данных анализа'}), 400
         
+        # Получаем настройки брендинга для пользователя (если авторизован)
+        branding_settings = None
+        user_id = data.get('user_id') or session.get('user_id')
+        if user_id:
+            branding_settings = app.user_manager.get_branding_settings(user_id)
+        
         # Генерируем файл в зависимости от формата
         if export_format == 'word' or export_format == 'docx':
-            file_content = generate_analysis_word(analysis_data, filename)
+            file_content = generate_analysis_word(analysis_data, filename, branding_settings)
             mime_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             file_extension = 'docx'
         elif export_format == 'excel' or export_format == 'xlsx':
-            file_content = generate_analysis_excel(analysis_data, filename)
+            file_content = generate_analysis_excel(analysis_data, filename, branding_settings)
             mime_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             file_extension = 'xlsx'
         else:  # pdf по умолчанию
-            file_content = generate_analysis_pdf(analysis_data, filename)
+            file_content = generate_analysis_pdf(analysis_data, filename, branding_settings)
             mime_type = 'application/pdf'
             file_extension = 'pdf'
         

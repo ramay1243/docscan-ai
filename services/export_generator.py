@@ -9,12 +9,36 @@ from openpyxl.utils import get_column_letter
 from io import BytesIO
 from datetime import datetime
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
-def generate_analysis_word(analysis_data, filename="document.pdf"):
-    """Генерирует Word документ (DOCX) с результатами анализа"""
+def hex_to_rgb(hex_color):
+    """Конвертирует hex цвет в RGB"""
+    hex_color = hex_color.lstrip('#')
+    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+
+def generate_analysis_word(analysis_data, filename="document.pdf", branding_settings=None):
+    """Генерирует Word документ (DOCX) с результатами анализа
+    
+    Args:
+        analysis_data: Данные анализа
+        filename: Имя файла
+        branding_settings: Настройки брендинга (dict с logo_path, primary_color, secondary_color, company_name)
+    """
     try:
+        # Получаем настройки брендинга или используем значения по умолчанию
+        if branding_settings and branding_settings.get('is_active'):
+            primary_color = branding_settings.get('primary_color', '#4361ee')
+            secondary_color = branding_settings.get('secondary_color', '#764ba2')
+            company_name = branding_settings.get('company_name')
+            logo_path = branding_settings.get('logo_path')
+        else:
+            primary_color = '#4361ee'
+            secondary_color = '#764ba2'
+            company_name = None
+            logo_path = None
+        
         doc = Document()
         
         # Настройка шрифта по умолчанию для поддержки кириллицы
@@ -23,12 +47,26 @@ def generate_analysis_word(analysis_data, filename="document.pdf"):
         font.name = 'Arial'
         font.size = Pt(11)
         
+        # Логотип (если есть)
+        if logo_path and os.path.exists(logo_path):
+            try:
+                paragraph = doc.add_paragraph()
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                run = paragraph.add_run()
+                run.add_picture(logo_path, width=Inches(2))
+                doc.add_paragraph()  # Пустая строка после логотипа
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось добавить логотип: {e}")
+        
         # Заголовок
-        title = doc.add_heading('Анализ документа', 0)
+        title_text = company_name if company_name else 'Анализ документа'
+        title = doc.add_heading(title_text, 0)
         title.alignment = WD_ALIGN_PARAGRAPH.CENTER
         title_run = title.runs[0]
         title_run.font.size = Pt(24)
-        title_run.font.color.rgb = RGBColor(67, 97, 238)
+        # Конвертируем hex в RGB
+        rgb_color = hex_to_rgb(primary_color)
+        title_run.font.color.rgb = RGBColor(rgb_color[0], rgb_color[1], rgb_color[2])
         title_run.bold = True
         
         # Информация о документе
@@ -210,9 +248,10 @@ def generate_analysis_excel(analysis_data, filename="document.pdf"):
         ws.title = "Анализ документа"
         
         # Стили
-        header_fill = PatternFill(start_color="4361EE", end_color="4361EE", fill_type="solid")
+        primary_color_excel = primary_color.lstrip('#')
+        header_fill = PatternFill(start_color=primary_color_excel, end_color=primary_color_excel, fill_type="solid")
         header_font = Font(bold=True, color="FFFFFF", size=12)
-        title_font = Font(bold=True, size=16, color="4361EE")
+        title_font = Font(bold=True, size=16, color=primary_color_excel)
         risk_font = Font(bold=True, size=11)
         border = Border(
             left=Side(style='thin'),
@@ -226,9 +265,10 @@ def generate_analysis_excel(analysis_data, filename="document.pdf"):
         row = 1
         
         # Заголовок
+        title_text = company_name if company_name else "Анализ документа"
         ws.merge_cells(f'A{row}:D{row}')
         cell = ws[f'A{row}']
-        cell.value = "Анализ документа"
+        cell.value = title_text
         cell.font = title_font
         cell.alignment = center_align
         row += 1

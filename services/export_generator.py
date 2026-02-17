@@ -270,6 +270,8 @@ def generate_analysis_excel(analysis_data, filename="document.pdf"):
         cell = ws[f'A{row}']
         cell.value = title_text
         cell.font = title_font
+        cell.fill = header_fill
+        cell.font = Font(bold=True, color="FFFFFF", size=16)
         cell.alignment = center_align
         row += 1
         

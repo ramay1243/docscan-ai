@@ -80,17 +80,17 @@ def create_app():
             # Проверяем на ботов перед созданием записи гостя
             from utils.bot_detector import is_search_bot, should_block_request, get_bot_type, is_wordpress_scanner
             
-            # Блокируем вредоносных ботов
-            if should_block_request(user_agent):
-                logger.debug(f"🚫 Вредоносный бот заблокирован в middleware: IP={real_ip}")
-                return None
-            
-            # Проверяем на WordPress-сканеры по пути запроса
-            if is_wordpress_scanner(request.path):
-                # Записываем WordPress-сканеры как боты
-                app.user_manager.get_or_create_search_bot(real_ip, user_agent or request.path, 'WordPress Scanner')
-                logger.debug(f"🔍 WordPress-сканер записан в middleware: {request.path} (IP={real_ip})")
-                return None
+            # Блокируем вредоносных ботов и WordPress-сканеры
+            if should_block_request(user_agent, request_path=request.path):
+                # Если это WordPress-сканер, записываем его как бота перед блокировкой
+                if is_wordpress_scanner(request_path=request.path, user_agent=user_agent):
+                    app.user_manager.get_or_create_search_bot(real_ip, user_agent or request.path, 'WordPress Scanner')
+                    logger.warning(f"🚫 WordPress-сканер заблокирован: {request.path} (IP={real_ip})")
+                else:
+                    logger.debug(f"🚫 Вредоносный бот заблокирован в middleware: IP={real_ip}")
+                # Возвращаем 403 Forbidden для заблокированных запросов
+                from flask import Response
+                return Response('Forbidden', status=403)
             
             # Записываем поисковых ботов в отдельную таблицу
             is_bot, bot_type = is_search_bot(user_agent)

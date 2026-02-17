@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session, send_file, redirect
 from utils.logger import RussianLogger
+from datetime import datetime
 import tempfile
 import os
 import uuid
@@ -7,6 +8,7 @@ import logging
 from services.file_processing import extract_text_from_file, validate_file
 from services.analysis import analyze_text
 from services.pdf_generator import generate_analysis_pdf
+from services.export_generator import generate_analysis_word, generate_analysis_excel
 from config import PLANS
 from flask_cors import cross_origin, CORS
 from io import BytesIO
@@ -457,6 +459,53 @@ def upgrade_plan():
         logger.error(f"❌ Ошибка смены тарифа: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@api_bp.route('/download-analysis', methods=['POST'])
+def download_analysis():
+    """Скачать анализ в PDF"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Нет данных'}), 400
+        
+        analysis_data = data.get('analysis')
+        filename = data.get('filename', 'document.pdf')
+        export_format = data.get('format', 'pdf').lower()  # pdf, word, excel
+        
+        if not analysis_data:
+            return jsonify({'error': 'Нет данных анализа'}), 400
+        
+        # Генерируем файл в зависимости от формата
+        if export_format == 'word' or export_format == 'docx':
+            file_content = generate_analysis_word(analysis_data, filename)
+            mime_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            file_extension = 'docx'
+        elif export_format == 'excel' or export_format == 'xlsx':
+            file_content = generate_analysis_excel(analysis_data, filename)
+            mime_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            file_extension = 'xlsx'
+        else:  # pdf по умолчанию
+            file_content = generate_analysis_pdf(analysis_data, filename)
+            mime_type = 'application/pdf'
+            file_extension = 'pdf'
+        
+        from flask import Response
+        response = Response(
+            file_content,
+            mimetype=mime_type,
+            headers={
+                'Content-Disposition': f'attachment; filename=analysis_{filename.rsplit(".", 1)[0] if "." in filename else filename}_{datetime.now().strftime("%Y%m%d")}.{file_extension}'
+            }
+        )
+        
+        logger.info(f"✅ Файл экспортирован: формат={export_format}, файл={filename}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка экспорта: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return jsonify({'error': f'Ошибка генерации файла: {str(e)}'}), 500
+
 @api_bp.route('/')
 def api_info():
     """Информация о API"""
@@ -464,7 +513,9 @@ def api_info():
         'message': 'DocScan API работает!',
         'status': 'active',
         'ai_available': True,
-        'pdf_export': False,
+        'pdf_export': True,
+        'word_export': True,
+        'excel_export': True,
         'version': '1.0.0'
     })
     

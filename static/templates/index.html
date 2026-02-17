@@ -2123,18 +2123,36 @@
             resultDiv.scrollIntoView({ behavior: 'smooth' });
         }
         
-        async function downloadAnalysis(event) {
-            if (!currentAnalysisData) {
-                alert('Ошибка: данные анализа не найдены');
+        async function downloadAnalysis(event, format = 'pdf') {
+            if (!currentAnalysisData || !currentAnalysisData.result) {
+                alert('Нет данных для скачивания');
                 return;
             }
             
+            const formatNames = {
+                'pdf': 'PDF',
+                'word': 'Word',
+                'excel': 'Excel'
+            };
+            
+            const formatIcons = {
+                'pdf': '📥',
+                'word': '📄',
+                'excel': '📊'
+            };
+            
+            const formatExtensions = {
+                'pdf': 'pdf',
+                'word': 'docx',
+                'excel': 'xlsx'
+            };
+            
             try {
                 // Показываем индикатор загрузки
-                const button = event ? event.target : document.querySelector('button[onclick*="downloadAnalysis"]');
+                const button = event ? event.target : document.querySelector(`button[data-format="${format}"]`);
                 const originalText = button.innerHTML;
                 button.disabled = true;
-                button.innerHTML = '⏳ Генерация PDF...';
+                button.innerHTML = `⏳ Генерация ${formatNames[format]}...`;
                 
                 // Отправляем запрос на сервер
                 const response = await fetch('/api/download-analysis', {
@@ -2145,17 +2163,19 @@
                     credentials: 'include',
                     body: JSON.stringify({
                         analysis: currentAnalysisData.result,
-                        filename: currentAnalysisData.filename || 'document.pdf'
+                        filename: currentAnalysisData.filename || 'document.pdf',
+                        format: format
                     })
                 });
                 
                 if (response.ok) {
-                    // Получаем PDF файл
+                    // Получаем файл
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `analysis_${currentAnalysisData.filename || 'document'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    const baseFilename = (currentAnalysisData.filename || 'document').split('.')[0];
+                    a.download = `analysis_${baseFilename}_${new Date().toISOString().split('T')[0]}.${formatExtensions[format]}`;
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
@@ -2168,15 +2188,17 @@
                     }, 2000);
                 } else {
                     const error = await response.json();
-                    alert('Ошибка при генерации PDF: ' + (error.error || 'Неизвестная ошибка'));
+                    alert(`Ошибка при генерации ${formatNames[format]}: ` + (error.error || 'Неизвестная ошибка'));
                     button.innerHTML = originalText;
                     button.disabled = false;
                 }
             } catch (error) {
                 console.error('Ошибка скачивания:', error);
                 alert('Ошибка соединения: ' + error.message);
-                event.target.disabled = false;
-                event.target.innerHTML = '📥 Скачать анализ в PDF';
+                if (event && event.target) {
+                    event.target.disabled = false;
+                    event.target.innerHTML = `${formatIcons[format]} Скачать анализ в ${formatNames[format]}`;
+                }
             }
         }
         
@@ -2501,13 +2523,21 @@
                         <div style="font-size: 3rem; margin-bottom: 15px;">📥</div>
                         <h3 style="margin: 0 0 15px 0; color: white; font-size: 1.5rem; font-weight: 700;">Сохранить анализ</h3>
                         <p style="margin: 0 0 25px 0; opacity: 0.95; font-size: 1.1rem; line-height: 1.6;">
-                            Скачайте полный отчет анализа в формате PDF для сохранения, печати или отправки юристу
+                            Скачайте полный отчет анализа в удобном формате для сохранения, печати или отправки юристу
                         </p>
-                        <button onclick="downloadAnalysis(event)" style="background: white; color: var(--primary); padding: 16px 40px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
-                            📥 Скачать анализ в PDF
-                        </button>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                            <button onclick="downloadAnalysis(event, 'pdf')" data-format="pdf" style="background: white; color: var(--primary); padding: 16px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                                📥 PDF
+                            </button>
+                            <button onclick="downloadAnalysis(event, 'word')" data-format="word" style="background: white; color: #2b579a; padding: 16px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                                📄 Word
+                            </button>
+                            <button onclick="downloadAnalysis(event, 'excel')" data-format="excel" style="background: white; color: #217346; padding: 16px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                                📊 Excel
+                            </button>
+                        </div>
                         <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
-                            ✨ PDF включает все разделы анализа, риски и рекомендации
+                            ✨ Все форматы включают полный анализ, риски и рекомендации
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify, session
 import secrets
 import uuid
+import os
+import subprocess
+import sys
 from datetime import datetime
 from functools import wraps
 from config import ADMINS
@@ -447,6 +450,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="campaigns">
                     <span>📧</span> Email-рассылки
                 </a>
+                <a href="#" class="menu-item" data-section="backups">
+                    <span>💾</span> Резервные копии
+                </a>
                 <a href="#" class="menu-item" data-section="articles">
                     <span>📝</span> Статьи
                 </a>
@@ -732,6 +738,51 @@ def admin_panel():
                         <h3>История рассылок</h3>
                         <button onclick="loadEmailCampaigns()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">🔄 Обновить список</button>
                         <div id="emailCampaignsList"></div>
+                    </div>
+                </div>
+                
+                <!-- Секция: Резервные копии -->
+                <div id="section-backups" class="content-section">
+                    <h2 class="section-header">💾 Резервные копии базы данных</h2>
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Управление резервными копиями базы данных. Рекомендуется создавать бэкапы регулярно для защиты данных.
+                    </p>
+                    
+                    <div class="card">
+                        <h3>Создать резервную копию</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Создает полную резервную копию базы данных в сжатом формате. Бэкап будет сохранен в папке backups/.
+                        </p>
+                        <button onclick="createBackup()" style="background: #48bb78; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 1rem;">
+                            💾 Создать бэкап сейчас
+                        </button>
+                        <div id="backupStatus" style="margin-top: 15px; color: #666; font-size: 14px;"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Управление бэкапами</h3>
+                        <div style="margin: 15px 0;">
+                            <button onclick="loadBackups()" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                                🔄 Обновить список
+                            </button>
+                            <button onclick="cleanOldBackups()" style="background: #ed8936; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                                🧹 Удалить старые бэкапы (старше 30 дней)
+                            </button>
+                        </div>
+                        <div id="backupsList" style="margin-top: 20px;"></div>
+                    </div>
+                    
+                    <div class="card" style="background: #fff5f5; border-left: 4px solid #fc8181;">
+                        <h3 style="color: #c53030;">⚠️ Восстановление базы данных</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Для восстановления базы данных из бэкапа используйте скрипт на сервере:
+                        </p>
+                        <code style="background: #f7fafc; padding: 10px; border-radius: 5px; display: block; margin: 10px 0; font-family: monospace;">
+                            python restore_database.py
+                        </code>
+                        <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">
+                            Это безопаснее, чем восстановление через веб-интерфейс, так как создается резервная копия текущей БД перед восстановлением.
+                        </p>
                     </div>
                 </div>
                 
@@ -1155,6 +1206,7 @@ def admin_panel():
                         'guests': '👤 Гости',
                         'search-bots': '🕷️ Поисковые боты',
                         'campaigns': '📧 Email-рассылки',
+                        'backups': '💾 Резервные копии',
                         'articles': '📝 Статьи',
                         'news': '📰 Новости',
                         'full-news': '📄 Полные новости',
@@ -1235,6 +1287,16 @@ def admin_panel():
                             initFullNewsEditorOnShow();
                         } else if (typeof window.initFullNewsEditorOnShow === 'function') {
                             window.initFullNewsEditorOnShow();
+                        }
+                    } else if (sectionName === 'backups') {
+                        const backupsList = document.getElementById('backupsList');
+                        if (backupsList && backupsList.innerHTML === '') {
+                            console.log('📥 Загрузка бэкапов...');
+                            if (typeof loadBackups === 'function') {
+                                loadBackups();
+                            } else if (typeof window.loadBackups === 'function') {
+                                window.loadBackups();
+                            }
                         }
                     } else if (sectionName === 'questions') {
                         const questionsList = document.getElementById('questionsList');
@@ -3024,6 +3086,133 @@ def admin_panel():
                     }
                 });
             }
+            
+            // ========== ФУНКЦИИ ДЛЯ РЕЗЕРВНЫХ КОПИЙ ==========
+            
+            function createBackup() {
+                const statusEl = document.getElementById('backupStatus');
+                statusEl.innerHTML = '<span style="color: #667eea;">⏳ Создание бэкапа...</span>';
+                
+                fetch('/admin/create-backup', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        statusEl.innerHTML = '<span style="color: #48bb78;">✅ ' + result.message + '</span>';
+                        loadBackups();
+                    } else {
+                        statusEl.innerHTML = '<span style="color: #e53e3e;">❌ ' + result.error + '</span>';
+                    }
+                })
+                .catch(error => {
+                    statusEl.innerHTML = '<span style="color: #e53e3e;">❌ Ошибка: ' + error.message + '</span>';
+                });
+            }
+            
+            function loadBackups() {
+                fetch('/admin/list-backups', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        const backups = result.backups || [];
+                        let html = '';
+                        
+                        if (result.total > 0) {
+                            html += `<div style="margin-bottom: 15px; padding: 10px; background: #f7fafc; border-radius: 5px;">
+                                <strong>Всего бэкапов:</strong> ${result.total} | 
+                                <strong>Общий размер:</strong> ${result.total_size_mb} MB
+                            </div>`;
+                            
+                            html += '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc; border-bottom: 2px solid #e2e8f0;"><th style="padding: 10px; text-align: left;">Дата создания</th><th style="padding: 10px; text-align: left;">Размер</th><th style="padding: 10px; text-align: left;">Имя файла</th><th style="padding: 10px; text-align: left;">Действия</th></tr></thead><tbody>';
+                            
+                            backups.forEach((backup, index) => {
+                                const date = new Date(backup.date);
+                                const dateStr = date.toLocaleString('ru-RU');
+                                
+                                html += `
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td style="padding: 10px;">${dateStr}</td>
+                                        <td style="padding: 10px;">${backup.size_mb} MB</td>
+                                        <td style="padding: 10px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${backup.filename}</code></td>
+                                        <td style="padding: 10px;">
+                                            <button onclick="deleteBackup('${backup.filename}')" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                                🗑️ Удалить
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            html += '</tbody></table>';
+                        } else {
+                            html = '<div style="padding: 20px; text-align: center; color: #666;">📦 Бэкапы не найдены. Создайте первый бэкап с помощью кнопки выше.</div>';
+                        }
+                        
+                        document.getElementById('backupsList').innerHTML = html;
+                    } else {
+                        document.getElementById('backupsList').innerHTML = '<div style="color: #e53e3e; padding: 20px;">❌ Ошибка загрузки: ' + result.error + '</div>';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('backupsList').innerHTML = '<div style="color: #e53e3e; padding: 20px;">❌ Ошибка соединения: ' + error.message + '</div>';
+                });
+            }
+            
+            function deleteBackup(filename) {
+                if (!confirm(`Удалить бэкап ${filename}?`)) return;
+                
+                fetch('/admin/delete-backup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({filename: filename})
+                })
+                .then(r => r.json())
+                .then(result => {
+                    alert(result.success ? '✅ ' + result.message : '❌ ' + result.error);
+                    loadBackups();
+                });
+            }
+            
+            function cleanOldBackups() {
+                if (!confirm('Удалить все бэкапы старше 30 дней?')) return;
+                
+                fetch('/admin/clean-old-backups', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    alert(result.success ? '✅ ' + result.message : '❌ ' + result.error);
+                    loadBackups();
+                });
+            }
+            
+            // Регистрируем функции глобально
+            if (typeof createBackup === 'function') {
+                window.createBackup = createBackup;
+                window.loadBackups = loadBackups;
+                window.deleteBackup = deleteBackup;
+                window.cleanOldBackups = cleanOldBackups;
+                
+                // Загружаем бэкапы при переключении на секцию
+                document.addEventListener('DOMContentLoaded', function() {
+                    const backupsSection = document.getElementById('section-backups');
+                    if (backupsSection) {
+                        const observer = new MutationObserver(function(mutations) {
+                            if (backupsSection.style.display !== 'none') {
+                                loadBackups();
+                            }
+                        });
+                        observer.observe(backupsSection, { attributes: true, attributeFilter: ['style'] });
+                    }
+                });
+            }
 
 // ========== ФУНКЦИИ ПОИСКА ==========
 function searchUsers() {
@@ -4396,6 +4585,159 @@ def admin_get_whitelist_ips():
         
     except Exception as e:
         logger.error(f"❌ Ошибка получения белого списка IP: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/create-backup', methods=['POST'])
+@require_admin_auth
+def admin_create_backup():
+    """Создать резервную копию базы данных"""
+    import subprocess
+    import sys
+    
+    try:
+        # Запускаем скрипт бэкапа
+        script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'backup_database.py')
+        result = subprocess.run(
+            [sys.executable, script_path],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 минут максимум
+        )
+        
+        if result.returncode == 0:
+            return jsonify({
+                'success': True,
+                'message': 'Резервная копия успешно создана',
+                'output': result.stdout
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f'Ошибка создания бэкапа: {result.stderr}'
+            })
+            
+    except subprocess.TimeoutExpired:
+        return jsonify({
+            'success': False,
+            'error': 'Таймаут создания бэкапа (превышено 5 минут)'
+        })
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания бэкапа: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/list-backups', methods=['GET'])
+@require_admin_auth
+def admin_list_backups():
+    """Получить список всех бэкапов"""
+    import os
+    from datetime import datetime
+    
+    try:
+        backup_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'backups')
+        
+        if not os.path.exists(backup_dir):
+            return jsonify({
+                'success': True,
+                'backups': [],
+                'total': 0
+            })
+        
+        backups = []
+        for filename in os.listdir(backup_dir):
+            file_path = os.path.join(backup_dir, filename)
+            if os.path.isfile(file_path) and (filename.startswith('docscan_backup_') and filename.endswith('.db.gz')):
+                file_time = datetime.fromtimestamp(os.path.getmtime(file_path))
+                file_size = os.path.getsize(file_path)
+                size_mb = file_size / (1024 * 1024)
+                backups.append({
+                    'filename': filename,
+                    'date': file_time.isoformat(),
+                    'size_mb': round(size_mb, 2),
+                    'size_bytes': file_size
+                })
+        
+        # Сортируем по дате (новые первыми)
+        backups.sort(key=lambda x: x['date'], reverse=True)
+        
+        # Подсчитываем общий размер
+        total_size = sum(b['size_bytes'] for b in backups)
+        
+        return jsonify({
+            'success': True,
+            'backups': backups,
+            'total': len(backups),
+            'total_size_mb': round(total_size / (1024 * 1024), 2)
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения списка бэкапов: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/delete-backup', methods=['POST'])
+@require_admin_auth
+def admin_delete_backup():
+    """Удалить бэкап"""
+    import os
+    
+    try:
+        data = request.json
+        filename = data.get('filename')
+        
+        if not filename:
+            return jsonify({'success': False, 'error': 'Укажите имя файла'})
+        
+        backup_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'backups')
+        file_path = os.path.join(backup_dir, filename)
+        
+        # Проверяем безопасность (только файлы бэкапов)
+        if not filename.startswith('docscan_backup_') or not filename.endswith('.db.gz'):
+            return jsonify({'success': False, 'error': 'Неверный формат имени файла'})
+        
+        if not os.path.exists(file_path):
+            return jsonify({'success': False, 'error': 'Файл не найден'})
+        
+        os.remove(file_path)
+        logger.info(f"🗑️ Бэкап удален администратором: {filename}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Бэкап {filename} успешно удален'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления бэкапа: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/clean-old-backups', methods=['POST'])
+@require_admin_auth
+def admin_clean_old_backups():
+    """Удалить старые бэкапы"""
+    import subprocess
+    import sys
+    
+    try:
+        script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'backup_database.py')
+        result = subprocess.run(
+            [sys.executable, script_path, '--clean'],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        
+        if result.returncode == 0:
+            return jsonify({
+                'success': True,
+                'message': 'Старые бэкапы удалены',
+                'output': result.stdout
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f'Ошибка очистки: {result.stderr}'
+            })
+            
+    except Exception as e:
+        logger.error(f"❌ Ошибка очистки старых бэкапов: {e}")
         return jsonify({'success': False, 'error': str(e)})
         
         

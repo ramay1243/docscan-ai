@@ -907,9 +907,21 @@ def admin_panel():
                             </div>
                             <div style="margin: 15px 0;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Полный HTML-контент:</label>
-                                <textarea id="fullNewsContent" rows="15" placeholder="Полный текст новости в формате HTML..." 
-                                          style="width: 100%; max-width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace;"></textarea>
-                                <small style="color: #666;">Можно использовать HTML-теги: &lt;p&gt;, &lt;h2&gt;, &lt;h3&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;, &lt;img&gt; и др.</small>
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" onclick="toggleFullNewsEditorMode()" id="fullNewsEditorModeBtn" style="background: #4299e1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin-right: 10px;"></> Переключить в HTML</button>
+                                    <span id="fullNewsEditorStatus" style="margin-left: 15px; color: #666; font-size: 0.9rem;">Режим: Визуальный редактор</span>
+                                </div>
+                                <!-- TinyMCE редактор -->
+                                <div id="fullNews-tinymce-container" style="width: 100%; max-width: 1200px;">
+                                    <textarea id="fullNewsContent" rows="20" placeholder="Начните писать новость здесь..."></textarea>
+                                    <p id="fullNews-tinymce-loading" style="font-size: 12px; color: #666; margin-top: 5px;">⏳ Загрузка визуального редактора...</p>
+                                </div>
+                                <!-- Fallback HTML редактор (скрыт по умолчанию) -->
+                                <div id="fullNews-html-editor-container" style="display: none;">
+                                    <textarea id="fullNewsContentRaw" rows="20" placeholder="Введите HTML-код новости..."
+                                              style="width: 100%; max-width: 1200px; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; font-family: monospace; font-size: 12px;"></textarea>
+                                    <p style="font-size: 12px; color: #666; margin-top: 5px;">💡 Совет: Используйте визуальный редактор для удобного форматирования</p>
+                                </div>
                             </div>
                             <div style="margin: 15px 0;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Категория:</label>
@@ -1199,6 +1211,12 @@ def admin_panel():
                                     }
                                 }, 100);
                             }
+                        }
+                        // Инициализируем TinyMCE при открытии секции полных новостей
+                        if (typeof initFullNewsEditorOnShow === 'function') {
+                            initFullNewsEditorOnShow();
+                        } else if (typeof window.initFullNewsEditorOnShow === 'function') {
+                            window.initFullNewsEditorOnShow();
                         }
                     } else if (sectionName === 'questions') {
                         const questionsList = document.getElementById('questionsList');
@@ -1889,6 +1907,8 @@ def admin_panel():
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ПОЛНЫМИ НОВОСТЯМИ ==========
             let editingFullNewsId = null;
+            let fullNewsTinyMCEEditor = null;
+            let isFullNewsHtmlMode = false;
             
             function loadFullNews() {
                 const categoryFilter = document.getElementById('fullNewsCategoryFilter') ? document.getElementById('fullNewsCategoryFilter').value : '';
@@ -1965,7 +1985,6 @@ def admin_panel():
                 document.getElementById('fullNewsSlug').value = '';
                 document.getElementById('fullNewsTitle').value = '';
                 document.getElementById('fullNewsShortDescription').value = '';
-                document.getElementById('fullNewsContent').value = '';
                 document.getElementById('fullNewsCategory').value = '';
                 document.getElementById('fullNewsImageUrl').value = '';
                 document.getElementById('fullNewsAuthor').value = 'Редакция DocScan';
@@ -1975,6 +1994,21 @@ def admin_panel():
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('fullNewsPublishedAt').value = today;
                 document.getElementById('fullNewsIsPublished').checked = true;
+                
+                // Очищаем редактор
+                if (fullNewsTinyMCEEditor) {
+                    fullNewsTinyMCEEditor.setContent('');
+                } else {
+                    document.getElementById('fullNewsContent').value = '';
+                    document.getElementById('fullNewsContentRaw').value = '';
+                }
+                
+                // Инициализируем TinyMCE если еще не инициализирован
+                setTimeout(() => {
+                    if (!fullNewsTinyMCEEditor && typeof tinymce !== 'undefined') {
+                        initFullNewsTinyMCE();
+                    }
+                }, 300);
                 
                 document.getElementById('fullNewsFormContainer').scrollIntoView({ behavior: 'smooth' });
             }
@@ -1994,7 +2028,6 @@ def admin_panel():
                             document.getElementById('fullNewsSlug').value = item.slug;
                             document.getElementById('fullNewsTitle').value = item.title;
                             document.getElementById('fullNewsShortDescription').value = item.short_description;
-                            document.getElementById('fullNewsContent').value = item.full_content;
                             document.getElementById('fullNewsCategory').value = item.category || '';
                             document.getElementById('fullNewsImageUrl').value = item.image_url || '';
                             document.getElementById('fullNewsAuthor').value = item.author || 'Редакция DocScan';
@@ -2003,6 +2036,24 @@ def admin_panel():
                             document.getElementById('fullNewsMetaKeywords').value = item.meta_keywords || '';
                             document.getElementById('fullNewsPublishedAt').value = item.published_at ? item.published_at.substring(0, 10) : new Date().toISOString().split('T')[0];
                             document.getElementById('fullNewsIsPublished').checked = item.is_published !== false;
+                            
+                            // Загружаем контент в редактор
+                            if (fullNewsTinyMCEEditor) {
+                                fullNewsTinyMCEEditor.setContent(item.full_content || '');
+                            } else {
+                                document.getElementById('fullNewsContent').value = item.full_content || '';
+                                document.getElementById('fullNewsContentRaw').value = item.full_content || '';
+                                // Инициализируем TinyMCE если еще не инициализирован
+                                if (typeof tinymce !== 'undefined') {
+                                    initFullNewsTinyMCE();
+                                    // После инициализации загрузим контент
+                                    setTimeout(() => {
+                                        if (fullNewsTinyMCEEditor) {
+                                            fullNewsTinyMCEEditor.setContent(item.full_content || '');
+                                        }
+                                    }, 1000);
+                                }
+                            }
                             
                             document.getElementById('fullNewsFormContainer').scrollIntoView({ behavior: 'smooth' });
                         } else {
@@ -2015,7 +2066,17 @@ def admin_panel():
                 const slug = document.getElementById('fullNewsSlug').value.trim();
                 const title = document.getElementById('fullNewsTitle').value.trim();
                 const shortDescription = document.getElementById('fullNewsShortDescription').value.trim();
-                const fullContent = document.getElementById('fullNewsContent').value.trim();
+                
+                // Получаем контент из редактора
+                let fullContent = '';
+                if (isFullNewsHtmlMode) {
+                    fullContent = document.getElementById('fullNewsContentRaw').value.trim();
+                } else if (fullNewsTinyMCEEditor) {
+                    fullContent = fullNewsTinyMCEEditor.getContent();
+                } else {
+                    fullContent = document.getElementById('fullNewsContent').value.trim();
+                }
+                
                 const category = document.getElementById('fullNewsCategory').value;
                 const imageUrl = document.getElementById('fullNewsImageUrl').value.trim();
                 const author = document.getElementById('fullNewsAuthor').value.trim();
@@ -2072,6 +2133,26 @@ def admin_panel():
             function cancelFullNewsForm() {
                 editingFullNewsId = null;
                 document.getElementById('fullNewsFormContainer').style.display = 'none';
+                
+                // Очищаем редактор
+                if (fullNewsTinyMCEEditor) {
+                    fullNewsTinyMCEEditor.setContent('');
+                }
+                document.getElementById('fullNewsContent').value = '';
+                document.getElementById('fullNewsContentRaw').value = '';
+                
+                // Возвращаемся в визуальный режим
+                isFullNewsHtmlMode = false;
+                const container = document.getElementById('fullNews-tinymce-container');
+                const htmlContainer = document.getElementById('fullNews-html-editor-container');
+                const statusEl = document.getElementById('fullNewsEditorStatus');
+                const btn = document.getElementById('fullNewsEditorModeBtn');
+                if (container && htmlContainer && statusEl && btn) {
+                    container.style.display = 'block';
+                    htmlContainer.style.display = 'none';
+                    statusEl.textContent = 'Режим: Визуальный редактор';
+                    btn.textContent = '</> Переключить в HTML';
+                }
             }
             
             function deleteFullNews(newsId) {
@@ -2092,6 +2173,204 @@ def admin_panel():
                 });
             }
             
+            // ========== ИНИЦИАЛИЗАЦИЯ TINYMCE ДЛЯ ПОЛНЫХ НОВОСТЕЙ ==========
+            function initFullNewsTinyMCE() {
+                const loadingEl = document.getElementById('fullNews-tinymce-loading');
+                if (loadingEl) {
+                    loadingEl.textContent = '⏳ Инициализация редактора...';
+                }
+                
+                if (typeof tinymce !== 'undefined') {
+                    // Удаляем предыдущий редактор если он существует
+                    if (fullNewsTinyMCEEditor) {
+                        tinymce.remove('#fullNewsContent');
+                        fullNewsTinyMCEEditor = null;
+                    }
+                    
+                    console.log('🚀 Инициализация TinyMCE для полных новостей...');
+                    tinymce.init({
+                        selector: '#fullNewsContent',
+                        height: 600,
+                        menubar: true,
+                        plugins: [
+                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                            'insertdatetime', 'media', 'table', 'help', 'wordcount',
+                            'emoticons', 'codesample', 'pagebreak', 'nonbreaking',
+                            'directionality'
+                        ],
+                        toolbar: 'undo redo | blocks | ' +
+                            'bold italic underline strikethrough forecolor backcolor | ' +
+                            'alignleft aligncenter alignright alignjustify | ' +
+                            'bullist numlist outdent indent | ' +
+                            'removeformat | link image media table code | ' +
+                            'insertdatetime charmap emoticons pagebreak | ' +
+                            'visualblocks visualchars fullscreen preview | ' +
+                            'fontfamily fontsize | ' +
+                            'codesample | ' +
+                            'searchreplace help',
+                        content_style: 'body { font-family: Inter, Arial, sans-serif; font-size: 16px; line-height: 1.6; }',
+                        font_family_formats: 'Inter=Inter, sans-serif; Arial=Arial, sans-serif; Times New Roman=Times New Roman, serif; Courier New=Courier New, monospace;',
+                        font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+                        block_formats: 'Параграф=p; Заголовок 1=h1; Заголовок 2=h2; Заголовок 3=h3; Заголовок 4=h4; Заголовок 5=h5; Заголовок 6=h6; Предформатированный=pre',
+                        image_advtab: true,
+                        file_picker_types: 'image',
+                        automatic_uploads: true,
+                        images_upload_url: '/admin/articles/upload-image',
+                        images_upload_handler: function (blobInfo, progress) {
+                            return new Promise(function (resolve, reject) {
+                                var xhr = new XMLHttpRequest();
+                                xhr.withCredentials = true;
+                                xhr.open('POST', '/admin/articles/upload-image');
+                                
+                                xhr.upload.onprogress = function (e) {
+                                    progress(e.loaded / e.total * 100);
+                                };
+                                
+                                xhr.onload = function () {
+                                    if (xhr.status === 403) {
+                                        reject({ message: 'HTTP Error: ' + xhr.status, remove: true });
+                                        return;
+                                    }
+                                    
+                                    if (xhr.status < 200 || xhr.status >= 300) {
+                                        reject('HTTP Error: ' + xhr.status);
+                                        return;
+                                    }
+                                    
+                                    var json = JSON.parse(xhr.responseText);
+                                    
+                                    if (!json || typeof json.location != 'string') {
+                                        reject('Invalid JSON: ' + xhr.responseText);
+                                        return;
+                                    }
+                                    
+                                    resolve(json.location);
+                                };
+                                
+                                xhr.onerror = function () {
+                                    reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+                                };
+                                
+                                var formData = new FormData();
+                                formData.append('file', blobInfo.blob(), blobInfo.filename());
+                                
+                                xhr.send(formData);
+                            });
+                        },
+                        setup: function (editor) {
+                            fullNewsTinyMCEEditor = editor;
+                            editor.on('init', function () {
+                                console.log('✅ TinyMCE редактор для полных новостей инициализирован успешно');
+                                const loadingEl = document.getElementById('fullNews-tinymce-loading');
+                                if (loadingEl) {
+                                    loadingEl.textContent = '✅ Визуальный редактор готов!';
+                                    setTimeout(function() {
+                                        loadingEl.style.display = 'none';
+                                    }, 2000);
+                                }
+                                // Убеждаемся, что визуальный редактор видим
+                                document.getElementById('fullNews-tinymce-container').style.display = 'block';
+                                document.getElementById('fullNews-html-editor-container').style.display = 'none';
+                            });
+                            
+                            editor.on('error', function(e) {
+                                console.error('❌ Ошибка TinyMCE для полных новостей:', e);
+                                const loadingEl = document.getElementById('fullNews-tinymce-loading');
+                                if (loadingEl) {
+                                    loadingEl.textContent = '❌ Ошибка загрузки редактора. Используйте HTML-режим.';
+                                    loadingEl.style.color = '#f56565';
+                                }
+                            });
+                        },
+                        branding: false,
+                        promotion: false
+                    });
+                } else {
+                    console.error('❌ TinyMCE не загружен. Используйте HTML-режим.');
+                    const loadingEl = document.getElementById('fullNews-tinymce-loading');
+                    if (loadingEl) {
+                        loadingEl.textContent = '❌ Визуальный редактор не загрузился. Используйте HTML-режим.';
+                        loadingEl.style.color = '#f56565';
+                    }
+                }
+            }
+            
+            function toggleFullNewsEditorMode() {
+                const container = document.getElementById('fullNews-tinymce-container');
+                const htmlContainer = document.getElementById('fullNews-html-editor-container');
+                const statusEl = document.getElementById('fullNewsEditorStatus');
+                const btn = document.getElementById('fullNewsEditorModeBtn');
+                
+                if (!container || !htmlContainer || !statusEl || !btn) {
+                    console.error('❌ Не найдены элементы для переключения режима');
+                    return;
+                }
+                
+                if (isFullNewsHtmlMode) {
+                    // Переключаемся на визуальный режим
+                    console.log('🔄 Переключение на визуальный режим...');
+                    isFullNewsHtmlMode = false;
+                    const htmlContent = document.getElementById('fullNewsContentRaw').value;
+                    
+                    if (fullNewsTinyMCEEditor) {
+                        fullNewsTinyMCEEditor.setContent(htmlContent || '');
+                        container.style.display = 'block';
+                        htmlContainer.style.display = 'none';
+                        statusEl.textContent = 'Режим: Визуальный редактор';
+                        btn.textContent = '</> Переключить в HTML';
+                        console.log('✅ Визуальный режим включен');
+                    } else {
+                        console.warn('⚠️ TinyMCE редактор не инициализирован, пробую инициализировать...');
+                        if (typeof tinymce !== 'undefined') {
+                            initFullNewsTinyMCE();
+                            setTimeout(() => {
+                                if (fullNewsTinyMCEEditor) {
+                                    fullNewsTinyMCEEditor.setContent(htmlContent || '');
+                                    container.style.display = 'block';
+                                    htmlContainer.style.display = 'none';
+                                    statusEl.textContent = 'Режим: Визуальный редактор';
+                                    btn.textContent = '</> Переключить в HTML';
+                                }
+                            }, 1000);
+                        } else {
+                            alert('⚠️ Визуальный редактор не загружен. Используйте HTML-режим.');
+                        }
+                    }
+                } else {
+                    // Переключаемся на HTML режим
+                    console.log('🔄 Переключение на HTML режим...');
+                    isFullNewsHtmlMode = true;
+                    let htmlContent = '';
+                    
+                    if (fullNewsTinyMCEEditor) {
+                        htmlContent = fullNewsTinyMCEEditor.getContent();
+                    } else {
+                        htmlContent = document.getElementById('fullNewsContent').value;
+                    }
+                    
+                    document.getElementById('fullNewsContentRaw').value = htmlContent;
+                    container.style.display = 'none';
+                    htmlContainer.style.display = 'block';
+                    statusEl.textContent = 'Режим: HTML редактор';
+                    btn.textContent = '👁️ Переключить в визуальный';
+                    console.log('✅ HTML режим включен');
+                }
+            }
+            
+            // Инициализируем TinyMCE для полных новостей при открытии формы
+            function initFullNewsEditorOnShow() {
+                // Проверяем, видна ли форма
+                const formContainer = document.getElementById('fullNewsFormContainer');
+                if (formContainer && formContainer.style.display !== 'none') {
+                    if (typeof tinymce !== 'undefined' && !fullNewsTinyMCEEditor) {
+                        setTimeout(() => {
+                            initFullNewsTinyMCE();
+                        }, 500);
+                    }
+                }
+            }
+            
             // Регистрируем функции для полных новостей глобально
             if (typeof window !== 'undefined') {
                 window.loadFullNews = loadFullNews;
@@ -2100,6 +2379,8 @@ def admin_panel():
                 window.saveFullNews = saveFullNews;
                 window.cancelFullNewsForm = cancelFullNewsForm;
                 window.deleteFullNews = deleteFullNews;
+                window.initFullNewsTinyMCE = initFullNewsTinyMCE;
+                window.toggleFullNewsEditorMode = toggleFullNewsEditorMode;
                 console.log('✅ Функции для полных новостей зарегистрированы глобально');
             }
             

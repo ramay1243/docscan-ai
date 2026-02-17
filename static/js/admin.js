@@ -1,23 +1,6 @@
 // Admin Panel JavaScript
 // Extracted from routes/admin.py
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        
-        const response = await fetch('/admin/login', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            window.location.href = '/admin';
-        } else {
-            document.getElementById('error').textContent = result.error;
-        }
-    });
     // Функция переключения между секциями
     function showSection(sectionName) {
         try {

@@ -101,9 +101,27 @@ def register_fonts():
 # Регистрируем шрифты при импорте модуля
 register_fonts()
 
-def generate_analysis_pdf(analysis_data, filename="document.pdf"):
-    """Генерирует PDF файл с результатами анализа"""
+def generate_analysis_pdf(analysis_data, filename="document.pdf", branding_settings=None):
+    """Генерирует PDF файл с результатами анализа
+    
+    Args:
+        analysis_data: Данные анализа
+        filename: Имя файла
+        branding_settings: Настройки брендинга (dict с logo_path, primary_color, secondary_color, company_name)
+    """
     try:
+        # Получаем настройки брендинга или используем значения по умолчанию
+        if branding_settings and branding_settings.get('is_active'):
+            primary_color = branding_settings.get('primary_color', '#4361ee')
+            secondary_color = branding_settings.get('secondary_color', '#764ba2')
+            company_name = branding_settings.get('company_name')
+            logo_path = branding_settings.get('logo_path')
+        else:
+            primary_color = '#4361ee'
+            secondary_color = '#764ba2'
+            company_name = None
+            logo_path = None
+        
         # Проверяем, что шрифты зарегистрированы
         if FONT_NAME is None or FONT_BOLD is None:
             logger.error("❌ Шрифты не зарегистрированы! Пробуем зарегистрировать снова...")
@@ -120,18 +138,29 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
         styles = getSampleStyleSheet()
         story = []
         
+        # Логотип (если есть)
+        if logo_path and os.path.exists(logo_path):
+            try:
+                logo = Image(logo_path, width=2*inch, height=0.8*inch)
+                logo.hAlign = 'CENTER'
+                story.append(logo)
+                story.append(Spacer(1, 0.2*inch))
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось добавить логотип: {e}")
+        
         # Заголовок
+        title_text = company_name if company_name else "Анализ документа"
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
             fontSize=24,
-            textColor=colors.HexColor('#4361ee'),
+            textColor=colors.HexColor(primary_color),
             spaceAfter=30,
             alignment=TA_CENTER,
             fontName=FONT_BOLD
         )
         
-        story.append(Paragraph("Анализ документа", title_style))
+        story.append(Paragraph(title_text, title_style))
         story.append(Spacer(1, 0.2*inch))
         
         # Информация о документе
@@ -471,9 +500,27 @@ def register_fonts():
 # Регистрируем шрифты при импорте модуля
 register_fonts()
 
-def generate_analysis_pdf(analysis_data, filename="document.pdf"):
-    """Генерирует PDF файл с результатами анализа"""
+def generate_analysis_pdf(analysis_data, filename="document.pdf", branding_settings=None):
+    """Генерирует PDF файл с результатами анализа
+    
+    Args:
+        analysis_data: Данные анализа
+        filename: Имя файла
+        branding_settings: Настройки брендинга (dict с logo_path, primary_color, secondary_color, company_name)
+    """
     try:
+        # Получаем настройки брендинга или используем значения по умолчанию
+        if branding_settings and branding_settings.get('is_active'):
+            primary_color = branding_settings.get('primary_color', '#4361ee')
+            secondary_color = branding_settings.get('secondary_color', '#764ba2')
+            company_name = branding_settings.get('company_name')
+            logo_path = branding_settings.get('logo_path')
+        else:
+            primary_color = '#4361ee'
+            secondary_color = '#764ba2'
+            company_name = None
+            logo_path = None
+        
         # Проверяем, что шрифты зарегистрированы
         if FONT_NAME is None or FONT_BOLD is None:
             logger.error("❌ Шрифты не зарегистрированы! Пробуем зарегистрировать снова...")
@@ -490,18 +537,29 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
         styles = getSampleStyleSheet()
         story = []
         
+        # Логотип (если есть)
+        if logo_path and os.path.exists(logo_path):
+            try:
+                logo = Image(logo_path, width=2*inch, height=0.8*inch)
+                logo.hAlign = 'CENTER'
+                story.append(logo)
+                story.append(Spacer(1, 0.2*inch))
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось добавить логотип: {e}")
+        
         # Заголовок
+        title_text = company_name if company_name else "Анализ документа"
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
             fontSize=24,
-            textColor=colors.HexColor('#4361ee'),
+            textColor=colors.HexColor(primary_color),
             spaceAfter=30,
             alignment=TA_CENTER,
             fontName=FONT_BOLD
         )
         
-        story.append(Paragraph("Анализ документа", title_style))
+        story.append(Paragraph(title_text, title_style))
         story.append(Spacer(1, 0.2*inch))
         
         # Информация о документе
@@ -841,9 +899,27 @@ def register_fonts():
 # Регистрируем шрифты при импорте модуля
 register_fonts()
 
-def generate_analysis_pdf(analysis_data, filename="document.pdf"):
-    """Генерирует PDF файл с результатами анализа"""
+def generate_analysis_pdf(analysis_data, filename="document.pdf", branding_settings=None):
+    """Генерирует PDF файл с результатами анализа
+    
+    Args:
+        analysis_data: Данные анализа
+        filename: Имя файла
+        branding_settings: Настройки брендинга (dict с logo_path, primary_color, secondary_color, company_name)
+    """
     try:
+        # Получаем настройки брендинга или используем значения по умолчанию
+        if branding_settings and branding_settings.get('is_active'):
+            primary_color = branding_settings.get('primary_color', '#4361ee')
+            secondary_color = branding_settings.get('secondary_color', '#764ba2')
+            company_name = branding_settings.get('company_name')
+            logo_path = branding_settings.get('logo_path')
+        else:
+            primary_color = '#4361ee'
+            secondary_color = '#764ba2'
+            company_name = None
+            logo_path = None
+        
         # Проверяем, что шрифты зарегистрированы
         if FONT_NAME is None or FONT_BOLD is None:
             logger.error("❌ Шрифты не зарегистрированы! Пробуем зарегистрировать снова...")
@@ -860,18 +936,29 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
         styles = getSampleStyleSheet()
         story = []
         
+        # Логотип (если есть)
+        if logo_path and os.path.exists(logo_path):
+            try:
+                logo = Image(logo_path, width=2*inch, height=0.8*inch)
+                logo.hAlign = 'CENTER'
+                story.append(logo)
+                story.append(Spacer(1, 0.2*inch))
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось добавить логотип: {e}")
+        
         # Заголовок
+        title_text = company_name if company_name else "Анализ документа"
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
             fontSize=24,
-            textColor=colors.HexColor('#4361ee'),
+            textColor=colors.HexColor(primary_color),
             spaceAfter=30,
             alignment=TA_CENTER,
             fontName=FONT_BOLD
         )
         
-        story.append(Paragraph("Анализ документа", title_style))
+        story.append(Paragraph(title_text, title_style))
         story.append(Spacer(1, 0.2*inch))
         
         # Информация о документе
@@ -1211,9 +1298,27 @@ def register_fonts():
 # Регистрируем шрифты при импорте модуля
 register_fonts()
 
-def generate_analysis_pdf(analysis_data, filename="document.pdf"):
-    """Генерирует PDF файл с результатами анализа"""
+def generate_analysis_pdf(analysis_data, filename="document.pdf", branding_settings=None):
+    """Генерирует PDF файл с результатами анализа
+    
+    Args:
+        analysis_data: Данные анализа
+        filename: Имя файла
+        branding_settings: Настройки брендинга (dict с logo_path, primary_color, secondary_color, company_name)
+    """
     try:
+        # Получаем настройки брендинга или используем значения по умолчанию
+        if branding_settings and branding_settings.get('is_active'):
+            primary_color = branding_settings.get('primary_color', '#4361ee')
+            secondary_color = branding_settings.get('secondary_color', '#764ba2')
+            company_name = branding_settings.get('company_name')
+            logo_path = branding_settings.get('logo_path')
+        else:
+            primary_color = '#4361ee'
+            secondary_color = '#764ba2'
+            company_name = None
+            logo_path = None
+        
         # Проверяем, что шрифты зарегистрированы
         if FONT_NAME is None or FONT_BOLD is None:
             logger.error("❌ Шрифты не зарегистрированы! Пробуем зарегистрировать снова...")
@@ -1230,18 +1335,29 @@ def generate_analysis_pdf(analysis_data, filename="document.pdf"):
         styles = getSampleStyleSheet()
         story = []
         
+        # Логотип (если есть)
+        if logo_path and os.path.exists(logo_path):
+            try:
+                logo = Image(logo_path, width=2*inch, height=0.8*inch)
+                logo.hAlign = 'CENTER'
+                story.append(logo)
+                story.append(Spacer(1, 0.2*inch))
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось добавить логотип: {e}")
+        
         # Заголовок
+        title_text = company_name if company_name else "Анализ документа"
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
             fontSize=24,
-            textColor=colors.HexColor('#4361ee'),
+            textColor=colors.HexColor(primary_color),
             spaceAfter=30,
             alignment=TA_CENTER,
             fontName=FONT_BOLD
         )
         
-        story.append(Paragraph("Анализ документа", title_style))
+        story.append(Paragraph(title_text, title_style))
         story.append(Spacer(1, 0.2*inch))
         
         # Информация о документе

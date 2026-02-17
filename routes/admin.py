@@ -3256,7 +3256,7 @@ def admin_panel():
                                 html += '<td style="padding: 10px;">' + sizeMb + ' MB</td>';
                                 html += '<td style="padding: 10px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">' + filenameEscaped + '</code></td>';
                                 html += '<td style="padding: 10px;">';
-                                html += '<button onclick="deleteBackup(\'' + filenameForJS + '\')" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">';
+                                html += '<button class="delete-backup-btn" data-filename="' + filenameEscaped.replace(/"/g, '&quot;') + '" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">';
                                 html += '🗑️ Удалить';
                                 html += '</button>';
                                 html += '</td>';

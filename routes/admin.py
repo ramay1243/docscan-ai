@@ -1209,6 +1209,10 @@ def admin_panel():
         
         <!-- TinyMCE CSS/JS -->
         <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+        <!-- Admin Panel JavaScript -->
+        <script src="/static/js/admin.js"></script>
+        <!-- Original inline script removed and moved to admin.js -->
+        <!--
         <script>
             // Функция переключения между секциями
             function showSection(sectionName) {
@@ -1613,7 +1617,10 @@ def admin_panel():
                 }
             }, 3000);
         </script>
+        -->
         
+        <!-- Second script block removed and moved to admin.js -->
+        <!--
         <script>
             // НЕМЕДЛЕННАЯ РЕГИСТРАЦИЯ ВСЕХ ФУНКЦИЙ В WINDOW ПРИ ОПРЕДЕЛЕНИИ
             // Это гарантирует, что функции будут доступны глобально сразу после определения
@@ -4762,6 +4769,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     console.log('✅ Все скрипты загружены и функции зарегистрированы');
                 }, 100);
         </script>
+        -->
     </body>
     </html>
     """

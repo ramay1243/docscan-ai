@@ -1293,16 +1293,32 @@ def admin_panel():
                         const guestsList = document.getElementById('guestsList');
                         if (guestsList && guestsList.innerHTML === '') {
                             console.log('📥 Загрузка гостей...');
-                            loadGuests();
+                            if (typeof window.loadGuests === 'function') {
+                                window.loadGuests();
+                            } else if (typeof loadGuests === 'function') {
+                                loadGuests();
+                            } else {
+                                console.error('❌ Функция loadGuests не найдена');
+                            }
                         }
                     } else if (sectionName === 'search-bots') {
                         const botsList = document.getElementById('botsList');
                         if (botsList && botsList.innerHTML === '') {
                             console.log('📥 Загрузка ботов...');
-                            loadBots();
+                            if (typeof window.loadBots === 'function') {
+                                window.loadBots();
+                            } else if (typeof loadBots === 'function') {
+                                loadBots();
+                            } else {
+                                console.error('❌ Функция loadBots не найдена');
+                            }
                         }
                         // Обновляем статистику ботов
-                        loadStats();
+                        if (typeof window.loadStats === 'function') {
+                            window.loadStats();
+                        } else if (typeof loadStats === 'function') {
+                            loadStats();
+                        }
                     } else if (sectionName === 'news') {
                         const newsList = document.getElementById('newsList');
                         if (newsList && newsList.innerHTML === '') {
@@ -1375,13 +1391,25 @@ def admin_panel():
                         const campaignsList = document.getElementById('emailCampaignsList');
                         if (campaignsList && campaignsList.innerHTML === '') {
                             console.log('📥 Загрузка рассылок...');
-                            loadEmailCampaigns();
+                            if (typeof window.loadEmailCampaigns === 'function') {
+                                window.loadEmailCampaigns();
+                            } else if (typeof loadEmailCampaigns === 'function') {
+                                loadEmailCampaigns();
+                            } else {
+                                console.error('❌ Функция loadEmailCampaigns не найдена');
+                            }
                         }
                     } else if (sectionName === 'articles') {
                         const articlesList = document.getElementById('articlesList');
                         if (articlesList && articlesList.innerHTML === '') {
                             console.log('📥 Загрузка статей...');
-                            loadArticles();
+                            if (typeof window.loadArticles === 'function') {
+                                window.loadArticles();
+                            } else if (typeof loadArticles === 'function') {
+                                loadArticles();
+                            } else {
+                                console.error('❌ Функция loadArticles не найдена');
+                            }
                         }
                     } else if (sectionName === 'notifications') {
                         const notificationsHistory = document.getElementById('notificationsHistory');
@@ -1394,9 +1422,27 @@ def admin_panel():
                             }
                         }
                     } else if (sectionName === 'partners') {
-                        loadPartners();
-                        loadReferrals();
-                        loadRewards();
+                        if (typeof window.loadPartners === 'function') {
+                            window.loadPartners();
+                        } else if (typeof loadPartners === 'function') {
+                            loadPartners();
+                        } else {
+                            console.error('❌ Функция loadPartners не найдена');
+                        }
+                        if (typeof window.loadReferrals === 'function') {
+                            window.loadReferrals();
+                        } else if (typeof loadReferrals === 'function') {
+                            loadReferrals();
+                        } else {
+                            console.error('❌ Функция loadReferrals не найдена');
+                        }
+                        if (typeof window.loadRewards === 'function') {
+                            window.loadRewards();
+                        } else if (typeof loadRewards === 'function') {
+                            loadRewards();
+                        } else {
+                            console.error('❌ Функция loadRewards не найдена');
+                        }
                     }
                     
                     console.log('✅ Переключение завершено успешно');
@@ -1746,6 +1792,12 @@ def admin_panel():
                     });
             }
             
+            // Регистрируем loadGuests глобально
+            if (typeof loadGuests === 'function') {
+                window.loadGuests = loadGuests;
+                console.log('✅ loadGuests зарегистрирована глобально');
+            }
+            
             function searchGuests() {
                 const searchTerm = document.getElementById('searchGuest').value.toLowerCase().trim();
                 const guestCards = document.querySelectorAll('.guest-card');
@@ -1807,6 +1859,12 @@ def admin_panel():
                         }
                         document.getElementById('botsList').innerHTML = html;
                     });
+            }
+            
+            // Регистрируем loadBots глобально
+            if (typeof loadBots === 'function') {
+                window.loadBots = loadBots;
+                console.log('✅ loadBots зарегистрирована глобально');
             }
             
             function searchBots() {
@@ -3655,6 +3713,12 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     });
             }
             
+            // Регистрируем loadEmailCampaigns глобально
+            if (typeof loadEmailCampaigns === 'function') {
+                window.loadEmailCampaigns = loadEmailCampaigns;
+                console.log('✅ loadEmailCampaigns зарегистрирована глобально');
+            }
+            
             function getRecipientFilterText(filter) {
                 const filters = {
                     'all': 'Все зарегистрированные',
@@ -4243,6 +4307,12 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     });
             }
             
+            // Регистрируем loadArticles глобально
+            if (typeof loadArticles === 'function') {
+                window.loadArticles = loadArticles;
+                console.log('✅ loadArticles зарегистрирована глобально');
+            }
+            
             function createArticle() {
                 const title = document.getElementById('articleTitle').value.trim();
                 const slug = document.getElementById('articleSlug').value.trim();
@@ -4489,6 +4559,12 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                     });
             }
             
+            // Регистрируем loadPartners глобально
+            if (typeof loadPartners === 'function') {
+                window.loadPartners = loadPartners;
+                console.log('✅ loadPartners зарегистрирована глобально');
+            }
+            
             function loadReferrals() {
                 fetch('/admin/referrals', {credentials: 'include'})
                     .then(r => r.json())
@@ -4519,6 +4595,12 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         console.error('Ошибка загрузки приглашений:', err);
                         document.getElementById('referralsList').innerHTML = '<p style="color: #f56565;">Ошибка загрузки данных</p>';
                     });
+            }
+            
+            // Регистрируем loadReferrals глобально
+            if (typeof loadReferrals === 'function') {
+                window.loadReferrals = loadReferrals;
+                console.log('✅ loadReferrals зарегистрирована глобально');
             }
             
             function loadRewards() {

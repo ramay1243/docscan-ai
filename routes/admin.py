@@ -593,6 +593,24 @@ def admin_panel():
 </div>
 <div id="usersList"></div>
                     </div>
+                    
+                    <div class="card">
+                        <h3>🔒 Белый список IP (для бизнес-тарифов)</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Управление разрешенными IP-адресами для пользователей. Если для пользователя добавлен хотя бы один IP, доступ будет разрешен только с этих адресов.
+                        </p>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="whitelistUserId" placeholder="ID пользователя" 
+                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <input type="text" id="whitelistIP" placeholder="IP-адрес (например: 192.168.1.1 или 192.168.1.0/24)" 
+                                   style="width: 300px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <input type="text" id="whitelistDescription" placeholder="Описание (например: Офис в Москве)" 
+                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <button onclick="addWhitelistedIP()" style="background: #48bb78; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">➕ Добавить IP</button>
+                        </div>
+                        <div id="whitelistStatus" style="margin: 10px 0; color: #666; font-size: 14px;"></div>
+                        <div id="whitelistList" style="margin-top: 20px;"></div>
+                    </div>
                 </div>
                 
                 <!-- Секция: Гости -->
@@ -2872,6 +2890,140 @@ def admin_panel():
                     loadStats();
                 });
             }
+            
+            // ========== ФУНКЦИИ ДЛЯ БЕЛОГО СПИСКА IP ==========
+            
+            function addWhitelistedIP() {
+                const userId = document.getElementById('whitelistUserId').value.trim();
+                const ipAddress = document.getElementById('whitelistIP').value.trim();
+                const description = document.getElementById('whitelistDescription').value.trim();
+                
+                if (!userId || !ipAddress) {
+                    document.getElementById('whitelistStatus').innerHTML = '<span style="color: #e53e3e;">❌ Заполните ID пользователя и IP-адрес</span>';
+                    return;
+                }
+                
+                fetch('/admin/add-whitelist-ip', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        user_id: userId,
+                        ip_address: ipAddress,
+                        description: description || null
+                    })
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        document.getElementById('whitelistStatus').innerHTML = '<span style="color: #48bb78;">✅ ' + result.message + '</span>';
+                        document.getElementById('whitelistUserId').value = '';
+                        document.getElementById('whitelistIP').value = '';
+                        document.getElementById('whitelistDescription').value = '';
+                        loadWhitelistedIPs();
+                    } else {
+                        document.getElementById('whitelistStatus').innerHTML = '<span style="color: #e53e3e;">❌ ' + result.error + '</span>';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('whitelistStatus').innerHTML = '<span style="color: #e53e3e;">❌ Ошибка: ' + error.message + '</span>';
+                });
+            }
+            
+            function loadWhitelistedIPs() {
+                fetch('/admin/get-whitelist-ips', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.success) {
+                        const ips = result.ips || [];
+                        let html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc; border-bottom: 2px solid #e2e8f0;"><th style="padding: 10px; text-align: left;">Пользователь</th><th style="padding: 10px; text-align: left;">IP-адрес</th><th style="padding: 10px; text-align: left;">Описание</th><th style="padding: 10px; text-align: left;">Статус</th><th style="padding: 10px; text-align: left;">Дата</th><th style="padding: 10px; text-align: left;">Действия</th></tr></thead><tbody>';
+                        
+                        if (ips.length === 0) {
+                            html += '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #666;">Нет IP-адресов в белом списке</td></tr>';
+                        } else {
+                            ips.forEach(ip => {
+                                const statusBadge = ip.is_active 
+                                    ? '<span style="background: #48bb78; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">Активен</span>'
+                                    : '<span style="background: #cbd5e0; color: #4a5568; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">Неактивен</span>';
+                                
+                                html += `
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td style="padding: 10px;"><strong>${ip.user_id}</strong></td>
+                                        <td style="padding: 10px;"><code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px;">${ip.ip_address}</code></td>
+                                        <td style="padding: 10px;">${ip.description || '—'}</td>
+                                        <td style="padding: 10px;">${statusBadge}</td>
+                                        <td style="padding: 10px;">${ip.created_at ? new Date(ip.created_at).toLocaleDateString('ru-RU') : '—'}</td>
+                                        <td style="padding: 10px;">
+                                            <button onclick="toggleWhitelistedIP(${ip.id})" style="font-size: 0.85rem; padding: 5px 10px; margin-right: 5px; background: ${ip.is_active ? '#ed8936' : '#48bb78'}; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                                ${ip.is_active ? '⏸️ Деактивировать' : '▶️ Активировать'}
+                                            </button>
+                                            <button onclick="removeWhitelistedIP(${ip.id})" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                                🗑️ Удалить
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                        }
+                        
+                        html += '</tbody></table>';
+                        document.getElementById('whitelistList').innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('whitelistList').innerHTML = '<div style="color: #e53e3e; padding: 20px;">❌ Ошибка загрузки: ' + error.message + '</div>';
+                });
+            }
+            
+            function removeWhitelistedIP(ipId) {
+                if (!confirm('Удалить этот IP-адрес из белого списка?')) return;
+                
+                fetch('/admin/remove-whitelist-ip', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({ip_id: ipId})
+                })
+                .then(r => r.json())
+                .then(result => {
+                    alert(result.success ? '✅ ' + result.message : '❌ ' + result.error);
+                    loadWhitelistedIPs();
+                });
+            }
+            
+            function toggleWhitelistedIP(ipId) {
+                fetch('/admin/toggle-whitelist-ip', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({ip_id: ipId})
+                })
+                .then(r => r.json())
+                .then(result => {
+                    alert(result.success ? '✅ ' + result.message : '❌ ' + result.error);
+                    loadWhitelistedIPs();
+                });
+            }
+            
+            // Загружаем белый список IP при загрузке страницы
+            if (typeof loadWhitelistedIPs === 'function') {
+                window.loadWhitelistedIPs = loadWhitelistedIPs;
+                // Загружаем при переключении на секцию пользователей
+                document.addEventListener('DOMContentLoaded', function() {
+                    const userSection = document.getElementById('section-users');
+                    if (userSection) {
+                        const observer = new MutationObserver(function(mutations) {
+                            if (userSection.style.display !== 'none') {
+                                loadWhitelistedIPs();
+                            }
+                        });
+                        observer.observe(userSection, { attributes: true, attributeFilter: ['style'] });
+                    }
+                });
+            }
 
 // ========== ФУНКЦИИ ПОИСКА ==========
 function searchUsers() {
@@ -4151,6 +4303,99 @@ def admin_create_user():
         
     except Exception as e:
         logger.error(f"❌ Ошибка создания пользователя: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/add-whitelist-ip', methods=['POST'])
+@require_admin_auth
+def admin_add_whitelist_ip():
+    """Добавить IP-адрес в белый список для пользователя"""
+    from app import app
+    
+    try:
+        data = request.json
+        user_id = data.get('user_id')
+        ip_address = data.get('ip_address')
+        description = data.get('description')
+        
+        if not user_id or not ip_address:
+            return jsonify({'success': False, 'error': 'Укажите ID пользователя и IP-адрес'})
+        
+        # Получаем ID администратора из сессии (если есть)
+        admin_user_id = session.get('user_id', 'admin')
+        
+        result = app.user_manager.add_whitelisted_ip(
+            user_id=user_id,
+            ip_address=ip_address,
+            description=description,
+            created_by=admin_user_id
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка добавления IP в белый список: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/remove-whitelist-ip', methods=['POST'])
+@require_admin_auth
+def admin_remove_whitelist_ip():
+    """Удалить IP-адрес из белого списка"""
+    from app import app
+    
+    try:
+        data = request.json
+        ip_id = data.get('ip_id')
+        
+        if not ip_id:
+            return jsonify({'success': False, 'error': 'Укажите ID IP-адреса'})
+        
+        result = app.user_manager.remove_whitelisted_ip(ip_id)
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления IP из белого списка: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/toggle-whitelist-ip', methods=['POST'])
+@require_admin_auth
+def admin_toggle_whitelist_ip():
+    """Включить/выключить IP-адрес в белом списке"""
+    from app import app
+    
+    try:
+        data = request.json
+        ip_id = data.get('ip_id')
+        
+        if not ip_id:
+            return jsonify({'success': False, 'error': 'Укажите ID IP-адреса'})
+        
+        result = app.user_manager.toggle_whitelisted_ip(ip_id)
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка переключения статуса IP: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@admin_bp.route('/get-whitelist-ips', methods=['GET'])
+@require_admin_auth
+def admin_get_whitelist_ips():
+    """Получить все IP-адреса из белого списка"""
+    from app import app
+    from models.sqlite_users import WhitelistedIP
+    
+    try:
+        # Получаем все IP из белого списка
+        all_ips = WhitelistedIP.query.order_by(WhitelistedIP.created_at.desc()).all()
+        
+        ips_list = [ip.to_dict() for ip in all_ips]
+        
+        return jsonify({
+            'success': True,
+            'ips': ips_list
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения белого списка IP: {e}")
         return jsonify({'success': False, 'error': str(e)})
         
         

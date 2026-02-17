@@ -494,6 +494,31 @@ class ReferralReward(db.Model):
             'notes': self.notes
         }
 
+class WhitelistedIP(db.Model):
+    """Таблица для хранения белого списка IP-адресов для бизнес-тарифов"""
+    __tablename__ = 'whitelisted_ips'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Пользователь, которому разрешен IP
+    ip_address = db.Column(db.String(50), nullable=False)  # IP-адрес или диапазон (например, 192.168.1.0/24)
+    description = db.Column(db.String(255), nullable=True)  # Описание (например, "Офис в Москве")
+    is_active = db.Column(db.Boolean, default=True)  # Активен ли IP
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания
+    created_by = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=True)  # Кто добавил (админ)
+    notes = db.Column(db.Text, nullable=True)  # Заметки
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'ip_address': self.ip_address,
+            'description': self.description,
+            'is_active': self.is_active,
+            'created_at': self.created_at,
+            'created_by': self.created_by,
+            'notes': self.notes
+        }
+
 
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""
@@ -2059,3 +2084,108 @@ DocScan AI
             self.db.session.commit()
             return True
         return False
+    
+    # ========== МЕТОДЫ ДЛЯ БЕЛОГО СПИСКА IP ==========
+    
+    def add_whitelisted_ip(self, user_id, ip_address, description=None, created_by=None, notes=None):
+        """Добавляет IP-адрес в белый список для пользователя"""
+        from models.sqlite_users import WhitelistedIP
+        from datetime import datetime
+        
+        # Проверяем, не существует ли уже такой IP для этого пользователя
+        existing = WhitelistedIP.query.filter_by(user_id=user_id, ip_address=ip_address).first()
+        if existing:
+            return {'success': False, 'error': 'Этот IP-адрес уже добавлен в белый список'}
+        
+        whitelisted_ip = WhitelistedIP(
+            user_id=user_id,
+            ip_address=ip_address,
+            description=description,
+            is_active=True,
+            created_at=datetime.now().isoformat(),
+            created_by=created_by,
+            notes=notes
+        )
+        
+        self.db.session.add(whitelisted_ip)
+        self.db.session.commit()
+        
+        logger.info(f"✅ IP {ip_address} добавлен в белый список для пользователя {user_id}")
+        return {'success': True, 'id': whitelisted_ip.id, 'message': 'IP-адрес добавлен в белый список'}
+    
+    def remove_whitelisted_ip(self, ip_id, user_id=None):
+        """Удаляет IP-адрес из белого списка"""
+        from models.sqlite_users import WhitelistedIP
+        
+        query = WhitelistedIP.query.filter_by(id=ip_id)
+        if user_id:
+            query = query.filter_by(user_id=user_id)
+        
+        whitelisted_ip = query.first()
+        if whitelisted_ip:
+            self.db.session.delete(whitelisted_ip)
+            self.db.session.commit()
+            logger.info(f"✅ IP {whitelisted_ip.ip_address} удален из белого списка")
+            return {'success': True, 'message': 'IP-адрес удален из белого списка'}
+        
+        return {'success': False, 'error': 'IP-адрес не найден'}
+    
+    def get_whitelisted_ips(self, user_id):
+        """Получает список всех IP-адресов из белого списка для пользователя"""
+        from models.sqlite_users import WhitelistedIP
+        
+        ips = WhitelistedIP.query.filter_by(user_id=user_id, is_active=True).all()
+        return [ip.to_dict() for ip in ips]
+    
+    def is_ip_whitelisted(self, user_id, ip_address):
+        """Проверяет, разрешен ли IP-адрес для пользователя"""
+        from models.sqlite_users import WhitelistedIP
+        import ipaddress
+        
+        # Получаем все активные IP из белого списка для пользователя
+        whitelisted_ips = WhitelistedIP.query.filter_by(user_id=user_id, is_active=True).all()
+        
+        if not whitelisted_ips:
+            # Если белый список пуст, доступ разрешен (для обратной совместимости)
+            return True
+        
+        # Проверяем каждый IP в белом списке
+        for whitelisted_ip in whitelisted_ips:
+            ip_str = whitelisted_ip.ip_address.strip()
+            
+            # Если это точный IP-адрес
+            if '/' not in ip_str:
+                if ip_str == ip_address:
+                    logger.info(f"✅ IP {ip_address} найден в белом списке (точное совпадение)")
+                    return True
+            else:
+                # Если это диапазон IP (CIDR notation, например 192.168.1.0/24)
+                try:
+                    network = ipaddress.ip_network(ip_str, strict=False)
+                    if ipaddress.ip_address(ip_address) in network:
+                        logger.info(f"✅ IP {ip_address} найден в белом списке (диапазон {ip_str})")
+                        return True
+                except ValueError as e:
+                    logger.warning(f"⚠️ Неверный формат IP-диапазона {ip_str}: {e}")
+                    continue
+        
+        logger.warning(f"🚫 IP {ip_address} НЕ найден в белом списке для пользователя {user_id}")
+        return False
+    
+    def toggle_whitelisted_ip(self, ip_id, user_id=None):
+        """Включает/выключает IP-адрес в белом списке"""
+        from models.sqlite_users import WhitelistedIP
+        
+        query = WhitelistedIP.query.filter_by(id=ip_id)
+        if user_id:
+            query = query.filter_by(user_id=user_id)
+        
+        whitelisted_ip = query.first()
+        if whitelisted_ip:
+            whitelisted_ip.is_active = not whitelisted_ip.is_active
+            self.db.session.commit()
+            status = "активирован" if whitelisted_ip.is_active else "деактивирован"
+            logger.info(f"✅ IP {whitelisted_ip.ip_address} {status}")
+            return {'success': True, 'is_active': whitelisted_ip.is_active, 'message': f'IP-адрес {status}'}
+        
+        return {'success': False, 'error': 'IP-адрес не найден'}

@@ -1367,7 +1367,7 @@ def admin_panel():
                         if (!users || users.length === 0) {
                             html = '<p style="color: #999; padding: 20px;">Нет новых пользователей за последние 24 часа</p>';
                         } else {
-                            html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сделал анализ</th></tr></thead><tbody>';
+                            html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px;"><table style="min-width: 700px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сделал анализ</th></tr></thead><tbody>';
                             users.forEach(user => {
                                 const createdDate = user.created_at ? (function() {
                                     try {
@@ -1380,7 +1380,7 @@ def admin_panel():
                                 const hasAnalysis = user.has_analysis ? `1/${planLimit}` : `0/${planLimit}`;
                                 html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px;">${user.user_id}</td><td style="padding: 10px;">${user.email || 'Не указан'}</td><td style="padding: 10px;">${createdDate}</td><td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td><td style="padding: 10px;">${hasAnalysis}</td></tr>`;
                             });
-                            html += '</tbody></table>';
+                            html += '</tbody></table></div>';
                         }
                         const el = document.getElementById('newUsersList');
                         if (el) el.innerHTML = html;
@@ -1406,7 +1406,7 @@ def admin_panel():
                         if (!payments || payments.length === 0) {
                             html = '<p style="color: #999; padding: 20px;">Нет платежей</p>';
                         } else {
-                            html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сумма</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Статус</th></tr></thead><tbody>';
+                            html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px;"><table style="min-width: 700px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сумма</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Статус</th></tr></thead><tbody>';
                             payments.forEach(payment => {
                                 const date = payment.created_at ? (function() {
                                     try {
@@ -1418,7 +1418,7 @@ def admin_panel():
                                 const amount = payment.amount ? payment.amount.toFixed(2) : '0.00';
                                 html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px;">${date}</td><td style="padding: 10px;">${payment.email || 'Не указан'}</td><td style="padding: 10px;">${getPlanName(payment.plan_type || 'basic')}</td><td style="padding: 10px; font-weight: bold; color: #48bb78;">${amount} ${payment.currency || 'RUB'}</td><td style="padding: 10px;"><span style="color: #48bb78;">✅ ${payment.status || 'success'}</span></td></tr>`;
                             });
-                            html += '</tbody></table>';
+                            html += '</tbody></table></div>';
                         }
                         const el = document.getElementById('paymentsList');
                         if (el) el.innerHTML = html;
@@ -1996,7 +1996,7 @@ def admin_panel():
                         return;
                     }
                     
-                    let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Пользователь</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тип</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Заголовок</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th></tr></thead><tbody>';
+                    html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;"><table style="min-width: 600px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Пользователь</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тип</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Заголовок</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th></tr></thead><tbody>';
                     
                     result.notifications.slice(0, 20).forEach(notif => {
                         const typeColors = {
@@ -2013,7 +2013,7 @@ def admin_panel():
                         </tr>`;
                     });
                     
-                    html += '</tbody></table>';
+                    html += '</tbody></table></div>';
                     historyEl.innerHTML = html;
                 })
                 .catch(err => {
@@ -2154,7 +2154,7 @@ def admin_panel():
                             return new Date(b.created_at) - new Date(a.created_at);
                         });
                         
-                        let html = '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф до</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Анализов всего</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сегодня</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
+                        html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px;"><table style="min-width: 1000px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф до</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Анализов всего</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сегодня</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
                         
                         usersArray.forEach(user => {
                             const createdDate = user.created_at ? (function() {
@@ -2187,7 +2187,7 @@ def admin_panel():
                                 </tr>
                             `;
                         });
-                        html += '</tbody></table>';
+                        html += '</tbody></table></div>';
                         document.getElementById('usersList').innerHTML = html;
                     });
             }
@@ -2318,7 +2318,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                             
                             if (stats.top_users && stats.top_users.length > 0) {
                                 html += '<h4>Топ пользователей:</h4>';
-                                html += '<table style="width: 100%; border-collapse: collapse;"><thead><tr>';
+                                html += '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;"><table style="min-width: 500px; width: 100%; border-collapse: collapse;"><thead><tr>';
                                 html += '<th style="padding: 10px; background: #4361ee; color: white;">ID</th>';
                                 html += '<th style="padding: 10px; background: #4361ee; color: white;">Использований</th>';
                                 html += '<th style="padding: 10px; background: #4361ee; color: white;">Последнее</th>';
@@ -2332,7 +2332,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                                     html += '</tr>';
                                 });
                                 
-                                html += '</tbody></table>';
+                                html += '</tbody></table></div>';
                             }
                             
                             const statsEl = document.getElementById('calculatorStats');
@@ -3227,7 +3227,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                             return;
                         }
                         
-                        let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Реферальный код</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Приглашено</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Покупок</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Ожидает выплаты</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Реквизиты</th></tr></thead><tbody>';
+                        html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;"><table style="min-width: 900px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Реферальный код</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Приглашено</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Покупок</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Ожидает выплаты</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Реквизиты</th></tr></thead><tbody>';
                         
                         partners.forEach(partner => {
                             const paymentDetails = partner.payment_details ? JSON.parse(partner.payment_details) : null;
@@ -3250,7 +3250,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                             </tr>`;
                         });
                         
-                        html += '</tbody></table>';
+                        html += '</tbody></table></div>';
                         listEl.innerHTML = html;
                     })
                     .catch(err => {
@@ -3271,7 +3271,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                             return;
                         }
                         
-                        let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Кто пригласил</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Кого пригласили</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата приглашения</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th></tr></thead><tbody>';
+                        html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;"><table style="min-width: 600px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Кто пригласил</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Кого пригласили</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата приглашения</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th></tr></thead><tbody>';
                         
                         referrals.forEach(ref => {
                             html += `<tr style="border-bottom: 1px solid #e2e8f0;">
@@ -3282,7 +3282,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                             </tr>`;
                         });
                         
-                        html += '</tbody></table>';
+                        html += '</tbody></table></div>';
                         listEl.innerHTML = html;
                     })
                     .catch(err => {
@@ -3303,7 +3303,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                             return;
                         }
                         
-                        let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Партнер</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Приглашенный</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сумма покупки</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Вознаграждение</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Статус</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
+                        html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;"><table style="min-width: 900px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Партнер</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Приглашенный</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сумма покупки</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Вознаграждение</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Статус</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата</th><th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
                         
                         rewards.forEach(reward => {
                             const statusColor = reward.status === 'paid' ? '#48bb78' : '#ed8936';
@@ -3321,7 +3321,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                             </tr>`;
                         });
                         
-                        html += '</tbody></table>';
+                        html += '</tbody></table></div>';
                         listEl.innerHTML = html;
                     })
                     .catch(err => {

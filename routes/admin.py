@@ -2527,18 +2527,17 @@ def admin_panel():
                 }
             }
             
-            // Регистрируем функции для полных новостей глобально
-            if (typeof window !== 'undefined') {
-                window.loadFullNews = loadFullNews;
-                window.showFullNewsForm = showFullNewsForm;
-                window.editFullNews = editFullNews;
-                window.saveFullNews = saveFullNews;
-                window.cancelFullNewsForm = cancelFullNewsForm;
-                window.deleteFullNews = deleteFullNews;
-                window.initFullNewsTinyMCE = initFullNewsTinyMCE;
-                window.toggleFullNewsEditorMode = toggleFullNewsEditorMode;
-                console.log('✅ Функции для полных новостей зарегистрированы глобально');
-            }
+            // Регистрируем функции для полных новостей глобально сразу после определения
+            window.loadFullNews = loadFullNews;
+            window.showFullNewsForm = showFullNewsForm;
+            window.editFullNews = editFullNews;
+            window.saveFullNews = saveFullNews;
+            window.cancelFullNewsForm = cancelFullNewsForm;
+            window.deleteFullNews = deleteFullNews;
+            window.initFullNewsTinyMCE = initFullNewsTinyMCE;
+            window.toggleFullNewsEditorMode = toggleFullNewsEditorMode;
+            window.initFullNewsEditorOnShow = initFullNewsEditorOnShow;
+            console.log('✅ Функции для полных новостей зарегистрированы глобально');
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВОПРОСАМИ ==========
             function loadQuestions() {
@@ -2783,12 +2782,18 @@ def admin_panel():
                             'warning': '#ed8936',
                             'success': '#48bb78'
                         };
-                        html += `<tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 12px;">${notif.user_id}</td>
-                            <td style="padding: 12px;"><span style="background: ${typeColors[notif.type] || '#cbd5e0'}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${notif.type}</span></td>
-                            <td style="padding: 12px;">${notif.title}</td>
-                            <td style="padding: 12px;">${new Date(notif.created_at).toLocaleString('ru-RU')}</td>
-                        </tr>`;
+                        const typeColor = typeColors[notif.type] || '#cbd5e0';
+                        const userId = notif.user_id || '';
+                        const notifType = notif.type || '';
+                        const notifTitle = (notif.title || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        const createdDate = new Date(notif.created_at).toLocaleString('ru-RU');
+                        
+                        html += '<tr style="border-bottom: 1px solid #e2e8f0;">';
+                        html += '<td style="padding: 12px;">' + userId + '</td>';
+                        html += '<td style="padding: 12px;"><span style="background: ' + typeColor + '; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">' + notifType + '</span></td>';
+                        html += '<td style="padding: 12px;">' + notifTitle + '</td>';
+                        html += '<td style="padding: 12px;">' + createdDate + '</td>';
+                        html += '</tr>';
                     });
                     
                     html += '</tbody></table></div>';
@@ -2801,6 +2806,8 @@ def admin_panel():
                     }
                 });
             }
+            // Регистрируем loadNotificationsHistory глобально сразу после определения
+            window.loadNotificationsHistory = loadNotificationsHistory;
             
             function closeAdminQuestion(questionId) {
                 if (!confirm('Закрыть вопрос?')) return;

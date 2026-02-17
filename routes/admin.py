@@ -1282,11 +1282,18 @@ def admin_panel():
                         delay = delay || 0;
                         setTimeout(function() {
                             if (typeof window[funcName] === 'function') {
-                                window[funcName]();
-                            } else if (typeof eval(funcName) === 'function') {
-                                eval(funcName + '()');
+                                try {
+                                    window[funcName]();
+                                } catch(e) {
+                                    console.error('❌ Ошибка при вызове ' + funcName + ':', e);
+                                }
                             } else {
-                                console.error('❌ Функция ' + funcName + ' не найдена');
+                                // Пробуем еще раз через небольшую задержку
+                                if (delay < 500) {
+                                    tryLoadFunction(funcName, delay + 100);
+                                } else {
+                                    console.error('❌ Функция ' + funcName + ' не найдена после всех попыток');
+                                }
                             }
                         }, delay);
                     }
@@ -4675,21 +4682,36 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
             }
             
                 // Финальная регистрация всех функций глобально
-                const functionNames = [
-                    'loadUsers', 'loadGuests', 'loadBots', 'loadEmailCampaigns', 
-                    'loadArticles', 'loadPartners', 'loadReferrals', 'loadRewards',
-                    'loadNews', 'loadFullNews', 'loadQuestions', 'loadBackups',
-                    'loadNotificationsHistory', 'loadStats', 'loadWhitelistedIPs'
-                ];
-                
-                functionNames.forEach(funcName => {
-                    if (typeof eval(funcName) === 'function') {
-                        window[funcName] = eval(funcName);
-                        console.log('✅ ' + funcName + ' зарегистрирована глобально');
-                    }
-                });
-                
-                console.log('✅ Все скрипты загружены и функции зарегистрированы');
+                setTimeout(function() {
+                    const functionNames = [
+                        'loadUsers', 'loadGuests', 'loadBots', 'loadEmailCampaigns', 
+                        'loadArticles', 'loadPartners', 'loadReferrals', 'loadRewards',
+                        'loadNews', 'loadFullNews', 'loadQuestions', 'loadBackups',
+                        'loadNotificationsHistory', 'loadStats', 'loadWhitelistedIPs'
+                    ];
+                    
+                    functionNames.forEach(funcName => {
+                        try {
+                            // Пытаемся получить функцию из локальной области видимости
+                            const func = (function() {
+                                try {
+                                    return eval('typeof ' + funcName + ' !== "undefined" ? ' + funcName + ' : null');
+                                } catch(e) {
+                                    return null;
+                                }
+                            })();
+                            
+                            if (func && typeof func === 'function') {
+                                window[funcName] = func;
+                                console.log('✅ ' + funcName + ' зарегистрирована глобально');
+                            }
+                        } catch(e) {
+                            console.warn('⚠️ Не удалось зарегистрировать ' + funcName + ':', e);
+                        }
+                    });
+                    
+                    console.log('✅ Все скрипты загружены и функции зарегистрированы');
+                }, 100);
         </script>
     </body>
     </html>

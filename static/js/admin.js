@@ -142,6 +142,27 @@
                     tryLoadFunction('loadBackups', 100);
                     tryLoadFunction('loadBackups', 300);
                 }
+            } else if (sectionName === 'api-keys') {
+                console.log('📥 Секция API-ключей открыта');
+                // Очищаем форму при открытии секции
+                if (document.getElementById('apiKeyUserId')) {
+                    document.getElementById('apiKeyUserId').value = '';
+                }
+                if (document.getElementById('newApiKeyUserId')) {
+                    document.getElementById('newApiKeyUserId').value = '';
+                }
+                if (document.getElementById('newApiKeyName')) {
+                    document.getElementById('newApiKeyName').value = '';
+                }
+                if (document.getElementById('apiKeysList')) {
+                    document.getElementById('apiKeysList').innerHTML = '';
+                }
+                if (document.getElementById('apiKeyStatus')) {
+                    document.getElementById('apiKeyStatus').textContent = '';
+                }
+                if (document.getElementById('newApiKeyResult')) {
+                    document.getElementById('newApiKeyResult').style.display = 'none';
+                }
             } else if (sectionName === 'questions') {
                 const questionsList = document.getElementById('questionsList');
                 if (questionsList && questionsList.innerHTML === '') {

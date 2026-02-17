@@ -471,6 +471,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="partners">
                     <span>🎁</span> Партнерская программа
                 </a>
+                <a href="#" class="menu-item" data-section="api-keys">
+                    <span>🔑</span> API-ключи
+                </a>
             </nav>
         </div>
         
@@ -675,35 +678,6 @@ def admin_panel():
                         </div>
                     </div>
                     
-                    <div class="card">
-                        <h3>🔑 API-ключи (для бизнес-тарифов)</h3>
-                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
-                            Управление API-ключами для интеграции с внешними системами. API-ключи позволяют автоматизировать анализ документов через API.
-                        </p>
-                        <div style="margin: 15px 0;">
-                            <input type="text" id="apiKeyUserId" placeholder="ID пользователя" 
-                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
-                            <button onclick="loadAPIKeys()" style="background: #667eea; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">📥 Загрузить ключи</button>
-                        </div>
-                        <div id="apiKeyStatus" style="margin: 10px 0; color: #666; font-size: 14px;"></div>
-                        
-                        <div id="apiKeysList" style="margin-top: 20px;"></div>
-                        
-                        <div style="margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 8px;">
-                            <h4 style="margin-bottom: 15px;">Создать новый API-ключ</h4>
-                            <div style="margin: 15px 0;">
-                                <input type="text" id="newApiKeyUserId" placeholder="ID пользователя" 
-                                       style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
-                                <input type="text" id="newApiKeyName" placeholder="Название ключа (опционально)" 
-                                       style="width: 250px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
-                                <button onclick="createAPIKey()" style="background: #48bb78; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">➕ Создать ключ</button>
-                            </div>
-                            <div id="newApiKeyResult" style="margin-top: 15px; padding: 15px; background: #edf2f7; border-radius: 5px; display: none;">
-                                <p style="margin: 0 0 10px 0; font-weight: 600;">⚠️ ВАЖНО: Сохраните этот ключ! Он больше не будет показан:</p>
-                                <code id="newApiKeyValue" style="display: block; padding: 10px; background: #2d3748; color: #48bb78; border-radius: 5px; font-family: monospace; word-break: break-all;"></code>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Секция: Гости -->
@@ -870,6 +844,46 @@ def admin_panel():
                         <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">
                             Это безопаснее, чем восстановление через веб-интерфейс, так как создается резервная копия текущей БД перед восстановлением.
                         </p>
+                    </div>
+                </div>
+                
+                <!-- Секция: API-ключи -->
+                <div id="section-api-keys" class="content-section">
+                    <h2 class="section-header">🔑 API-ключи</h2>
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Управление API-ключами для интеграции с внешними системами. API-ключи позволяют автоматизировать анализ документов через API. Доступны только для бизнес-тарифов (premium).
+                    </p>
+                    
+                    <div class="card">
+                        <h3>Просмотр API-ключей пользователя</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Введите ID пользователя для просмотра всех его API-ключей.
+                        </p>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="apiKeyUserId" placeholder="ID пользователя" 
+                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <button onclick="loadAPIKeys()" style="background: #667eea; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">📥 Загрузить ключи</button>
+                        </div>
+                        <div id="apiKeyStatus" style="margin: 10px 0; color: #666; font-size: 14px;"></div>
+                        <div id="apiKeysList" style="margin-top: 20px;"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Создать новый API-ключ</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Создайте новый API-ключ для пользователя. Ключ будет показан только один раз при создании.
+                        </p>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="newApiKeyUserId" placeholder="ID пользователя" 
+                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <input type="text" id="newApiKeyName" placeholder="Название ключа (опционально)" 
+                                   style="width: 250px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <button onclick="createAPIKey()" style="background: #48bb78; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">➕ Создать ключ</button>
+                        </div>
+                        <div id="newApiKeyResult" style="margin-top: 15px; padding: 15px; background: #edf2f7; border-radius: 5px; display: none;">
+                            <p style="margin: 0 0 10px 0; font-weight: 600; color: #ed8936;">⚠️ ВАЖНО: Сохраните этот ключ! Он больше не будет показан:</p>
+                            <code id="newApiKeyValue" style="display: block; padding: 10px; background: #2d3748; color: #48bb78; border-radius: 5px; font-family: monospace; word-break: break-all;"></code>
+                        </div>
                     </div>
                 </div>
                 

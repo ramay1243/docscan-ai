@@ -1652,7 +1652,10 @@ def admin_panel():
                     });
             }
             // Регистрируем loadStats глобально сразу после определения
-            window.loadStats = loadStats;
+            if (typeof loadStats === 'function') {
+                window.loadStats = loadStats;
+                console.log('✅ loadStats зарегистрирована глобально');
+            }
             
             function loadNewUsers() {
                 fetch('/admin/new-users', {credentials: 'include'})
@@ -1754,8 +1757,11 @@ def admin_panel():
                         document.getElementById('guestsList').innerHTML = html;
                     });
             }
-            
-            registerFunction('loadGuests', loadGuests);
+            // Регистрируем loadGuests глобально сразу после определения
+            if (typeof loadGuests === 'function') {
+                window.loadGuests = loadGuests;
+                console.log('✅ loadGuests зарегистрирована глобально');
+            }
             
             function searchGuests() {
                 const searchTerm = document.getElementById('searchGuest').value.toLowerCase().trim();
@@ -1819,8 +1825,11 @@ def admin_panel():
                         document.getElementById('botsList').innerHTML = html;
                     });
             }
-            
-            registerFunction('loadBots', loadBots);
+            // Регистрируем loadBots глобально сразу после определения
+            if (typeof loadBots === 'function') {
+                window.loadBots = loadBots;
+                console.log('✅ loadBots зарегистрирована глобально');
+            }
             
             function searchBots() {
                 const searchTerm = document.getElementById('searchBot').value.toLowerCase().trim();
@@ -2051,12 +2060,12 @@ def admin_panel():
             }
             
             // Регистрируем функции для новостей глобально СРАЗУ после определения
-            registerFunction('loadNews', loadNews);
-            registerFunction('showNewsForm', showNewsForm);
-            registerFunction('editNews', editNews);
-            registerFunction('saveNews', saveNews);
-            registerFunction('cancelNewsForm', cancelNewsForm);
-            registerFunction('deleteNews', deleteNews);
+            if (typeof loadNews === 'function') window.loadNews = loadNews;
+            if (typeof showNewsForm === 'function') window.showNewsForm = showNewsForm;
+            if (typeof editNews === 'function') window.editNews = editNews;
+            if (typeof saveNews === 'function') window.saveNews = saveNews;
+            if (typeof cancelNewsForm === 'function') window.cancelNewsForm = cancelNewsForm;
+            if (typeof deleteNews === 'function') window.deleteNews = deleteNews;
             console.log('✅ Функции для новостей зарегистрированы глобально');
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ПОЛНЫМИ НОВОСТЯМИ ==========
@@ -2526,15 +2535,15 @@ def admin_panel():
             }
             
             // Регистрируем функции для полных новостей глобально сразу после определения
-            registerFunction('loadFullNews', loadFullNews);
-            registerFunction('showFullNewsForm', showFullNewsForm);
-            registerFunction('editFullNews', editFullNews);
-            registerFunction('saveFullNews', saveFullNews);
-            registerFunction('cancelFullNewsForm', cancelFullNewsForm);
-            registerFunction('deleteFullNews', deleteFullNews);
-            registerFunction('initFullNewsTinyMCE', initFullNewsTinyMCE);
-            registerFunction('toggleFullNewsEditorMode', toggleFullNewsEditorMode);
-            registerFunction('initFullNewsEditorOnShow', initFullNewsEditorOnShow);
+            if (typeof loadFullNews === 'function') window.loadFullNews = loadFullNews;
+            if (typeof showFullNewsForm === 'function') window.showFullNewsForm = showFullNewsForm;
+            if (typeof editFullNews === 'function') window.editFullNews = editFullNews;
+            if (typeof saveFullNews === 'function') window.saveFullNews = saveFullNews;
+            if (typeof cancelFullNewsForm === 'function') window.cancelFullNewsForm = cancelFullNewsForm;
+            if (typeof deleteFullNews === 'function') window.deleteFullNews = deleteFullNews;
+            if (typeof initFullNewsTinyMCE === 'function') window.initFullNewsTinyMCE = initFullNewsTinyMCE;
+            if (typeof toggleFullNewsEditorMode === 'function') window.toggleFullNewsEditorMode = toggleFullNewsEditorMode;
+            if (typeof initFullNewsEditorOnShow === 'function') window.initFullNewsEditorOnShow = initFullNewsEditorOnShow;
             console.log('✅ Функции для полных новостей зарегистрированы глобально');
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВОПРОСАМИ ==========
@@ -2804,7 +2813,11 @@ def admin_panel():
                     }
                 });
             }
-            registerFunction('loadNotificationsHistory', loadNotificationsHistory);
+            // Регистрируем loadNotificationsHistory глобально сразу после определения
+            if (typeof loadNotificationsHistory === 'function') {
+                window.loadNotificationsHistory = loadNotificationsHistory;
+                console.log('✅ loadNotificationsHistory зарегистрирована глобально');
+            }
             
             function closeAdminQuestion(questionId) {
                 if (!confirm('Закрыть вопрос?')) return;
@@ -2881,15 +2894,15 @@ def admin_panel():
             }
             
             // Регистрируем функции для вопросов глобально
-            registerFunction('loadQuestions', loadQuestions);
-            registerFunction('viewAdminQuestion', viewAdminQuestion);
-            registerFunction('closeAdminQuestion', closeAdminQuestion);
-            registerFunction('openAdminQuestion', openAdminQuestion);
-            registerFunction('solveAdminQuestion', solveAdminQuestion);
-            registerFunction('deleteAdminQuestion', deleteAdminQuestion);
-            registerFunction('showQuestionAnswers', showQuestionAnswers);
-            registerFunction('deleteAdminAnswer', deleteAdminAnswer);
-            registerFunction('closeModal', closeModal);
+            if (typeof loadQuestions === 'function') window.loadQuestions = loadQuestions;
+            if (typeof viewAdminQuestion === 'function') window.viewAdminQuestion = viewAdminQuestion;
+            if (typeof closeAdminQuestion === 'function') window.closeAdminQuestion = closeAdminQuestion;
+            if (typeof openAdminQuestion === 'function') window.openAdminQuestion = openAdminQuestion;
+            if (typeof solveAdminQuestion === 'function') window.solveAdminQuestion = solveAdminQuestion;
+            if (typeof deleteAdminQuestion === 'function') window.deleteAdminQuestion = deleteAdminQuestion;
+            if (typeof showQuestionAnswers === 'function') window.showQuestionAnswers = showQuestionAnswers;
+            if (typeof deleteAdminAnswer === 'function') window.deleteAdminAnswer = deleteAdminAnswer;
+            if (typeof closeModal === 'function') window.closeModal = closeModal;
             
             function showUser(userId) {
                 // Переключаемся на секцию пользователей
@@ -3256,7 +3269,11 @@ def admin_panel():
                     document.getElementById('backupsList').innerHTML = '<div style="color: #e53e3e; padding: 20px;">❌ Ошибка соединения: ' + error.message + '</div>';
                 });
             }
-            registerFunction('loadBackups', loadBackups);
+            // Регистрируем loadBackups глобально сразу после определения
+            if (typeof loadBackups === 'function') {
+                window.loadBackups = loadBackups;
+                console.log('✅ loadBackups зарегистрирована глобально');
+            }
             
             function deleteBackup(filename) {
                 if (!confirm('Удалить бэкап ' + filename + '?')) return;
@@ -3669,7 +3686,11 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         document.getElementById('emailCampaignsList').innerHTML = html;
                     });
             }
-            registerFunction('loadEmailCampaigns', loadEmailCampaigns);
+            // Регистрируем loadEmailCampaigns глобально сразу после определения
+            if (typeof loadEmailCampaigns === 'function') {
+                window.loadEmailCampaigns = loadEmailCampaigns;
+                console.log('✅ loadEmailCampaigns зарегистрирована глобально');
+            }
             
             function getRecipientFilterText(filter) {
                 const filters = {
@@ -4258,7 +4279,11 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         articlesListEl.innerHTML = html;
                     });
             }
-            registerFunction('loadArticles', loadArticles);
+            // Регистрируем loadArticles глобально сразу после определения
+            if (typeof loadArticles === 'function') {
+                window.loadArticles = loadArticles;
+                console.log('✅ loadArticles зарегистрирована глобально');
+            }
             
             function createArticle() {
                 const title = document.getElementById('articleTitle').value.trim();
@@ -4505,8 +4530,11 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         document.getElementById('partnersList').innerHTML = '<p style="color: #f56565;">Ошибка загрузки данных</p>';
                     });
             }
-            
-            registerFunction('loadPartners', loadPartners);
+            // Регистрируем loadPartners глобально сразу после определения
+            if (typeof loadPartners === 'function') {
+                window.loadPartners = loadPartners;
+                console.log('✅ loadPartners зарегистрирована глобально');
+            }
             
             function loadReferrals() {
                 fetch('/admin/referrals', {credentials: 'include'})
@@ -4539,8 +4567,11 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         document.getElementById('referralsList').innerHTML = '<p style="color: #f56565;">Ошибка загрузки данных</p>';
                     });
             }
-            
-            registerFunction('loadReferrals', loadReferrals);
+            // Регистрируем loadReferrals глобально сразу после определения
+            if (typeof loadReferrals === 'function') {
+                window.loadReferrals = loadReferrals;
+                console.log('✅ loadReferrals зарегистрирована глобально');
+            }
             
             function loadRewards() {
                 fetch('/admin/rewards', {credentials: 'include'})
@@ -4580,8 +4611,11 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                         document.getElementById('rewardsList').innerHTML = '<p style="color: #f56565;">Ошибка загрузки данных</p>';
                     });
             }
-            
-            registerFunction('loadRewards', loadRewards);
+            // Регистрируем loadRewards глобально сразу после определения
+            if (typeof loadRewards === 'function') {
+                window.loadRewards = loadRewards;
+                console.log('✅ loadRewards зарегистрирована глобально');
+            }
             
             function markRewardPaid(rewardId) {
                 if (!confirm('Отметить вознаграждение как выплаченное?')) return;

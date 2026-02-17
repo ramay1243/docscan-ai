@@ -561,48 +561,53 @@ def download_analysis():
             logger.error(f"Трассировка: {error_trace}")
             return jsonify({'error': f'Ошибка генерации файла: {str(e)}'}), 500
         
-        from flask import Response
+        from flask import Response, make_response
         
         # Подготавливаем имя файла для заголовка Content-Disposition
         try:
-            # Очищаем имя файла от расширения и создаем безопасное имя
-            base_filename = filename.rsplit(".", 1)[0] if "." in filename else filename
-            # Убираем небезопасные символы и ограничиваем длину
-            safe_filename = "".join(c for c in base_filename if c.isalnum() or c in (' ', '-', '_'))[:50]
-            safe_filename = safe_filename.strip() or "document"
-            timestamp = datetime.now().strftime("%Y%m%d")
-            download_filename = f"analysis_{safe_filename}_{timestamp}.{file_extension}"
-            
-            # Кодируем имя файла для заголовка (RFC 5987)
-            encoded_filename = quote(download_filename.encode('utf-8'))
-            
             # Проверяем, что file_content - это bytes
             if not isinstance(file_content, bytes):
                 logger.error(f"❌ file_content не является bytes, тип: {type(file_content)}")
                 return jsonify({'error': 'Ошибка: файл не в правильном формате'}), 500
             
+            # Создаем безопасное имя файла БЕЗ кириллицы для заголовка
+            # Используем только латиницу, цифры и безопасные символы
+            base_filename = filename.rsplit(".", 1)[0] if "." in filename else filename
+            # Транслитерируем кириллицу в латиницу (простая замена)
+            translit_map = {
+                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo',
+                'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+                'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+                'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch',
+                'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+                'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'Yo',
+                'Ж': 'Zh', 'З': 'Z', 'И': 'I', 'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M',
+                'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U',
+                'Ф': 'F', 'Х': 'H', 'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Sch',
+                'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya'
+            }
+            safe_filename = ''.join(translit_map.get(c, c) if c.isalpha() else (c if c.isalnum() or c in (' ', '-', '_') else '_') for c in base_filename)
+            safe_filename = safe_filename.strip()[:50] or "document"
+            timestamp = datetime.now().strftime("%Y%m%d")
+            download_filename = f"analysis_{safe_filename}_{timestamp}.{file_extension}"
+            
             logger.info(f"📤 Отправка файла: формат={export_format}, размер={len(file_content)} bytes, имя={download_filename}")
             
-            # Создаем Response с правильными заголовками
-            response = Response(
-                file_content,
-                mimetype=mime_type,
-                headers={
-                    'Content-Disposition': f'attachment; filename="{download_filename}"; filename*=UTF-8\'\'{encoded_filename}',
-                    'Content-Length': str(len(file_content)),
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            )
+            # Создаем Response с упрощенными заголовками (без кириллицы в имени)
+            response = make_response(file_content)
+            response.headers['Content-Type'] = mime_type
+            response.headers['Content-Disposition'] = f'attachment; filename="{download_filename}"'
+            response.headers['Content-Length'] = str(len(file_content))
             
             logger.info(f"✅ Файл экспортирован: формат={export_format}, файл={filename}")
             return response
+            
         except Exception as response_error:
             logger.error(f"❌ Ошибка создания Response: {response_error}")
             import traceback
             error_trace = traceback.format_exc()
             logger.error(f"Трассировка: {error_trace}")
+            # ВАЖНО: возвращаем JSON, а не пробрасываем исключение
             return jsonify({'error': f'Ошибка создания ответа: {str(response_error)}'}), 500
         
     except Exception as e:

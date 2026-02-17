@@ -818,3 +818,168 @@ def delete_question():
     except Exception as e:
         logger.error(f"❌ Ошибка удаления вопроса: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+# ========== API ДЛЯ КАСТОМНОГО БРЕНДИНГА (ПОЛЬЗОВАТЕЛИ) ==========
+
+@api_bp.route('/user/branding', methods=['GET'])
+def get_user_branding():
+    """Получить настройки брендинга для текущего пользователя"""
+    from app import app
+    from config import PLANS
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    # Проверяем, что тариф premium (бизнес-тариф)
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для бизнес-тарифа'}), 403
+    
+    try:
+        branding = app.user_manager.get_branding_settings(user_id)
+        return jsonify({
+            'success': True,
+            'branding': branding
+        })
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения настроек брендинга: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/branding', methods=['POST'])
+def save_user_branding():
+    """Сохранить настройки брендинга для текущего пользователя"""
+    from app import app
+    from config import PLANS
+    from werkzeug.utils import secure_filename
+    import uuid
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    # Проверяем, что тариф premium (бизнес-тариф)
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для бизнес-тарифа'}), 403
+    
+    try:
+        # Получаем данные формы
+        primary_color = request.form.get('primary_color')
+        secondary_color = request.form.get('secondary_color')
+        company_name = request.form.get('company_name')
+        
+        # Обработка загрузки логотипа
+        logo_path = None
+        if 'logo' in request.files:
+            logo_file = request.files['logo']
+            if logo_file and logo_file.filename:
+                # Проверяем расширение
+                allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
+                filename = secure_filename(logo_file.filename)
+                file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                
+                if file_ext not in allowed_extensions:
+                    return jsonify({'success': False, 'error': 'Недопустимый формат файла. Разрешены: PNG, JPG, JPEG, GIF, SVG'}), 400
+                
+                # Проверяем размер файла (макс. 2MB)
+                logo_file.seek(0, os.SEEK_END)
+                file_size = logo_file.tell()
+                logo_file.seek(0)
+                if file_size > 2 * 1024 * 1024:  # 2MB
+                    return jsonify({'success': False, 'error': 'Размер файла превышает 2MB'}), 400
+                
+                # Создаем папку для логотипов, если её нет
+                logos_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'logos')
+                os.makedirs(logos_dir, exist_ok=True)
+                
+                # Генерируем уникальное имя файла
+                unique_filename = f"{user_id}_{uuid.uuid4().hex[:8]}.{file_ext}"
+                logo_path = os.path.join(logos_dir, unique_filename)
+                
+                # Сохраняем файл
+                logo_file.save(logo_path)
+                logger.info(f"✅ Логотип сохранен пользователем {user_id}: {logo_path}")
+                
+                # Удаляем старый логотип, если есть
+                old_branding = app.user_manager.get_branding_settings(user_id)
+                if old_branding and old_branding.get('logo_path') and os.path.exists(old_branding['logo_path']):
+                    try:
+                        os.remove(old_branding['logo_path'])
+                    except Exception as e:
+                        logger.warning(f"⚠️ Не удалось удалить старый логотип: {e}")
+        
+        # Сохраняем настройки
+        result = app.user_manager.save_branding_settings(
+            user_id=user_id,
+            logo_path=logo_path,
+            primary_color=primary_color,
+            secondary_color=secondary_color,
+            company_name=company_name
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка сохранения настроек брендинга: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/branding/toggle', methods=['POST'])
+def toggle_user_branding():
+    """Включить/выключить брендинг для текущего пользователя"""
+    from app import app
+    from config import PLANS
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    # Проверяем, что тариф premium (бизнес-тариф)
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для бизнес-тарифа'}), 403
+    
+    try:
+        result = app.user_manager.toggle_branding(user_id)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"❌ Ошибка переключения брендинга: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/branding', methods=['DELETE'])
+def delete_user_branding():
+    """Удалить настройки брендинга для текущего пользователя"""
+    from app import app
+    from config import PLANS
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    # Проверяем, что тариф premium (бизнес-тариф)
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для бизнес-тарифа'}), 403
+    
+    try:
+        result = app.user_manager.delete_branding(user_id)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления брендинга: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

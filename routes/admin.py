@@ -3227,7 +3227,8 @@ def admin_panel():
                                 const dateStr = date.toLocaleString('ru-RU');
                                 const sizeMb = backup.size_mb || 0;
                                 const filename = backup.filename || '';
-                                const filenameEscaped = filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+                                // Экранируем HTML специальные символы для безопасного отображения
+                                const filenameEscaped = filename.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                                 
                                 html += '<tr style="border-bottom: 1px solid #e2e8f0;">';
                                 html += '<td style="padding: 10px;">' + dateStr + '</td>';

@@ -5,6 +5,7 @@ import tempfile
 import os
 import uuid
 import logging
+from urllib.parse import quote
 from services.file_processing import extract_text_from_file, validate_file
 from services.analysis import analyze_text
 from services.pdf_generator import generate_analysis_pdf
@@ -540,12 +541,37 @@ def download_analysis():
             return jsonify({'error': f'Ошибка генерации файла: {str(e)}'}), 500
         
         from flask import Response
+        
+        # Подготавливаем имя файла для заголовка Content-Disposition
         try:
+            # Очищаем имя файла от расширения и создаем безопасное имя
+            base_filename = filename.rsplit(".", 1)[0] if "." in filename else filename
+            # Убираем небезопасные символы и ограничиваем длину
+            safe_filename = "".join(c for c in base_filename if c.isalnum() or c in (' ', '-', '_'))[:50]
+            safe_filename = safe_filename.strip() or "document"
+            timestamp = datetime.now().strftime("%Y%m%d")
+            download_filename = f"analysis_{safe_filename}_{timestamp}.{file_extension}"
+            
+            # Кодируем имя файла для заголовка (RFC 5987)
+            encoded_filename = quote(download_filename.encode('utf-8'))
+            
+            # Проверяем, что file_content - это bytes
+            if not isinstance(file_content, bytes):
+                logger.error(f"❌ file_content не является bytes, тип: {type(file_content)}")
+                return jsonify({'error': 'Ошибка: файл не в правильном формате'}), 500
+            
+            logger.info(f"📤 Отправка файла: формат={export_format}, размер={len(file_content)} bytes, имя={download_filename}")
+            
+            # Создаем Response с правильными заголовками
             response = Response(
                 file_content,
                 mimetype=mime_type,
                 headers={
-                    'Content-Disposition': f'attachment; filename=analysis_{filename.rsplit(".", 1)[0] if "." in filename else filename}_{datetime.now().strftime("%Y%m%d")}.{file_extension}'
+                    'Content-Disposition': f'attachment; filename="{download_filename}"; filename*=UTF-8\'\'{encoded_filename}',
+                    'Content-Length': str(len(file_content)),
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
                 }
             )
             
@@ -554,7 +580,8 @@ def download_analysis():
         except Exception as response_error:
             logger.error(f"❌ Ошибка создания Response: {response_error}")
             import traceback
-            logger.error(f"Трассировка: {traceback.format_exc()}")
+            error_trace = traceback.format_exc()
+            logger.error(f"Трассировка: {error_trace}")
             return jsonify({'error': f'Ошибка создания ответа: {str(response_error)}'}), 500
         
     except Exception as e:

@@ -718,13 +718,19 @@
                 
                 const authButtons = document.getElementById('authButtons');
                 const userMenu = document.getElementById('userMenu');
+                const mobileAuth = document.getElementById('mobileAuthButtons');
+                const mobileUser = document.getElementById('mobileUserMenu');
                 
                 if (data.authenticated) {
                     if (authButtons) authButtons.style.display = 'none';
                     if (userMenu) userMenu.style.display = 'flex';
+                    if (mobileAuth) mobileAuth.style.display = 'none';
+                    if (mobileUser) mobileUser.style.display = 'block';
                 } else {
                     if (authButtons) authButtons.style.display = 'flex';
                     if (userMenu) userMenu.style.display = 'none';
+                    if (mobileAuth) mobileAuth.style.display = 'block';
+                    if (mobileUser) mobileUser.style.display = 'none';
                 }
             } catch (error) {
                 console.error('Auth check error:', error);

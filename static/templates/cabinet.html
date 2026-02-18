@@ -2173,6 +2173,52 @@
                     }
                 });
             }
+            
+            // Обработчики для кнопок сравнения документов (добавляем при загрузке страницы)
+            document.querySelectorAll('button[data-action="compare"]').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof createDocumentComparison === 'function') {
+                        createDocumentComparison();
+                    } else {
+                        console.error('createDocumentComparison function not found');
+                        alert('Ошибка: функция сравнения не найдена');
+                    }
+                });
+            });
+            
+            document.querySelectorAll('button[data-action="load-comparisons"]').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof loadDocumentComparisons === 'function') {
+                        loadDocumentComparisons();
+                    } else {
+                        console.error('loadDocumentComparisons function not found');
+                    }
+                });
+            });
+            
+            // Обработчики для файлов сравнения
+            const originalFileInput = document.getElementById('originalFile');
+            const modifiedFileInput = document.getElementById('modifiedFile');
+            if (originalFileInput) {
+                originalFileInput.addEventListener('change', function() {
+                    const infoDiv = document.getElementById('originalFileInfo');
+                    if (infoDiv && this.files.length > 0) {
+                        const file = this.files[0];
+                        infoDiv.innerHTML = '<div style="padding: 10px; background: var(--light); border-radius: 5px; color: var(--success);">✅ ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)</div>';
+                    }
+                });
+            }
+            if (modifiedFileInput) {
+                modifiedFileInput.addEventListener('change', function() {
+                    const infoDiv = document.getElementById('modifiedFileInfo');
+                    if (infoDiv && this.files.length > 0) {
+                        const file = this.files[0];
+                        infoDiv.innerHTML = '<div style="padding: 10px; background: var(--light); border-radius: 5px; color: var(--success);">✅ ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)</div>';
+                    }
+                });
+            }
         });
         
         async function createBatchTask() {
@@ -2677,6 +2723,300 @@
                 }
             } catch (error) {
                 console.error('Ошибка загрузки отчетов:', error);
+                alert('Ошибка соединения');
+            }
+        }
+        
+        // Управление сравнением документов
+        async function createDocumentComparison() {
+            const originalFile = document.getElementById('originalFile');
+            const modifiedFile = document.getElementById('modifiedFile');
+            const msgEl = document.getElementById('comparisonMessage');
+            
+            if (!originalFile || !originalFile.files || originalFile.files.length === 0) {
+                if (msgEl) {
+                    msgEl.innerHTML = '<p style="color: var(--danger);">❌ Выберите оригинальный документ</p>';
+                }
+                return;
+            }
+            
+            if (!modifiedFile || !modifiedFile.files || modifiedFile.files.length === 0) {
+                if (msgEl) {
+                    msgEl.innerHTML = '<p style="color: var(--danger);">❌ Выберите измененный документ</p>';
+                }
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('original_file', originalFile.files[0]);
+            formData.append('modified_file', modifiedFile.files[0]);
+            
+            if (msgEl) {
+                msgEl.innerHTML = '<p style="color: var(--primary);">⏳ Сравнение документов...</p>';
+            }
+            
+            try {
+                const response = await fetch('/api/user/document-comparison', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (msgEl) {
+                        msgEl.innerHTML = '<p style="color: var(--success);">✅ Сравнение запущено! ID: ' + result.comparison_id + '</p>';
+                    }
+                    originalFile.value = '';
+                    modifiedFile.value = '';
+                    if (document.getElementById('originalFileInfo')) {
+                        document.getElementById('originalFileInfo').innerHTML = '';
+                    }
+                    if (document.getElementById('modifiedFileInfo')) {
+                        document.getElementById('modifiedFileInfo').innerHTML = '';
+                    }
+                    
+                    // Загружаем список сравнений и начинаем отслеживание
+                    loadDocumentComparisons();
+                    if (result.comparison_id) {
+                        startTrackingComparison(result.comparison_id);
+                    }
+                } else {
+                    if (msgEl) {
+                        msgEl.innerHTML = '<p style="color: var(--danger);">❌ Ошибка: ' + result.error + '</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка создания сравнения:', error);
+                if (msgEl) {
+                    msgEl.innerHTML = '<p style="color: var(--danger);">❌ Ошибка соединения</p>';
+                }
+            }
+        }
+        
+        async function loadDocumentComparisons() {
+            try {
+                const response = await fetch('/api/user/document-comparison', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                const listDiv = document.getElementById('comparisonsList');
+                if (!listDiv) return;
+                
+                if (!result.success || !result.comparisons || result.comparisons.length === 0) {
+                    listDiv.innerHTML = '<p style="color: var(--gray);">У вас нет сравнений документов</p>';
+                    return;
+                }
+                
+                let html = '';
+                result.comparisons.forEach(function(comp) {
+                    const statusColors = {
+                        'pending': 'var(--warning)',
+                        'processing': 'var(--primary)',
+                        'completed': 'var(--success)',
+                        'failed': 'var(--danger)'
+                    };
+                    const statusNames = {
+                        'pending': 'Ожидает',
+                        'processing': 'Обрабатывается',
+                        'completed': 'Завершено',
+                        'failed': 'Ошибка'
+                    };
+                    
+                    html += '<div style="background: var(--light); padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ' + (statusColors[comp.status] || 'var(--gray)') + ';">';
+                    html += '<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">';
+                    html += '<div>';
+                    html += '<h3 style="margin: 0 0 5px 0;">Сравнение #' + comp.id + '</h3>';
+                    html += '<p style="color: var(--gray); font-size: 0.9rem; margin: 5px 0;">Оригинал: ' + (comp.original_filename || 'Неизвестно') + '</p>';
+                    html += '<p style="color: var(--gray); font-size: 0.9rem; margin: 5px 0;">Измененный: ' + (comp.modified_filename || 'Неизвестно') + '</p>';
+                    html += '<p style="color: var(--gray); font-size: 0.9rem; margin: 5px 0;">Создано: ' + new Date(comp.created_at).toLocaleString('ru-RU') + '</p>';
+                    html += '</div>';
+                    html += '<span style="padding: 5px 15px; background: ' + (statusColors[comp.status] || 'var(--gray)') + '; color: white; border-radius: 5px; font-size: 0.9rem; font-weight: 600;">' + (statusNames[comp.status] || comp.status) + '</span>';
+                    html += '</div>';
+                    
+                    if (comp.status === 'completed' && comp.report_path) {
+                        let reportUrl = comp.report_path;
+                        if (reportUrl.startsWith('static/reports/comparisons/')) {
+                            reportUrl = '/comparison-report/' + reportUrl.replace('static/reports/comparisons/', '');
+                        } else if (reportUrl.startsWith('reports/comparisons/')) {
+                            reportUrl = '/comparison-report/' + reportUrl.replace('reports/comparisons/', '');
+                        } else if (!reportUrl.startsWith('/')) {
+                            reportUrl = '/comparison-report/' + reportUrl;
+                        }
+                        html += '<div style="margin-top: 15px;">';
+                        html += '<a href="' + reportUrl + '" target="_blank" class="cta-button" style="background: var(--primary); display: inline-block;">📄 Просмотреть отчет</a>';
+                        html += '<button class="cta-button" style="background: var(--primary); margin-left: 10px; display: inline-block;" data-comparison-id="' + comp.id + '" data-action="view-details">📋 Детали</button>';
+                        html += '</div>';
+                    }
+                    
+                    if (comp.status === 'processing') {
+                        html += '<div style="margin-top: 15px; padding: 10px; background: white; border-radius: 5px;">';
+                        html += '<p style="color: var(--primary); margin: 0;">⏳ Сравнение выполняется...</p>';
+                        html += '</div>';
+                    }
+                    
+                    if (comp.status === 'failed' && comp.error_message) {
+                        html += '<div style="margin-top: 15px; padding: 10px; background: #ffebee; border-radius: 5px;">';
+                        html += '<p style="color: var(--danger); margin: 0;">❌ Ошибка: ' + (comp.error_message || 'Неизвестная ошибка') + '</p>';
+                        html += '</div>';
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                listDiv.innerHTML = html;
+                
+                // Добавляем обработчики для кнопок деталей
+                listDiv.querySelectorAll('button[data-action="view-details"]').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const comparisonId = parseInt(this.getAttribute('data-comparison-id'));
+                        viewComparisonDetails(comparisonId);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Ошибка загрузки сравнений:', error);
+                const listDiv = document.getElementById('comparisonsList');
+                if (listDiv) {
+                    listDiv.innerHTML = '<p style="color: var(--danger);">Ошибка загрузки сравнений</p>';
+                }
+            }
+        }
+        
+        function startTrackingComparison(comparisonId) {
+            if (window.comparisonTrackingIntervals && window.comparisonTrackingIntervals[comparisonId]) {
+                return;
+            }
+            
+            if (!window.comparisonTrackingIntervals) {
+                window.comparisonTrackingIntervals = {};
+            }
+            
+            const interval = setInterval(async function() {
+                try {
+                    const response = await fetch('/api/user/document-comparison/' + comparisonId, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success && result.comparison) {
+                        const comp = result.comparison;
+                        
+                        if (comp.status === 'completed' || comp.status === 'failed') {
+                            clearInterval(interval);
+                            delete window.comparisonTrackingIntervals[comparisonId];
+                            loadDocumentComparisons();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка отслеживания сравнения:', error);
+                }
+            }, 3000);
+            
+            window.comparisonTrackingIntervals[comparisonId] = interval;
+        }
+        
+        async function viewComparisonDetails(comparisonId) {
+            try {
+                const response = await fetch('/api/user/document-comparison/' + comparisonId, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success && result.comparison) {
+                    const comp = result.comparison;
+                    
+                    let detailsHtml = '<div style="max-width: 800px; max-height: 80vh; overflow-y: auto; padding: 20px;">';
+                    detailsHtml += '<h2 style="margin-top: 0;">Детали сравнения #' + comp.id + '</h2>';
+                    detailsHtml += '<p><strong>Оригинальный документ:</strong> ' + (comp.original_filename || 'Неизвестно') + '</p>';
+                    detailsHtml += '<p><strong>Измененный документ:</strong> ' + (comp.modified_filename || 'Неизвестно') + '</p>';
+                    detailsHtml += '<p><strong>Статус:</strong> ' + comp.status + '</p>';
+                    detailsHtml += '<p><strong>Создано:</strong> ' + new Date(comp.created_at).toLocaleString('ru-RU') + '</p>';
+                    
+                    if (comp.completed_at) {
+                        detailsHtml += '<p><strong>Завершено:</strong> ' + new Date(comp.completed_at).toLocaleString('ru-RU') + '</p>';
+                    }
+                    
+                    if (comp.comparison_result) {
+                        const stats = comp.comparison_result.statistics || {};
+                        detailsHtml += '<h3 style="margin-top: 20px;">Статистика изменений:</h3>';
+                        detailsHtml += '<ul style="line-height: 1.8;">';
+                        detailsHtml += '<li>Всего изменений: <strong>' + (stats.total_changes || 0) + '</strong></li>';
+                        detailsHtml += '<li>Добавлено: <strong>' + (stats.added_count || 0) + '</strong> фрагментов</li>';
+                        detailsHtml += '<li>Удалено: <strong>' + (stats.removed_count || 0) + '</strong> фрагментов</li>';
+                        detailsHtml += '<li>Изменено: <strong>' + (stats.modified_count || 0) + '</strong> фрагментов</li>';
+                        detailsHtml += '</ul>';
+                    }
+                    
+                    if (comp.risk_analysis) {
+                        detailsHtml += '<h3 style="margin-top: 20px;">Анализ рисков:</h3>';
+                        if (comp.risk_analysis.summary) {
+                            detailsHtml += '<p>' + comp.risk_analysis.summary + '</p>';
+                        }
+                        if (comp.risk_analysis.overall_risk) {
+                            detailsHtml += '<p><strong>Общий уровень риска:</strong> ' + comp.risk_analysis.overall_risk + '</p>';
+                        }
+                    }
+                    
+                    if (comp.report_path) {
+                        let reportUrl = comp.report_path;
+                        if (reportUrl.startsWith('static/reports/comparisons/')) {
+                            reportUrl = '/comparison-report/' + reportUrl.replace('static/reports/comparisons/', '');
+                        } else if (reportUrl.startsWith('reports/comparisons/')) {
+                            reportUrl = '/comparison-report/' + reportUrl.replace('reports/comparisons/', '');
+                        } else if (!reportUrl.startsWith('/')) {
+                            reportUrl = '/comparison-report/' + reportUrl;
+                        }
+                        detailsHtml += '<div style="margin-top: 20px;">';
+                        detailsHtml += '<a href="' + reportUrl + '" target="_blank" class="cta-button" style="background: var(--primary);">📄 Открыть полный отчет</a>';
+                        detailsHtml += '</div>';
+                    }
+                    
+                    detailsHtml += '</div>';
+                    
+                    const modal = document.createElement('div');
+                    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+                    
+                    const modalContent = document.createElement('div');
+                    modalContent.style.cssText = 'background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; max-width: 90vw;';
+                    
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = detailsHtml;
+                    while (tempDiv.firstChild) {
+                        modalContent.appendChild(tempDiv.firstChild);
+                    }
+                    
+                    const closeButton = document.createElement('button');
+                    closeButton.textContent = '×';
+                    closeButton.style.cssText = 'position: absolute; top: 15px; right: 15px; background: #f44336; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 20px; font-weight: bold; transition: all 0.3s; z-index: 1;';
+                    closeButton.setAttribute('type', 'button');
+                    closeButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (modal && modal.parentNode) {
+                            modal.remove();
+                        }
+                    });
+                    modalContent.appendChild(closeButton);
+                    
+                    modal.appendChild(modalContent);
+                    document.body.appendChild(modal);
+                    
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
+                } else {
+                    alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки деталей сравнения:', error);
                 alert('Ошибка соединения');
             }
         }

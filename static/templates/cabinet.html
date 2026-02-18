@@ -2245,13 +2245,23 @@
                         if (task.failed_files > 0) {
                             html += `<p style="margin: 5px 0 0 0; color: var(--danger);">❌ Ошибок: ${task.failed_files}</p>`;
                         }
-                        html += `<div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">`;
+                        html += '<div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">';
                         if (task.summary_report_path) {
-                            html += `<a href="/${task.summary_report_path}" target="_blank" class="cta-button" style="background: var(--primary); display: inline-block;">📄 Скачать сводный отчет</a>`;
-                            html += `<button onclick="openBatchReportsModal(${task.id})" class="cta-button" style="background: var(--success); display: inline-block;">📖 Открыть отчеты</button>`;
+                            const safeSummaryPath = String(task.summary_report_path).replace(/"/g, '&quot;');
+                            html += '<a href="/' + safeSummaryPath + '" target="_blank" class="cta-button" style="background: var(--primary); display: inline-block;">📄 Скачать сводный отчет</a>';
+                            const openReportsBtn = document.createElement('button');
+                            openReportsBtn.className = 'cta-button';
+                            openReportsBtn.style.cssText = 'background: var(--success); display: inline-block;';
+                            openReportsBtn.textContent = '📖 Открыть отчеты';
+                            openReportsBtn.setAttribute('data-task-id', task.id);
+                            openReportsBtn.addEventListener('click', function() {
+                                openBatchReportsModal(parseInt(this.getAttribute('data-task-id')));
+                            });
+                            // Вместо добавления кнопки напрямую, создадим её через строку с безопасным ID
+                            html += '<button class="cta-button" style="background: var(--success); display: inline-block;" data-task-id="' + task.id + '">📖 Открыть отчеты</button>';
                         }
-                        html += `<button onclick="viewBatchTaskDetails(${task.id})" class="cta-button" style="background: var(--primary); display: inline-block;">📋 Детали</button>`;
-                        html += `</div>`;
+                        html += '<button class="cta-button" style="background: var(--primary); display: inline-block;" data-task-id="' + task.id + '" data-action="details">📋 Детали</button>';
+                        html += '</div>';
                         html += `</div>`;
                     }
                     

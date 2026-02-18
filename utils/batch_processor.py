@@ -175,13 +175,22 @@ class BatchProcessor:
                             report_path = None
                             try:
                                 from services.pdf_generator import generate_analysis_pdf
-                                from models.sqlite_users import User
                                 
-                                user_obj = app_instance.user_manager.get_user(user_id)
-                                branding = None
-                                if user_obj and hasattr(user_obj, 'branding_settings'):
+                                # Получаем настройки брендинга
+                                branding_settings = None
+                                try:
                                     from models.sqlite_users import BrandingSettings
-                                    branding = BrandingSettings.query.filter_by(user_id=user_id).first()
+                                    branding_obj = BrandingSettings.query.filter_by(user_id=user_id).first()
+                                    if branding_obj and branding_obj.is_active:
+                                        branding_settings = {
+                                            'is_active': True,
+                                            'logo_path': branding_obj.logo_path,
+                                            'primary_color': branding_obj.primary_color,
+                                            'secondary_color': branding_obj.secondary_color,
+                                            'company_name': branding_obj.company_name
+                                        }
+                                except Exception as e:
+                                    logger.warning(f"⚠️ Не удалось загрузить настройки брендинга: {e}")
                                 
                                 reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'reports', 'batch', f'task_{task_id}')
                                 os.makedirs(reports_dir, exist_ok=True)
@@ -190,10 +199,11 @@ class BatchProcessor:
                                 report_filename = f"{safe_filename}_report.pdf"
                                 report_path_full = os.path.join(reports_dir, report_filename)
                                 
+                                # generate_analysis_pdf принимает: (analysis_data, filename="document.pdf", branding_settings=None)
                                 pdf_content = generate_analysis_pdf(
-                                    analysis_result=analysis_result,
-                                    filename=file_record.filename,
-                                    branding=branding
+                                    analysis_result,  # analysis_data
+                                    file_record.filename,  # filename
+                                    branding_settings  # branding_settings
                                 )
                                 
                                 with open(report_path_full, 'wb') as f:

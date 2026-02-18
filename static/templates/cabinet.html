@@ -2437,18 +2437,35 @@
                         return;
                     }
                     
-                    // Создаем содержимое модального окна
-                    // Экранируем название задачи для безопасной вставки
-                    const safeTaskName = String(task.task_name || 'Задача #' + task.id).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    // Создаем модальное окно через DOM API (безопаснее, чем innerHTML)
+                    const modal = document.createElement('div');
+                    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
                     
-                    let reportsHtml = '<div style="max-width: 700px; max-height: 80vh; overflow-y: auto; padding: 30px;">';
-                    reportsHtml += '<h2 style="margin-top: 0; color: var(--primary);">📖 PDF Отчеты</h2>';
-                    reportsHtml += '<p style="color: var(--gray); margin-bottom: 20px;">Задача: ' + safeTaskName + '</p>';
+                    const modalContent = document.createElement('div');
+                    modalContent.style.cssText = 'background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; max-width: 90vw; max-height: 80vh; overflow-y: auto; padding: 30px;';
                     
-                    // Список PDF отчетов
-                    reportsHtml += '<div style="margin-bottom: 20px;">';
-                    reportsHtml += '<h3 style="margin-bottom: 15px; font-size: 1.1rem;">Полные отчеты по документам:</h3>';
+                    // Заголовок
+                    const title = document.createElement('h2');
+                    title.style.cssText = 'margin-top: 0; color: var(--primary);';
+                    title.textContent = '📖 PDF Отчеты';
+                    modalContent.appendChild(title);
                     
+                    // Название задачи
+                    const taskName = document.createElement('p');
+                    taskName.style.cssText = 'color: var(--gray); margin-bottom: 20px;';
+                    taskName.textContent = 'Задача: ' + (task.task_name || 'Задача #' + task.id);
+                    modalContent.appendChild(taskName);
+                    
+                    // Контейнер для списка отчетов
+                    const reportsContainer = document.createElement('div');
+                    reportsContainer.style.cssText = 'margin-bottom: 20px;';
+                    
+                    const reportsTitle = document.createElement('h3');
+                    reportsTitle.style.cssText = 'margin-bottom: 15px; font-size: 1.1rem;';
+                    reportsTitle.textContent = 'Полные отчеты по документам:';
+                    reportsContainer.appendChild(reportsTitle);
+                    
+                    // Создаем элементы для каждого файла
                     completedFiles.forEach((file, index) => {
                         // Формируем правильный URL для отчета
                         let reportUrl = file.full_report_path;
@@ -2462,44 +2479,58 @@
                             reportUrl = '/batch-report/' + reportUrl;
                         }
                         
-                        // Экранируем имя файла для безопасной вставки в HTML
-                        const safeFilename = String(file.filename || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                        const safeReportUrl = reportUrl ? String(reportUrl).replace(/"/g, '&quot;') : '#';
+                        // Создаем контейнер для файла
+                        const fileDiv = document.createElement('div');
+                        fileDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--success);';
                         
-                        reportsHtml += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--success);">';
-                        reportsHtml += '<div style="flex: 1;">';
-                        reportsHtml += '<div style="font-weight: 600; margin-bottom: 5px; color: var(--dark);">' + (index + 1) + '. ' + safeFilename + '</div>';
-                        reportsHtml += '<div style="font-size: 0.85rem; color: var(--gray);">✅ Успешно обработан</div>';
-                        reportsHtml += '</div>';
-                        reportsHtml += '<a href="' + safeReportUrl + '" target="_blank" class="cta-button" style="background: var(--success); padding: 10px 20px; text-decoration: none; white-space: nowrap; margin-left: 15px;">📄 Открыть PDF</a>';
-                        reportsHtml += '</div>';
+                        const fileInfo = document.createElement('div');
+                        fileInfo.style.cssText = 'flex: 1;';
+                        
+                        const fileName = document.createElement('div');
+                        fileName.style.cssText = 'font-weight: 600; margin-bottom: 5px; color: var(--dark);';
+                        fileName.textContent = (index + 1) + '. ' + (file.filename || 'Неизвестный файл');
+                        fileInfo.appendChild(fileName);
+                        
+                        const fileStatus = document.createElement('div');
+                        fileStatus.style.cssText = 'font-size: 0.85rem; color: var(--gray);';
+                        fileStatus.textContent = '✅ Успешно обработан';
+                        fileInfo.appendChild(fileStatus);
+                        
+                        fileDiv.appendChild(fileInfo);
+                        
+                        // Кнопка открытия PDF
+                        const pdfLink = document.createElement('a');
+                        pdfLink.href = reportUrl || '#';
+                        pdfLink.target = '_blank';
+                        pdfLink.className = 'cta-button';
+                        pdfLink.style.cssText = 'background: var(--success); padding: 10px 20px; text-decoration: none; white-space: nowrap; margin-left: 15px;';
+                        pdfLink.textContent = '📄 Открыть PDF';
+                        fileDiv.appendChild(pdfLink);
+                        
+                        reportsContainer.appendChild(fileDiv);
                     });
                     
-                    reportsHtml += '</div>';
+                    modalContent.appendChild(reportsContainer);
                     
                     // Кнопка для сводного отчета
                     if (task.summary_report_path) {
-                        const safeSummaryPath = String(task.summary_report_path).replace(/"/g, '&quot;');
-                        reportsHtml += '<div style="padding-top: 20px; border-top: 2px solid var(--border);">';
-                        reportsHtml += '<h3 style="margin-bottom: 15px; font-size: 1.1rem;">Сводный отчет:</h3>';
-                        reportsHtml += '<a href="/' + safeSummaryPath + '" target="_blank" class="cta-button" style="background: var(--primary); padding: 12px 24px; text-decoration: none; display: inline-block;">📄 Скачать сводный отчет (TXT)</a>';
-                        reportsHtml += '</div>';
-                    }
-                    
-                    reportsHtml += '</div>';
-                    
-                    // Создаем модальное окно
-                    const modal = document.createElement('div');
-                    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
-                    
-                    const modalContent = document.createElement('div');
-                    modalContent.style.cssText = 'background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; max-width: 90vw;';
-                    
-                    // Создаем временный контейнер для безопасной вставки HTML
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = reportsHtml;
-                    while (tempDiv.firstChild) {
-                        modalContent.appendChild(tempDiv.firstChild);
+                        const summaryDiv = document.createElement('div');
+                        summaryDiv.style.cssText = 'padding-top: 20px; border-top: 2px solid var(--border);';
+                        
+                        const summaryTitle = document.createElement('h3');
+                        summaryTitle.style.cssText = 'margin-bottom: 15px; font-size: 1.1rem;';
+                        summaryTitle.textContent = 'Сводный отчет:';
+                        summaryDiv.appendChild(summaryTitle);
+                        
+                        const summaryLink = document.createElement('a');
+                        summaryLink.href = '/' + task.summary_report_path;
+                        summaryLink.target = '_blank';
+                        summaryLink.className = 'cta-button';
+                        summaryLink.style.cssText = 'background: var(--primary); padding: 12px 24px; text-decoration: none; display: inline-block;';
+                        summaryLink.textContent = '📄 Скачать сводный отчет (TXT)';
+                        summaryDiv.appendChild(summaryLink);
+                        
+                        modalContent.appendChild(summaryDiv);
                     }
                     
                     // Создаем кнопку закрытия отдельно, чтобы избежать проблем с экранированием

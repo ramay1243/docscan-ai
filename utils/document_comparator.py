@@ -131,7 +131,13 @@ class DocumentComparator:
             # Анализируем изменения через AI
             risk_analysis = None
             try:
-                if Config.YANDEX_API_KEY and Config.YANDEX_FOLDER_ID:
+                if not Config.YANDEX_API_KEY or not Config.YANDEX_FOLDER_ID:
+                    logger.warning(f"⚠️ YandexGPT API ключи не настроены. Пропускаем анализ рисков.")
+                elif total_changes == 0:
+                    logger.info(f"ℹ️ Изменений не обнаружено, анализ AI не требуется")
+                else:
+                    logger.info(f"🤖 Отправка запроса к YandexGPT для анализа {total_changes} изменений")
+                if Config.YANDEX_API_KEY and Config.YANDEX_FOLDER_ID and total_changes > 0:
                     system_prompt = """Ты эксперт по анализу изменений в юридических документах. Проанализируй изменения между двумя версиями документа и оцени риски.
 
 Для каждого изменения определи:
@@ -190,14 +196,17 @@ class DocumentComparator:
                     if resp.status_code == 200:
                         result = resp.json()
                         response_text = result['result']['alternatives'][0]['message']['text'].strip()
+                        logger.info(f"✅ Получен ответ от YandexGPT для сравнения {comparison_id}")
                         
                         # Парсим JSON из ответа
                         import re
                         json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
                         if json_match:
                             risk_analysis = json.loads(json_match.group())
+                            logger.info(f"✅ Анализ рисков успешно распарсен для сравнения {comparison_id}")
                         else:
                             # Если не удалось распарсить JSON, создаем простой анализ
+                            logger.warning(f"⚠️ Не удалось распарсить JSON ответ от YandexGPT для сравнения {comparison_id}")
                             risk_analysis = {
                                 'summary': 'Изменения проанализированы',
                                 'overall_risk': 'MEDIUM' if total_changes > 5 else 'LOW',
@@ -205,7 +214,7 @@ class DocumentComparator:
                                 'changes_analysis': []
                             }
                     else:
-                        logger.warning(f"⚠️ Ошибка YandexGPT при анализе изменений: {resp.status_code}")
+                        logger.warning(f"⚠️ Ошибка YandexGPT при анализе изменений: {resp.status_code} - {resp.text[:200]}")
             except Exception as e:
                 logger.warning(f"⚠️ Не удалось получить анализ рисков от AI: {e}")
             

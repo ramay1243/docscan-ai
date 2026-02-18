@@ -432,11 +432,15 @@
                 <span class="sidebar-menu-item-icon">⚙️</span>
                 <span>Настройки анализа</span>
             </a>
-            <a href="#" class="sidebar-menu-item" data-section="batch-processing" onclick="showSection('batch-processing'); return false;">
-                <span class="sidebar-menu-item-icon">📦</span>
-                <span>Пакетная обработка</span>
-            </a>
-            {% endif %}
+        <a href="#" class="sidebar-menu-item" data-section="batch-processing" onclick="showSection('batch-processing'); return false;">
+            <span class="sidebar-menu-item-icon">📦</span>
+            <span>Пакетная обработка</span>
+        </a>
+        <a href="#" class="sidebar-menu-item" data-section="document-comparison" onclick="showSection('document-comparison'); return false;">
+            <span class="sidebar-menu-item-icon">🔍</span>
+            <span>Сравнение документов</span>
+        </a>
+        {% endif %}
             <a href="#" class="sidebar-menu-item" data-section="partners" onclick="showSection('partners'); return false;">
                 <span class="sidebar-menu-item-icon">🎁</span>
                 <span>Партнерская программа</span>
@@ -893,6 +897,51 @@
                     </ul>
                 </div>
             </div>
+            
+            <!-- Section: Document Comparison -->
+            <div id="section-document-comparison" class="content-section">
+                <h1 style="color: var(--dark); margin-bottom: 30px; font-size: 2rem;">🔍 Сравнение документов</h1>
+                <p style="color: var(--gray); margin-bottom: 30px;">Сравните две версии документа и выявите все изменения. Система автоматически проанализирует различия и оценит риски изменений.</p>
+                
+                <div class="section">
+                    <h2 class="section-title">Создать новое сравнение</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Оригинальный документ:</label>
+                        <input type="file" id="originalFile" accept=".pdf,.doc,.docx,.txt" class="form-input" style="padding: 8px;">
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 5px;">Выберите оригинальную версию документа</p>
+                        <div id="originalFileInfo" style="margin-top: 10px;"></div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Измененный документ:</label>
+                        <input type="file" id="modifiedFile" accept=".pdf,.doc,.docx,.txt" class="form-input" style="padding: 8px;">
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 5px;">Выберите измененную версию документа</p>
+                        <div id="modifiedFileInfo" style="margin-top: 10px;"></div>
+                    </div>
+                    
+                    <button class="cta-button" style="background: var(--success); margin-top: 15px;" data-action="compare">🔍 Сравнить документы</button>
+                    <div id="comparisonMessage" style="margin-top: 15px;"></div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">История сравнений</h2>
+                    <button class="cta-button" style="background: var(--primary); margin-bottom: 15px;" data-action="load-comparisons">🔄 Обновить список</button>
+                    <div id="comparisonsList" style="margin-top: 20px;"></div>
+                </div>
+                
+                <div class="section" style="background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%); border-left: 4px solid var(--primary);">
+                    <h2 class="section-title">ℹ️ Информация</h2>
+                    <ul style="color: var(--gray); line-height: 1.8; padding-left: 20px;">
+                        <li>Сравнение работает с документами в форматах PDF, DOC, DOCX, TXT</li>
+                        <li>Система автоматически выявляет все изменения: добавления, удаления, модификации</li>
+                        <li>AI анализирует каждое изменение и оценивает уровень риска</li>
+                        <li>Результаты отображаются с визуальной подсветкой различий</li>
+                        <li>Можно скачать детальный отчет о сравнении</li>
+                        <li>Полезно для отслеживания изменений в договорах и других важных документах</li>
+                    </ul>
+                </div>
+            </div>
             {% endif %}
             
             <!-- Section: Partners -->
@@ -1030,6 +1079,11 @@
             // Загружаем задачи пакетной обработки при открытии секции
             if (sectionName === 'batch-processing' && typeof loadBatchTasks === 'function') {
                 loadBatchTasks();
+            }
+            
+            // Загружаем сравнения документов при открытии секции
+            if (sectionName === 'document-comparison' && typeof loadDocumentComparisons === 'function') {
+                loadDocumentComparisons();
             }
             
             // Загружаем данные партнерской программы при открытии секции
@@ -2279,6 +2333,43 @@
                         }
                     });
                 });
+                
+                // Добавляем обработчики для кнопок сравнения документов
+                document.querySelectorAll('button[data-action="compare"]').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        createDocumentComparison();
+                    });
+                });
+                
+                document.querySelectorAll('button[data-action="load-comparisons"]').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        loadDocumentComparisons();
+                    });
+                });
+                
+                // Обработчики для файлов сравнения
+                const originalFileInput = document.getElementById('originalFile');
+                const modifiedFileInput = document.getElementById('modifiedFile');
+                if (originalFileInput) {
+                    originalFileInput.addEventListener('change', function() {
+                        const infoDiv = document.getElementById('originalFileInfo');
+                        if (infoDiv && this.files.length > 0) {
+                            const file = this.files[0];
+                            infoDiv.innerHTML = '<div style="padding: 10px; background: var(--light); border-radius: 5px; color: var(--success);">✅ ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)</div>';
+                        }
+                    });
+                }
+                if (modifiedFileInput) {
+                    modifiedFileInput.addEventListener('change', function() {
+                        const infoDiv = document.getElementById('modifiedFileInfo');
+                        if (infoDiv && this.files.length > 0) {
+                            const file = this.files[0];
+                            infoDiv.innerHTML = '<div style="padding: 10px; background: var(--light); border-radius: 5px; color: var(--success);">✅ ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)</div>';
+                        }
+                    });
+                }
                 
                 // Автоматически обновляем прогресс для активных задач
                 result.tasks.forEach(task => {

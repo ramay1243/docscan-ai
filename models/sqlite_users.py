@@ -738,6 +738,48 @@ class BatchProcessingFile(db.Model):
         }
 
 
+class DocumentComparison(db.Model):
+    """Таблица для хранения сравнений документов"""
+    __tablename__ = 'document_comparisons'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Пользователь
+    
+    # Файлы для сравнения
+    original_filename = db.Column(db.String(255), nullable=False)  # Имя оригинального файла
+    original_file_path = db.Column(db.String(500), nullable=True)  # Путь к оригинальному файлу
+    modified_filename = db.Column(db.String(255), nullable=False)  # Имя измененного файла
+    modified_file_path = db.Column(db.String(500), nullable=True)  # Путь к измененному файлу
+    
+    # Результаты сравнения
+    comparison_result_json = db.Column(db.Text, nullable=True)  # JSON с различиями
+    risk_analysis_json = db.Column(db.Text, nullable=True)  # JSON с анализом рисков от AI
+    report_path = db.Column(db.String(500), nullable=True)  # Путь к отчету (PDF/HTML)
+    
+    # Статус обработки: 'pending', 'processing', 'completed', 'failed'
+    status = db.Column(db.String(20), default='pending')
+    error_message = db.Column(db.Text, nullable=True)  # Сообщение об ошибке
+    
+    # Метаданные
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания
+    completed_at = db.Column(db.String(30), nullable=True)  # Дата завершения
+    
+    def to_dict(self):
+        import json
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'original_filename': self.original_filename,
+            'modified_filename': self.modified_filename,
+            'status': self.status,
+            'comparison_result': json.loads(self.comparison_result_json) if self.comparison_result_json else None,
+            'risk_analysis': json.loads(self.risk_analysis_json) if self.risk_analysis_json else None,
+            'report_path': self.report_path,
+            'created_at': self.created_at,
+            'completed_at': self.completed_at,
+            'error_message': self.error_message
+        }
+
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""
     

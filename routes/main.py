@@ -661,6 +661,34 @@ def batch_report(filepath):
         logger.error(f"❌ Ошибка при отправке отчета: {e}")
         return jsonify({'error': str(e)}), 500
 
+@main_bp.route('/comparison-report/<path:filepath>')
+def comparison_report(filepath):
+    """Сервис для раздачи HTML отчетов сравнения документов"""
+    try:
+        # Безопасный путь
+        safe_path = filepath.replace('..', '').lstrip('/')
+        
+        # Формируем полный путь к файлу
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        file_path = os.path.join(base_dir, 'static', 'reports', 'comparisons', safe_path)
+        
+        # Проверяем существование файла
+        if not os.path.exists(file_path):
+            logger.warning(f"⚠️ Файл отчета сравнения не найден: {file_path}")
+            return jsonify({'error': 'Файл не найден'}), 404
+        
+        # Проверяем, что файл в правильной директории
+        real_base = os.path.join(base_dir, 'static', 'reports', 'comparisons')
+        if not os.path.abspath(file_path).startswith(os.path.abspath(real_base)):
+            logger.warning(f"⚠️ Попытка доступа к файлу вне разрешенной директории: {file_path}")
+            return jsonify({'error': 'Доступ запрещен'}), 403
+        
+        # Отправляем HTML файл
+        return send_file(file_path, mimetype='text/html', as_attachment=False)
+    except Exception as e:
+        logger.error(f"❌ Ошибка при отправке отчета сравнения: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @main_bp.route('/favicon.ico')
 def favicon():
     """Отдает фавикон для браузеров и поисковых систем"""

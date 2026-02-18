@@ -1495,3 +1495,126 @@ def get_user_batch_tasks():
     except Exception as e:
         logger.error(f"❌ Ошибка получения задач пользователя: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/document-comparison', methods=['POST'])
+def create_document_comparison():
+    """Создать задачу сравнения документов"""
+    from app import app
+    from utils.document_comparator import DocumentComparator
+    import tempfile
+    import uuid
+    import os
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'Сравнение документов доступно только для бизнес-тарифа'}), 403
+    
+    try:
+        # Проверяем наличие файлов
+        if 'original_file' not in request.files or 'modified_file' not in request.files:
+            return jsonify({'success': False, 'error': 'Необходимо загрузить оба файла'}), 400
+        
+        original_file = request.files['original_file']
+        modified_file = request.files['modified_file']
+        
+        if original_file.filename == '' or modified_file.filename == '':
+            return jsonify({'success': False, 'error': 'Оба файла должны быть выбраны'}), 400
+        
+        # Валидация файлов
+        from services.file_processing import validate_file
+        is_valid_orig, msg_orig = validate_file(original_file)
+        if not is_valid_orig:
+            return jsonify({'success': False, 'error': f'Ошибка валидации оригинального файла: {msg_orig}'}), 400
+        
+        is_valid_mod, msg_mod = validate_file(modified_file)
+        if not is_valid_mod:
+            return jsonify({'success': False, 'error': f'Ошибка валидации измененного файла: {msg_mod}'}), 400
+        
+        # Сохраняем файлы во временную директорию
+        temp_dir = os.path.join(tempfile.gettempdir(), f'comparison_{uuid.uuid4()}')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        original_ext = os.path.splitext(original_file.filename)[1]
+        modified_ext = os.path.splitext(modified_file.filename)[1]
+        
+        original_path = os.path.join(temp_dir, f'original_{uuid.uuid4()}{original_ext}')
+        modified_path = os.path.join(temp_dir, f'modified_{uuid.uuid4()}{modified_ext}')
+        
+        original_file.save(original_path)
+        modified_file.save(modified_path)
+        
+        # Создаем задачу сравнения
+        comparison_id, error = DocumentComparator.create_comparison(
+            user_id=user_id,
+            original_filename=original_file.filename,
+            original_path=original_path,
+            modified_filename=modified_file.filename,
+            modified_path=modified_path
+        )
+        
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        # Запускаем сравнение в фоне
+        import threading
+        def compare_in_background():
+            with app.app_context():
+                DocumentComparator.compare_documents(comparison_id, user_id, app)
+        
+        thread = threading.Thread(target=compare_in_background)
+        thread.daemon = True
+        thread.start()
+        
+        return jsonify({
+            'success': True,
+            'comparison_id': comparison_id,
+            'message': 'Сравнение документов запущено'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания сравнения: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/document-comparison', methods=['GET'])
+def get_user_comparisons():
+    """Получить все сравнения пользователя"""
+    from app import app
+    from utils.document_comparator import DocumentComparator
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        comparisons = DocumentComparator.get_user_comparisons(user_id)
+        return jsonify({'success': True, 'comparisons': comparisons})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения сравнений: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/document-comparison/<int:comparison_id>', methods=['GET'])
+def get_comparison(comparison_id):
+    """Получить конкретное сравнение"""
+    from app import app
+    from utils.document_comparator import DocumentComparator
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        comparison, error = DocumentComparator.get_comparison(comparison_id, user_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 404
+        
+        return jsonify({'success': True, 'comparison': comparison})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения сравнения: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

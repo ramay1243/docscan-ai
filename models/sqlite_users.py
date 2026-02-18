@@ -716,6 +716,7 @@ class BatchProcessingFile(db.Model):
     # Результаты анализа
     analysis_result_json = db.Column(db.Text, nullable=True)  # JSON с результатом анализа
     analysis_history_id = db.Column(db.Integer, db.ForeignKey('analysis_history.id'), nullable=True)  # Связь с историей
+    full_report_path = db.Column(db.String(500), nullable=True)  # Путь к полному отчету (PDF)
     
     # Метаданные
     created_at = db.Column(db.String(30), nullable=False)  # Дата создания

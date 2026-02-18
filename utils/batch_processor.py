@@ -171,10 +171,44 @@ class BatchProcessor:
                             db.session.add(history)
                             db.session.flush()
                             
+                            # Генерируем полный отчет (PDF) для документа
+                            report_path = None
+                            try:
+                                from services.pdf_generator import generate_analysis_pdf
+                                from models.sqlite_users import User
+                                
+                                user_obj = app_instance.user_manager.get_user(user_id)
+                                branding = None
+                                if user_obj and hasattr(user_obj, 'branding_settings'):
+                                    from models.sqlite_users import BrandingSettings
+                                    branding = BrandingSettings.query.filter_by(user_id=user_id).first()
+                                
+                                reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'reports', 'batch', f'task_{task_id}')
+                                os.makedirs(reports_dir, exist_ok=True)
+                                
+                                safe_filename = "".join(c for c in file_record.filename if c.isalnum() or c in (' ', '-', '_', '.')).rstrip()
+                                report_filename = f"{safe_filename}_report.pdf"
+                                report_path_full = os.path.join(reports_dir, report_filename)
+                                
+                                pdf_content = generate_analysis_pdf(
+                                    analysis_result=analysis_result,
+                                    filename=file_record.filename,
+                                    branding=branding
+                                )
+                                
+                                with open(report_path_full, 'wb') as f:
+                                    f.write(pdf_content)
+                                
+                                report_path = f'static/reports/batch/task_{task_id}/{report_filename}'
+                                logger.info(f"✅ Полный отчет создан: {report_path}")
+                            except Exception as e:
+                                logger.warning(f"⚠️ Не удалось создать полный отчет для {file_record.filename}: {e}")
+                            
                             # Обновляем запись файла
                             file_record.status = 'completed'
                             file_record.analysis_result_json = json.dumps(analysis_result, ensure_ascii=False)
                             file_record.analysis_history_id = history.id
+                            file_record.full_report_path = report_path
                             file_record.processed_at = datetime.now().isoformat()
                             db.session.commit()
                             
@@ -256,20 +290,30 @@ class BatchProcessor:
     
     @staticmethod
     def generate_summary_report(task_id, results):
-        """Генерирует сводный отчет по всем документам"""
+        """Генерирует улучшенный сводный отчет по всем документам"""
         try:
             task = BatchProcessingTask.query.get(task_id)
             if not task:
                 return
             
+            # Получаем все файлы задачи для доступа к путям отчетов
+            files = BatchProcessingFile.query.filter_by(task_id=task_id).all()
+            file_reports = {f.filename: f.full_report_path for f in files if f.full_report_path}
+            
             # Подсчитываем статистику
             total = len(results)
             completed = len([r for r in results if r.get('status') == 'completed'])
             failed = len([r for r in results if r.get('status') == 'failed'])
+            success_rate = int((completed / total * 100)) if total > 0 else 0
             
             # Подсчитываем типы документов
             doc_types = {}
             risk_levels = {'CRITICAL': 0, 'HIGH': 0, 'MEDIUM': 0, 'LOW': 0, 'INFO': 0}
+            
+            # Собираем основные проблемы и риски
+            all_issues = []
+            critical_files = []
+            high_risk_files = []
             
             for result in results:
                 if result.get('status') == 'completed' and result.get('analysis'):
@@ -278,39 +322,159 @@ class BatchProcessor:
                     doc_types[doc_type] = doc_types.get(doc_type, 0) + 1
                     
                     risk = analysis.get('risk_level', 'INFO')
-                    risk_levels[risk] = risk_levels.get(risk, 0) + 1
+                    if risk:
+                        risk_levels[risk] = risk_levels.get(risk, 0) + 1
+                    
+                    # Собираем файлы с высоким риском
+                    if risk == 'CRITICAL':
+                        critical_files.append(result['filename'])
+                    elif risk == 'HIGH':
+                        high_risk_files.append(result['filename'])
+                    
+                    # Собираем основные проблемы
+                    issues = analysis.get('issues', [])
+                    if isinstance(issues, list):
+                        all_issues.extend(issues[:3])  # Берем первые 3 проблемы
+                    elif isinstance(issues, str):
+                        all_issues.append(issues)
             
-            # Создаем простой текстовый отчет
+            # Вычисляем время обработки
+            processing_time = "Неизвестно"
+            if task.started_at and task.completed_at:
+                try:
+                    start = datetime.fromisoformat(task.started_at)
+                    end = datetime.fromisoformat(task.completed_at)
+                    delta = end - start
+                    processing_time = f"{delta.total_seconds():.1f} секунд"
+                except:
+                    pass
+            
+            # Создаем улучшенный отчет
             report_text = f"""
-СВОДНЫЙ ОТЧЕТ ПО ПАКЕТНОЙ ОБРАБОТКЕ
-Задача: {task.task_name or f'Задача #{task.id}'}
-Дата создания: {task.created_at}
-Дата завершения: {task.completed_at}
+{'='*80}
+СВОДНЫЙ ОТЧЕТ ПО ПАКЕТНОЙ ОБРАБОТКЕ ДОКУМЕНТОВ
+{'='*80}
 
-СТАТИСТИКА:
+ОБЩАЯ ИНФОРМАЦИЯ:
+- Название задачи: {task.task_name or f'Задача #{task.id}'}
+- ID задачи: {task.id}
+- Дата создания: {task.created_at}
+- Дата завершения: {task.completed_at}
+- Время обработки: {processing_time}
+
+{'='*80}
+СТАТИСТИКА ОБРАБОТКИ:
+{'='*80}
 - Всего файлов: {total}
 - Успешно обработано: {completed}
 - Ошибок: {failed}
+- Процент успешности: {success_rate}%
 
-ТИПЫ ДОКУМЕНТОВ:
+{'='*80}
+АНАЛИЗ ТИПОВ ДОКУМЕНТОВ:
+{'='*80}
 """
-            for doc_type, count in doc_types.items():
-                report_text += f"- {doc_type}: {count}\n"
+            if doc_types:
+                for doc_type, count in sorted(doc_types.items(), key=lambda x: x[1], reverse=True):
+                    percentage = int((count / completed * 100)) if completed > 0 else 0
+                    report_text += f"- {doc_type}: {count} ({percentage}%)\n"
+            else:
+                report_text += "- Типы документов не определены\n"
             
-            report_text += "\nУРОВНИ РИСКА:\n"
+            report_text += f"\n{'='*80}\nАНАЛИЗ УРОВНЕЙ РИСКА:\n{'='*80}\n"
+            risk_names = {
+                'CRITICAL': 'Критический',
+                'HIGH': 'Высокий',
+                'MEDIUM': 'Средний',
+                'LOW': 'Низкий',
+                'INFO': 'Информационный'
+            }
+            
+            total_risks = sum(risk_levels.values())
             for risk, count in risk_levels.items():
                 if count > 0:
-                    report_text += f"- {risk}: {count}\n"
+                    percentage = int((count / total_risks * 100)) if total_risks > 0 else 0
+                    report_text += f"- {risk_names.get(risk, risk)} ({risk}): {count} ({percentage}%)\n"
             
-            report_text += "\nДЕТАЛЬНЫЕ РЕЗУЛЬТАТЫ:\n"
+            # Анализ рисковости
+            high_risk_count = risk_levels.get('CRITICAL', 0) + risk_levels.get('HIGH', 0)
+            if high_risk_count > 0:
+                high_risk_percent = int((high_risk_count / total_risks * 100)) if total_risks > 0 else 0
+                report_text += f"\n⚠️ ВНИМАНИЕ: {high_risk_count} документов ({high_risk_percent}%) имеют высокий или критический уровень риска!\n"
+            
+            # Сводка по проблемам
+            if critical_files or high_risk_files:
+                report_text += f"\n{'='*80}\nКРИТИЧЕСКИЕ И ВЫСОКОРИСКОВАННЫЕ ДОКУМЕНТЫ:\n{'='*80}\n"
+                if critical_files:
+                    report_text += f"\n🔴 КРИТИЧЕСКИЙ РИСК ({len(critical_files)} документов):\n"
+                    for filename in critical_files:
+                        report_text += f"   - {filename}\n"
+                if high_risk_files:
+                    report_text += f"\n🟠 ВЫСОКИЙ РИСК ({len(high_risk_files)} документов):\n"
+                    for filename in high_risk_files:
+                        report_text += f"   - {filename}\n"
+            
+            # Основные проблемы
+            if all_issues:
+                report_text += f"\n{'='*80}\nОСНОВНЫЕ НАЙДЕННЫЕ ПРОБЛЕМЫ И РИСКИ:\n{'='*80}\n"
+                unique_issues = list(dict.fromkeys(all_issues))[:10]  # Уникальные, максимум 10
+                for i, issue in enumerate(unique_issues, 1):
+                    report_text += f"{i}. {issue}\n"
+            
+            report_text += f"\n{'='*80}\nДЕТАЛЬНЫЕ РЕЗУЛЬТАТЫ ПО КАЖДОМУ ДОКУМЕНТУ:\n{'='*80}\n"
             for i, result in enumerate(results, 1):
                 report_text += f"\n{i}. {result['filename']}\n"
+                report_text += f"   {'-'*76}\n"
                 if result.get('status') == 'completed':
                     analysis = result.get('analysis', {})
-                    report_text += f"   Тип: {analysis.get('document_type_name', 'Неизвестно')}\n"
-                    report_text += f"   Уровень риска: {analysis.get('risk_level', 'Не определен')}\n"
+                    doc_type = analysis.get('document_type_name', 'Неизвестно')
+                    risk = analysis.get('risk_level', 'INFO')
+                    risk_display = risk_names.get(risk, risk) if risk else 'Не определен'
+                    
+                    report_text += f"   Статус: ✅ Успешно обработан\n"
+                    report_text += f"   Тип документа: {doc_type}\n"
+                    report_text += f"   Уровень риска: {risk_display} ({risk if risk else 'N/A'})\n"
+                    
+                    # Краткое резюме
+                    summary = analysis.get('summary', '')
+                    if summary:
+                        summary_short = summary[:200] + '...' if len(summary) > 200 else summary
+                        report_text += f"   Краткое резюме: {summary_short}\n"
+                    
+                    # Основные проблемы
+                    issues = analysis.get('issues', [])
+                    if issues:
+                        if isinstance(issues, list):
+                            report_text += f"   Основные проблемы:\n"
+                            for issue in issues[:3]:
+                                report_text += f"      • {issue}\n"
+                        elif isinstance(issues, str):
+                            report_text += f"   Основные проблемы: {issues}\n"
+                    
+                    # Ссылка на полный отчет
+                    report_path = file_reports.get(result['filename'])
+                    if report_path:
+                        report_text += f"   📄 Полный отчет: /{report_path}\n"
                 else:
+                    report_text += f"   Статус: ❌ Ошибка обработки\n"
                     report_text += f"   Ошибка: {result.get('error', 'Неизвестная ошибка')}\n"
+            
+            # Рекомендации
+            report_text += f"\n{'='*80}\nРЕКОМЕНДАЦИИ:\n{'='*80}\n"
+            if critical_files or high_risk_files:
+                report_text += f"1. ⚠️ Обратите особое внимание на документы с критическим и высоким уровнем риска.\n"
+                report_text += f"2. 📋 Рекомендуется детально изучить полные отчеты по этим документам.\n"
+                report_text += f"3. 🔍 Проведите дополнительную проверку документов с высоким риском.\n"
+            else:
+                report_text += f"1. ✅ Все документы имеют приемлемый уровень риска.\n"
+                report_text += f"2. 📋 Рекомендуется ознакомиться с полными отчетами для детального анализа.\n"
+            
+            if failed > 0:
+                report_text += f"4. 🔧 Проверьте файлы с ошибками обработки и попробуйте обработать их повторно.\n"
+            
+            report_text += f"\n{'='*80}\n"
+            report_text += f"Сгенерировано: {datetime.now().isoformat()}\n"
+            report_text += f"{'='*80}\n"
             
             # Сохраняем отчет в файл
             reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'reports', 'batch')

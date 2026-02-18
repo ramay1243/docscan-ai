@@ -2337,25 +2337,61 @@
                 
                 if (result.success && result.task) {
                     const task = result.task;
-                    let details = 'ДЕТАЛИ ЗАДАЧИ\n\n';
-                    details += `Название: ${task.task_name || 'Не указано'}\n`;
-                    details += `Статус: ${task.status}\n`;
-                    details += `Всего файлов: ${task.total_files}\n`;
-                    details += `Обработано: ${task.processed_files}\n`;
-                    details += `Ошибок: ${task.failed_files}\n\n`;
-                    details += 'ФАЙЛЫ:\n';
+                    
+                    // Создаем модальное окно с деталями
+                    let detailsHtml = '<div style="max-width: 800px; max-height: 80vh; overflow-y: auto; padding: 20px;">';
+                    detailsHtml += `<h2 style="margin-top: 0;">Детали задачи: ${task.task_name || 'Задача #' + task.id}</h2>`;
+                    detailsHtml += `<p><strong>Статус:</strong> ${task.status}</p>`;
+                    detailsHtml += `<p><strong>Всего файлов:</strong> ${task.total_files}</p>`;
+                    detailsHtml += `<p><strong>Обработано:</strong> ${task.processed_files}</p>`;
+                    detailsHtml += `<p><strong>Ошибок:</strong> ${task.failed_files}</p>`;
                     
                     if (task.files && task.files.length > 0) {
+                        detailsHtml += '<h3 style="margin-top: 20px;">Файлы:</h3>';
+                        detailsHtml += '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">';
+                        detailsHtml += '<tr style="background: #f0f0f0;"><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Файл</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Статус</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Действия</th></tr>';
+                        
                         task.files.forEach((file, index) => {
-                            details += `${index + 1}. ${file.filename} - ${file.status}`;
+                            const rowColor = file.status === 'completed' ? '#e8f5e9' : file.status === 'failed' ? '#ffebee' : '#fff3e0';
+                            detailsHtml += `<tr style="background: ${rowColor};">`;
+                            detailsHtml += `<td style="padding: 10px; border: 1px solid #ddd;">${file.filename}</td>`;
+                            detailsHtml += `<td style="padding: 10px; border: 1px solid #ddd;">${file.status}`;
                             if (file.error_message) {
-                                details += ` (${file.error_message})`;
+                                detailsHtml += `<br><small style="color: #d32f2f;">${file.error_message}</small>`;
                             }
-                            details += '\n';
+                            detailsHtml += `</td>`;
+                            detailsHtml += `<td style="padding: 10px; border: 1px solid #ddd;">`;
+                            
+                            if (file.status === 'completed' && file.full_report_path) {
+                                detailsHtml += `<a href="/${file.full_report_path}" target="_blank" style="color: #1976d2; text-decoration: none; padding: 5px 10px; background: #e3f2fd; border-radius: 3px;">📄 Полный отчет</a>`;
+                            }
+                            
+                            detailsHtml += `</td></tr>`;
                         });
+                        
+                        detailsHtml += '</table>';
                     }
                     
-                    alert(details);
+                    detailsHtml += '</div>';
+                    
+                    // Создаем модальное окно
+                    const modal = document.createElement('div');
+                    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+                    modal.innerHTML = `
+                        <div style="background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); position: relative;">
+                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="position: absolute; top: 10px; right: 10px; background: #f44336; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px;">×</button>
+                            ${detailsHtml}
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Закрытие по клику вне модального окна
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
                 } else {
                     alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
                 }

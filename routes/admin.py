@@ -571,14 +571,15 @@ def admin_panel():
                 <div id="section-users" class="content-section">
                     <h2 class="section-header">👥 Зарегистрированные пользователи</h2>
                     
-                    <div class="card">
-                        <h3>Выдать тариф пользователю</h3>
-                        <div style="margin: 15px 0;">
+                    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: 2px solid #667eea;">
+                        <h3 style="color: white; margin-bottom: 10px;">💎 Выдать тариф пользователю</h3>
+                        <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 15px;">Выберите пользователя и тариф для выдачи. Для разовых тарифов (Стандарт, Премиум) анализы действуют 30-60 дней. Для бизнес-тарифов лимиты обновляются каждый месяц.</p>
+                        <div style="margin: 15px 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
                             <input type="text" id="userId" placeholder="ID пользователя" 
-                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
-                            <select id="planSelect" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                                   style="width: 200px; padding: 10px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.95); color: #2d3748; font-weight: 500;">
+                            <select id="planSelect" style="padding: 10px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.95); color: #2d3748; font-weight: 500; min-width: 300px;">
                                 <optgroup label="Для физических лиц">
-                                    <option value="free">Бесплатный (1 анализ навсегда)</option>
+                                    <option value="free">Бесплатный (1 бесплатный анализ)</option>
                                     <option value="standard">Стандарт (5 анализов, 30 дней) - 590₽</option>
                                     <option value="premium">Премиум (15 анализов, 60 дней) - 1 350₽</option>
                                 </optgroup>
@@ -589,7 +590,7 @@ def admin_panel():
                                     <option value="business_unlimited">Бизнес Безлимит (безлимит) - 26 400₽/мес</option>
                                 </optgroup>
                             </select>
-                            <button onclick="setUserPlan()">Выдать тариф</button>
+                            <button onclick="setUserPlan()" style="padding: 10px 25px; background: white; color: #667eea; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)';">✅ Выдать тариф</button>
                         </div>
                     </div>
                     
@@ -3100,12 +3101,28 @@ def admin_panel():
             }
 
             function getPlanName(plan) {
-                const names = {free: 'Бесплатный', basic: 'Базовый', premium: 'Премиум'};
+                const names = {
+                    free: 'Бесплатный',
+                    standard: 'Стандарт',
+                    premium: 'Премиум',
+                    business_start: 'Бизнес Старт',
+                    business_pro: 'Бизнес Про',
+                    business_max: 'Бизнес Макс',
+                    business_unlimited: 'Бизнес Безлимит'
+                };
                 return names[plan] || plan;
             }
             
             function getPlanLimit(plan) {
-                const limits = {free: 1, basic: 10, premium: 30};
+                const limits = {
+                    free: 1,
+                    standard: 5,
+                    premium: 15,
+                    business_start: 10,
+                    business_pro: 50,
+                    business_max: 100,
+                    business_unlimited: -1
+                };
                 return limits[plan] || 0;
             }
 

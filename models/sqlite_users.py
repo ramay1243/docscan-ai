@@ -574,6 +574,88 @@ class APIKey(db.Model):
             'expires_at': self.expires_at
         }
 
+class AnalysisSettings(db.Model):
+    """Таблица для хранения настроек анализа документов для бизнес-пользователей"""
+    __tablename__ = 'analysis_settings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False, unique=True)  # Пользователь (одни настройки на пользователя)
+    
+    # Приоритеты областей экспертизы (1-10)
+    legal_priority = db.Column(db.Integer, default=5)  # Приоритет юридической экспертизы
+    financial_priority = db.Column(db.Integer, default=5)  # Приоритет финансового анализа
+    operational_priority = db.Column(db.Integer, default=5)  # Приоритет операционных рисков
+    strategic_priority = db.Column(db.Integer, default=5)  # Приоритет стратегической оценки
+    
+    # Уровень детализации: 'brief', 'standard', 'detailed'
+    detail_level = db.Column(db.String(20), default='standard')  # Уровень детализации
+    
+    # Кастомные проверки (JSON строка с массивом критериев)
+    custom_checks = db.Column(db.Text, nullable=True)  # JSON: ["критерий 1", "критерий 2"]
+    
+    # Активный шаблон (если используется)
+    active_template = db.Column(db.String(255), nullable=True)  # Название активного шаблона
+    
+    # Использовать настройки по умолчанию
+    use_default = db.Column(db.Boolean, default=True)  # Использовать настройки по умолчанию
+    
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания
+    updated_at = db.Column(db.String(30), nullable=True)  # Дата обновления
+    
+    def to_dict(self):
+        import json
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'legal_priority': self.legal_priority,
+            'financial_priority': self.financial_priority,
+            'operational_priority': self.operational_priority,
+            'strategic_priority': self.strategic_priority,
+            'detail_level': self.detail_level,
+            'custom_checks': json.loads(self.custom_checks) if self.custom_checks else [],
+            'active_template': self.active_template,
+            'use_default': self.use_default,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+
+class AnalysisTemplate(db.Model):
+    """Таблица для хранения шаблонов настроек анализа"""
+    __tablename__ = 'analysis_templates'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Владелец шаблона
+    name = db.Column(db.String(255), nullable=False)  # Название шаблона
+    
+    # Приоритеты областей экспертизы
+    legal_priority = db.Column(db.Integer, default=5)
+    financial_priority = db.Column(db.Integer, default=5)
+    operational_priority = db.Column(db.Integer, default=5)
+    strategic_priority = db.Column(db.Integer, default=5)
+    
+    # Уровень детализации
+    detail_level = db.Column(db.String(20), default='standard')
+    
+    # Кастомные проверки
+    custom_checks = db.Column(db.Text, nullable=True)  # JSON
+    
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания
+    
+    def to_dict(self):
+        import json
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name,
+            'legal_priority': self.legal_priority,
+            'financial_priority': self.financial_priority,
+            'operational_priority': self.operational_priority,
+            'strategic_priority': self.strategic_priority,
+            'detail_level': self.detail_level,
+            'custom_checks': json.loads(self.custom_checks) if self.custom_checks else [],
+            'created_at': self.created_at
+        }
+
 
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""

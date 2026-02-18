@@ -163,11 +163,12 @@ def analyze_document():
                 'error': 'Достигнут дневной лимит анализов для вашего тарифа'
             }), 429
         
-        # Выполняем анализ
+        # Выполняем анализ (передаем user_id для загрузки настроек)
         analysis_result = analyze_text(
             text=text,
             user_plan=user.plan if hasattr(user, 'plan') else user.get('plan', 'free'),
-            is_authenticated=True
+            is_authenticated=True,
+            user_id=user_id
         )
         
         # Записываем использование

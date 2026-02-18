@@ -167,6 +167,18 @@
                 if (document.getElementById('newApiKeyResult')) {
                     document.getElementById('newApiKeyResult').style.display = 'none';
                 }
+            } else if (sectionName === 'analysis-settings-admin') {
+                console.log('📥 Секция настроек анализа открыта');
+                // Очищаем форму при открытии секции
+                if (document.getElementById('adminAnalysisSettingsUserId')) {
+                    document.getElementById('adminAnalysisSettingsUserId').value = '';
+                }
+                if (document.getElementById('adminAnalysisSettingsContent')) {
+                    document.getElementById('adminAnalysisSettingsContent').innerHTML = '';
+                }
+                if (document.getElementById('adminAnalysisSettingsStatus')) {
+                    document.getElementById('adminAnalysisSettingsStatus').textContent = '';
+                }
             } else if (sectionName === 'questions') {
                 const questionsList = document.getElementById('questionsList');
                 if (questionsList && questionsList.innerHTML === '') {
@@ -3810,6 +3822,61 @@ body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         }
         if (typeof deleteAPIKey === 'function') {
             window.deleteAPIKey = deleteAPIKey;
+        }
+        
+        // Функции для управления настройками анализа в админ-панели
+        function loadAdminAnalysisSettings() {
+            const userId = document.getElementById('adminAnalysisSettingsUserId').value.trim();
+            if (!userId) {
+                alert('Введите ID пользователя');
+                return;
+            }
+            
+            fetch(`/admin/analysis-settings?user_id=${userId}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const contentDiv = document.getElementById('adminAnalysisSettingsContent');
+                        const statusDiv = document.getElementById('adminAnalysisSettingsStatus');
+                        
+                        const s = result.settings;
+                        let html = '<div style="background: #f7fafc; padding: 20px; border-radius: 8px;">';
+                        html += '<h4 style="margin-bottom: 15px;">Текущие настройки:</h4>';
+                        html += '<table style="width: 100%; border-collapse: collapse;">';
+                        html += '<tr><td style="padding: 8px; font-weight: 600;">Использовать по умолчанию:</td><td style="padding: 8px;">' + (s.use_default ? 'Да' : 'Нет') + '</td></tr>';
+                        html += '<tr><td style="padding: 8px; font-weight: 600;">Приоритет юридической экспертизы:</td><td style="padding: 8px;">' + (s.legal_priority || 5) + '/10</td></tr>';
+                        html += '<tr><td style="padding: 8px; font-weight: 600;">Приоритет финансового анализа:</td><td style="padding: 8px;">' + (s.financial_priority || 5) + '/10</td></tr>';
+                        html += '<tr><td style="padding: 8px; font-weight: 600;">Приоритет операционных рисков:</td><td style="padding: 8px;">' + (s.operational_priority || 5) + '/10</td></tr>';
+                        html += '<tr><td style="padding: 8px; font-weight: 600;">Приоритет стратегической оценки:</td><td style="padding: 8px;">' + (s.strategic_priority || 5) + '/10</td></tr>';
+                        html += '<tr><td style="padding: 8px; font-weight: 600;">Уровень детализации:</td><td style="padding: 8px;">' + (s.detail_level || 'standard') + '</td></tr>';
+                        html += '<tr><td style="padding: 8px; font-weight: 600;">Кастомные проверки:</td><td style="padding: 8px;">' + (s.custom_checks && s.custom_checks.length > 0 ? s.custom_checks.length + ' критериев' : 'Нет') + '</td></tr>';
+                        html += '<tr><td style="padding: 8px; font-weight: 600;">Активный шаблон:</td><td style="padding: 8px;">' + (s.active_template || 'Нет') + '</td></tr>';
+                        html += '</table>';
+                        
+                        if (result.templates && result.templates.length > 0) {
+                            html += '<h4 style="margin-top: 20px; margin-bottom: 15px;">Сохраненные шаблоны:</h4>';
+                            html += '<ul>';
+                            result.templates.forEach(template => {
+                                html += `<li>${template.name} (создан: ${new Date(template.created_at).toLocaleDateString('ru-RU')})</li>`;
+                            });
+                            html += '</ul>';
+                        }
+                        
+                        html += '</div>';
+                        contentDiv.innerHTML = html;
+                        statusDiv.textContent = 'Настройки загружены';
+                    } else {
+                        alert('Ошибка: ' + result.error);
+                    }
+                })
+                .catch(err => {
+                    alert('Ошибка соединения');
+                });
+        }
+        
+        // Регистрируем функции настроек анализа глобально
+        if (typeof loadAdminAnalysisSettings === 'function') {
+            window.loadAdminAnalysisSettings = loadAdminAnalysisSettings;
         }
 
 // Глобальная регистрация всех функций для доступа из onclick атрибутов

@@ -474,6 +474,9 @@ def admin_panel():
                 <a href="#" class="menu-item" data-section="api-keys">
                     <span>🔑</span> API-ключи
                 </a>
+                <a href="#" class="menu-item" data-section="analysis-settings-admin">
+                    <span>⚙️</span> Настройки анализа
+                </a>
             </nav>
         </div>
         
@@ -896,6 +899,28 @@ def admin_panel():
                             <p style="margin: 0 0 10px 0; font-weight: 600; color: #ed8936;">⚠️ ВАЖНО: Сохраните этот ключ! Он больше не будет показан:</p>
                             <code id="newApiKeyValue" style="display: block; padding: 10px; background: #2d3748; color: #48bb78; border-radius: 5px; font-family: monospace; word-break: break-all;"></code>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Секция: Настройки анализа -->
+                <div id="section-analysis-settings-admin" class="content-section">
+                    <h2 class="section-header">⚙️ Настройки анализа документов</h2>
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Управление настройками анализа для бизнес-пользователей. Позволяет настраивать приоритеты областей экспертизы, уровень детализации и кастомные проверки.
+                    </p>
+                    
+                    <div class="card">
+                        <h3>Просмотр и редактирование настроек пользователя</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            Введите ID пользователя для просмотра и редактирования его настроек анализа.
+                        </p>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="adminAnalysisSettingsUserId" placeholder="ID пользователя" 
+                                   style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
+                            <button onclick="loadAdminAnalysisSettings()" style="background: #667eea; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">📥 Загрузить настройки</button>
+                        </div>
+                        <div id="adminAnalysisSettingsStatus" style="margin: 10px 0; color: #666; font-size: 14px;"></div>
+                        <div id="adminAnalysisSettingsContent" style="margin-top: 20px;"></div>
                     </div>
                 </div>
                 
@@ -5300,6 +5325,53 @@ def admin_delete_api_key():
         return jsonify({'success': True, 'message': 'API-ключ удален'})
     except Exception as e:
         logger.error(f"❌ Ошибка удаления API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/analysis-settings', methods=['GET'])
+@require_admin_auth
+def admin_get_analysis_settings():
+    """Получить настройки анализа пользователя"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'ID пользователя не указан'}), 400
+    
+    try:
+        settings = AnalysisSettingsManager.get_user_settings(user_id)
+        templates = AnalysisSettingsManager.get_user_templates(user_id)
+        return jsonify({
+            'success': True,
+            'settings': settings,
+            'templates': templates
+        })
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения настроек анализа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/analysis-settings', methods=['POST'])
+@require_admin_auth
+def admin_save_analysis_settings():
+    """Сохранить настройки анализа пользователя"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    data = request.get_json()
+    user_id = data.get('user_id') if data else None
+    
+    if not user_id:
+        return jsonify({'success': False, 'error': 'ID пользователя не указан'}), 400
+    
+    try:
+        settings_data = data.get('settings', {})
+        success, error = AnalysisSettingsManager.save_user_settings(user_id, settings_data)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'Настройки анализа сохранены'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка сохранения настроек анализа: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
     
     try:

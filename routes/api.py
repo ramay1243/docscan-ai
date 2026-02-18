@@ -287,8 +287,13 @@ def analyze_document():
                     logger.error(f"❌ Ошибка отката счетчика IP: {e}")
             return jsonify({'error': 'Не удалось извлечь текст из файла'}), 400
         
-        # Анализируем текст
-        analysis_result = analyze_text(text, plan_type, is_authenticated=is_authenticated)
+        # Анализируем текст (передаем user_id для загрузки настроек анализа)
+        analysis_result = analyze_text(
+            text, 
+            plan_type, 
+            is_authenticated=is_authenticated,
+            user_id=user_id if is_authenticated else None
+        )
         
         logger.info(f"✅ АНАЛИЗ УСПЕШЕН для {'пользователя' if is_authenticated else 'гостя'}, IP: {real_ip}")
         
@@ -1196,4 +1201,165 @@ def delete_user_api_key(api_key_id):
         return jsonify({'success': True, 'message': 'API-ключ удален'})
     except Exception as e:
         logger.error(f"❌ Ошибка удаления API-ключа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/analysis-settings', methods=['GET'])
+def get_user_analysis_settings():
+    """Получить настройки анализа текущего пользователя"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'Настройки анализа доступны только для бизнес-тарифа'}), 403
+    
+    try:
+        settings = AnalysisSettingsManager.get_user_settings(user_id)
+        return jsonify({'success': True, 'settings': settings})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения настроек анализа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/analysis-settings', methods=['POST'])
+def save_user_analysis_settings():
+    """Сохранить настройки анализа текущего пользователя"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'Настройки анализа доступны только для бизнес-тарифа'}), 403
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'Данные не предоставлены'}), 400
+    
+    try:
+        success, error = AnalysisSettingsManager.save_user_settings(user_id, data)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'Настройки анализа сохранены'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка сохранения настроек анализа: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/analysis-settings/reset', methods=['POST'])
+def reset_user_analysis_settings():
+    """Сбросить настройки анализа к умолчанию"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success, error = AnalysisSettingsManager.reset_to_default(user_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'Настройки сброшены к умолчанию'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка сброса настроек: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/analysis-templates', methods=['GET'])
+def get_user_analysis_templates():
+    """Получить все шаблоны настроек анализа текущего пользователя"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        templates = AnalysisSettingsManager.get_user_templates(user_id)
+        return jsonify({'success': True, 'templates': templates})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения шаблонов: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/analysis-templates', methods=['POST'])
+def create_user_analysis_template():
+    """Создать шаблон настроек анализа"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    data = request.get_json()
+    template_name = data.get('name') if data else None
+    settings_data = data.get('settings') if data else {}
+    
+    if not template_name:
+        return jsonify({'success': False, 'error': 'Название шаблона не указано'}), 400
+    
+    try:
+        success, error = AnalysisSettingsManager.create_template(user_id, template_name, settings_data)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'Шаблон создан'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания шаблона: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/analysis-templates/<int:template_id>/apply', methods=['POST'])
+def apply_user_analysis_template(template_id):
+    """Применить шаблон настроек анализа"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success, error = AnalysisSettingsManager.apply_template(user_id, template_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'Шаблон применен'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка применения шаблона: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/analysis-templates/<int:template_id>', methods=['DELETE'])
+def delete_user_analysis_template(template_id):
+    """Удалить шаблон настроек анализа"""
+    from app import app
+    from utils.analysis_settings_manager import AnalysisSettingsManager
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success, error = AnalysisSettingsManager.delete_template(user_id, template_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        return jsonify({'success': True, 'message': 'Шаблон удален'})
+    except Exception as e:
+        logger.error(f"❌ Ошибка удаления шаблона: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500

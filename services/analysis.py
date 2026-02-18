@@ -4,8 +4,16 @@ from config import PLANS, SMART_ANALYSIS_CONFIG, RISK_LEVELS
 
 logger = logging.getLogger(__name__)
 
-def analyze_text(text, user_plan='free', is_authenticated=False):
-    """Умная функция анализа с определением типа документа"""
+def analyze_text(text, user_plan='free', is_authenticated=False, user_id=None, analysis_settings=None):
+    """Умная функция анализа с определением типа документа
+    
+    Args:
+        text: Текст документа для анализа
+        user_plan: Тариф пользователя
+        is_authenticated: Авторизован ли пользователь
+        user_id: ID пользователя (для загрузки настроек)
+        analysis_settings: Настройки анализа (если уже загружены)
+    """
     
     # Определяем тип документа
     document_type = detect_document_type(text)
@@ -13,9 +21,20 @@ def analyze_text(text, user_plan='free', is_authenticated=False):
     
     logger.info(f"🔍 Анализируем документ типа: {doc_config['name']}, план пользователя: {user_plan}, зарегистрирован: {is_authenticated}")
     
+    # Загружаем настройки анализа, если не переданы и пользователь авторизован
+    if not analysis_settings and user_id and is_authenticated and user_plan == 'premium':
+        try:
+            from utils.analysis_settings_manager import AnalysisSettingsManager
+            analysis_settings = AnalysisSettingsManager.get_user_settings(user_id)
+            if analysis_settings and analysis_settings.get('use_default'):
+                analysis_settings = None  # Используем настройки по умолчанию
+        except Exception as e:
+            logger.warning(f"⚠️ Не удалось загрузить настройки анализа: {e}")
+            analysis_settings = None
+    
     # Проверяем доступ к AI по тарифу
     if PLANS[user_plan]['ai_access']:
-        result = analyze_with_yandexgpt(text, document_type)
+        result = analyze_with_yandexgpt(text, document_type, analysis_settings=analysis_settings)
         if result['ai_used']:
             # Если пользователь не зарегистрирован - создаем краткую версию
             if not is_authenticated:

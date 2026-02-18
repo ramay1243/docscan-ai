@@ -2163,7 +2163,7 @@ def admin_panel():
             if (typeof saveNews === 'function') window.saveNews = saveNews;
             if (typeof cancelNewsForm === 'function') window.cancelNewsForm = cancelNewsForm;
             if (typeof deleteNews === 'function') window.deleteNews = deleteNews;
-            console.log('✅ Функции для новостей зарегистрированы глобально');
+                console.log('✅ Функции для новостей зарегистрированы глобально');
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ПОЛНЫМИ НОВОСТЯМИ ==========
             let editingFullNewsId = null;
@@ -2641,7 +2641,7 @@ def admin_panel():
             if (typeof initFullNewsTinyMCE === 'function') window.initFullNewsTinyMCE = initFullNewsTinyMCE;
             if (typeof toggleFullNewsEditorMode === 'function') window.toggleFullNewsEditorMode = toggleFullNewsEditorMode;
             if (typeof initFullNewsEditorOnShow === 'function') window.initFullNewsEditorOnShow = initFullNewsEditorOnShow;
-            console.log('✅ Функции для полных новостей зарегистрированы глобально');
+                console.log('✅ Функции для полных новостей зарегистрированы глобально');
             
             // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ВОПРОСАМИ ==========
             function loadQuestions() {
@@ -3157,12 +3157,12 @@ def admin_panel():
                     if (typeof window.loadUsers === 'function') {
                         window.loadUsers();
                     } else if (typeof loadUsers === 'function') {
-                        loadUsers();
+                    loadUsers();
                     }
                     if (typeof window.loadStats === 'function') {
                         window.loadStats();
                     } else if (typeof loadStats === 'function') {
-                        loadStats();
+                    loadStats();
                     }
                 });
             }
@@ -4871,8 +4871,8 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                             console.warn('⚠️ Не удалось зарегистрировать ' + funcName + ':', e);
                         }
                     });
-                    
-                    console.log('✅ Все скрипты загружены и функции зарегистрированы');
+            
+            console.log('✅ Все скрипты загружены и функции зарегистрированы');
                 }, 100);
         </script>
         -->

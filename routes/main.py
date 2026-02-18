@@ -38,6 +38,12 @@ def tariffs():
     RussianLogger.log_page_view("Тарифы")
     return render_template('tariffs.html')
 
+@main_bp.route('/api')
+def api_docs():
+    """Страница документации API"""
+    RussianLogger.log_page_view("API Документация")
+    return render_template('api.html')
+
 @main_bp.route('/sitemap.xml')
 def sitemap():
     """Sitemap для SEO с динамическими датами"""

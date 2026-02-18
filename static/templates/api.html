@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Документация DocScan AI | Интеграция для бизнеса</title>
+    <meta name="description" content="Полная документация API DocScan AI для бизнес-аккаунтов. Интеграция анализа документов в ваши системы. Примеры кода на Python, JavaScript, PHP.">
+    <meta name="keywords" content="API DocScan AI, документация API, интеграция документов, REST API, бизнес API">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="https://docscan-ai.ru/api">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="API Документация DocScan AI">
+    <meta property="og:description" content="Полная документация API для интеграции анализа документов в ваши системы">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://docscan-ai.ru/api">
+    <meta property="og:image" content="https://docscan-ai.ru/static/og-main.jpg">
+    <meta property="og:locale" content="ru_RU">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="API Документация DocScan AI">
+    <meta name="twitter:description" content="Полная документация API для интеграции анализа документов">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #38a169;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #e9ecef;
+            --code-bg: #282c34;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .main-header {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            font-size: 0.85rem;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            margin-bottom: 30px;
+        }
+        
+        /* Section */
+        .section {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        .section h3 {
+            color: var(--dark);
+            margin: 30px 0 15px 0;
+            font-size: 1.5rem;
+        }
+        .section h4 {
+            color: var(--dark);
+            margin: 20px 0 10px 0;
+            font-size: 1.2rem;
+        }
+        
+        /* Code blocks */
+        .code-block {
+            background: var(--code-bg);
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .code-block code {
+            color: #abb2bf;
+        }
+        .code-block .keyword { color: #c678dd; }
+        .code-block .string { color: #98c379; }
+        .code-block .comment { color: #5c6370; }
+        .code-block .function { color: #61afef; }
+        
+        /* Info boxes */
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+            margin: 20px 0;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--warning);
+            margin: 20px 0;
+        }
+        .success-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--success);
+            margin: 20px 0;
+        }
+        
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        /* List */
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+            line-height: 2;
+        }
+        li {
+            margin: 8px 0;
+        }
+        
+        /* Footer */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-link:hover {
+            color: white;
+        }
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1.1rem; }
+            .section { padding: 20px; }
+            .nav-links { display: none; }
+        }
+        
+        /* Endpoint card */
+        .endpoint-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary);
+        }
+        .endpoint-method {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        .method-post { background: #49cc90; color: white; }
+        .method-get { background: #61affe; color: white; }
+        .endpoint-url {
+            font-family: monospace;
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">🤖</div>
+                    DocScan AI
+                </a>
+                
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">Главная</a>
+                    <a href="/tariffs" class="nav-link">Тарифы</a>
+                    <a href="/api" class="nav-link active">API</a>
+                    <a href="/contact" class="nav-link">Контакты</a>
+                    <span id="authButtons" style="display: flex; gap: 10px; align-items: center;">
+                        <a href="/login" class="nav-link">Войти</a>
+                        <a href="/register" class="cta-button">Регистрация</a>
+                    </span>
+                    <span id="userMenu" style="display: none; gap: 10px; align-items: center;">
+                        <a href="/cabinet" class="nav-link">Личный кабинет</a>
+                        <a href="/logout" class="cta-button">Выход</a>
+                    </span>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="padding: 40px 20px;">
+        <!-- Breadcrumbs -->
+        <nav style="margin-bottom: 20px; font-size: 0.9rem;" aria-label="Хлебные крошки">
+            <ol style="display: flex; list-style: none; padding: 0; margin: 0; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <li><a href="/" style="color: var(--gray); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--gray)'">Главная</a></li>
+                <li style="color: var(--gray);">/</li>
+                <li style="color: var(--primary); font-weight: 600;">API Документация</li>
+            </ol>
+        </nav>
+
+        <div class="hero">
+            <h1>📚 API Документация</h1>
+            <p>Интегрируйте анализ документов в ваши системы</p>
+            <a href="/register" class="cta-button" style="background: white; color: var(--primary); font-size: 1.1rem; padding: 15px 30px;">Начать работу с API</a>
+        </div>
+
+        <div class="section">
+            <h2>Обзор</h2>
+            <p>DocScan AI предоставляет REST API для интеграции с внешними системами. API позволяет автоматизировать анализ юридических документов без использования веб-интерфейса.</p>
+            
+            <div class="info-box">
+                <strong>📌 Базовый URL:</strong> <code style="background: rgba(255,255,255,0.3); padding: 3px 8px; border-radius: 4px;">https://docscan-ai.ru/api/v1</code><br>
+                <strong>📌 Версия API:</strong> 1.0<br>
+                <strong>📌 Формат данных:</strong> JSON
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔐 Аутентификация</h2>
+            <p>API использует систему API-ключей для аутентификации. API-ключи доступны только для пользователей с <strong>бизнес-тарифами</strong> (Бизнес Старт, Бизнес Про, Бизнес Макс, Бизнес Безлимит).</p>
+            
+            <h3>Получение API-ключа</h3>
+            <ol>
+                <li>Войдите в <a href="/cabinet" style="color: var(--primary); font-weight: 600;">личный кабинет</a></li>
+                <li>Перейдите в раздел <strong>"🔑 API-ключи"</strong></li>
+                <li>Создайте новый API-ключ</li>
+                <li><strong>ВАЖНО:</strong> Сохраните ключ сразу после создания, он больше не будет показан!</li>
+            </ol>
+            
+            <div class="warning-box">
+                <strong>⚠️ Внимание:</strong> API-ключи доступны только для бизнес-тарифов. Если у вас нет бизнес-тарифа, <a href="/tariffs" style="color: var(--primary); font-weight: 600;">выберите подходящий тариф</a>.
+            </div>
+            
+            <h3>Использование API-ключа</h3>
+            <p>API-ключ можно передать двумя способами:</p>
+            
+            <h4>Вариант 1: Заголовок X-API-Key</h4>
+            <div class="code-block">
+X-API-Key: ваш-api-ключ
+            </div>
+            
+            <h4>Вариант 2: Заголовок Authorization (Bearer)</h4>
+            <div class="code-block">
+Authorization: Bearer ваш-api-ключ
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Эндпоинты</h2>
+            
+            <div class="endpoint-card">
+                <div style="margin-bottom: 15px;">
+                    <span class="endpoint-method method-post">POST</span>
+                    <span class="endpoint-url">/api/v1/analyze</span>
+                </div>
+                <p><strong>Анализирует загруженный документ и возвращает результаты анализа.</strong></p>
+                
+                <h4>Параметры запроса</h4>
+                <p>Поддерживаются два формата:</p>
+                
+                <h5>Формат 1: multipart/form-data</h5>
+                <ul>
+                    <li><code>file</code> (обязательно) - файл документа (PDF, DOCX, DOC, TXT, JPG, PNG)</li>
+                </ul>
+                
+                <h5>Формат 2: application/json</h5>
+                <div class="code-block">
+{
+  "file": "base64-encoded-file-content",
+  "filename": "document.pdf",
+  "mimeType": "application/pdf"
+}
+                </div>
+                
+                <h4>Пример запроса (multipart/form-data)</h4>
+                <div class="code-block">
+curl -X POST https://docscan-ai.ru/api/v1/analyze \
+  -H "X-API-Key: ваш-api-ключ" \
+  -F "file=@document.pdf"
+                </div>
+                
+                <h4>Пример запроса (JSON с base64)</h4>
+                <div class="code-block">
+curl -X POST https://docscan-ai.ru/api/v1/analyze \
+  -H "X-API-Key: ваш-api-ключ" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file": "JVBERi0xLjQKJeLjz9MKMy...",
+    "filename": "document.pdf",
+    "mimeType": "application/pdf"
+  }'
+                </div>
+                
+                <h4>Пример ответа (успех)</h4>
+                <div class="code-block">
+{
+  "success": true,
+  "analysis": {
+    "document_type": "rental",
+    "document_type_name": "Договор аренды",
+    "risk_level": "MEDIUM",
+    "summary": "Документ содержит основные условия аренды...",
+    "expert_analysis": {
+      "legal": "Юридическая экспертиза: ...",
+      "financial": "Финансовый анализ: ...",
+      "operational": "Операционные риски: ...",
+      "strategic": "Стратегическая оценка: ..."
+    },
+    "recommendations": [
+      "Рекомендация 1: ...",
+      "Рекомендация 2: ..."
+    ],
+    "pages_count": 4,
+    "text_length": 4102
+  },
+  "metadata": {
+    "filename": "document.pdf",
+    "analyzed_at": "2024-02-17T22:14:13.123456",
+    "user_id": "40fef7e4"
+  }
+}
+                </div>
+                
+                <h4>Коды ответов</h4>
+                <table>
+                    <tr>
+                        <th>Код</th>
+                        <th>Описание</th>
+                    </tr>
+                    <tr>
+                        <td><code>200 OK</code></td>
+                        <td>Анализ выполнен успешно</td>
+                    </tr>
+                    <tr>
+                        <td><code>400 Bad Request</code></td>
+                        <td>Неверный формат запроса или файла</td>
+                    </tr>
+                    <tr>
+                        <td><code>401 Unauthorized</code></td>
+                        <td>Неверный или отсутствующий API-ключ</td>
+                    </tr>
+                    <tr>
+                        <td><code>429 Too Many Requests</code></td>
+                        <td>Достигнут лимит анализов для вашего тарифа</td>
+                    </tr>
+                    <tr>
+                        <td><code>500 Internal Server Error</code></td>
+                        <td>Внутренняя ошибка сервера</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="endpoint-card">
+                <div style="margin-bottom: 15px;">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-url">/api/v1/usage</span>
+                </div>
+                <p><strong>Возвращает статистику использования API для текущего пользователя.</strong></p>
+                
+                <h4>Пример запроса</h4>
+                <div class="code-block">
+curl -X GET https://docscan-ai.ru/api/v1/usage \
+  -H "X-API-Key: ваш-api-ключ"
+                </div>
+                
+                <h4>Пример ответа</h4>
+                <div class="code-block">
+{
+  "success": true,
+  "usage": {
+    "used_today": 5,
+    "total_used": 127,
+    "daily_limit": 50,
+    "plan": "business_pro",
+    "plan_expires": "2024-03-17"
+  }
+}
+                </div>
+            </div>
+            
+            <div class="endpoint-card">
+                <div style="margin-bottom: 15px;">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-url">/api/v1/health</span>
+                </div>
+                <p><strong>Проверяет работоспособность API. Не требует аутентификации.</strong></p>
+                
+                <h4>Пример запроса</h4>
+                <div class="code-block">
+curl -X GET https://docscan-ai.ru/api/v1/health
+                </div>
+                
+                <h4>Пример ответа</h4>
+                <div class="code-block">
+{
+  "success": true,
+  "status": "ok",
+  "version": "1.0",
+  "timestamp": "2024-02-17T22:14:13.123456"
+}
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📝 Примеры интеграции</h2>
+            
+            <h3>Python</h3>
+            <div class="code-block">
+import requests
+import base64
+
+API_KEY = "ваш-api-ключ"
+API_URL = "https://docscan-ai.ru/api/v1"
+
+# Загрузка файла
+with open("document.pdf", "rb") as f:
+    file_content = f.read()
+    file_base64 = base64.b64encode(file_content).decode('utf-8')
+
+# Анализ документа
+response = requests.post(
+    f"{API_URL}/analyze",
+    headers={
+        "X-API-Key": API_KEY,
+        "Content-Type": "application/json"
+    },
+    json={
+        "file": file_base64,
+        "filename": "document.pdf",
+        "mimeType": "application/pdf"
+    }
+)
+
+if response.status_code == 200:
+    result = response.json()
+    print(f"Тип документа: {result['analysis']['document_type_name']}")
+    print(f"Уровень риска: {result['analysis']['risk_level']}")
+    print(f"Резюме: {result['analysis']['summary']}")
+else:
+    print(f"Ошибка: {response.json()['error']}")
+            </div>
+            
+            <h3>JavaScript (Node.js)</h3>
+            <div class="code-block">
+const axios = require('axios');
+const fs = require('fs');
+
+const API_KEY = 'ваш-api-ключ';
+const API_URL = 'https://docscan-ai.ru/api/v1';
+
+// Загрузка файла
+const fileContent = fs.readFileSync('document.pdf');
+const fileBase64 = fileContent.toString('base64');
+
+// Анализ документа
+axios.post(`${API_URL}/analyze`, {
+    file: fileBase64,
+    filename: 'document.pdf',
+    mimeType: 'application/pdf'
+}, {
+    headers: {
+        'X-API-Key': API_KEY,
+        'Content-Type': 'application/json'
+    }
+})
+.then(response => {
+    const result = response.data;
+    console.log(`Тип документа: ${result.analysis.document_type_name}`);
+    console.log(`Уровень риска: ${result.analysis.risk_level}`);
+    console.log(`Резюме: ${result.analysis.summary}`);
+})
+.catch(error => {
+    console.error('Ошибка:', error.response?.data?.error || error.message);
+});
+            </div>
+            
+            <h3>PHP</h3>
+            <div class="code-block">
+&lt;?php
+$apiKey = 'ваш-api-ключ';
+$apiUrl = 'https://docscan-ai.ru/api/v1';
+
+// Загрузка файла
+$fileContent = file_get_contents('document.pdf');
+$fileBase64 = base64_encode($fileContent);
+
+// Анализ документа
+$ch = curl_init($apiUrl . '/analyze');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'X-API-Key: ' . $apiKey,
+    'Content-Type: application/json'
+]);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'file' => $fileBase64,
+    'filename' => 'document.pdf',
+    'mimeType' => 'application/pdf'
+]));
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($httpCode === 200) {
+    $result = json_decode($response, true);
+    echo "Тип документа: " . $result['analysis']['document_type_name'] . "\n";
+    echo "Уровень риска: " . $result['analysis']['risk_level'] . "\n";
+    echo "Резюме: " . $result['analysis']['summary'] . "\n";
+} else {
+    $error = json_decode($response, true);
+    echo "Ошибка: " . $error['error'] . "\n";
+}
+?&gt;
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Лимиты и ограничения</h2>
+            
+            <h3>Лимиты по тарифам</h3>
+            <table>
+                <tr>
+                    <th>Тариф</th>
+                    <th>API-ключи</th>
+                    <th>Лимит анализов</th>
+                </tr>
+                <tr>
+                    <td>Бесплатный</td>
+                    <td>❌ Недоступны</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Стандарт</td>
+                    <td>❌ Недоступны</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Премиум</td>
+                    <td>❌ Недоступны</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Бизнес Старт</td>
+                    <td>✅ До 1 ключа</td>
+                    <td>10 анализов/мес</td>
+                </tr>
+                <tr>
+                    <td>Бизнес Про</td>
+                    <td>✅ До 3 ключей</td>
+                    <td>50 анализов/мес</td>
+                </tr>
+                <tr>
+                    <td>Бизнес Макс</td>
+                    <td>✅ До 5 ключей</td>
+                    <td>100 анализов/мес</td>
+                </tr>
+                <tr>
+                    <td>Бизнес Безлимит</td>
+                    <td>✅ Безлимит</td>
+                    <td>Безлимит</td>
+                </tr>
+            </table>
+            
+            <h3>Технические ограничения</h3>
+            <ul>
+                <li>Максимальный размер файла: <strong>10 MB</strong></li>
+                <li>Поддерживаемые форматы: <strong>PDF, DOCX, DOC, TXT, JPG, PNG</strong></li>
+                <li>Минимальная длина текста: <strong>50 символов</strong></li>
+                <li>Таймаут запроса: <strong>60 секунд</strong></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🔒 Безопасность</h2>
+            
+            <h3>Рекомендации</h3>
+            <ol>
+                <li><strong>Храните API-ключи в безопасности</strong>
+                    <ul>
+                        <li>Не коммитьте ключи в репозиторий</li>
+                        <li>Используйте переменные окружения</li>
+                        <li>Регулярно ротируйте ключи</li>
+                    </ul>
+                </li>
+                <li><strong>Используйте HTTPS</strong>
+                    <ul>
+                        <li>Все запросы должны идти через HTTPS</li>
+                        <li>Не передавайте ключи через незащищенные соединения</li>
+                    </ul>
+                </li>
+                <li><strong>Ограничьте доступ</strong>
+                    <ul>
+                        <li>Создавайте отдельные ключи для разных систем</li>
+                        <li>Деактивируйте неиспользуемые ключи</li>
+                        <li>Удаляйте скомпрометированные ключи немедленно</li>
+                    </ul>
+                </li>
+                <li><strong>Мониторинг</strong>
+                    <ul>
+                        <li>Регулярно проверяйте статистику использования</li>
+                        <li>Отслеживайте подозрительную активность</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>🐛 Обработка ошибок</h2>
+            
+            <table>
+                <tr>
+                    <th>Код</th>
+                    <th>Описание</th>
+                    <th>Решение</th>
+                </tr>
+                <tr>
+                    <td><code>400</code></td>
+                    <td>Неверный формат запроса</td>
+                    <td>Проверьте формат данных и файла</td>
+                </tr>
+                <tr>
+                    <td><code>401</code></td>
+                    <td>Неверный API-ключ</td>
+                    <td>Проверьте правильность ключа</td>
+                </tr>
+                <tr>
+                    <td><code>403</code></td>
+                    <td>Доступ запрещен</td>
+                    <td>Проверьте тариф пользователя</td>
+                </tr>
+                <tr>
+                    <td><code>404</code></td>
+                    <td>Ресурс не найден</td>
+                    <td>Проверьте URL эндпоинта</td>
+                </tr>
+                <tr>
+                    <td><code>429</code></td>
+                    <td>Превышен лимит</td>
+                    <td>Дождитесь сброса лимита или обновите тариф</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Внутренняя ошибка</td>
+                    <td>Повторите запрос позже</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>📞 Поддержка</h2>
+            <p>Если у вас возникли вопросы или проблемы с API:</p>
+            <ol>
+                <li>Проверьте документацию</li>
+                <li>Убедитесь, что используете правильный API-ключ</li>
+                <li>Проверьте лимиты вашего тарифа</li>
+                <li>Обратитесь в поддержку: <a href="mailto:docscanhelp@gmail.com" style="color: var(--primary); font-weight: 600;">docscanhelp@gmail.com</a></li>
+            </ol>
+        </div>
+
+        <div class="section" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; text-align: center;">
+            <h2 style="color: white; margin-bottom: 20px;">Готовы начать работу с API?</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.95;">Выберите бизнес-тариф и получите доступ к API!</p>
+            <a href="/tariffs" class="cta-button" style="background: white; color: var(--primary); font-size: 1.1rem; padding: 15px 40px;">Выбрать тариф</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Проверка документов онлайн бесплатно с ИИ. Автоматическая проверка документов и договоров с искусственным интеллектом за 60 секунд.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/proverka-dokumentov-onlayn" class="footer-link">Проверка документов онлайн</a>
+                        <a href="/news" class="footer-link">Новости</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/mobile-app" class="footer-link">📱 Приложение</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
+                        <a href="/questions" class="footer-link">Спросить онлайн</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                        <a href="/partners" class="footer-link">Партнерская программа</a>
+                        <a href="/tariffs" class="footer-link">Тарифы</a>
+                        <a href="/api" class="footer-link">API</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Check authentication status and update header
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include',
+                    cache: 'no-cache'
+                });
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    document.getElementById('authButtons').style.display = 'none';
+                    document.getElementById('userMenu').style.display = 'flex';
+                } else {
+                    document.getElementById('authButtons').style.display = 'flex';
+                    document.getElementById('userMenu').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
+            }
+        }
+        
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>
+

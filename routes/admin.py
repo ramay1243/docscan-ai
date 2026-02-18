@@ -3073,7 +3073,7 @@ def admin_panel():
                                     <td style="padding: 10px;">${user.total_used || 0}</td>
                                     <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}/${getPlanLimit(user.plan || 'free')}</td>
                                     <td style="padding: 10px;">
-                                        <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="basic" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
+                                        <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="standard" style="font-size: 0.85rem; padding: 5px 10px;">Стандарт</button>
                                         <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="premium" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
                                     </td>
                                 </tr>

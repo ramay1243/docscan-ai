@@ -2484,6 +2484,10 @@
                     const modal = document.createElement('div');
                     modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
                     
+                    const modalContent = document.createElement('div');
+                    modalContent.style.cssText = 'background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; max-width: 90vw;';
+                    modalContent.innerHTML = reportsHtml;
+                    
                     // Создаем кнопку закрытия отдельно, чтобы избежать проблем с экранированием
                     const closeButton = document.createElement('button');
                     closeButton.innerHTML = '×';
@@ -2491,21 +2495,9 @@
                     closeButton.onclick = function() {
                         modal.remove();
                     };
-                    
-                    const modalContent = document.createElement('div');
-                    modalContent.style.cssText = 'background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; max-width: 90vw;';
-                    modalContent.innerHTML = reportsHtml;
                     modalContent.appendChild(closeButton);
                     
                     modal.appendChild(modalContent);
-                    
-                    // Перемещаем кнопку закрытия в правильное место (внутрь modalContent)
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = reportsHtml;
-                    modalContent.innerHTML = '';
-                    modalContent.appendChild(tempDiv);
-                    modalContent.appendChild(closeButton);
-                    
                     document.body.appendChild(modal);
                     
                     // Закрытие по клику вне модального окна

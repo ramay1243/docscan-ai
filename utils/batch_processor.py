@@ -543,9 +543,16 @@ class BatchProcessor:
                     # Ссылка на полный отчет
                     report_path = file_reports.get(result['filename'])
                     if report_path:
-                        # Убираем "static/" из начала пути для URL
-                        url_path = report_path.replace('static/', '') if report_path.startswith('static/') else report_path
-                        report_text += f"   📄 Полный отчет: /{url_path}\n"
+                        # Убираем "static/reports/batch/" из начала пути для URL
+                        url_path = report_path
+                        if url_path.startswith('static/reports/batch/'):
+                            url_path = url_path.replace('static/reports/batch/', '')
+                        elif url_path.startswith('reports/batch/'):
+                            url_path = url_path.replace('reports/batch/', '')
+                        elif url_path.startswith('static/'):
+                            url_path = url_path.replace('static/', '')
+                        # Формируем правильный URL для доступа к отчету
+                        report_text += f"   📄 Полный отчет: /batch-report/{url_path}\n"
                 else:
                     report_text += f"   Статус: ❌ Ошибка обработки\n"
                     report_text += f"   Ошибка: {result.get('error', 'Неизвестная ошибка')}\n"

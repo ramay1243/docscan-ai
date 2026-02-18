@@ -2363,7 +2363,18 @@
                             detailsHtml += `<td style="padding: 10px; border: 1px solid #ddd;">`;
                             
                             if (file.status === 'completed' && file.full_report_path) {
-                                detailsHtml += `<a href="/${file.full_report_path}" target="_blank" style="color: #1976d2; text-decoration: none; padding: 5px 10px; background: #e3f2fd; border-radius: 3px;">📄 Полный отчет</a>`;
+                                // Формируем правильный URL для отчета
+                                let reportUrl = file.full_report_path;
+                                if (reportUrl.startsWith('static/reports/batch/')) {
+                                    reportUrl = '/batch-report/' + reportUrl.replace('static/reports/batch/', '');
+                                } else if (reportUrl.startsWith('reports/batch/')) {
+                                    reportUrl = '/batch-report/' + reportUrl.replace('reports/batch/', '');
+                                } else if (reportUrl.startsWith('static/')) {
+                                    reportUrl = '/batch-report/' + reportUrl.replace('static/', '');
+                                } else if (!reportUrl.startsWith('/')) {
+                                    reportUrl = '/batch-report/' + reportUrl;
+                                }
+                                detailsHtml += `<a href="${reportUrl}" target="_blank" style="color: #1976d2; text-decoration: none; padding: 5px 10px; background: #e3f2fd; border-radius: 3px;">📄 Полный отчет</a>`;
                             }
                             
                             detailsHtml += `</td></tr>`;

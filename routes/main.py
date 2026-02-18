@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, send_file
 from utils.logger import RussianLogger
 import logging
-from flask import send_file
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -632,6 +632,34 @@ def send_telegram():
     except Exception as e:
         logger.error(f"❌ Исключение при отправке в Telegram: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@main_bp.route('/batch-report/<path:filepath>')
+def batch_report(filepath):
+    """Сервис для раздачи PDF отчетов пакетной обработки"""
+    try:
+        # Безопасный путь - убираем возможные попытки выхода за пределы директории
+        safe_path = filepath.replace('..', '').lstrip('/')
+        
+        # Формируем полный путь к файлу
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        file_path = os.path.join(base_dir, 'static', 'reports', 'batch', safe_path)
+        
+        # Проверяем, что файл существует и находится в правильной директории
+        if not os.path.exists(file_path):
+            logger.warning(f"⚠️ Файл отчета не найден: {file_path}")
+            return jsonify({'error': 'Файл не найден'}), 404
+        
+        # Проверяем, что файл действительно в директории reports/batch
+        real_base = os.path.join(base_dir, 'static', 'reports', 'batch')
+        if not os.path.abspath(file_path).startswith(os.path.abspath(real_base)):
+            logger.warning(f"⚠️ Попытка доступа к файлу вне разрешенной директории: {file_path}")
+            return jsonify({'error': 'Доступ запрещен'}), 403
+        
+        # Отправляем файл
+        return send_file(file_path, mimetype='application/pdf', as_attachment=False)
+    except Exception as e:
+        logger.error(f"❌ Ошибка при отправке отчета: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @main_bp.route('/favicon.ico')
 def favicon():

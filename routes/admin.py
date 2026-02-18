@@ -577,9 +577,17 @@ def admin_panel():
                             <input type="text" id="userId" placeholder="ID пользователя" 
                                    style="width: 200px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
                             <select id="planSelect" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px; margin-right: 10px;">
-                                <option value="free">Бесплатный (1 анализ)</option>
-                                <option value="basic">Базовый (10 анализов за 290₽)</option>
-                                <option value="premium">Премиум (30 анализов за 690₽)</option>
+                                <optgroup label="Для физических лиц">
+                                    <option value="free">Бесплатный (1 анализ навсегда)</option>
+                                    <option value="standard">Стандарт (5 анализов, 30 дней) - 590₽</option>
+                                    <option value="premium">Премиум (15 анализов, 60 дней) - 1 350₽</option>
+                                </optgroup>
+                                <optgroup label="Для бизнеса (месячная подписка)">
+                                    <option value="business_start">Бизнес Старт (10 анализов/мес) - 1 425₽/мес</option>
+                                    <option value="business_pro">Бизнес Про (50 анализов/мес) - 4 500₽/мес</option>
+                                    <option value="business_max">Бизнес Макс (100 анализов/мес) - 13 500₽/мес</option>
+                                    <option value="business_unlimited">Бизнес Безлимит (безлимит) - 26 400₽/мес</option>
+                                </optgroup>
                             </select>
                             <button onclick="setUserPlan()">Выдать тариф</button>
                         </div>

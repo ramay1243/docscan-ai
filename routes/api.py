@@ -19,6 +19,14 @@ logger = logging.getLogger(__name__)
 # Создаем Blueprint для API
 api_bp = Blueprint('api', __name__)
 
+def check_plan_feature(user_plan, feature_name):
+    """Проверяет, доступна ли функция для тарифа пользователя"""
+    from config import PLANS
+    if user_plan not in PLANS:
+        return False
+    plan = PLANS[user_plan]
+    return plan.get('features', {}).get(feature_name, False)
+
 @api_bp.route('/create-user', methods=['POST'])
 def create_user():
     """Создает нового пользователя"""
@@ -501,6 +509,24 @@ def download_analysis():
         if not analysis_data:
             return jsonify({'error': 'Нет данных анализа'}), 400
         
+        # Проверяем доступность экспорта для пользователя
+        user_id = data.get('user_id') or session.get('user_id')
+        if user_id:
+            from app import app
+            user = app.user_manager.get_user(user_id)
+            if user:
+                from config import PLANS
+                plan = PLANS.get(user.plan, {})
+                features = plan.get('features', {})
+                
+                # Проверяем доступность формата экспорта
+                if export_format == 'pdf' and not features.get('export_pdf', False):
+                    return jsonify({'error': 'Экспорт в PDF недоступен для вашего тарифа'}), 403
+                elif export_format in ['word', 'docx'] and not features.get('export_word', False):
+                    return jsonify({'error': 'Экспорт в Word недоступен для вашего тарифа'}), 403
+                elif export_format in ['excel', 'xlsx'] and not features.get('export_excel', False):
+                    return jsonify({'error': 'Экспорт в Excel недоступен для вашего тарифа'}), 403
+        
         # Получаем настройки брендинга для пользователя (если авторизован)
         branding_settings = None
         try:
@@ -931,9 +957,9 @@ def get_user_branding():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    # Проверяем, что тариф premium (бизнес-тариф)
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для бизнес-тарифа'}), 403
+    # Проверяем доступность кастомного брендинга для тарифа
+    if not check_plan_feature(user.plan, 'custom_branding'):
+        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для тарифа Премиум и выше'}), 403
     
     try:
         branding = app.user_manager.get_branding_settings(user_id)
@@ -962,9 +988,9 @@ def save_user_branding():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    # Проверяем, что тариф premium (бизнес-тариф)
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для бизнес-тарифа'}), 403
+    # Проверяем доступность кастомного брендинга для тарифа
+    if not check_plan_feature(user.plan, 'custom_branding'):
+        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для тарифа Премиум и выше'}), 403
     
     try:
         # Получаем данные формы
@@ -1042,9 +1068,9 @@ def toggle_user_branding():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    # Проверяем, что тариф premium (бизнес-тариф)
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для бизнес-тарифа'}), 403
+    # Проверяем доступность кастомного брендинга для тарифа
+    if not check_plan_feature(user.plan, 'custom_branding'):
+        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для тарифа Премиум и выше'}), 403
     
     try:
         result = app.user_manager.toggle_branding(user_id)
@@ -1068,9 +1094,9 @@ def delete_user_branding():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    # Проверяем, что тариф premium (бизнес-тариф)
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для бизнес-тарифа'}), 403
+    # Проверяем доступность кастомного брендинга для тарифа
+    if not check_plan_feature(user.plan, 'custom_branding'):
+        return jsonify({'success': False, 'error': 'Кастомный брендинг доступен только для тарифа Премиум и выше'}), 403
     
     try:
         result = app.user_manager.delete_branding(user_id)
@@ -1094,8 +1120,8 @@ def get_user_api_keys():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'API-ключи доступны только для бизнес-тарифа'}), 403
+    if not check_plan_feature(user.plan, 'api_access'):
+        return jsonify({'success': False, 'error': 'API-ключи доступны только для бизнес-тарифов'}), 403
     
     try:
         keys = APIKeyManager.get_user_api_keys(user_id)
@@ -1119,8 +1145,8 @@ def create_user_api_key():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'API-ключи доступны только для бизнес-тарифа'}), 403
+    if not check_plan_feature(user.plan, 'api_access'):
+        return jsonify({'success': False, 'error': 'API-ключи доступны только для бизнес-тарифов'}), 403
     
     data = request.get_json()
     name = data.get('name') if data else None
@@ -1218,8 +1244,8 @@ def get_user_analysis_settings():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'Настройки анализа доступны только для бизнес-тарифа'}), 403
+    if not check_plan_feature(user.plan, 'advanced_settings'):
+        return jsonify({'success': False, 'error': 'Расширенные настройки анализа доступны только для тарифа Премиум и выше'}), 403
     
     try:
         settings = AnalysisSettingsManager.get_user_settings(user_id)
@@ -1243,8 +1269,8 @@ def save_user_analysis_settings():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'Настройки анализа доступны только для бизнес-тарифа'}), 403
+    if not check_plan_feature(user.plan, 'advanced_settings'):
+        return jsonify({'success': False, 'error': 'Расширенные настройки анализа доступны только для тарифа Премиум и выше'}), 403
     
     data = request.get_json()
     if not data:
@@ -1381,8 +1407,8 @@ def create_batch_task():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'Пакетная обработка доступна только для бизнес-тарифа'}), 403
+    if not check_plan_feature(user.plan, 'batch_processing'):
+        return jsonify({'success': False, 'error': 'Пакетная обработка доступна только для бизнес-тарифов'}), 403
     
     try:
         # Получаем файлы
@@ -1393,8 +1419,15 @@ def create_batch_task():
         if not files or len(files) == 0:
             return jsonify({'success': False, 'error': 'Не выбрано ни одного файла'}), 400
         
-        if len(files) > 20:
-            return jsonify({'success': False, 'error': 'Максимум 20 файлов за раз'}), 400
+        # Проверяем лимит пакетной обработки для тарифа
+        from config import PLANS
+        plan = PLANS.get(user.plan, {})
+        batch_limit = plan.get('features', {}).get('batch_limit', 0)
+        if batch_limit == -1:
+            # Безлимит
+            pass
+        elif len(files) > batch_limit:
+            return jsonify({'success': False, 'error': f'Максимум {batch_limit} файлов за раз для вашего тарифа'}), 400
         
         task_name = request.form.get('task_name', f'Пакетная обработка {datetime.now().strftime("%Y-%m-%d %H:%M")}')
         
@@ -1513,10 +1546,26 @@ def create_document_comparison():
     if not user:
         return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
     
-    if user.plan != 'premium':
-        return jsonify({'success': False, 'error': 'Сравнение документов доступно только для бизнес-тарифа'}), 403
+    if not check_plan_feature(user.plan, 'document_comparison'):
+        return jsonify({'success': False, 'error': 'Сравнение документов доступно только для бизнес-тарифов'}), 403
     
     try:
+        # Проверяем лимит сравнений для тарифа
+        from config import PLANS
+        plan = PLANS.get(user.plan, {})
+        comparison_limit = plan.get('features', {}).get('comparison_limit', 0)
+        if comparison_limit != -1:
+            # Проверяем количество сравнений пользователя за текущий месяц
+            from models.sqlite_users import DocumentComparison
+            from datetime import datetime
+            current_month_start = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            comparisons_this_month = DocumentComparison.query.filter(
+                DocumentComparison.user_id == user_id,
+                DocumentComparison.created_at >= current_month_start.isoformat()
+            ).count()
+            if comparisons_this_month >= comparison_limit:
+                return jsonify({'success': False, 'error': f'Достигнут лимит сравнений для вашего тарифа ({comparison_limit} в месяц)'}), 403
+        
         # Проверяем наличие файлов
         if 'original_file' not in request.files or 'modified_file' not in request.files:
             return jsonify({'success': False, 'error': 'Необходимо загрузить оба файла'}), 400

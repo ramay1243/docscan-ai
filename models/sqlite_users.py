@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+from calendar import monthrange
 import uuid
 import logging
 
@@ -998,14 +999,46 @@ class SQLiteUserManager:
             user.available_analyses = 0
             # free_analysis_used НЕ сбрасываем - если пользователь уже использовал бесплатный анализ, он остается использованным
             # used_today не используется для бесплатного тарифа (используется free_analysis_used)
-        else:
-            # Для платных тарифов: добавляем анализы к текущему балансу
+        elif plan_type in ['standard', 'premium']:
+            # Для разовых тарифов (физлица): добавляем анализы и устанавливаем срок действия
             if user.available_analyses is None:
                 user.available_analyses = 0
             user.available_analyses += analyses_to_add
-            user.plan = plan_type  # Устанавливаем тип тарифа для статистики
-            user.plan_expires = None  # Убираем дату окончания (тарифы теперь разовые)
-            # used_today не сбрасываем для платных тарифов (он не используется)
+            user.plan = plan_type
+            # Устанавливаем срок действия
+            validity_days = PLANS[plan_type].get('validity_days', 30)
+            user.plan_expires = (date.today() + timedelta(days=validity_days)).isoformat()
+        elif plan_type.startswith('business_'):
+            # Для бизнес-тарифов (месячная подписка): устанавливаем месячный лимит
+            user.plan = plan_type
+            if analyses_to_add == -1:
+                # Безлимит
+                user.available_analyses = -1
+            else:
+                user.available_analyses = analyses_to_add
+            # Устанавливаем срок действия до конца текущего месяца (или следующего, если выдаем в начале месяца)
+            today = date.today()
+            # Если сегодня 1-е число, устанавливаем на конец следующего месяца, иначе - конец текущего
+            if today.day == 1:
+                # Следующий месяц
+                if today.month == 12:
+                    next_month = date(today.year + 1, 1, 1)
+                else:
+                    next_month = date(today.year, today.month + 1, 1)
+                # Последний день следующего месяца
+                last_day = monthrange(next_month.year, next_month.month)[1]
+                user.plan_expires = date(next_month.year, next_month.month, last_day).isoformat()
+            else:
+                # Конец текущего месяца
+                last_day = monthrange(today.year, today.month)[1]
+                user.plan_expires = date(today.year, today.month, last_day).isoformat()
+        else:
+            # Для старых тарифов (basic) - оставляем для совместимости
+            if user.available_analyses is None:
+                user.available_analyses = 0
+            user.available_analyses += analyses_to_add
+            user.plan = plan_type
+            user.plan_expires = None
         
         # Сохраняем изменения в БД
         self.db.session.commit()

@@ -160,21 +160,161 @@ PLANS = {
         'ai_access': True,
         'price': 0,
         'name': 'Бесплатный',
-        'analyses_count': 1  # 1 бесплатный анализ
+        'analyses_count': 1,  # 1 бесплатный анализ навсегда
+        'validity_days': None,  # Навсегда
+        'is_monthly': False,
+        'features': {
+            'export_pdf': False,
+            'export_word': False,
+            'export_excel': False,
+            'advanced_settings': False,
+            'custom_branding': False,
+            'batch_processing': False,
+            'batch_limit': 0,
+            'document_comparison': False,
+            'comparison_limit': 0,
+            'api_access': False,
+            'api_keys_limit': 0,
+            'priority_support': False
+        }
     },
-    'basic': {
-        'daily_limit': 1000,  # Не используется для платных тарифов, оставлено для совместимости
-        'ai_access': True, 
-        'price': 290,
-        'name': 'Базовый',
-        'analyses_count': 10  # 10 анализов за разовую покупку
+    'standard': {
+        'daily_limit': 1000,  # Не используется для платных тарифов
+        'ai_access': True,
+        'price': 590,
+        'name': 'Стандарт',
+        'analyses_count': 5,  # 5 анализов за разовую покупку
+        'validity_days': 30,  # Действует 30 дней
+        'is_monthly': False,
+        'features': {
+            'export_pdf': True,
+            'export_word': True,
+            'export_excel': True,
+            'advanced_settings': False,
+            'custom_branding': False,
+            'batch_processing': False,
+            'batch_limit': 0,
+            'document_comparison': False,
+            'comparison_limit': 0,
+            'api_access': False,
+            'api_keys_limit': 0,
+            'priority_support': False
+        }
     },
     'premium': {
-        'daily_limit': 1000,  # Не используется для платных тарифов, оставлено для совместимости
+        'daily_limit': 1000,  # Не используется для платных тарифов
         'ai_access': True,
-        'price': 690,
+        'price': 1350,
         'name': 'Премиум',
-        'analyses_count': 30  # 30 анализов за разовую покупку
+        'analyses_count': 15,  # 15 анализов за разовую покупку
+        'validity_days': 60,  # Действует 60 дней
+        'is_monthly': False,
+        'features': {
+            'export_pdf': True,
+            'export_word': True,
+            'export_excel': True,
+            'advanced_settings': True,
+            'custom_branding': True,
+            'batch_processing': False,
+            'batch_limit': 0,
+            'document_comparison': False,
+            'comparison_limit': 0,
+            'api_access': False,
+            'api_keys_limit': 0,
+            'priority_support': True
+        }
+    },
+    'business_start': {
+        'daily_limit': 1000,  # Не используется для платных тарифов
+        'ai_access': True,
+        'price': 1425,
+        'name': 'Бизнес Старт',
+        'analyses_count': 10,  # 10 анализов в месяц
+        'validity_days': None,  # Месячная подписка
+        'is_monthly': True,
+        'features': {
+            'export_pdf': True,
+            'export_word': True,
+            'export_excel': True,
+            'advanced_settings': True,
+            'custom_branding': True,
+            'batch_processing': True,
+            'batch_limit': 10,  # До 10 документов за раз
+            'document_comparison': True,
+            'comparison_limit': 5,  # До 5 сравнений в месяц
+            'api_access': True,
+            'api_keys_limit': 1,  # 1 API-ключ
+            'priority_support': False
+        }
+    },
+    'business_pro': {
+        'daily_limit': 1000,  # Не используется для платных тарифов
+        'ai_access': True,
+        'price': 4500,
+        'name': 'Бизнес Про',
+        'analyses_count': 50,  # 50 анализов в месяц
+        'validity_days': None,  # Месячная подписка
+        'is_monthly': True,
+        'features': {
+            'export_pdf': True,
+            'export_word': True,
+            'export_excel': True,
+            'advanced_settings': True,
+            'custom_branding': True,
+            'batch_processing': True,
+            'batch_limit': 25,  # До 25 документов за раз
+            'document_comparison': True,
+            'comparison_limit': 15,  # До 15 сравнений в месяц
+            'api_access': True,
+            'api_keys_limit': 3,  # До 3 API-ключей
+            'priority_support': True
+        }
+    },
+    'business_max': {
+        'daily_limit': 1000,  # Не используется для платных тарифов
+        'ai_access': True,
+        'price': 13500,
+        'name': 'Бизнес Макс',
+        'analyses_count': 100,  # 100 анализов в месяц
+        'validity_days': None,  # Месячная подписка
+        'is_monthly': True,
+        'features': {
+            'export_pdf': True,
+            'export_word': True,
+            'export_excel': True,
+            'advanced_settings': True,
+            'custom_branding': True,
+            'batch_processing': True,
+            'batch_limit': 50,  # До 50 документов за раз
+            'document_comparison': True,
+            'comparison_limit': 30,  # До 30 сравнений в месяц
+            'api_access': True,
+            'api_keys_limit': 5,  # До 5 API-ключей
+            'priority_support': True
+        }
+    },
+    'business_unlimited': {
+        'daily_limit': 1000,  # Не используется для платных тарифов
+        'ai_access': True,
+        'price': 26400,
+        'name': 'Бизнес Безлимит',
+        'analyses_count': -1,  # Безлимит (-1 означает безлимит)
+        'validity_days': None,  # Месячная подписка
+        'is_monthly': True,
+        'features': {
+            'export_pdf': True,
+            'export_word': True,
+            'export_excel': True,
+            'advanced_settings': True,
+            'custom_branding': True,
+            'batch_processing': True,
+            'batch_limit': -1,  # Безлимит
+            'document_comparison': True,
+            'comparison_limit': -1,  # Безлимит
+            'api_access': True,
+            'api_keys_limit': -1,  # Безлимит
+            'priority_support': True
+        }
     }
 }
 

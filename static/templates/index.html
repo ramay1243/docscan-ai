@@ -453,6 +453,27 @@
         }
         
         /* Pricing */
+        .pricing-tab {
+            padding: 12px 30px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .pricing-tab:hover {
+            background: rgba(67, 97, 238, 0.1);
+        }
+        
+        .pricing-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
         .pricing-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1645,46 +1666,136 @@
             Начните с бесплатного анализа, переходите на платные тарифы по мере роста потребностей
         </p>
         
-        <div class="pricing-grid">
+        <!-- Вкладки для переключения между физлицами и бизнесом -->
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 40px;">
+            <button class="pricing-tab active" onclick="switchPricingTab('individual')" id="tab-individual">
+                Для физических лиц
+            </button>
+            <button class="pricing-tab" onclick="switchPricingTab('business')" id="tab-business">
+                Для бизнеса
+            </button>
+        </div>
+        
+        <!-- Тарифы для физических лиц -->
+        <div class="pricing-grid" id="pricing-individual">
             <div class="pricing-card">
                 <div class="plan-name" style="color: var(--danger);">Бесплатный</div>
                 <div class="price" style="color: var(--danger);">0₽</div>
                 <ul class="features">
-                    <li>✅ 1 анализ бесплатно (после регистрации)</li>
-                    <li>✅ Базовый AI-анализ</li>
-                    <li>✅ Основные форматы файлов</li>
-                    <li>✅ PDF, DOCX, TXT</li>
+                    <li>✅ 1 анализ навсегда (после регистрации)</li>
+                    <li>✅ Полный AI-анализ</li>
+                    <li>✅ История анализов</li>
+                    <li>✅ Базовые рекомендации</li>
+                    <li>✅ PDF, DOCX, TXT, RTF, PNG, JPG, TIFF</li>
                 </ul>
                 <button class="cta-button" disabled style="background: var(--danger);">Текущий тариф</button>
             </div>
             
-            <div class="pricing-card featured">
-                <div class="plan-name">Базовый</div>
-                <div class="price">290₽</div>
+            <div class="pricing-card">
+                <div class="plan-name">Стандарт</div>
+                <div class="price">590₽</div>
+                <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 15px;">5 анализов • 30 дней</div>
                 <ul class="features">
-                    <li>✅ 10 анализов документов</li>
-                    <li>✅ Анализы не сгорают</li>
-                    <li>✅ Приоритетный AI-анализ</li>
-                    <li>✅ Быстрая обработка</li>
-                    <li>📸 Распознавание фото документов</li>
+                    <li>✅ 5 анализов документов</li>
+                    <li>✅ Действует 30 дней</li>
+                    <li>✅ Полный AI-анализ</li>
+                    <li>✅ История анализов (30 дней)</li>
+                    <li>✅ Экспорт отчетов (PDF, Word, Excel)</li>
+                    <li>✅ Детальные рекомендации</li>
+                    <li>✅ PDF, DOCX, TXT, RTF, PNG, JPG, TIFF</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('basic')" style="background: white; color: var(--primary);">Купить за 290₽</button>
+                <button class="cta-button" onclick="buyPlan('standard')">Купить за 590₽</button>
+            </div>
+            
+            <div class="pricing-card featured">
+                <div class="plan-name">Премиум</div>
+                <div class="price">1 350₽</div>
+                <div style="font-size: 0.9rem; color: white; margin-bottom: 15px;">15 анализов • 60 дней</div>
+                <ul class="features">
+                    <li>✅ 15 анализов документов</li>
+                    <li>✅ Действует 60 дней</li>
+                    <li>✅ Полный AI-анализ</li>
+                    <li>✅ История анализов (60 дней)</li>
+                    <li>✅ Экспорт отчетов (PDF, Word, Excel)</li>
+                    <li>✅ Кастомный брендинг</li>
+                    <li>✅ Расширенные настройки</li>
+                    <li>✅ Приоритетная обработка</li>
+                    <li>✅ PDF, DOCX, TXT, RTF, PNG, JPG, TIFF</li>
+                </ul>
+                <button class="cta-button" onclick="buyPlan('premium')" style="background: white; color: var(--primary);">Купить за 1 350₽</button>
+            </div>
+        </div>
+        
+        <!-- Тарифы для бизнеса -->
+        <div class="pricing-grid" id="pricing-business" style="display: none;">
+            <div class="pricing-card">
+                <div class="plan-name">Бизнес Старт</div>
+                <div class="price">1 425₽<span style="font-size: 1rem;">/мес</span></div>
+                <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 15px;">10 анализов в месяц</div>
+                <ul class="features">
+                    <li>✅ 10 анализов в месяц</li>
+                    <li>✅ Экспорт отчетов (PDF, Word, Excel)</li>
+                    <li>✅ Кастомный брендинг</li>
+                    <li>✅ Расширенные настройки</li>
+                    <li>✅ Пакетная обработка (до 10 документов)</li>
+                    <li>✅ Сравнение документов (до 5 в месяц)</li>
+                    <li>✅ API доступ (1 ключ)</li>
+                    <li>✅ Стандартная поддержка</li>
+                </ul>
+                <button class="cta-button" onclick="buyPlan('business_start')">Купить за 1 425₽/мес</button>
             </div>
             
             <div class="pricing-card">
-                <div class="plan-name">Премиум</div>
-                <div class="price">690₽</div>
+                <div class="plan-name">Бизнес Про</div>
+                <div class="price">4 500₽<span style="font-size: 1rem;">/мес</span></div>
+                <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 15px;">50 анализов в месяц</div>
                 <ul class="features">
-                    <li>✅ 30 анализов документов</li>
-                    <li>✅ Анализы не сгорают</li>
-                    <li>✅ Приоритетный AI-анализ</li>
-                    <li>✅ Максимальная скорость обработки</li>
-                    <li>📸 Распознавание фото документов</li>
-                    <li>⚡ Приоритетная поддержка</li>
+                    <li>✅ 50 анализов в месяц</li>
+                    <li>✅ Экспорт отчетов (PDF, Word, Excel)</li>
+                    <li>✅ Кастомный брендинг</li>
+                    <li>✅ Расширенные настройки</li>
+                    <li>✅ Пакетная обработка (до 25 документов)</li>
+                    <li>✅ Сравнение документов (до 15 в месяц)</li>
+                    <li>✅ API доступ (до 3 ключей)</li>
+                    <li>✅ Приоритетная поддержка</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('premium')" style="background: white; color: var(--primary);">Купить за 690₽</button>
+                <button class="cta-button" onclick="buyPlan('business_pro')">Купить за 4 500₽/мес</button>
             </div>
             
+            <div class="pricing-card">
+                <div class="plan-name">Бизнес Макс</div>
+                <div class="price">13 500₽<span style="font-size: 1rem;">/мес</span></div>
+                <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 15px;">100 анализов в месяц</div>
+                <ul class="features">
+                    <li>✅ 100 анализов в месяц</li>
+                    <li>✅ Экспорт отчетов (PDF, Word, Excel)</li>
+                    <li>✅ Кастомный брендинг</li>
+                    <li>✅ Расширенные настройки</li>
+                    <li>✅ Пакетная обработка (до 50 документов)</li>
+                    <li>✅ Сравнение документов (до 30 в месяц)</li>
+                    <li>✅ API доступ (до 5 ключей)</li>
+                    <li>✅ Расширенная поддержка</li>
+                </ul>
+                <button class="cta-button" onclick="buyPlan('business_max')">Купить за 13 500₽/мес</button>
+            </div>
+            
+            <div class="pricing-card featured">
+                <div class="plan-name">Бизнес Безлимит</div>
+                <div class="price">26 400₽<span style="font-size: 1rem;">/мес</span></div>
+                <div style="font-size: 0.9rem; color: white; margin-bottom: 15px;">Безлимитные анализы</div>
+                <ul class="features">
+                    <li>✅ Безлимитные анализы</li>
+                    <li>✅ Экспорт отчетов (PDF, Word, Excel)</li>
+                    <li>✅ Кастомный брендинг</li>
+                    <li>✅ Расширенные настройки</li>
+                    <li>✅ Безлимитная пакетная обработка</li>
+                    <li>✅ Безлимитное сравнение документов</li>
+                    <li>✅ API доступ (безлимитные ключи)</li>
+                    <li>✅ Персональный менеджер</li>
+                </ul>
+                <button class="cta-button" onclick="buyPlan('business_unlimited')" style="background: white; color: var(--primary);">Купить за 26 400₽/мес</button>
+            </div>
+        </div>
     </section>
 
     <!-- FAQ -->
@@ -2597,6 +2708,25 @@
         }
         
         // Buy plan
+        function switchPricingTab(tab) {
+            const individualTab = document.getElementById('tab-individual');
+            const businessTab = document.getElementById('tab-business');
+            const individualPricing = document.getElementById('pricing-individual');
+            const businessPricing = document.getElementById('pricing-business');
+            
+            if (tab === 'individual') {
+                individualTab.classList.add('active');
+                businessTab.classList.remove('active');
+                individualPricing.style.display = 'grid';
+                businessPricing.style.display = 'none';
+            } else {
+                individualTab.classList.remove('active');
+                businessTab.classList.add('active');
+                individualPricing.style.display = 'none';
+                businessPricing.style.display = 'grid';
+            }
+        }
+        
         async function buyPlan(planType) {
             // Проверяем авторизацию
             try {

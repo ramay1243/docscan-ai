@@ -2102,6 +2102,269 @@
             }
         }
         
+        // Управление пакетной обработкой
+        document.addEventListener('DOMContentLoaded', function() {
+            const batchFilesInput = document.getElementById('batchFiles');
+            if (batchFilesInput) {
+                batchFilesInput.addEventListener('change', function() {
+                    const filesList = document.getElementById('batchFilesList');
+                    if (filesList && this.files.length > 0) {
+                        let html = '<div style="margin-top: 10px; padding: 10px; background: var(--light); border-radius: 5px;">';
+                        html += '<strong>Выбрано файлов: ' + this.files.length + '</strong><ul style="margin-top: 10px; padding-left: 20px;">';
+                        for (let i = 0; i < this.files.length; i++) {
+                            html += '<li>' + this.files[i].name + ' (' + (this.files[i].size / 1024).toFixed(2) + ' KB)</li>';
+                        }
+                        html += '</ul></div>';
+                        filesList.innerHTML = html;
+                    }
+                });
+            }
+        });
+        
+        async function createBatchTask() {
+            const taskName = document.getElementById('batchTaskName')?.value.trim() || '';
+            const filesInput = document.getElementById('batchFiles');
+            
+            if (!filesInput || !filesInput.files || filesInput.files.length === 0) {
+                alert('Выберите хотя бы один файл');
+                return;
+            }
+            
+            if (filesInput.files.length > 20) {
+                alert('Максимум 20 файлов за раз');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('task_name', taskName);
+            for (let i = 0; i < filesInput.files.length; i++) {
+                formData.append('files', filesInput.files[i]);
+            }
+            
+            const msgEl = document.getElementById('batchTaskMessage');
+            if (msgEl) {
+                msgEl.innerHTML = '<p style="color: var(--primary);">⏳ Создание задачи...</p>';
+            }
+            
+            try {
+                const response = await fetch('/api/user/batch-processing', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (msgEl) {
+                        msgEl.innerHTML = '<p style="color: var(--success);">✅ Задача создана! ID задачи: ' + result.task_id + '</p>';
+                    }
+                    filesInput.value = '';
+                    if (document.getElementById('batchTaskName')) {
+                        document.getElementById('batchTaskName').value = '';
+                    }
+                    if (document.getElementById('batchFilesList')) {
+                        document.getElementById('batchFilesList').innerHTML = '';
+                    }
+                    
+                    // Загружаем задачи и начинаем отслеживание прогресса
+                    loadBatchTasks();
+                    if (result.task_id) {
+                        startTrackingProgress(result.task_id);
+                    }
+                } else {
+                    if (msgEl) {
+                        msgEl.innerHTML = '<p style="color: var(--danger);">❌ Ошибка: ' + result.error + '</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка создания задачи:', error);
+                if (msgEl) {
+                    msgEl.innerHTML = '<p style="color: var(--danger);">❌ Ошибка соединения</p>';
+                }
+            }
+        }
+        
+        async function loadBatchTasks() {
+            try {
+                const response = await fetch('/api/user/batch-processing', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                const listDiv = document.getElementById('batchTasksList');
+                if (!listDiv) return;
+                
+                if (!result.success || !result.tasks || result.tasks.length === 0) {
+                    listDiv.innerHTML = '<p style="color: var(--gray);">У вас нет задач пакетной обработки</p>';
+                    return;
+                }
+                
+                let html = '';
+                result.tasks.forEach(task => {
+                    const statusColors = {
+                        'pending': 'var(--warning)',
+                        'processing': 'var(--primary)',
+                        'completed': 'var(--success)',
+                        'failed': 'var(--danger)',
+                        'cancelled': 'var(--gray)'
+                    };
+                    const statusNames = {
+                        'pending': 'Ожидает',
+                        'processing': 'Обрабатывается',
+                        'completed': 'Завершена',
+                        'failed': 'Ошибка',
+                        'cancelled': 'Отменена'
+                    };
+                    
+                    html += `<div style="background: var(--light); padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${statusColors[task.status] || 'var(--gray)'};">`;
+                    html += `<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">`;
+                    html += `<div>`;
+                    html += `<h3 style="margin: 0 0 5px 0;">${task.task_name || 'Задача #' + task.id}</h3>`;
+                    html += `<p style="color: var(--gray); font-size: 0.9rem; margin: 0;">Создана: ${new Date(task.created_at).toLocaleString('ru-RU')}</p>`;
+                    html += `</div>`;
+                    html += `<span style="padding: 5px 15px; background: ${statusColors[task.status] || 'var(--gray)'}; color: white; border-radius: 5px; font-size: 0.9rem; font-weight: 600;">${statusNames[task.status] || task.status}</span>`;
+                    html += `</div>`;
+                    
+                    if (task.status === 'processing') {
+                        html += `<div style="margin: 15px 0;">`;
+                        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">`;
+                        html += `<span>Прогресс: ${task.processed_files} из ${task.total_files}</span>`;
+                        html += `<span>${task.progress_percent || 0}%</span>`;
+                        html += `</div>`;
+                        html += `<div style="width: 100%; height: 20px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">`;
+                        html += `<div style="width: ${task.progress_percent || 0}%; height: 100%; background: var(--primary); transition: width 0.3s;"></div>`;
+                        html += `</div>`;
+                        html += `</div>`;
+                    }
+                    
+                    if (task.status === 'completed') {
+                        html += `<div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">`;
+                        html += `<p style="margin: 0 0 10px 0;"><strong>Результаты:</strong></p>`;
+                        html += `<p style="margin: 0; color: var(--success);">✅ Успешно: ${task.processed_files}</p>`;
+                        if (task.failed_files > 0) {
+                            html += `<p style="margin: 5px 0 0 0; color: var(--danger);">❌ Ошибок: ${task.failed_files}</p>`;
+                        }
+                        if (task.summary_report_path) {
+                            html += `<a href="/${task.summary_report_path}" target="_blank" class="cta-button" style="background: var(--primary); margin-top: 10px; display: inline-block;">📄 Скачать сводный отчет</a>`;
+                        }
+                        html += `<button onclick="viewBatchTaskDetails(${task.id})" class="cta-button" style="background: var(--primary); margin-top: 10px; margin-left: 10px;">📋 Детали</button>`;
+                        html += `</div>`;
+                    }
+                    
+                    if (task.status === 'processing') {
+                        html += `<button onclick="viewBatchTaskDetails(${task.id})" class="cta-button" style="background: var(--primary); margin-top: 10px;">📋 Просмотр деталей</button>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+                
+                listDiv.innerHTML = html;
+                
+                // Автоматически обновляем прогресс для активных задач
+                result.tasks.forEach(task => {
+                    if (task.status === 'processing') {
+                        startTrackingProgress(task.id);
+                    }
+                });
+            } catch (error) {
+                console.error('Ошибка загрузки задач:', error);
+                const listDiv = document.getElementById('batchTasksList');
+                if (listDiv) {
+                    listDiv.innerHTML = '<p style="color: var(--danger);">Ошибка загрузки задач</p>';
+                }
+            }
+        }
+        
+        function startTrackingProgress(taskId) {
+            // Проверяем, не запущен ли уже трекинг для этой задачи
+            if (window.batchTrackingIntervals && window.batchTrackingIntervals[taskId]) {
+                return; // Уже отслеживается
+            }
+            
+            if (!window.batchTrackingIntervals) {
+                window.batchTrackingIntervals = {};
+            }
+            
+            // Обновляем статус каждые 3 секунды
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/user/batch-processing/${taskId}`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success && result.task) {
+                        const task = result.task;
+                        
+                        // Обновляем отображение задачи
+                        updateTaskDisplay(taskId, task);
+                        
+                        // Если задача завершена, останавливаем отслеживание
+                        if (task.status === 'completed' || task.status === 'failed' || task.status === 'cancelled') {
+                            clearInterval(interval);
+                            delete window.batchTrackingIntervals[taskId];
+                            
+                            // Перезагружаем список задач
+                            loadBatchTasks();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка отслеживания прогресса:', error);
+                }
+            }, 3000);
+            
+            window.batchTrackingIntervals[taskId] = interval;
+        }
+        
+        function updateTaskDisplay(taskId, task) {
+            // Находим элемент задачи и обновляем его
+            const tasksList = document.getElementById('batchTasksList');
+            if (!tasksList) return;
+            
+            // Просто перезагружаем весь список для простоты
+            loadBatchTasks();
+        }
+        
+        async function viewBatchTaskDetails(taskId) {
+            try {
+                const response = await fetch(`/api/user/batch-processing/${taskId}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success && result.task) {
+                    const task = result.task;
+                    let details = 'ДЕТАЛИ ЗАДАЧИ\n\n';
+                    details += `Название: ${task.task_name || 'Не указано'}\n`;
+                    details += `Статус: ${task.status}\n`;
+                    details += `Всего файлов: ${task.total_files}\n`;
+                    details += `Обработано: ${task.processed_files}\n`;
+                    details += `Ошибок: ${task.failed_files}\n\n`;
+                    details += 'ФАЙЛЫ:\n';
+                    
+                    if (task.files && task.files.length > 0) {
+                        task.files.forEach((file, index) => {
+                            details += `${index + 1}. ${file.filename} - ${file.status}`;
+                            if (file.error_message) {
+                                details += ` (${file.error_message})`;
+                            }
+                            details += '\n';
+                        });
+                    }
+                    
+                    alert(details);
+                } else {
+                    alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+                }
+            } catch (error) {
+                console.error('Ошибка получения деталей задачи:', error);
+                alert('Ошибка соединения');
+            }
+        }
+        
         // Copy referral link
         function copyReferralLink() {
             const linkInput = document.getElementById('referralLink');

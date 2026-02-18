@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 # Создаем Blueprint для главных маршрутов
 main_bp = Blueprint('main', __name__)
 
-@main_bp.route('/')
+@main_bp.route('/', methods=['GET'])
 def home():
     """Главная страница с интерфейсом"""
     return render_template('index.html')

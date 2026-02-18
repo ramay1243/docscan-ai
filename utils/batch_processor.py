@@ -341,12 +341,39 @@ class BatchProcessor:
                     elif risk == 'HIGH':
                         high_risk_files.append(result['filename'])
                     
-                    # Собираем основные проблемы
+                    # Собираем основные проблемы из разных источников
+                    issues_list = []
+                    
+                    # Из issues
                     issues = analysis.get('issues', [])
                     if isinstance(issues, list):
-                        all_issues.extend(issues[:3])  # Берем первые 3 проблемы
+                        issues_list.extend([str(i) for i in issues if i])
                     elif isinstance(issues, str):
-                        all_issues.append(issues)
+                        issues_list.append(issues)
+                    
+                    # Из risk_analysis.key_risks
+                    if not issues_list:
+                        risk_analysis = analysis.get('risk_analysis', {})
+                        if isinstance(risk_analysis, dict):
+                            key_risks = risk_analysis.get('key_risks', [])
+                            if isinstance(key_risks, list):
+                                for risk in key_risks[:3]:
+                                    if isinstance(risk, dict):
+                                        risk_title = risk.get('title', '')
+                                        if risk_title:
+                                            issues_list.append(risk_title)
+                                    elif isinstance(risk, str):
+                                        issues_list.append(risk)
+                    
+                    # Из risks
+                    if not issues_list:
+                        risks = analysis.get('risks', [])
+                        if isinstance(risks, list):
+                            issues_list.extend([str(r) for r in risks[:3] if r])
+                        elif isinstance(risks, str):
+                            issues_list.append(risks)
+                    
+                    all_issues.extend(issues_list[:3])  # Берем первые 3 проблемы
             
             # Вычисляем время обработки
             processing_time = "Неизвестно"
@@ -445,26 +472,80 @@ class BatchProcessor:
                     report_text += f"   Тип документа: {doc_type}\n"
                     report_text += f"   Уровень риска: {risk_display} ({risk if risk else 'N/A'})\n"
                     
-                    # Краткое резюме
+                    # Краткое резюме - извлекаем из разных возможных полей
                     summary = analysis.get('summary', '')
+                    if not summary:
+                        # Пытаемся извлечь из executive_summary
+                        exec_summary = analysis.get('executive_summary', {})
+                        if isinstance(exec_summary, dict):
+                            summary = exec_summary.get('risk_description', '') or exec_summary.get('decision_support', '')
+                    
+                    if not summary:
+                        # Пытаемся извлечь из expert_analysis
+                        expert_analysis = analysis.get('expert_analysis', {})
+                        if isinstance(expert_analysis, dict):
+                            # Берем первую непустую секцию
+                            for key in ['legal_expertise', 'financial_analysis', 'operational_risks', 'strategic_assessment']:
+                                section_text = expert_analysis.get(key, '')
+                                if section_text and len(section_text) > 20:
+                                    summary = section_text
+                                    break
+                    
                     if summary:
                         summary_short = summary[:200] + '...' if len(summary) > 200 else summary
                         report_text += f"   Краткое резюме: {summary_short}\n"
                     
-                    # Основные проблемы
-                    issues = analysis.get('issues', [])
+                    # Основные проблемы - извлекаем из key_risks
+                    issues = []
+                    
+                    # Сначала пытаемся получить из issues
+                    issues_raw = analysis.get('issues', [])
+                    if issues_raw:
+                        if isinstance(issues_raw, list):
+                            issues = [str(item) for item in issues_raw if item]
+                        elif isinstance(issues_raw, str):
+                            issues = [issues_raw]
+                    
+                    # Если issues нет, пытаемся извлечь из risk_analysis.key_risks
+                    if not issues:
+                        risk_analysis = analysis.get('risk_analysis', {})
+                        if isinstance(risk_analysis, dict):
+                            key_risks = risk_analysis.get('key_risks', [])
+                            if isinstance(key_risks, list):
+                                for risk in key_risks[:3]:
+                                    if isinstance(risk, dict):
+                                        # Формируем строку из риска
+                                        risk_title = risk.get('title', '')
+                                        risk_desc = risk.get('description', '')
+                                        risk_level = risk.get('level', '')
+                                        if risk_title:
+                                            issue_text = f"{risk_level}: {risk_title}"
+                                            if risk_desc:
+                                                issue_text += f" - {risk_desc[:100]}"
+                                            issues.append(issue_text)
+                                    elif isinstance(risk, str):
+                                        issues.append(risk)
+                    
+                    # Если все еще нет, пытаемся извлечь из risks
+                    if not issues:
+                        risks = analysis.get('risks', [])
+                        if isinstance(risks, list):
+                            issues = [str(r) for r in risks[:3] if r]
+                        elif isinstance(risks, str):
+                            issues = [risks]
+                    
                     if issues:
-                        if isinstance(issues, list):
-                            report_text += f"   Основные проблемы:\n"
-                            for issue in issues[:3]:
+                        report_text += f"   Основные проблемы:\n"
+                        for issue in issues[:3]:
+                            if issue and issue.strip():
                                 report_text += f"      • {issue}\n"
-                        elif isinstance(issues, str):
-                            report_text += f"   Основные проблемы: {issues}\n"
                     
                     # Ссылка на полный отчет
                     report_path = file_reports.get(result['filename'])
                     if report_path:
-                        report_text += f"   📄 Полный отчет: /{report_path}\n"
+                        # Убираем "static/" из начала пути для URL
+                        url_path = report_path.replace('static/', '') if report_path.startswith('static/') else report_path
+                        report_text += f"   📄 Полный отчет: /{url_path}\n"
                 else:
                     report_text += f"   Статус: ❌ Ошибка обработки\n"
                     report_text += f"   Ошибка: {result.get('error', 'Неизвестная ошибка')}\n"

@@ -2266,7 +2266,7 @@
                     }
                     
                     if (task.status === 'processing') {
-                        html += `<button onclick="viewBatchTaskDetails(${task.id})" class="cta-button" style="background: var(--primary); margin-top: 10px;">📋 Просмотр деталей</button>`;
+                        html += '<button class="cta-button" style="background: var(--primary); margin-top: 10px;" data-task-id="' + task.id + '" data-action="details">📋 Просмотр деталей</button>';
                     }
                     
                     html += `</div>`;

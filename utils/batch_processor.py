@@ -66,146 +66,167 @@ class BatchProcessor:
     def process_batch_task_async(task_id, user_id, app_instance):
         """Асинхронная обработка пакетной задачи (запускается в отдельном потоке)"""
         def process_task():
-            try:
-                logger.info(f"🚀 Начало обработки пакетной задачи {task_id}")
-                
-                # Обновляем статус задачи
-                task = BatchProcessingTask.query.get(task_id)
-                if not task:
-                    logger.error(f"❌ Задача {task_id} не найдена")
-                    return
-                
-                task.status = 'processing'
-                task.started_at = datetime.now().isoformat()
-                db.session.commit()
-                
-                # Получаем все файлы задачи
-                files = BatchProcessingFile.query.filter_by(task_id=task_id).all()
-                
-                results = []
-                processed_count = 0
-                failed_count = 0
-                
-                # Загружаем настройки анализа пользователя
-                analysis_settings = None
+            # Создаем контекст приложения для работы с БД в отдельном потоке
+            with app_instance.app_context():
                 try:
-                    user = app_instance.user_manager.get_user(user_id)
-                    if user and user.plan == 'premium':
-                        analysis_settings = AnalysisSettingsManager.get_user_settings(user_id)
-                        if analysis_settings and analysis_settings.get('use_default'):
-                            analysis_settings = None
-                except Exception as e:
-                    logger.warning(f"⚠️ Не удалось загрузить настройки анализа: {e}")
+                    logger.info(f"🚀 Начало обработки пакетной задачи {task_id}")
+                    
+                    # Обновляем статус задачи
+                    task = BatchProcessingTask.query.get(task_id)
+                    if not task:
+                        logger.error(f"❌ Задача {task_id} не найдена")
+                        return
+                    
+                    task.status = 'processing'
+                    task.started_at = datetime.now().isoformat()
+                    db.session.commit()
                 
-                # Обрабатываем каждый файл
-                for file_record in files:
+                    # Получаем все файлы задачи
+                    files = BatchProcessingFile.query.filter_by(task_id=task_id).all()
+                    
+                    results = []
+                    processed_count = 0
+                    failed_count = 0
+                    
+                    # Загружаем настройки анализа пользователя
+                    analysis_settings = None
                     try:
-                        logger.info(f"📄 Обработка файла: {file_record.filename}")
-                        
-                        file_record.status = 'processing'
-                        db.session.commit()
-                        
-                        # Извлекаем текст из файла
-                        if not os.path.exists(file_record.file_path):
-                            raise Exception(f"Файл не найден: {file_record.file_path}")
-                        
-                        text, pages_count = extract_text_from_file(file_record.file_path)
-                        
-                        if not text or len(text.strip()) < 50:
-                            raise Exception("Не удалось извлечь текст или документ слишком короткий")
-                        
-                        # Получаем пользователя для проверки лимитов
                         user = app_instance.user_manager.get_user(user_id)
-                        if not user:
-                            raise Exception("Пользователь не найден")
-                        
-                        # Проверяем лимиты
-                        if not app_instance.user_manager.can_analyze(user_id):
-                            raise Exception("Достигнут дневной лимит анализов")
-                        
-                        # Выполняем анализ
-                        analysis_result = analyze_text(
-                            text=text,
-                            user_plan=user.plan if hasattr(user, 'plan') else user.get('plan', 'free'),
-                            is_authenticated=True,
-                            user_id=user_id,
-                            analysis_settings=analysis_settings
-                        )
-                        
-                        # Записываем использование
-                        app_instance.user_manager.record_usage(user_id)
-                        
-                        # Сохраняем в историю
-                        history = AnalysisHistory(
-                            user_id=user_id,
-                            filename=file_record.filename,
-                            document_type=analysis_result.get('document_type'),
-                            document_type_name=analysis_result.get('document_type_name'),
-                            risk_level=analysis_result.get('risk_level'),
-                            created_at=datetime.now().isoformat(),
-                            analysis_summary=analysis_result.get('summary', '')[:500]
-                        )
-                        db.session.add(history)
-                        db.session.flush()
-                        
-                        # Обновляем запись файла
-                        file_record.status = 'completed'
-                        file_record.analysis_result_json = json.dumps(analysis_result, ensure_ascii=False)
-                        file_record.analysis_history_id = history.id
-                        file_record.processed_at = datetime.now().isoformat()
-                        db.session.commit()
-                        
-                        results.append({
-                            'filename': file_record.filename,
-                            'status': 'completed',
-                            'analysis': analysis_result
-                        })
-                        
-                        processed_count += 1
-                        task.processed_files = processed_count
-                        db.session.commit()
-                        
-                        logger.info(f"✅ Файл {file_record.filename} обработан успешно")
-                        
+                        if user and user.plan == 'premium':
+                            analysis_settings = AnalysisSettingsManager.get_user_settings(user_id)
+                            if analysis_settings and analysis_settings.get('use_default'):
+                                analysis_settings = None
                     except Exception as e:
-                        logger.error(f"❌ Ошибка обработки файла {file_record.filename}: {e}")
-                        file_record.status = 'failed'
-                        file_record.error_message = str(e)
-                        file_record.processed_at = datetime.now().isoformat()
-                        db.session.commit()
-                        
-                        results.append({
-                            'filename': file_record.filename,
-                            'status': 'failed',
-                            'error': str(e)
-                        })
-                        
-                        failed_count += 1
-                        task.failed_files = failed_count
-                        db.session.commit()
-                
-                # Сохраняем результаты
-                task.results_json = json.dumps(results, ensure_ascii=False)
-                task.status = 'completed'
-                task.completed_at = datetime.now().isoformat()
-                db.session.commit()
-                
-                logger.info(f"✅ Пакетная задача {task_id} завершена. Обработано: {processed_count}, Ошибок: {failed_count}")
-                
-                # Генерируем сводный отчет (опционально)
-                try:
-                    BatchProcessor.generate_summary_report(task_id, results)
-                except Exception as e:
-                    logger.warning(f"⚠️ Не удалось сгенерировать сводный отчет: {e}")
-                
-            except Exception as e:
-                logger.error(f"❌ Критическая ошибка обработки пакетной задачи {task_id}: {e}")
-                task = BatchProcessingTask.query.get(task_id)
-                if task:
-                    task.status = 'failed'
-                    task.error_message = str(e)
+                        logger.warning(f"⚠️ Не удалось загрузить настройки анализа: {e}")
+                    
+                    # Обрабатываем каждый файл
+                    for file_record in files:
+                        try:
+                            logger.info(f"📄 Обработка файла: {file_record.filename}")
+                            
+                            file_record.status = 'processing'
+                            db.session.commit()
+                            
+                            # Извлекаем текст из файла
+                            if not os.path.exists(file_record.file_path):
+                                raise Exception(f"Файл не найден: {file_record.file_path}")
+                            
+                            text, pages_count = extract_text_from_file(file_record.file_path)
+                            
+                            if not text or len(text.strip()) < 50:
+                                raise Exception("Не удалось извлечь текст или документ слишком короткий")
+                            
+                            # Получаем пользователя для проверки лимитов
+                            user = app_instance.user_manager.get_user(user_id)
+                            if not user:
+                                raise Exception("Пользователь не найден")
+                            
+                            # Проверяем лимиты
+                            if not app_instance.user_manager.can_analyze(user_id):
+                                raise Exception("Достигнут дневной лимит анализов")
+                            
+                            # Выполняем анализ
+                            analysis_result = analyze_text(
+                                text=text,
+                                user_plan=user.plan if hasattr(user, 'plan') else user.get('plan', 'free'),
+                                is_authenticated=True,
+                                user_id=user_id,
+                                analysis_settings=analysis_settings
+                            )
+                            
+                            # Записываем использование
+                            app_instance.user_manager.record_usage(user_id)
+                            
+                            # Сохраняем в историю
+                            history = AnalysisHistory(
+                                user_id=user_id,
+                                filename=file_record.filename,
+                                document_type=analysis_result.get('document_type'),
+                                document_type_name=analysis_result.get('document_type_name'),
+                                risk_level=analysis_result.get('risk_level'),
+                                created_at=datetime.now().isoformat(),
+                                analysis_summary=analysis_result.get('summary', '')[:500]
+                            )
+                            db.session.add(history)
+                            db.session.flush()
+                            
+                            # Обновляем запись файла
+                            file_record.status = 'completed'
+                            file_record.analysis_result_json = json.dumps(analysis_result, ensure_ascii=False)
+                            file_record.analysis_history_id = history.id
+                            file_record.processed_at = datetime.now().isoformat()
+                            db.session.commit()
+                            
+                            results.append({
+                                'filename': file_record.filename,
+                                'status': 'completed',
+                                'analysis': analysis_result
+                            })
+                            
+                            processed_count += 1
+                            task.processed_files = processed_count
+                            db.session.commit()
+                            
+                            logger.info(f"✅ Файл {file_record.filename} обработан успешно")
+                            
+                        except Exception as e:
+                            logger.error(f"❌ Ошибка обработки файла {file_record.filename}: {e}")
+                            file_record.status = 'failed'
+                            file_record.error_message = str(e)
+                            file_record.processed_at = datetime.now().isoformat()
+                            db.session.commit()
+                            
+                            results.append({
+                                'filename': file_record.filename,
+                                'status': 'failed',
+                                'error': str(e)
+                            })
+                            
+                            failed_count += 1
+                            task.failed_files = failed_count
+                            db.session.commit()
+                    
+                    # Сохраняем результаты
+                    task.results_json = json.dumps(results, ensure_ascii=False)
+                    task.status = 'completed'
                     task.completed_at = datetime.now().isoformat()
                     db.session.commit()
+                    
+                    logger.info(f"✅ Пакетная задача {task_id} завершена. Обработано: {processed_count}, Ошибок: {failed_count}")
+                    
+                    # Генерируем сводный отчет (опционально)
+                    try:
+                        BatchProcessor.generate_summary_report(task_id, results)
+                    except Exception as e:
+                        logger.warning(f"⚠️ Не удалось сгенерировать сводный отчет: {e}")
+                    
+                    # Создаем уведомление о завершении
+                    try:
+                        from models.sqlite_users import Notification
+                        notification = Notification(
+                            user_id=user_id,
+                            title=f"Пакетная обработка завершена",
+                            message=f"Задача '{task.task_name or f'Задача #{task_id}'}' завершена. Обработано: {processed_count} из {task.total_files} файлов.",
+                            type='batch_completed',
+                            created_at=datetime.now().isoformat()
+                        )
+                        db.session.add(notification)
+                        db.session.commit()
+                        logger.info(f"✅ Уведомление создано для пользователя {user_id}")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Не удалось создать уведомление: {e}")
+                    
+                except Exception as e:
+                    logger.error(f"❌ Критическая ошибка обработки пакетной задачи {task_id}: {e}")
+                    try:
+                        task = BatchProcessingTask.query.get(task_id)
+                        if task:
+                            task.status = 'failed'
+                            task.error_message = str(e)
+                            task.completed_at = datetime.now().isoformat()
+                            db.session.commit()
+                    except Exception as db_error:
+                        logger.error(f"❌ Ошибка сохранения статуса ошибки: {db_error}")
         
         # Запускаем обработку в отдельном потоке
         thread = threading.Thread(target=process_task)

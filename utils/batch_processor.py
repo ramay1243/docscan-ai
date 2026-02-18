@@ -108,10 +108,31 @@ class BatchProcessor:
                             db.session.commit()
                             
                             # Извлекаем текст из файла
+                            if not file_record.file_path:
+                                raise Exception(f"Путь к файлу не указан для {file_record.filename}")
+                            
                             if not os.path.exists(file_record.file_path):
                                 raise Exception(f"Файл не найден: {file_record.file_path}")
                             
-                            text, pages_count = extract_text_from_file(file_record.file_path)
+                            # extract_text_from_file возвращает либо текст, либо строку ошибки
+                            # Проверяем, что это текст (не ошибка)
+                            text_result = extract_text_from_file(file_record.file_path, file_record.filename)
+                            
+                            # Если результат начинается с "❌" или "Ошибка", это ошибка
+                            if isinstance(text_result, str) and (text_result.startswith("❌") or text_result.startswith("Ошибка") or text_result.startswith("Ошибка чтения")):
+                                raise Exception(text_result)
+                            
+                            text = text_result
+                            # Для PDF пытаемся определить количество страниц
+                            pages_count = 1
+                            if file_record.filename.lower().endswith('.pdf'):
+                                try:
+                                    import PyPDF2
+                                    with open(file_record.file_path, 'rb') as f:
+                                        reader = PyPDF2.PdfReader(f)
+                                        pages_count = len(reader.pages)
+                                except:
+                                    pass
                             
                             if not text or len(text.strip()) < 50:
                                 raise Exception("Не удалось извлечь текст или документ слишком короткий")

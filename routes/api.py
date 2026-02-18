@@ -1413,9 +1413,18 @@ def create_batch_task():
                 continue
             
             # Валидация файла
-            validation_error = validate_file(file)
-            if validation_error:
-                BatchProcessor.add_file_to_task(task_id, file.filename, None)
+            is_valid, validation_message = validate_file(file)
+            if not is_valid:
+                # Добавляем файл с ошибкой валидации
+                file_id, error = BatchProcessor.add_file_to_task(task_id, file.filename, None)
+                if file_id:
+                    # Обновляем статус файла на failed с сообщением об ошибке
+                    from models.sqlite_users import BatchProcessingFile
+                    file_record = BatchProcessingFile.query.get(file_id)
+                    if file_record:
+                        file_record.status = 'failed'
+                        file_record.error_message = validation_message
+                        db.session.commit()
                 continue
             
             # Сохраняем файл

@@ -656,6 +656,85 @@ class AnalysisTemplate(db.Model):
             'created_at': self.created_at
         }
 
+class BatchProcessingTask(db.Model):
+    """Таблица для отслеживания пакетных задач обработки документов"""
+    __tablename__ = 'batch_processing_tasks'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)  # Пользователь
+    task_name = db.Column(db.String(255), nullable=True)  # Название задачи (опционально)
+    
+    # Статус задачи: 'pending', 'processing', 'completed', 'failed', 'cancelled'
+    status = db.Column(db.String(20), default='pending')
+    
+    # Прогресс обработки
+    total_files = db.Column(db.Integer, default=0)  # Всего файлов
+    processed_files = db.Column(db.Integer, default=0)  # Обработано файлов
+    failed_files = db.Column(db.Integer, default=0)  # Файлов с ошибками
+    
+    # Результаты
+    results_json = db.Column(db.Text, nullable=True)  # JSON с результатами всех анализов
+    summary_report_path = db.Column(db.String(500), nullable=True)  # Путь к сводному отчету (PDF)
+    
+    # Метаданные
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания
+    started_at = db.Column(db.String(30), nullable=True)  # Дата начала обработки
+    completed_at = db.Column(db.String(30), nullable=True)  # Дата завершения
+    error_message = db.Column(db.Text, nullable=True)  # Сообщение об ошибке (если есть)
+    
+    def to_dict(self):
+        import json
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'task_name': self.task_name,
+            'status': self.status,
+            'total_files': self.total_files,
+            'processed_files': self.processed_files,
+            'failed_files': self.failed_files,
+            'results': json.loads(self.results_json) if self.results_json else [],
+            'summary_report_path': self.summary_report_path,
+            'created_at': self.created_at,
+            'started_at': self.started_at,
+            'completed_at': self.completed_at,
+            'error_message': self.error_message,
+            'progress_percent': int((self.processed_files / self.total_files * 100)) if self.total_files > 0 else 0
+        }
+
+class BatchProcessingFile(db.Model):
+    """Таблица для отслеживания отдельных файлов в пакетной задаче"""
+    __tablename__ = 'batch_processing_files'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    task_id = db.Column(db.Integer, db.ForeignKey('batch_processing_tasks.id'), nullable=False)  # Задача
+    filename = db.Column(db.String(255), nullable=False)  # Имя файла
+    file_path = db.Column(db.String(500), nullable=True)  # Путь к файлу (временный)
+    
+    # Статус обработки: 'pending', 'processing', 'completed', 'failed'
+    status = db.Column(db.String(20), default='pending')
+    
+    # Результаты анализа
+    analysis_result_json = db.Column(db.Text, nullable=True)  # JSON с результатом анализа
+    analysis_history_id = db.Column(db.Integer, db.ForeignKey('analysis_history.id'), nullable=True)  # Связь с историей
+    
+    # Метаданные
+    created_at = db.Column(db.String(30), nullable=False)  # Дата создания
+    processed_at = db.Column(db.String(30), nullable=True)  # Дата обработки
+    error_message = db.Column(db.Text, nullable=True)  # Сообщение об ошибке
+    
+    def to_dict(self):
+        import json
+        return {
+            'id': self.id,
+            'task_id': self.task_id,
+            'filename': self.filename,
+            'status': self.status,
+            'analysis_result': json.loads(self.analysis_result_json) if self.analysis_result_json else None,
+            'created_at': self.created_at,
+            'processed_at': self.processed_at,
+            'error_message': self.error_message
+        }
+
 
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""

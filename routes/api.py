@@ -1363,3 +1363,126 @@ def delete_user_analysis_template(template_id):
     except Exception as e:
         logger.error(f"❌ Ошибка удаления шаблона: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/batch-processing', methods=['POST'])
+def create_batch_task():
+    """Создать новую пакетную задачу обработки документов"""
+    from app import app
+    from utils.batch_processor import BatchProcessor
+    import tempfile
+    import uuid
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    # Проверяем тариф (только premium/business)
+    user = app.user_manager.get_user(user_id)
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'}), 404
+    
+    if user.plan != 'premium':
+        return jsonify({'success': False, 'error': 'Пакетная обработка доступна только для бизнес-тарифа'}), 403
+    
+    try:
+        # Получаем файлы
+        if 'files' not in request.files:
+            return jsonify({'success': False, 'error': 'Файлы не загружены'}), 400
+        
+        files = request.files.getlist('files')
+        if not files or len(files) == 0:
+            return jsonify({'success': False, 'error': 'Не выбрано ни одного файла'}), 400
+        
+        if len(files) > 20:
+            return jsonify({'success': False, 'error': 'Максимум 20 файлов за раз'}), 400
+        
+        task_name = request.form.get('task_name', f'Пакетная обработка {datetime.now().strftime("%Y-%m-%d %H:%M")}')
+        
+        # Создаем задачу
+        task_id, error = BatchProcessor.create_batch_task(user_id, task_name, len(files))
+        if error:
+            return jsonify({'success': False, 'error': error}), 400
+        
+        # Сохраняем файлы и добавляем в задачу
+        saved_files = []
+        temp_dir = os.path.join(tempfile.gettempdir(), f'batch_{task_id}')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        for file in files:
+            if file.filename == '':
+                continue
+            
+            # Валидация файла
+            validation_error = validate_file(file)
+            if validation_error:
+                BatchProcessor.add_file_to_task(task_id, file.filename, None)
+                continue
+            
+            # Сохраняем файл
+            file_ext = os.path.splitext(file.filename)[1]
+            temp_filename = f"{uuid.uuid4()}{file_ext}"
+            temp_path = os.path.join(temp_dir, temp_filename)
+            file.save(temp_path)
+            
+            # Добавляем в задачу
+            file_id, error = BatchProcessor.add_file_to_task(task_id, file.filename, temp_path)
+            if file_id:
+                saved_files.append(file_id)
+        
+        # Запускаем обработку в фоне
+        BatchProcessor.process_batch_task_async(task_id, user_id, app)
+        
+        return jsonify({
+            'success': True,
+            'task_id': task_id,
+            'message': 'Пакетная задача создана и запущена'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка создания пакетной задачи: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/batch-processing/<int:task_id>', methods=['GET'])
+def get_batch_task_status(task_id):
+    """Получить статус пакетной задачи"""
+    from app import app
+    from utils.batch_processor import BatchProcessor
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        task_dict, error = BatchProcessor.get_task_status(task_id)
+        if error:
+            return jsonify({'success': False, 'error': error}), 404
+        
+        # Проверяем, что задача принадлежит пользователю
+        if task_dict['user_id'] != user_id:
+            return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
+        
+        # Получаем файлы задачи
+        files = BatchProcessor.get_task_files(task_id)
+        task_dict['files'] = files
+        
+        return jsonify({'success': True, 'task': task_dict})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения статуса задачи: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/user/batch-processing', methods=['GET'])
+def get_user_batch_tasks():
+    """Получить все пакетные задачи пользователя"""
+    from app import app
+    from utils.batch_processor import BatchProcessor
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        tasks = BatchProcessor.get_user_tasks(user_id)
+        return jsonify({'success': True, 'tasks': tasks})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения задач пользователя: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

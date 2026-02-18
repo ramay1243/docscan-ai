@@ -432,6 +432,10 @@
                 <span class="sidebar-menu-item-icon">⚙️</span>
                 <span>Настройки анализа</span>
             </a>
+            <a href="#" class="sidebar-menu-item" data-section="batch-processing" onclick="showSection('batch-processing'); return false;">
+                <span class="sidebar-menu-item-icon">📦</span>
+                <span>Пакетная обработка</span>
+            </a>
             {% endif %}
             <a href="#" class="sidebar-menu-item" data-section="partners" onclick="showSection('partners'); return false;">
                 <span class="sidebar-menu-item-icon">🎁</span>
@@ -846,6 +850,51 @@
             </div>
             {% endif %}
             
+            <!-- Section: Batch Processing -->
+            {% if user.plan == 'premium' %}
+            <div id="section-batch-processing" class="content-section">
+                <h1 style="color: var(--dark); margin-bottom: 30px; font-size: 2rem;">📦 Пакетная обработка документов</h1>
+                <p style="color: var(--gray); margin-bottom: 30px;">Загрузите несколько документов одновременно для массовой обработки. Все документы будут проанализированы автоматически, и вы получите сводный отчет.</p>
+                
+                <div class="section">
+                    <h2 class="section-title">Создать новую задачу</h2>
+                    <div class="form-group">
+                        <label class="form-label">Название задачи (опционально):</label>
+                        <input type="text" id="batchTaskName" class="form-input" placeholder="Например: Договоры за январь 2025">
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 5px;">Укажите название для удобства идентификации задачи</p>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Выберите файлы (до 20 файлов):</label>
+                        <input type="file" id="batchFiles" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png" class="form-input" style="padding: 8px;">
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 5px;">Поддерживаемые форматы: PDF, DOC, DOCX, TXT, JPG, JPEG, PNG</p>
+                        <div id="batchFilesList" style="margin-top: 10px;"></div>
+                    </div>
+                    
+                    <button onclick="createBatchTask()" class="cta-button" style="background: var(--success); margin-top: 15px;">🚀 Начать пакетную обработку</button>
+                    <div id="batchTaskMessage" style="margin-top: 15px;"></div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">Мои задачи</h2>
+                    <button onclick="loadBatchTasks()" class="cta-button" style="background: var(--primary); margin-bottom: 15px;">🔄 Обновить список</button>
+                    <div id="batchTasksList" style="margin-top: 20px;"></div>
+                </div>
+                
+                <div class="section" style="background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%); border-left: 4px solid var(--primary);">
+                    <h2 class="section-title">ℹ️ Информация</h2>
+                    <ul style="color: var(--gray); line-height: 1.8; padding-left: 20px;">
+                        <li>Можно загрузить до 20 документов одновременно</li>
+                        <li>Все документы обрабатываются автоматически в фоновом режиме</li>
+                        <li>Вы можете отслеживать прогресс обработки в реальном времени</li>
+                        <li>После завершения будет создан сводный отчет по всем документам</li>
+                        <li>Каждый документ сохраняется в истории анализов</li>
+                        <li>При обнаружении ошибок они будут отображены в отчете</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Section: Partners -->
             <div id="section-partners" class="content-section">
                 <h1 style="color: var(--dark); margin-bottom: 30px; font-size: 2rem;">Партнерская программа</h1>
@@ -976,6 +1025,11 @@
             // Загружаем API-ключи при открытии секции
             if (sectionName === 'api-keys' && typeof loadUserAPIKeys === 'function') {
                 loadUserAPIKeys();
+            }
+            
+            // Загружаем задачи пакетной обработки при открытии секции
+            if (sectionName === 'batch-processing' && typeof loadBatchTasks === 'function') {
+                loadBatchTasks();
             }
             
             // Загружаем данные партнерской программы при открытии секции

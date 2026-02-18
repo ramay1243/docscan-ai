@@ -145,8 +145,28 @@ def create_app():
         from flask import request, jsonify
         if request.path.startswith('/api/'):
             return jsonify({'error': 'Not Found', 'message': str(error)}), 404
-        from flask import render_template
-        return render_template('404.html'), 404
+        # Для не-API запросов возвращаем простую HTML страницу
+        return '''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>404 - Страница не найдена</title>
+            <meta charset="utf-8">
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                h1 { color: #333; }
+                p { color: #666; }
+                a { color: #4361ee; text-decoration: none; }
+                a:hover { text-decoration: underline; }
+            </style>
+        </head>
+        <body>
+            <h1>404 - Страница не найдена</h1>
+            <p>Запрашиваемая страница не существует.</p>
+            <p><a href="/">Вернуться на главную</a></p>
+        </body>
+        </html>
+        ''', 404
 
     @app.errorhandler(403)
     def forbidden(error):

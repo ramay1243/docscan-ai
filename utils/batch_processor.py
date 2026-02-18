@@ -551,8 +551,16 @@ class BatchProcessor:
                             url_path = url_path.replace('reports/batch/', '')
                         elif url_path.startswith('static/'):
                             url_path = url_path.replace('static/', '')
-                        # Формируем правильный URL для доступа к отчету
-                        report_text += f"   📄 Полный отчет: /batch-report/{url_path}\n"
+                        
+                        # Получаем базовый URL из переменных окружения
+                        import os
+                        base_url = os.getenv('BASE_URL', 'https://docscan-ai.ru')
+                        # Убираем слэш в конце, если есть
+                        base_url = base_url.rstrip('/')
+                        
+                        # Формируем полную ссылку
+                        full_url = f"{base_url}/batch-report/{url_path}"
+                        report_text += f"   📄 Полный отчет: {full_url}\n"
                 else:
                     report_text += f"   Статус: ❌ Ошибка обработки\n"
                     report_text += f"   Ошибка: {result.get('error', 'Неизвестная ошибка')}\n"

@@ -179,3 +179,4 @@ sudo systemctl restart docscan
 3. Убедитесь, что все зависимости установлены: `pip3 list | grep -i sqlalchemy`
 
 
+

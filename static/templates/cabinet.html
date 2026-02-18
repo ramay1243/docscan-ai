@@ -2245,10 +2245,13 @@
                         if (task.failed_files > 0) {
                             html += `<p style="margin: 5px 0 0 0; color: var(--danger);">❌ Ошибок: ${task.failed_files}</p>`;
                         }
+                        html += `<div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">`;
                         if (task.summary_report_path) {
-                            html += `<a href="/${task.summary_report_path}" target="_blank" class="cta-button" style="background: var(--primary); margin-top: 10px; display: inline-block;">📄 Скачать сводный отчет</a>`;
+                            html += `<a href="/${task.summary_report_path}" target="_blank" class="cta-button" style="background: var(--primary); display: inline-block;">📄 Скачать сводный отчет</a>`;
+                            html += `<a href="/${task.summary_report_path}" target="_blank" class="cta-button" style="background: var(--success); display: inline-block;">📖 Открыть отчет</a>`;
                         }
-                        html += `<button onclick="viewBatchTaskDetails(${task.id})" class="cta-button" style="background: var(--primary); margin-top: 10px; margin-left: 10px;">📋 Детали</button>`;
+                        html += `<button onclick="viewBatchTaskDetails(${task.id})" class="cta-button" style="background: var(--primary); display: inline-block;">📋 Детали</button>`;
+                        html += `</div>`;
                         html += `</div>`;
                     }
                     

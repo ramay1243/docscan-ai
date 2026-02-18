@@ -731,6 +731,7 @@ class BatchProcessingFile(db.Model):
             'filename': self.filename,
             'status': self.status,
             'analysis_result': json.loads(self.analysis_result_json) if self.analysis_result_json else None,
+            'full_report_path': self.full_report_path,  # Путь к полному PDF отчету
             'created_at': self.created_at,
             'processed_at': self.processed_at,
             'error_message': self.error_message

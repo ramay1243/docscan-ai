@@ -2494,15 +2494,26 @@
                     
                     const modalContent = document.createElement('div');
                     modalContent.style.cssText = 'background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; max-width: 90vw;';
-                    modalContent.innerHTML = reportsHtml;
+                    
+                    // Создаем временный контейнер для безопасной вставки HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = reportsHtml;
+                    while (tempDiv.firstChild) {
+                        modalContent.appendChild(tempDiv.firstChild);
+                    }
                     
                     // Создаем кнопку закрытия отдельно, чтобы избежать проблем с экранированием
                     const closeButton = document.createElement('button');
-                    closeButton.innerHTML = '×';
+                    closeButton.textContent = '×';
                     closeButton.style.cssText = 'position: absolute; top: 15px; right: 15px; background: #f44336; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 20px; font-weight: bold; transition: all 0.3s; z-index: 1;';
-                    closeButton.onclick = function() {
-                        modal.remove();
-                    };
+                    closeButton.setAttribute('type', 'button');
+                    closeButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (modal && modal.parentNode) {
+                            modal.remove();
+                        }
+                    });
                     modalContent.appendChild(closeButton);
                     
                     modal.appendChild(modalContent);

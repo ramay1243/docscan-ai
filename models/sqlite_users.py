@@ -781,6 +781,27 @@ class DocumentComparison(db.Model):
             'error_message': self.error_message
         }
 
+class ChatMessage(db.Model):
+    """Таблица для хранения сообщений юридического чата"""
+    __tablename__ = 'chat_messages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    is_legal = db.Column(db.Boolean, default=True)  # Является ли вопрос юридическим
+    created_at = db.Column(db.String(30), nullable=False)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'question': self.question,
+            'answer': self.answer,
+            'is_legal': self.is_legal,
+            'created_at': self.created_at
+        }
+
 class SQLiteUserManager:
     """Новый менеджер для работы с SQLite"""
     

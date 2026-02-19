@@ -10,7 +10,7 @@ from services.file_processing import extract_text_from_file, validate_file
 from services.analysis import analyze_text
 from services.pdf_generator import generate_analysis_pdf
 from services.export_generator import generate_analysis_word, generate_analysis_excel
-from config import PLANS
+from config import PLANS, CHAT_LIMITS
 from flask_cors import cross_origin, CORS
 from io import BytesIO
 
@@ -1672,7 +1672,64 @@ def get_comparison(comparison_id):
 @cross_origin()
 def chat_ask():
     """Обработка вопроса в юридическом чате"""
+    from app import app
+    from config import CHAT_LIMITS
+    from datetime import datetime
+    from models.sqlite_users import db
+    from models.sqlite_users import ChatMessage
+    
     try:
+        # Проверка авторизации
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({
+                'success': False,
+                'error': 'Для использования чата необходимо войти в аккаунт',
+                'login_required': True
+            }), 401
+        
+        # Получаем пользователя
+        user = app.user_manager.get_user(user_id)
+        if not user or not user.is_registered:
+            return jsonify({
+                'success': False,
+                'error': 'Пользователь не найден. Пожалуйста, войдите заново.',
+                'login_required': True
+            }), 401
+        
+        # Проверка тарифа
+        user_plan = user.plan
+        if user_plan not in CHAT_LIMITS:
+            user_plan = 'free'  # Fallback на бесплатный
+        
+        chat_limit = CHAT_LIMITS.get(user_plan, 0)
+        
+        # Бесплатный тариф - чат недоступен
+        if chat_limit == 0:
+            return jsonify({
+                'success': False,
+                'error': 'Юридический чат доступен только для платных тарифов. Обновите тариф для доступа к чату.',
+                'upgrade_required': True
+            }), 403
+        
+        # Подсчитываем вопросы за сегодня
+        today = datetime.now().strftime('%Y-%m-%d')
+        messages_today = ChatMessage.query.filter(
+            ChatMessage.user_id == user_id,
+            ChatMessage.created_at.like(f'{today}%')
+        ).count()
+        
+        # Проверка лимита
+        if messages_today >= chat_limit:
+            return jsonify({
+                'success': False,
+                'error': f'Достигнут дневной лимит ({chat_limit} вопросов). Лимит обновится завтра в 00:00.',
+                'limit_reached': True,
+                'used': messages_today,
+                'limit': chat_limit
+            }), 429
+        
+        # Получаем вопрос
         data = request.json
         question = data.get('question', '').strip()
         
@@ -1694,16 +1751,104 @@ def chat_ask():
                 'error': 'Не удалось получить ответ от ИИ. Попробуйте еще раз.'
             }), 500
         
-        logger.info(f"💬 Чат: получен вопрос, ответ сгенерирован")
+        # Сохраняем вопрос и ответ в БД
+        try:
+            chat_message = ChatMessage(
+                user_id=user_id,
+                question=question,
+                answer=answer,
+                is_legal=True,  # Пока считаем все вопросы юридическими
+                created_at=datetime.now().isoformat()
+            )
+            db.session.add(chat_message)
+            db.session.commit()
+        except Exception as db_error:
+            logger.error(f"❌ Ошибка сохранения сообщения в БД: {db_error}")
+            # Не прерываем выполнение, просто логируем ошибку
+        
+        # Обновляем счетчик
+        messages_today += 1
+        remaining = chat_limit - messages_today
+        
+        logger.info(f"💬 Чат: пользователь {user_id} задал вопрос (использовано {messages_today}/{chat_limit})")
         
         return jsonify({
             'success': True,
-            'answer': answer
+            'answer': answer,
+            'limits': {
+                'used': messages_today,
+                'limit': chat_limit,
+                'remaining': remaining
+            }
         })
         
     except Exception as e:
         logger.error(f"❌ Ошибка в чате: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'error': 'Произошла ошибка при обработке вопроса. Попробуйте еще раз.'
+        }), 500
+
+@api_bp.route('/chat/limits', methods=['GET'])
+@cross_origin()
+def chat_limits():
+    """Получить информацию о лимитах чата для текущего пользователя"""
+    from app import app
+    from config import CHAT_LIMITS
+    from datetime import datetime
+    from models.sqlite_users import db
+    from models.sqlite_users import ChatMessage
+    
+    try:
+        # Проверка авторизации
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({
+                'success': False,
+                'error': 'Для использования чата необходимо войти в аккаунт',
+                'login_required': True
+            }), 401
+        
+        # Получаем пользователя
+        user = app.user_manager.get_user(user_id)
+        if not user or not user.is_registered:
+            return jsonify({
+                'success': False,
+                'error': 'Пользователь не найден',
+                'login_required': True
+            }), 401
+        
+        # Проверка тарифа
+        user_plan = user.plan
+        if user_plan not in CHAT_LIMITS:
+            user_plan = 'free'
+        
+        chat_limit = CHAT_LIMITS.get(user_plan, 0)
+        
+        # Подсчитываем вопросы за сегодня
+        today = datetime.now().strftime('%Y-%m-%d')
+        messages_today = ChatMessage.query.filter(
+            ChatMessage.user_id == user_id,
+            ChatMessage.created_at.like(f'{today}%')
+        ).count()
+        
+        remaining = max(0, chat_limit - messages_today)
+        
+        return jsonify({
+            'success': True,
+            'plan': user_plan,
+            'plan_name': PLANS.get(user_plan, {}).get('name', 'Неизвестный'),
+            'used': messages_today,
+            'limit': chat_limit,
+            'remaining': remaining,
+            'available': chat_limit > 0
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения лимитов чата: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Ошибка получения информации о лимитах'
         }), 500

@@ -114,6 +114,37 @@
             font-weight: 600;
         }
         
+        .login-required {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .login-required h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+        
+        .login-required p {
+            color: var(--gray);
+            margin-bottom: 30px;
+        }
+        
+        .login-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+        }
+        
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -367,7 +398,12 @@
         <div class="chat-container">
             <div class="chat-header">
                 <div class="chat-header-icon">💬</div>
-                <div class="chat-header-title">Юридический чат с ИИ</div>
+                <div style="flex: 1;">
+                    <div class="chat-header-title">Юридический чат с ИИ</div>
+                    <div id="chatLimits" style="font-size: 0.85rem; opacity: 0.9; margin-top: 5px; display: none;">
+                        <span id="limitsText"></span>
+                    </div>
+                </div>
             </div>
             
             <div class="chat-messages" id="chatMessages">
@@ -416,6 +452,80 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendButton = document.getElementById('sendButton');
+        let chatLimits = null;
+        let isAuthenticated = false;
+        
+        // Проверка авторизации при загрузке
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include',
+                    cache: 'no-cache'
+                });
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    isAuthenticated = true;
+                    await loadLimits();
+                } else {
+                    showLoginRequired();
+                }
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
+                showLoginRequired();
+            }
+        }
+        
+        function showLoginRequired() {
+            const chatContainer = document.querySelector('.chat-container');
+            chatContainer.innerHTML = `
+                <div class="login-required">
+                    <h2>🔐 Требуется авторизация</h2>
+                    <p>Для использования юридического чата необходимо войти в аккаунт.</p>
+                    <a href="/login?redirect=/chat" class="login-button">Войти в аккаунт</a>
+                </div>
+            `;
+        }
+        
+        async function loadLimits() {
+            try {
+                const response = await fetch('/api/chat/limits', {
+                    credentials: 'include',
+                    cache: 'no-cache'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    chatLimits = data;
+                    updateLimitsDisplay();
+                    
+                    // Блокируем поле ввода, если лимит достигнут или чат недоступен
+                    if (!data.available || data.remaining === 0) {
+                        chatInput.disabled = true;
+                        chatInput.placeholder = data.available 
+                            ? 'Достигнут дневной лимит. Лимит обновится завтра в 00:00.'
+                            : 'Юридический чат доступен только для платных тарифов.';
+                        sendButton.disabled = true;
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки лимитов:', error);
+            }
+        }
+        
+        function updateLimitsDisplay() {
+            if (!chatLimits || !chatLimits.success) return;
+            
+            const limitsText = document.getElementById('limitsText');
+            const limitsDiv = document.getElementById('chatLimits');
+            
+            if (chatLimits.available) {
+                limitsText.textContent = `${chatLimits.plan_name}: ${chatLimits.used}/${chatLimits.limit} вопросов сегодня (осталось ${chatLimits.remaining})`;
+                limitsDiv.style.display = 'block';
+            } else {
+                limitsDiv.style.display = 'none';
+            }
+        }
         
         // Автоматическое изменение высоты textarea
         chatInput.addEventListener('input', function() {
@@ -527,7 +637,40 @@
                 
                 if (data.success) {
                     addMessage(data.answer, false);
+                    
+                    // Обновляем лимиты
+                    if (data.limits) {
+                        chatLimits = {
+                            success: true,
+                            used: data.limits.used,
+                            limit: data.limits.limit,
+                            remaining: data.limits.remaining,
+                            available: true,
+                            plan_name: chatLimits?.plan_name || 'Тариф'
+                        };
+                        updateLimitsDisplay();
+                        
+                        // Блокируем поле ввода, если лимит достигнут
+                        if (data.limits.remaining === 0) {
+                            chatInput.disabled = true;
+                            chatInput.placeholder = 'Достигнут дневной лимит. Лимит обновится завтра в 00:00.';
+                            sendButton.disabled = true;
+                        }
+                    }
                 } else {
+                    // Проверяем, нужна ли авторизация
+                    if (data.login_required) {
+                        showLoginRequired();
+                        return;
+                    }
+                    
+                    // Проверяем, достигнут ли лимит
+                    if (data.limit_reached) {
+                        chatInput.disabled = true;
+                        chatInput.placeholder = data.error || 'Достигнут дневной лимит.';
+                        sendButton.disabled = true;
+                    }
+                    
                     showError(data.error || 'Произошла ошибка при получении ответа');
                 }
             } catch (error) {
@@ -542,9 +685,13 @@
             }
         }
         
-        // Фокус на поле ввода при загрузке
+        // Проверка авторизации и загрузка лимитов при загрузке
         window.addEventListener('load', () => {
-            chatInput.focus();
+            checkAuth().then(() => {
+                if (isAuthenticated && !chatInput.disabled) {
+                    chatInput.focus();
+                }
+            });
         });
     </script>
 </body>

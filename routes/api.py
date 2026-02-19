@@ -1667,3 +1667,43 @@ def get_comparison(comparison_id):
     except Exception as e:
         logger.error(f"❌ Ошибка получения сравнения: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/chat/ask', methods=['POST'])
+@cross_origin()
+def chat_ask():
+    """Обработка вопроса в юридическом чате"""
+    try:
+        data = request.json
+        question = data.get('question', '').strip()
+        
+        if not question:
+            return jsonify({
+                'success': False,
+                'error': 'Вопрос не может быть пустым'
+            }), 400
+        
+        # Импортируем функцию для работы с Yandex GPT
+        from services.yandex_gpt import ask_yandex_gpt
+        
+        # Получаем ответ от ИИ
+        answer = ask_yandex_gpt(question)
+        
+        if not answer:
+            return jsonify({
+                'success': False,
+                'error': 'Не удалось получить ответ от ИИ. Попробуйте еще раз.'
+            }), 500
+        
+        logger.info(f"💬 Чат: получен вопрос, ответ сгенерирован")
+        
+        return jsonify({
+            'success': True,
+            'answer': answer
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка в чате: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Произошла ошибка при обработке вопроса. Попробуйте еще раз.'
+        }), 500

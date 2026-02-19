@@ -538,6 +538,11 @@ def calculator_penalty():
 @main_bp.route('/mobile-app')
 def mobile_app_page():
     return render_template('mobile_app.html')
+
+@main_bp.route('/chat')
+def chat():
+    """Страница юридического чата с ИИ"""
+    return render_template('chat.html')
     
 @main_bp.route('/telderi5f932e1d02880a7a361463d87d31d143.txt')
 def telderi_verification():

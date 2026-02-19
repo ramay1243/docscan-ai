@@ -129,6 +129,12 @@ def create_app():
     def handle_exception(e):
         """Обработчик всех исключений для API - возвращает JSON"""
         from flask import request, jsonify
+        from werkzeug.exceptions import MethodNotAllowed, HTTPException
+        
+        # Пропускаем HTTP исключения (405, 404, 403 и т.д.) - у них есть свои обработчики
+        if isinstance(e, HTTPException) and e.code != 500:
+            raise e
+        
         if request.path.startswith('/api/'):
             import traceback
             error_trace = traceback.format_exc()
@@ -175,6 +181,90 @@ def create_app():
             return jsonify({'error': 'Forbidden', 'message': str(error)}), 403
         from flask import render_template
         return render_template('403.html'), 403
+    
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        """Обработчик 405 ошибок с фильтрацией сканеров"""
+        from flask import request, jsonify
+        from werkzeug.exceptions import MethodNotAllowed
+        from utils.bot_detector import is_malicious_bot, is_search_bot, should_block_request
+        
+        # Получаем информацию о запросе
+        user_agent = request.headers.get('User-Agent', 'Не определен')
+        method = request.method
+        path = request.path
+        real_ip = app.ip_limit_manager.get_client_ip(request) if hasattr(app, 'ip_limit_manager') else 'Не определен'
+        
+        # WebDAV методы, которые часто используют сканеры
+        webdav_methods = ['PROPFIND', 'OPTIONS', 'MKCOL', 'DELETE', 'PUT', 'MOVE', 'COPY', 'LOCK', 'UNLOCK']
+        is_webdav_method = method in webdav_methods
+        
+        # Проверяем, является ли это известным сканером
+        is_scanner = False
+        scanner_type = None
+        
+        if is_malicious_bot(user_agent):
+            is_scanner = True
+            scanner_type = 'Вредоносный бот'
+        elif should_block_request(user_agent, request_path=path):
+            is_scanner = True
+            scanner_type = 'Заблокированный бот'
+        else:
+            is_bot, bot_type = is_search_bot(user_agent)
+            if is_bot:
+                is_scanner = True
+                scanner_type = f'Поисковый бот ({bot_type})'
+        
+        # Для API запросов возвращаем JSON
+        if path.startswith('/api/'):
+            if is_scanner:
+                # Для сканеров - минимальное логирование (DEBUG)
+                logger.debug(f"🚫 405 от сканера [{scanner_type}]: {method} {path} (IP={real_ip})")
+            else:
+                # Для обычных пользователей - WARNING без traceback
+                logger.warning(f"⚠️ 405 Method Not Allowed: {method} {path} (IP={real_ip}, UA={user_agent[:50]})")
+            return jsonify({'error': 'Method Not Allowed', 'message': f'Method {method} is not allowed for this URL'}), 405
+        
+        # Для обычных запросов
+        if is_scanner:
+            # Для сканеров - минимальное логирование (DEBUG)
+            if is_webdav_method:
+                logger.debug(f"🚫 WebDAV запрос от сканера [{scanner_type}]: {method} {path} (IP={real_ip})")
+            else:
+                logger.debug(f"🚫 405 от сканера [{scanner_type}]: {method} {path} (IP={real_ip})")
+        else:
+            # Для обычных пользователей - WARNING без traceback
+            if is_webdav_method:
+                logger.warning(f"⚠️ WebDAV метод не поддерживается: {method} {path} (IP={real_ip})")
+            else:
+                logger.warning(f"⚠️ 405 Method Not Allowed: {method} {path} (IP={real_ip}, UA={user_agent[:50]})")
+        
+        # Возвращаем стандартный ответ 405
+        if path.startswith('/api/'):
+            return jsonify({'error': 'Method Not Allowed', 'message': f'Method {method} is not allowed for this URL'}), 405
+        else:
+            # Для не-API запросов возвращаем простую HTML страницу
+            return '''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>405 - Метод не разрешен</title>
+                <meta charset="utf-8">
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                    h1 { color: #333; }
+                    p { color: #666; }
+                    a { color: #4361ee; text-decoration: none; }
+                    a:hover { text-decoration: underline; }
+                </style>
+            </head>
+            <body>
+                <h1>405 - Метод не разрешен</h1>
+                <p>Используемый метод HTTP не поддерживается для этого URL.</p>
+                <p><a href="/">Вернуться на главную</a></p>
+            </body>
+            </html>
+            ''', 405
     
     logger.info("🚀 DocScan App инициализирован!")
     return app

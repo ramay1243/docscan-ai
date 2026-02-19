@@ -333,6 +333,49 @@
             border-left: 4px solid var(--danger);
         }
         
+        .upgrade-required {
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed var(--border);
+            border-radius: 15px;
+            margin: 20px 30px;
+        }
+        
+        .upgrade-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .upgrade-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-text {
+            color: var(--gray);
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+        
+        .upgrade-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .upgrade-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+        }
+        
         /* Footer */
         .main-footer {
             background: var(--dark);
@@ -417,7 +460,13 @@
             </div>
             
             <div class="chat-input-container">
-                <div class="chat-input-wrapper">
+                <div id="upgradeRequired" class="upgrade-required" style="display: none;">
+                    <div class="upgrade-icon">🔒</div>
+                    <div class="upgrade-title">Доступно только для платных тарифов</div>
+                    <div class="upgrade-text">Юридический чат с ИИ доступен пользователям с платными тарифами. Обновите тариф, чтобы получить доступ к чату.</div>
+                    <a href="/tariffs" class="upgrade-button">Посмотреть тарифы</a>
+                </div>
+                <div id="chatInputWrapper" class="chat-input-wrapper">
                     <textarea 
                         id="chatInput" 
                         class="chat-input" 
@@ -499,13 +548,20 @@
                     chatLimits = data;
                     updateLimitsDisplay();
                     
-                    // Блокируем поле ввода, если лимит достигнут или чат недоступен
-                    if (!data.available || data.remaining === 0) {
+                    // Показываем сообщение об обновлении тарифа, если чат недоступен
+                    if (!data.available) {
+                        showUpgradeRequired();
+                    } else if (data.remaining === 0) {
+                        // Блокируем поле ввода, если лимит достигнут
+                        hideUpgradeRequired();
                         chatInput.disabled = true;
-                        chatInput.placeholder = data.available 
-                            ? 'Достигнут дневной лимит. Лимит обновится завтра в 00:00.'
-                            : 'Юридический чат доступен только для платных тарифов.';
+                        chatInput.placeholder = 'Достигнут дневной лимит. Лимит обновится завтра в 00:00.';
                         sendButton.disabled = true;
+                    } else {
+                        // Показываем поле ввода, если все в порядке
+                        hideUpgradeRequired();
+                        chatInput.disabled = false;
+                        sendButton.disabled = false;
                     }
                 }
             } catch (error) {
@@ -524,6 +580,26 @@
                 limitsDiv.style.display = 'block';
             } else {
                 limitsDiv.style.display = 'none';
+            }
+        }
+        
+        function showUpgradeRequired() {
+            const upgradeDiv = document.getElementById('upgradeRequired');
+            const inputWrapper = document.getElementById('chatInputWrapper');
+            
+            if (upgradeDiv && inputWrapper) {
+                upgradeDiv.style.display = 'block';
+                inputWrapper.style.display = 'none';
+            }
+        }
+        
+        function hideUpgradeRequired() {
+            const upgradeDiv = document.getElementById('upgradeRequired');
+            const inputWrapper = document.getElementById('chatInputWrapper');
+            
+            if (upgradeDiv && inputWrapper) {
+                upgradeDiv.style.display = 'none';
+                inputWrapper.style.display = 'flex';
             }
         }
         
@@ -666,9 +742,15 @@
                     
                     // Проверяем, достигнут ли лимит
                     if (data.limit_reached) {
+                        hideUpgradeRequired();
                         chatInput.disabled = true;
                         chatInput.placeholder = data.error || 'Достигнут дневной лимит.';
                         sendButton.disabled = true;
+                    }
+                    
+                    // Проверяем, нужен ли платный тариф
+                    if (data.upgrade_required) {
+                        showUpgradeRequired();
                     }
                     
                     showError(data.error || 'Произошла ошибка при получении ответа');

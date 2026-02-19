@@ -15,7 +15,6 @@ MALICIOUS_BOTS = [
     'Palo Alto Networks',
     'Hello from Palo Alto Networks',
     'PR-CY',  # SEO-сканер, создает лишнюю нагрузку
-    'LetsearchBot',  # Поисковый бот, не приносит пользы
     'visionheight.com/scan'  # Сканер с подозрительным User-Agent
 ]
 

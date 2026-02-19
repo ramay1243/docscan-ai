@@ -9,13 +9,16 @@ MALICIOUS_BOTS = [
     'zgrab',
     'GetIntent Crawler',
     'python-requests',
+    'python-httpx',  # Python HTTP клиент, часто используется для сканирования
     'curl',
     'wget',
     'scrapy',
     'Palo Alto Networks',
     'Hello from Palo Alto Networks',
     'PR-CY',  # SEO-сканер, создает лишнюю нагрузку
-    'visionheight.com/scan'  # Сканер с подозрительным User-Agent
+    'visionheight.com/scan',  # Сканер с подозрительным User-Agent
+    'go-http-client',  # Go HTTP клиент, часто используется для сканирования
+    'RecordedFuture'  # Сканер безопасности, собирает информацию о сайтах
 ]
 
 # Список поисковых ботов (белый список - не блокировать)
@@ -73,8 +76,16 @@ def is_malicious_bot(user_agent):
     Returns:
         bool: True если это вредоносный бот, False если нет
     """
-    if not user_agent or user_agent == 'Не определен':
-        return False
+    # Проверяем пустой или подозрительный User-Agent
+    if not user_agent or user_agent == 'Не определен' or user_agent == '-' or user_agent.strip() == '':
+        # Пустой User-Agent часто указывает на бота или скрипт
+        logger.warning(f"🚫 Обнаружен запрос с пустым/подозрительным User-Agent: '{user_agent}'")
+        return True
+    
+    # Проверяем очень короткие User-Agent (менее 5 символов) - подозрительно
+    if len(user_agent.strip()) < 5:
+        logger.warning(f"🚫 Обнаружен запрос с очень коротким User-Agent: '{user_agent}'")
+        return True
     
     user_agent_lower = user_agent.lower()
     
@@ -106,15 +117,12 @@ def is_search_bot(user_agent):
             logger.info(f"🕷️ Обнаружен поисковый бот: {bot_type} ({bot_name})")
             return True, bot_name
     
-    # Проверяем Python-боты (aiohttp, httpx, requests)
-    if 'python' in user_agent_lower and ('aiohttp' in user_agent_lower or 'httpx' in user_agent_lower or 'requests' in user_agent_lower):
+    # Проверяем Python-боты (aiohttp, но не httpx и requests - они теперь блокируются)
+    if 'python' in user_agent_lower and 'aiohttp' in user_agent_lower:
         logger.info(f"🕷️ Обнаружен Python-бот: {user_agent[:50]}...")
         return True, 'Python Bot'
     
-    # Проверяем Go-клиенты
-    if 'go-http-client' in user_agent_lower:
-        logger.info(f"🕷️ Обнаружен Go-бот: {user_agent[:50]}...")
-        return True, 'Go Bot'
+    # Go-клиенты теперь блокируются как вредоносные, поэтому не проверяем здесь
     
     # Проверяем подозрительные паттерны в User-Agent (URL-подобные строки)
     suspicious_patterns = [

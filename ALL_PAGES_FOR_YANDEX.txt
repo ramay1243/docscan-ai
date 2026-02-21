@@ -1,0 +1,77 @@
+ВСЕ СТРАНИЦЫ САЙТА ДЛЯ ПЕРЕОБХОДА В ЯНДЕКСЕ
+============================================
+
+БАЗОВЫЙ URL: https://docscan-ai.ru
+
+СТАТИЧЕСКИЕ СТРАНИЦЫ:
+---------------------
+https://docscan-ai.ru/
+https://docscan-ai.ru/news
+https://docscan-ai.ru/analiz-dokumentov
+https://docscan-ai.ru/proverka-dogovorov
+https://docscan-ai.ru/articles
+https://docscan-ai.ru/questions
+https://docscan-ai.ru/questions/ask
+https://docscan-ai.ru/faq
+https://docscan-ai.ru/calculator-penalty
+https://docscan-ai.ru/mobile-app
+https://docscan-ai.ru/proverka-dokumentov-onlayn
+https://docscan-ai.ru/articles/nalogovaya-proverka
+https://docscan-ai.ru/partners
+https://docscan-ai.ru/tariffs
+https://docscan-ai.ru/contact
+https://docscan-ai.ru/terms
+https://docscan-ai.ru/privacy
+https://docscan-ai.ru/offer
+https://docscan-ai.ru/api
+https://docscan-ai.ru/chat
+
+СТАТЬИ (СТАТИЧЕСКИЕ):
+---------------------
+https://docscan-ai.ru/articles/about
+https://docscan-ai.ru/articles/guide
+https://docscan-ai.ru/articles/tech
+https://docscan-ai.ru/articles/rent
+https://docscan-ai.ru/articles/labor
+https://docscan-ai.ru/articles/tax
+https://docscan-ai.ru/articles/business-protection
+https://docscan-ai.ru/articles/freelance-gph
+https://docscan-ai.ru/articles/ipoteka-2025
+https://docscan-ai.ru/articles/lizing
+https://docscan-ai.ru/articles/strahovanie
+https://docscan-ai.ru/articles/okazanie-uslug
+
+ДОПОЛНИТЕЛЬНЫЕ СТРАНИЦЫ:
+-------------------------
+https://docscan-ai.ru/riski-dogovora-zayma
+https://docscan-ai.ru/avtokredit-skrytye-usloviya
+https://docscan-ai.ru/ii-dlya-proverki-dogovorov-onlayn-besplatno
+https://docscan-ai.ru/medicinskie-dokumenty-analiz
+
+ПРИМЕЧАНИЕ:
+-----------
+Динамические страницы (статьи из БД, новости из БД, вопросы из БД) 
+нужно получить отдельно из базы данных или использовать sitemap.xml:
+
+https://docscan-ai.ru/sitemap.xml
+
+Для получения динамических страниц:
+- Статьи: https://docscan-ai.ru/articles/<slug> (где slug из таблицы articles)
+- Новости: https://docscan-ai.ru/news/<slug> (где slug из таблицы full_news)
+- Вопросы: https://docscan-ai.ru/questions/<id> (где id из таблицы questions)
+
+ИНСТРУКЦИЯ ДЛЯ ЯНДЕКСА:
+-----------------------
+1. Перейдите в Яндекс.Вебмастер: https://webmaster.yandex.ru
+2. Выберите ваш сайт
+3. Раздел "Индексирование" -> "Переобход страниц"
+4. Скопируйте все URL выше и вставьте в поле
+5. Нажмите "Добавить" и "Отправить на переобход"
+
+АЛЬТЕРНАТИВНЫЙ СПОСОБ:
+---------------------
+Можно просто отправить sitemap.xml на переобход:
+1. В Яндекс.Вебмастер: "Индексирование" -> "Файлы Sitemap"
+2. Добавьте: https://docscan-ai.ru/sitemap.xml
+3. Яндекс автоматически переобойдет все страницы из sitemap
+

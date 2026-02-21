@@ -913,6 +913,73 @@
     })
     </script>
     
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    [
+        {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Новости и обновления DocScan AI",
+            "description": "Следите за последними изменениями на сайте, новыми функциями, статьями и полезной информацией. Новости и обновления сервиса проверки документов с ИИ.",
+            "url": "https://docscan-ai.ru/news",
+            "mainEntity": {
+                "@type": "ItemList",
+                "numberOfItems": {{ (updates|length if updates else 0) + (news_items|length if news_items else 0) }},
+                "itemListElement": [
+                    {% if updates and updates|length > 0 %}
+                    {% for item in updates %}
+                    {
+                        "@type": "ListItem",
+                        "position": {{ loop.index }},
+                        "item": {
+                            "@type": "NewsArticle",
+                            "headline": "{{ item.title|e }}",
+                            "description": "{{ item.description|e|replace('"', '\\"')|replace('\n', ' ') }}",
+                            "datePublished": "{{ item.date }}",
+                            "url": "{% if item.link %}{{ item.link }}{% else %}https://docscan-ai.ru/news{% endif %}"
+                        }
+                    }{% if not loop.last or (news_items and news_items|length > 0) %},{% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% if news_items and news_items|length > 0 %}
+                    {% for item in news_items %}
+                    {
+                        "@type": "ListItem",
+                        "position": {{ (updates|length if updates else 0) + loop.index }},
+                        "item": {
+                            "@type": "NewsArticle",
+                            "headline": "{{ item.title|e }}",
+                            "description": "{{ item.description|e|replace('"', '\\"')|replace('\n', ' ') }}",
+                            "datePublished": "{{ item.date }}",
+                            "url": "{% if item.link %}{{ item.link }}{% else %}https://docscan-ai.ru/news{% endif %}"
+                        }
+                    }{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                    {% endif %}
+                ]
+            }
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Главная",
+                    "item": "https://docscan-ai.ru"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Новости",
+                    "item": "https://docscan-ai.ru/news"
+                }
+            ]
+        }
+    ]
+    </script>
+    
     <!-- Yandex.Metrika -->
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){

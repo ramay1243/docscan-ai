@@ -471,7 +471,13 @@
                 <h1 style="color: var(--dark); margin-bottom: 30px; font-size: 2rem;">Личный кабинет</h1>
                 
                 <!-- Plan Expiry Indicator -->
-                {% if user.plan != 'free' and available_analyses is not none and available_analyses > 0 %}
+                {% if user.plan != 'free' and available_analyses is not none and available_analyses == -1 %}
+                    <div class="plan-expiry-card success">
+                        <div class="plan-expiry-title">Доступно анализов</div>
+                        <div class="plan-expiry-days" style="font-size: 2.5rem; font-weight: 700; color: var(--success);">∞ Безлимит</div>
+                        <div class="plan-expiry-date" style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">Неограниченное количество анализов</div>
+                    </div>
+                {% elif user.plan != 'free' and available_analyses is not none and available_analyses > 0 %}
                     <div class="plan-expiry-card {% if available_analyses > 20 %}success{% elif available_analyses > 5 %}warning{% else %}danger{% endif %}">
                         <div class="plan-expiry-title">Доступно анализов</div>
                         <div class="plan-expiry-days">{{ available_analyses }} {% if available_analyses == 1 %}анализ{% elif available_analyses < 5 %}анализа{% else %}анализов{% endif %}</div>
@@ -510,7 +516,11 @@
                     </div>
                     {% else %}
                     <div class="stat-card">
+                        {% if user.available_analyses == -1 %}
+                        <div class="stat-number" style="color: var(--success); font-size: 1.8rem;">∞ Безлимит</div>
+                        {% else %}
                         <div class="stat-number">{{ user.available_analyses or 0 }}</div>
+                        {% endif %}
                         <div class="stat-label">Доступно анализов</div>
                     </div>
                     {% endif %}

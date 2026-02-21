@@ -560,6 +560,11 @@
             
             {% if is_author %}
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                {% if question.status != 'solved' %}
+                <button onclick="markQuestionSolved()" style="background: #48bb78; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 10px;">✅ Отметить решенным</button>
+                {% else %}
+                <button onclick="markQuestionOpen()" style="background: #ed8936; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 10px;">🔄 Открыть вопрос</button>
+                {% endif %}
                 <button onclick="editQuestion()" style="background: #4299e1; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 10px;">✏️ Редактировать</button>
                 <button onclick="deleteQuestion()" style="background: #f56565; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">🗑️ Удалить</button>
             </div>
@@ -901,6 +906,56 @@
                     },
                     credentials: 'include',
                     body: JSON.stringify({ answer_id: answerId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error);
+            }
+        }
+        
+        // Отметить вопрос как решенный
+        async function markQuestionSolved() {
+            if (!confirm('Отметить этот вопрос как решенный?')) return;
+            
+            try {
+                const response = await fetch('/api/questions/' + questionId + '/mark-solved', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error);
+            }
+        }
+        
+        // Вернуть вопрос в статус открытого
+        async function markQuestionOpen() {
+            if (!confirm('Вернуть вопрос в статус открытого?')) return;
+            
+            try {
+                const response = await fetch('/api/questions/' + questionId + '/mark-open', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
                 });
                 
                 const result = await response.json();

@@ -2156,12 +2156,49 @@ DocScan AI
         
         answer.is_best = True
         question.best_answer_id = answer_id
-        question.status = 'solved'
+        # НЕ меняем статус вопроса на 'solved' - это отдельное действие
         question.updated_at = datetime.now().isoformat()
         
         self.db.session.commit()
         
         logger.info(f"⭐ Установлен лучший ответ ID: {answer_id} для вопроса ID: {question_id}")
+        return True
+    
+    def mark_question_solved(self, question_id, user_id):
+        """Отмечает вопрос как решенный (только автор вопроса может)"""
+        from models.sqlite_users import Question
+        
+        question = Question.query.filter_by(id=question_id).first()
+        if not question or question.user_id != user_id:
+            return False
+        
+        question.status = 'solved'
+        question.updated_at = datetime.now().isoformat()
+        
+        self.db.session.commit()
+        
+        logger.info(f"✅ Вопрос ID: {question_id} отмечен как решенный пользователем {user_id}")
+        return True
+    
+    def mark_question_open(self, question_id, user_id):
+        """Возвращает вопрос в статус 'open' или 'answered' (только автор вопроса может)"""
+        from models.sqlite_users import Question
+        
+        question = Question.query.filter_by(id=question_id).first()
+        if not question or question.user_id != user_id:
+            return False
+        
+        # Если есть ответы, ставим статус 'answered', иначе 'open'
+        if question.answers_count and question.answers_count > 0:
+            question.status = 'answered'
+        else:
+            question.status = 'open'
+        
+        question.updated_at = datetime.now().isoformat()
+        
+        self.db.session.commit()
+        
+        logger.info(f"🔄 Вопрос ID: {question_id} возвращен в статус '{question.status}' пользователем {user_id}")
         return True
     
     def toggle_answer_like(self, answer_id, user_id):

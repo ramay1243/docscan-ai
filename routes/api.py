@@ -892,6 +892,52 @@ def set_best_answer(question_id):
         logger.error(f"❌ Ошибка установки лучшего ответа: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@api_bp.route('/questions/<int:question_id>/mark-solved', methods=['POST'])
+@cross_origin(supports_credentials=True)
+def mark_question_solved(question_id):
+    """Отметить вопрос как решенный"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success = app.user_manager.mark_question_solved(
+            question_id=question_id,
+            user_id=session['user_id']
+        )
+        
+        if success:
+            return jsonify({'success': True, 'message': 'Вопрос отмечен как решенный'})
+        else:
+            return jsonify({'success': False, 'error': 'Недостаточно прав или вопрос не найден'}), 403
+    except Exception as e:
+        logger.error(f"❌ Ошибка отметки вопроса как решенного: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@api_bp.route('/questions/<int:question_id>/mark-open', methods=['POST'])
+@cross_origin(supports_credentials=True)
+def mark_question_open(question_id):
+    """Вернуть вопрос в статус открытого"""
+    from app import app
+    
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'error': 'Требуется авторизация'}), 401
+    
+    try:
+        success = app.user_manager.mark_question_open(
+            question_id=question_id,
+            user_id=session['user_id']
+        )
+        
+        if success:
+            return jsonify({'success': True, 'message': 'Вопрос возвращен в статус открытого'})
+        else:
+            return jsonify({'success': False, 'error': 'Недостаточно прав или вопрос не найден'}), 403
+    except Exception as e:
+        logger.error(f"❌ Ошибка возврата вопроса в статус открытого: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @api_bp.route('/questions/<int:question_id>', methods=['PUT'])
 def update_question():
     """Обновить вопрос"""

@@ -462,8 +462,8 @@
             <div class="chat-input-container">
                 <div id="upgradeRequired" class="upgrade-required" style="display: none;">
                     <div class="upgrade-icon">🔒</div>
-                    <div class="upgrade-title">Доступно только для платных тарифов</div>
-                    <div class="upgrade-text">Юридический чат с ИИ доступен пользователям с платными тарифами. Обновите тариф, чтобы получить доступ к чату.</div>
+                    <div class="upgrade-title" id="upgradeTitle">Доступно только для платных тарифов</div>
+                    <div class="upgrade-text" id="upgradeText">Юридический чат с ИИ доступен пользователям с платными тарифами. Обновите тариф, чтобы получить доступ к чату.</div>
                     <a href="/tariffs" class="upgrade-button">Посмотреть тарифы</a>
                 </div>
                 <div id="chatInputWrapper" class="chat-input-wrapper">
@@ -548,11 +548,14 @@
                     chatLimits = data;
                     updateLimitsDisplay();
                     
-                    // Показываем сообщение об обновлении тарифа, если чат недоступен
+                    // Показываем сообщение об обновлении тарифа, если чат недоступен или для free после использования
                     if (!data.available) {
-                        showUpgradeRequired();
-                    } else if (data.remaining === 0) {
-                        // Блокируем поле ввода, если лимит достигнут
+                        showUpgradeRequired(false);
+                    } else if (data.plan === 'free' && data.used >= data.limit) {
+                        // Для бесплатного тарифа после использования 1 вопроса - показываем предложение купить тариф
+                        showUpgradeRequired(true);
+                    } else if (data.remaining === 0 && data.plan !== 'free') {
+                        // Блокируем поле ввода, если лимит достигнут (для платных тарифов)
                         hideUpgradeRequired();
                         chatInput.disabled = true;
                         chatInput.placeholder = 'Достигнут дневной лимит. Лимит обновится завтра в 00:00.';
@@ -583,11 +586,22 @@
             }
         }
         
-        function showUpgradeRequired() {
+        function showUpgradeRequired(isFreeUsed = false) {
             const upgradeDiv = document.getElementById('upgradeRequired');
             const inputWrapper = document.getElementById('chatInputWrapper');
+            const upgradeTitle = document.getElementById('upgradeTitle');
+            const upgradeText = document.getElementById('upgradeText');
             
             if (upgradeDiv && inputWrapper) {
+                // Если это бесплатный тариф после использования 1 вопроса
+                if (isFreeUsed || (chatLimits && chatLimits.plan === 'free' && chatLimits.used >= chatLimits.limit)) {
+                    upgradeTitle.textContent = 'Вы использовали 1 бесплатный вопрос';
+                    upgradeText.textContent = 'Для продолжения обновите тариф. Платные тарифы дают больше вопросов в день.';
+                } else {
+                    upgradeTitle.textContent = 'Доступно только для платных тарифов';
+                    upgradeText.textContent = 'Юридический чат с ИИ доступен пользователям с платными тарифами. Обновите тариф, чтобы получить доступ к чату.';
+                }
+                
                 upgradeDiv.style.display = 'block';
                 inputWrapper.style.display = 'none';
             }
@@ -742,15 +756,16 @@
                     
                     // Проверяем, достигнут ли лимит
                     if (data.limit_reached) {
+                        // Для платных тарифов - блокируем поле ввода
                         hideUpgradeRequired();
                         chatInput.disabled = true;
                         chatInput.placeholder = data.error || 'Достигнут дневной лимит.';
                         sendButton.disabled = true;
                     }
                     
-                    // Проверяем, нужен ли платный тариф
+                    // Проверяем, нужен ли платный тариф (для free после использования 1 вопроса)
                     if (data.upgrade_required) {
-                        showUpgradeRequired();
+                        showUpgradeRequired(true);
                     }
                     
                     showError(data.error || 'Произошла ошибка при получении ответа');

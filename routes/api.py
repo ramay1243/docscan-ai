@@ -1702,15 +1702,7 @@ def chat_ask():
         if user_plan not in CHAT_LIMITS:
             user_plan = 'free'  # Fallback на бесплатный
         
-        chat_limit = CHAT_LIMITS.get(user_plan, 0)
-        
-        # Бесплатный тариф - чат недоступен
-        if chat_limit == 0:
-            return jsonify({
-                'success': False,
-                'error': 'Юридический чат доступен только для платных тарифов. Обновите тариф для доступа к чату.',
-                'upgrade_required': True
-            }), 403
+        chat_limit = CHAT_LIMITS.get(user_plan, 1)  # По умолчанию 1 для free
         
         # Подсчитываем вопросы за сегодня
         today = datetime.now().strftime('%Y-%m-%d')

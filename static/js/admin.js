@@ -285,6 +285,11 @@
         if (typeof loadArticles === 'function') window.loadArticles = loadArticles;
         if (typeof showCalculatorStats === 'function') window.showCalculatorStats = showCalculatorStats;
         if (typeof setUserPlan === 'function') window.setUserPlan = setUserPlan;
+        if (typeof setUserPlanQuick === 'function') window.setUserPlanQuick = setUserPlanQuick;
+        if (typeof disableUserPlan === 'function') window.disableUserPlan = disableUserPlan;
+        if (typeof getPlanName === 'function') window.getPlanName = getPlanName;
+        if (typeof getPlanLimit === 'function') window.getPlanLimit = getPlanLimit;
+        if (typeof isPaidPlan === 'function') window.isPaidPlan = isPaidPlan;
         if (typeof createUser === 'function') window.createUser = createUser;
         if (typeof searchUsers === 'function') window.searchUsers = searchUsers;
         if (typeof clearSearch === 'function') window.clearSearch = clearSearch;
@@ -1799,9 +1804,10 @@
                             <td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td>
                             <td style="padding: 10px;">${planExpires}</td>
                             <td style="padding: 10px;">${user.total_used || 0}</td>
-                            <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}/${getPlanLimit(user.plan || 'free')}</td>
+                            <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}/${getPlanLimit(user.plan || 'free') === -1 ? '∞' : getPlanLimit(user.plan || 'free')}</td>
                             <td style="padding: 10px;">
-                                <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="basic" style="font-size: 0.85rem; padding: 5px 10px;">Базовый</button>
+                                ${isPaidPlan(user.plan) ? `<button class="disable-plan-btn" data-user-id="${user.userId || ''}" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">🔒 Отключить тариф</button>` : ''}
+                                <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="standard" style="font-size: 0.85rem; padding: 5px 10px; margin-right: 5px;">Стандарт</button>
                                 <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="premium" style="font-size: 0.85rem; padding: 5px 10px;">Премиум</button>
                             </td>
                         </tr>
@@ -1820,6 +1826,16 @@
                         }
                     });
                 });
+                
+                // Привязываем обработчики для кнопок отключения тарифа
+                document.querySelectorAll('.disable-plan-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-user-id');
+                        if (userId && typeof disableUserPlan === 'function') {
+                            disableUserPlan(userId);
+                        }
+                    });
+                });
             });
     }
     // Регистрируем loadUsers глобально сразу после определения
@@ -1829,13 +1845,33 @@
     }
 
     function getPlanName(plan) {
-        const names = {free: 'Бесплатный', basic: 'Базовый', premium: 'Премиум'};
+        const names = {
+            free: 'Бесплатный',
+            standard: 'Стандарт',
+            premium: 'Премиум',
+            business_start: 'Бизнес Старт',
+            business_pro: 'Бизнес Про',
+            business_max: 'Бизнес Макс',
+            business_unlimited: 'Бизнес Безлимит'
+        };
         return names[plan] || plan;
     }
     
     function getPlanLimit(plan) {
-        const limits = {free: 1, basic: 10, premium: 30};
+        const limits = {
+            free: 1,
+            standard: 5,
+            premium: 15,
+            business_start: 10,
+            business_pro: 50,
+            business_max: 100,
+            business_unlimited: -1
+        };
         return limits[plan] || 0;
+    }
+    
+    function isPaidPlan(plan) {
+        return plan && plan !== 'free';
     }
 
     function setUserPlan() {
@@ -1876,6 +1912,40 @@
             } else if (typeof loadStats === 'function') {
                 loadStats();
             }
+        });
+    }
+    
+    function disableUserPlan(userId) {
+        if (!confirm('Вернуть пользователя на бесплатный тариф? Это действие нельзя отменить.')) {
+            return;
+        }
+        
+        fetch('/admin/set-plan', {
+            credentials: 'include',
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({user_id: userId, plan: 'free'})
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                alert('✅ Тариф успешно отключен. Пользователь возвращен на бесплатный тариф.');
+            } else {
+                alert('❌ Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+            }
+            if (typeof window.loadUsers === 'function') {
+                window.loadUsers();
+            } else if (typeof loadUsers === 'function') {
+                loadUsers();
+            }
+            if (typeof window.loadStats === 'function') {
+                window.loadStats();
+            } else if (typeof loadStats === 'function') {
+                loadStats();
+            }
+        })
+        .catch(err => {
+            alert('❌ Ошибка соединения: ' + err.message);
         });
     }
 

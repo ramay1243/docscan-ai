@@ -548,6 +548,11 @@ def chat():
 def telderi_verification():
     return "Telderi", 200, {'Content-Type': 'text/plain; charset=utf-8'}
     
+@main_bp.route('/binetex-9208.txt')
+def binetex_verification():
+    """Файл подтверждения для биржи Binetex"""
+    return "binetex-9208.txt", 200, {'Content-Type': 'text/plain; charset=utf-8'}
+    
 @main_bp.route('/send-telegram', methods=['POST'])
 def send_telegram():
     """Отправка сообщения в Telegram"""

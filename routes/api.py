@@ -193,23 +193,23 @@ def analyze_document():
                     'login_required': True
                 }), 401
             
-# ✅ НОВАЯ ЛОГИКА: бесплатный тариф = нет анализов, только покупка
-    if user.plan == 'free':
-        # Для бесплатного тарифа - сразу на покупку (никаких бесплатных анализов)
-        return jsonify({
-            'success': False,
-            'error': '❌ Для продолжения работы необходимо приобрести тариф. Бесплатные анализы после регистрации не предоставляются.',
-            'upgrade_required': True
-        }), 402
-    
-    # Проверяем лимиты для платных тарифов
-    if not app.user_manager.can_analyze(user_id):
-        # Для платных тарифов - закончились анализы
-        return jsonify({
-            'success': False,
-            'error': f'❌ Анализы закончились! Доступно: {user.available_analyses or 0} анализов.',
-            'upgrade_required': True
-        }), 402
+            # Проверяем лимиты тарифа
+            if not app.user_manager.can_analyze(user_id):
+                plan = PLANS[user.plan]
+                if user.plan == 'free':
+                    # Для бесплатного тарифа - один анализ навсегда
+                    return jsonify({
+                        'success': False,
+                        'error': '❌ Бесплатный анализ уже использован! Приобретите тариф для продолжения работы.',
+                        'upgrade_required': True
+                    }), 402
+                else:
+                    # Для платных тарифов - закончились анализы
+                    return jsonify({
+                        'success': False,
+                        'error': f'❌ Анализы закончились! Доступно: {user.available_analyses or 0} анализов.',
+                        'upgrade_required': True
+                    }), 402
             
         else:
             # ========== НЕЗАРЕГИСТРИРОВАННЫЙ ПОЛЬЗОВАТЕЛЬ (ГОСТЬ) ==========

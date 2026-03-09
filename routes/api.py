@@ -193,23 +193,22 @@ def analyze_document():
                     'login_required': True
                 }), 401
             
-            # Проверяем лимиты тарифа
+            # ========== ИЗМЕНЕННАЯ ЛОГИКА ==========
+            # Если тариф бесплатный - сразу на покупку (без бесплатных анализов)
+            if user.plan == 'free':
+                return jsonify({
+                    'success': False,
+                    'error': '❌ Для продолжения работы необходимо приобрести тариф. Бесплатные анализы после регистрации не предоставляются.',
+                    'upgrade_required': True
+                }), 402
+            
+            # Для платных тарифов - проверяем лимиты
             if not app.user_manager.can_analyze(user_id):
-                plan = PLANS[user.plan]
-                if user.plan == 'free':
-                    # Для бесплатного тарифа - один анализ навсегда
-                    return jsonify({
-                        'success': False,
-                        'error': '❌ Бесплатный анализ уже использован! Приобретите тариф для продолжения работы.',
-                        'upgrade_required': True
-                    }), 402
-                else:
-                    # Для платных тарифов - закончились анализы
-                    return jsonify({
-                        'success': False,
-                        'error': f'❌ Анализы закончились! Доступно: {user.available_analyses or 0} анализов.',
-                        'upgrade_required': True
-                    }), 402
+                return jsonify({
+                    'success': False,
+                    'error': f'❌ Анализы закончились! Доступно: {user.available_analyses or 0} анализов.',
+                    'upgrade_required': True
+                }), 402
             
         else:
             # ========== НЕЗАРЕГИСТРИРОВАННЫЙ ПОЛЬЗОВАТЕЛЬ (ГОСТЬ) ==========
@@ -327,15 +326,16 @@ def analyze_document():
             user = app.user_manager.get_user(user_id)
             plan = PLANS[user.plan] if user else PLANS['free']
             
-            # Для бесплатного тарифа используем free_analysis_used (один анализ навсегда)
+            # Для бесплатного тарифа используем free_analysis_used (но теперь он всегда 0 после регистрации)
             if user and user.plan == 'free':
-                remaining = 0 if user.free_analysis_used else 1
+                remaining = 0
                 analysis_result['usage_info'] = {
-                    'free_analysis_used': user.free_analysis_used,
+                    'free_analysis_used': True,
                     'remaining': remaining,
                     'plan_name': plan['name'],
                     'is_registered': True,
-                    'available_analyses': 0
+                    'available_analyses': 0,
+                    'upgrade_required': True
                 }
             else:
                 # Для платных тарифов используем available_analyses
@@ -423,18 +423,18 @@ def get_usage():
     
     plan = PLANS[user.plan]
     
-    # Для бесплатного тарифа используем free_analysis_used (один анализ навсегда)
+    # Для бесплатного тарифа - анализов нет
     if user.plan == 'free':
-        remaining = 0 if user.free_analysis_used else 1
         return jsonify({
             'user_id': user_id,
             'plan': user.plan,
             'plan_name': plan['name'],
-            'free_analysis_used': user.free_analysis_used,
-            'remaining': remaining,
+            'free_analysis_used': True,
+            'remaining': 0,
             'total_used': user.total_used,
             'is_registered': True,
-            'available_analyses': 0
+            'available_analyses': 0,
+            'upgrade_required': True
         })
     else:
         # Для платных тарифов используем available_analyses
@@ -939,7 +939,7 @@ def mark_question_open(question_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @api_bp.route('/questions/<int:question_id>', methods=['PUT'])
-def update_question():
+def update_question(question_id):
     """Обновить вопрос"""
     from app import app
     
@@ -964,7 +964,7 @@ def update_question():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @api_bp.route('/questions/<int:question_id>', methods=['DELETE'])
-def delete_question():
+def delete_question(question_id):
     """Удалить вопрос"""
     from app import app
     

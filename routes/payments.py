@@ -209,3 +209,166 @@ def yoomoney_test_webhook():
     logger.info(f"📨 Form data: {request.form}")
     
     return jsonify({'success': True, 'message': 'Тестовый webhook получен'})
+
+# ============================================================
+# НОВЫЙ КОД ДЛЯ ЮKASSA (ДОБАВЛЕН В КОНЕЦ ФАЙЛА)
+# ============================================================
+
+import os
+from config import Config
+
+# Конфигурация ЮKassa
+YUKASSA_CONFIG = {
+    'shop_id': Config.YOOMONEY_CLIENT_ID or os.getenv('YUKASSA_SHOP_ID', ''),
+    'secret_key': Config.YOOMONEY_CLIENT_SECRET or os.getenv('YUKASSA_SECRET_KEY', ''),
+    'enabled': False
+}
+
+# Если ключи есть - включаем ЮKassa
+if YUKASSA_CONFIG['shop_id'] and YUKASSA_CONFIG['secret_key']:
+    YUKASSA_CONFIG['enabled'] = True
+    logger.info("✅ ЮKassa настроена и готова к работе")
+else:
+    logger.info("ℹ️ ЮKassa не настроена (ключи не найдены), используется только ЮMoney")
+
+@payments_bp.route('/create-yukassa-payment', methods=['POST'])
+def create_yukassa_payment():
+    """Создание платежа через ЮKassa (НОВЫЙ ЭНДПОИНТ)"""
+    from flask import session
+    import requests
+    import base64
+    import uuid
+    
+    try:
+        data = request.json
+        plan_type = data.get('plan')
+        
+        # Получаем user_id из сессии
+        user_id = session.get('user_id')
+        
+        if not user_id:
+            user_id = data.get('user_id')
+        
+        if not user_id or plan_type not in PLANS:
+            return jsonify({'success': False, 'error': 'Неверные данные. Необходимо войти в аккаунт.'})
+        
+        # Проверяем что ЮKassa включена
+        if not YUKASSA_CONFIG['enabled']:
+            return jsonify({
+                'success': False, 
+                'error': 'ЮKassa временно недоступна'
+            })
+        
+        plan = PLANS[plan_type]
+        
+        # Уникальный номер заказа
+        order_id = f"{user_id}_{plan_type}_{uuid.uuid4().hex[:8]}"
+        
+        # Сумма в копейках
+        amount = int(plan['price'] * 100)
+        
+        # Данные для авторизации (Basic Auth)
+        auth = base64.b64encode(
+            f"{YUKASSA_CONFIG['shop_id']}:{YUKASSA_CONFIG['secret_key']}".encode()
+        ).decode()
+        
+        # Запрос к API ЮKassa
+        response = requests.post(
+            'https://api.yookassa.ru/v3/payments',
+            headers={
+                'Authorization': f'Basic {auth}',
+                'Content-Type': 'application/json',
+                'Idempotence-Key': uuid.uuid4().hex
+            },
+            json={
+                'amount': {
+                    'value': str(plan['price']),
+                    'currency': 'RUB'
+                },
+                'confirmation': {
+                    'type': 'redirect',
+                    'return_url': 'https://docscan-ai.ru/payments/success'
+                },
+                'capture': True,
+                'description': f'Тариф {plan["name"]} для {user_id}',
+                'metadata': {
+                    'user_id': user_id,
+                    'plan_type': plan_type
+                }
+            },
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            payment_data = response.json()
+            logger.info(f"💰 Создан платеж ЮKassa для {user_id}: {plan['name']}")
+            
+            return jsonify({
+                'success': True,
+                'payment_url': payment_data['confirmation']['confirmation_url'],
+                'payment_id': payment_data['id'],
+                'method': 'yukassa',
+                'message': f'Оплата тарифа {plan["name"]} через ЮKassa'
+            })
+        else:
+            logger.error(f"❌ Ошибка ЮKassa API: {response.text}")
+            return jsonify({
+                'success': False,
+                'error': 'Ошибка платежной системы'
+            })
+            
+    except Exception as e:
+        logger.error(f"❌ Ошибка при создании платежа ЮKassa: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@payments_bp.route('/yukassa-webhook', methods=['POST'])
+def yukassa_webhook():
+    """Webhook для уведомлений от ЮKassa (НОВЫЙ ЭНДПОИНТ)"""
+    try:
+        # Получаем данные от ЮKassa
+        data = request.json
+        logger.info(f"🔄 Webhook ЮKassa: {json.dumps(data, ensure_ascii=False)}")
+        
+        # Проверяем событие
+        if data.get('event') == 'payment.succeeded':
+            # Получаем метаданные
+            metadata = data.get('object', {}).get('metadata', {})
+            user_id = metadata.get('user_id')
+            plan_type = metadata.get('plan_type')
+            amount = data.get('object', {}).get('amount', {}).get('value')
+            
+            if user_id and plan_type:
+                # Сохраняем платеж в БД
+                try:
+                    from models.sqlite_users import Payment, db
+                    
+                    payment = Payment(
+                        user_id=user_id,
+                        email=None,
+                        plan_type=plan_type,
+                        amount=float(amount) if amount else 0,
+                        currency='RUB',
+                        provider='yukassa',
+                        status='success',
+                        operation_id=data.get('object', {}).get('id'),
+                        label=f"{user_id}_{plan_type}",
+                        created_at=datetime.now().isoformat(),
+                        raw_data=json.dumps(data)
+                    )
+                    db.session.add(payment)
+                    db.session.commit()
+                    logger.info(f"💰 Платеж ЮKassa сохранен в БД: {user_id}")
+                    
+                    # Активируем тариф (используем существующую функцию)
+                    activate_plan(user_id, plan_type)
+                    
+                except Exception as e:
+                    logger.error(f"❌ Ошибка сохранения платежа: {e}")
+                
+                return jsonify({'success': True})
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка webhook ЮKassa: {e}")
+        return jsonify({'success': False, 'error': str(e)})

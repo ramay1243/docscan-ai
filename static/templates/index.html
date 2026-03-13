@@ -1705,7 +1705,9 @@
                     <li>✅ Детальные рекомендации</li>
                     <li>✅ PDF, DOCX, TXT, RTF, PNG, JPG, TIFF</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('standard')">Купить за 590₽</button>
+                <button class="cta-button" onclick="openPaymentModal('standard', 'Стандарт', 590)">
+    Выбрать способ оплаты
+</button>
             </div>
             
             <div class="pricing-card featured">
@@ -1723,7 +1725,9 @@
                     <li>✅ Приоритетная обработка</li>
                     <li>✅ PDF, DOCX, TXT, RTF, PNG, JPG, TIFF</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('premium')" style="background: white; color: var(--primary);">Купить за 1 350₽</button>
+                <button class="cta-button" onclick="openPaymentModal('premium', 'Премиум', 1350)" style="background: white; color: var(--primary);">
+    Выбрать способ оплаты
+</button>
             </div>
         </div>
         
@@ -1743,7 +1747,9 @@
                     <li>✅ API доступ (1 ключ)</li>
                     <li>✅ Стандартная поддержка</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('business_start')">Купить за 1 425₽/мес</button>
+                <button class="cta-button" onclick="openPaymentModal('business_start', 'Бизнес Старт', 1425)">
+    Выбрать способ оплаты
+</button>
             </div>
             
             <div class="pricing-card">
@@ -1760,7 +1766,9 @@
                     <li>✅ API доступ (до 3 ключей)</li>
                     <li>✅ Приоритетная поддержка</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('business_pro')">Купить за 4 500₽/мес</button>
+                <button class="cta-button" onclick="openPaymentModal('business_pro', 'Бизнес Про', 4500)">
+    Выбрать способ оплаты
+</button>
             </div>
             
             <div class="pricing-card">
@@ -1777,7 +1785,9 @@
                     <li>✅ API доступ (до 5 ключей)</li>
                     <li>✅ Расширенная поддержка</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('business_max')">Купить за 13 500₽/мес</button>
+                <button class="cta-button" onclick="openPaymentModal('business_max', 'Бизнес Макс', 13500)">
+    Выбрать способ оплаты
+</button>
             </div>
             
             <div class="pricing-card featured">
@@ -1794,7 +1804,9 @@
                     <li>✅ API доступ (безлимитные ключи)</li>
                     <li>✅ Персональный менеджер</li>
                 </ul>
-                <button class="cta-button" onclick="buyPlan('business_unlimited')" style="background: white; color: var(--primary);">Купить за 26 400₽/мес</button>
+                <button class="cta-button" onclick="openPaymentModal('business_unlimited', 'Бизнес Безлимит', 26400)" style="background: white; color: var(--primary);">
+    Выбрать способ оплаты
+</button>
             </div>
         </div>
     </section>
@@ -3284,7 +3296,140 @@ ym(105562312, 'init', {clickmap:true, trackLinks:true, accurateTrackBounce:true,
                 closeSupportWidget();
             }
         });
+
+        // ========== НОВЫЕ ФУНКЦИИ ДЛЯ ОПЛАТЫ ==========
+        let currentPlanType = null;
+        let currentPlanName = '';
+        let currentPlanPrice = 0;
+
+        function openPaymentModal(planType, planName, price) {
+            currentPlanType = planType;
+            currentPlanName = planName;
+            currentPlanPrice = price;
+            
+            document.getElementById('modalPlanName').textContent = planName;
+            document.getElementById('modalPlanPrice').textContent = price + '₽';
+            
+            const modal = document.getElementById('paymentModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            document.getElementById('modalStatus').style.display = 'none';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        async function processPayment(method) {
+            const statusDiv = document.getElementById('modalStatus');
+            statusDiv.style.display = 'none';
+            
+            try {
+                const authResponse = await fetch('/api/check-auth', {
+                    credentials: 'include',
+                    cache: 'no-cache'
+                });
+                
+                const authData = await authResponse.json();
+                
+                if (!authData.authenticated) {
+                    closePaymentModal();
+                    if (confirm('Для покупки тарифа необходимо войти в аккаунт или зарегистрироваться. Перейти к регистрации?')) {
+                        window.location.href = '/register';
+                    }
+                    return;
+                }
+                
+                const endpoint = method === 'yoomoney' 
+                    ? '/payments/create-payment' 
+                    : '/payments/create-yukassa-payment';
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        user_id: authData.user_id,
+                        plan: currentPlanType
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.href = result.payment_url;
+                } else {
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = '#fee';
+                    statusDiv.style.color = '#c00';
+                    statusDiv.innerHTML = '❌ ' + result.error;
+                    
+                    if (method === 'yukassa' && (result.error.includes('недоступна') || result.error.includes('временно'))) {
+                        statusDiv.innerHTML += '<br><br>Попробуйте оплатить через <strong>ЮMoney</strong>';
+                    }
+                }
+                
+            } catch (error) {
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#fee';
+                statusDiv.style.color = '#c00';
+                statusDiv.innerHTML = '❌ Ошибка соединения: ' + error.message;
+            }
+        }
     </script>
 
+<!-- Модальное окно выбора способа оплаты -->
+<div id="paymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 10001; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 20px; padding: 30px; max-width: 450px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; animation: modalSlideIn 0.3s ease;">
+        
+        <!-- Кнопка закрытия -->
+        <button onclick="closePaymentModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gray);">×</button>
+        
+        <!-- Заголовок -->
+        <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 1.5rem; text-align: center;">💳 Выберите способ оплаты</h3>
+        
+        <!-- Информация о тарифе -->
+        <div id="modalPlanInfo" style="background: var(--light); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+            <span id="modalPlanName" style="font-weight: 700; color: var(--primary);">Тариф</span>
+            <span id="modalPlanPrice" style="font-weight: 700; color: var(--primary); font-size: 1.2rem; margin-left: 10px;"></span>
+        </div>
+        
+        <!-- Кнопки оплаты -->
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <button onclick="processPayment('yoomoney')" style="background: linear-gradient(135deg, #4361ee, #3a56d4); color: white; border: none; padding: 18px; border-radius: 15px; font-size: 1.1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                💰 ЮMoney (кошелек/карта)
+            </button>
+            
+            <button onclick="processPayment('yukassa')" style="background: linear-gradient(135deg, #7209b7, #5a0890); color: white; border: none; padding: 18px; border-radius: 15px; font-size: 1.1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(114, 9, 183, 0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                💳 Банковская карта (ЮKassa)
+            </button>
+        </div>
+        
+        <!-- Дополнительная информация -->
+        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 0.9rem; color: var(--gray); text-align: center;">
+            🔒 Безопасная оплата через платежные системы<br>
+            <span style="font-size: 0.8rem;">После оплаты тариф активируется автоматически</span>
+        </div>
+        
+        <!-- Сообщение об ошибке/статусе -->
+        <div id="modalStatus" style="margin-top: 15px; padding: 10px; border-radius: 8px; display: none;"></div>
+    </div>
+</div>
+
+<style>
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+    
 </body>
 </html>

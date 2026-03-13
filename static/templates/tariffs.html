@@ -1102,36 +1102,7 @@
         
         // Run on page load
         document.addEventListener('DOMContentLoaded', checkAuth);
-    </script>
-
-    <!-- Schema.org Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "Тарифы DocScan AI",
-        "description": "Тарифы DocScan AI: Стандарт (5 анализов за 590₽, 30 дней), Премиум (15 анализов за 1 350₽, 60 дней) и бизнес-тарифы с месячной подпиской.",
-        "url": "https://docscan-ai.ru/tariffs",
-        "breadcrumb": {
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-                {
-                    "@type": "ListItem",
-                    "position": 1,
-                    "name": "Главная",
-                    "item": "https://docscan-ai.ru"
-                },
-                {
-                    "@type": "ListItem",
-                    "position": 2,
-                    "name": "Тарифы",
-                    "item": "https://docscan-ai.ru/tariffs"
-                }
-            ]
-        }
-    }
-    
-            // ========== НОВЫЕ ФУНКЦИИ ДЛЯ ОПЛАТЫ ==========
+                // ========== НОВЫЕ ФУНКЦИИ ДЛЯ ОПЛАТЫ ==========
         let currentPlanType = null;
         let currentPlanName = '';
         let currentPlanPrice = 0;
@@ -1212,6 +1183,35 @@
                 statusDiv.innerHTML = '❌ Ошибка соединения: ' + error.message;
             }
         }
+    </script>
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Тарифы DocScan AI",
+        "description": "Тарифы DocScan AI: Стандарт (5 анализов за 590₽, 30 дней), Премиум (15 анализов за 1 350₽, 60 дней) и бизнес-тарифы с месячной подпиской.",
+        "url": "https://docscan-ai.ru/tariffs",
+        "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Главная",
+                    "item": "https://docscan-ai.ru"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Тарифы",
+                    "item": "https://docscan-ai.ru/tariffs"
+                }
+            ]
+        }
+    }
+
     </script>
 
     <!-- Yandex.RTB R-A-18680294-2 (floorAd для мобильных) -->

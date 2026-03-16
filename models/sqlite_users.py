@@ -971,9 +971,12 @@ class SQLiteUserManager:
             user.available_analyses = 0
             self.db.session.commit()
         
+        # Безлимит: available_analyses == -1 означает, что лимита по анализам нет
+        if user.available_analyses == -1:
+            return True
+        
         # Пользователь может анализировать, если у него есть доступные анализы
-        can_analyze = user.available_analyses > 0
-        return can_analyze
+        return user.available_analyses > 0
 
     def record_usage(self, user_id):
         """Записывает использование для пользователя"""

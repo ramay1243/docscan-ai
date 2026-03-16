@@ -2074,7 +2074,11 @@
                             }
                         } else if (data.available_analyses !== undefined) {
                             // Для платных тарифов показываем available_analyses
-                            usageInfo.textContent = `${data.available_analyses} доступно`;
+                            if (data.available_analyses === -1) {
+                                usageInfo.textContent = `∞ доступно`;
+                            } else {
+                                usageInfo.textContent = `${data.available_analyses} доступно`;
+                            }
                         } else {
                             // Fallback для старых данных
                             usageInfo.textContent = `${data.used_today || 0}/${data.daily_limit || 0}`;

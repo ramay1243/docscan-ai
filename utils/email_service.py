@@ -331,7 +331,22 @@ def send_email_campaign(campaign_id, user_manager, batch_size=10, delay_between_
     
     try:
         # Получаем список получателей
-        recipients = user_manager.get_recipients_for_campaign(campaign.recipient_filter)
+        if campaign.recipient_filter == 'manual':
+            import json as _json
+            raw = campaign.recipient_list or "[]"
+            try:
+                selected = _json.loads(raw)
+            except Exception:
+                selected = []
+            # selected может быть списком строк email или списком объектов
+            recipients = []
+            for item in selected if isinstance(selected, list) else []:
+                if isinstance(item, str):
+                    recipients.append({'user_id': None, 'email': item})
+                elif isinstance(item, dict) and item.get('email'):
+                    recipients.append({'user_id': item.get('user_id'), 'email': item.get('email')})
+        else:
+            recipients = user_manager.get_recipients_for_campaign(campaign.recipient_filter)
         
         if not recipients:
             campaign.status = 'draft'

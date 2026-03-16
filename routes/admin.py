@@ -771,7 +771,21 @@ def admin_panel():
                                 <option value="free">Только бесплатный тариф</option>
                                 <option value="paid">Только платные тарифы</option>
                                 <option value="verified">Только верифицированные email</option>
+                                <option value="manual">Выбрать вручную (по пользователям)</option>
             </select>
+                        </div>
+
+                        <div id="manualRecipientsBlock" style="display:none; margin: 15px 0; padding: 15px; background:#f7fafc; border-radius:10px; border: 1px solid #cbd5e0; max-width: 800px;">
+                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                                <input type="text" id="manualRecipientSearch" placeholder="🔍 Поиск по email / user_id" style="width: 320px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                                <button onclick="selectAllManualRecipients(true)" style="background:#48bb78; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">✅ Выбрать всех</button>
+                                <button onclick="selectAllManualRecipients(false)" style="background:#e2e8f0; color:#2d3748; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">✖ Снять выбор</button>
+                                <span id="manualRecipientsCount" style="color:#666; font-size: 0.9rem;"></span>
+                            </div>
+                            <div id="manualRecipientsList" style="margin-top: 12px; background:white; padding:12px; border-radius:8px; max-height: 320px; overflow:auto;"></div>
+                            <p style="margin-top:10px; font-size:12px; color:#666;">
+                                Отправка пойдет только выбранным пользователям. У отписавшихся (email_subscribed=false) письма не отправляются.
+                            </p>
                         </div>
                         
                         <div style="margin: 15px 0;">
@@ -5922,9 +5936,14 @@ def create_email_campaign():
         html_content = data.get('html_content')
         text_content = data.get('text_content', '')
         recipient_filter = data.get('recipient_filter', 'all')
+        recipient_list = data.get('recipient_list')  # для ручного выбора (manual)
         
         if not name or not subject or not html_content:
             return jsonify({'success': False, 'error': 'Заполните все обязательные поля'}), 400
+
+        if recipient_filter == 'manual':
+            if not recipient_list or (isinstance(recipient_list, list) and len(recipient_list) == 0):
+                return jsonify({'success': False, 'error': 'Выберите хотя бы одного получателя'}), 400
         
         # Получаем имя админа из сессии или куки
         created_by = session.get('admin_username', request.cookies.get('admin_username', 'admin'))
@@ -5935,7 +5954,8 @@ def create_email_campaign():
             html_content=html_content,
             text_content=text_content,
             recipient_filter=recipient_filter,
-            created_by=created_by
+            created_by=created_by,
+            recipient_list=json.dumps(recipient_list, ensure_ascii=False) if recipient_filter == 'manual' else None
         )
         
         logger.info(f"📧 Администратор создал рассылку: {name} (ID: {campaign.id})")
@@ -5948,6 +5968,19 @@ def create_email_campaign():
         
     except Exception as e:
         logger.error(f"❌ Ошибка создания рассылки: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@admin_bp.route('/email-campaigns/manual-users', methods=['GET'])
+@require_admin_auth
+def get_manual_users():
+    """Список пользователей для ручного выбора получателей"""
+    from app import app
+    try:
+        users = app.user_manager.get_registered_users_for_manual_selection()
+        return jsonify({'success': True, 'users': users})
+    except Exception as e:
+        logger.error(f"❌ Ошибка получения пользователей для ручной рассылки: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @admin_bp.route('/email-campaigns/<int:campaign_id>/send', methods=['POST'])

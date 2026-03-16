@@ -2630,9 +2630,88 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
             'all': 'Все зарегистрированные',
             'free': 'Бесплатный тариф',
             'paid': 'Платные тарифы',
-            'verified': 'Верифицированные email'
+            'verified': 'Верифицированные email',
+            'manual': 'Выбраны вручную'
         };
         return filters[filter] || filter;
+    }
+
+    // ========== РУЧНОЙ ВЫБОР ПОЛУЧАТЕЛЕЙ ==========
+    let manualUsersCache = null;
+
+    function updateManualRecipientsCount() {
+        const countEl = document.getElementById('manualRecipientsCount');
+        if (!countEl) return;
+        const checked = document.querySelectorAll('#manualRecipientsList input[type="checkbox"]:checked').length;
+        countEl.textContent = `Выбрано: ${checked}`;
+    }
+
+    function renderManualRecipients(users) {
+        const listEl = document.getElementById('manualRecipientsList');
+        if (!listEl) return;
+
+        let html = '';
+        (users || []).forEach(u => {
+            const disabled = u.email_subscribed === false;
+            const note = disabled ? ' (отписан)' : (u.email_verified ? '' : ' (не верифицирован)');
+            html += `
+                <label style="display:flex; gap:10px; align-items:center; padding:6px 0; border-bottom:1px solid #f1f5f9;">
+                    <input type="checkbox" class="manual-recipient-cb" data-user-id="${u.user_id}" data-email="${u.email}" ${disabled ? 'disabled' : ''} onchange="updateManualRecipientsCount()">
+                    <span style="font-family: monospace;">${u.user_id}</span>
+                    <span>${u.email}${note}</span>
+                    <span style="color:#666; font-size:0.85rem;">(${u.plan || 'free'})</span>
+                </label>
+            `;
+        });
+        listEl.innerHTML = html || '<div style="color:#999;">Нет пользователей</div>';
+        updateManualRecipientsCount();
+    }
+
+    function filterManualRecipients() {
+        if (!manualUsersCache) return;
+        const qEl = document.getElementById('manualRecipientSearch');
+        const q = (qEl && qEl.value ? qEl.value : '').toLowerCase().trim();
+        if (!q) {
+            renderManualRecipients(manualUsersCache);
+            return;
+        }
+        const filtered = manualUsersCache.filter(u =>
+            (u.email || '').toLowerCase().includes(q) ||
+            (u.user_id || '').toLowerCase().includes(q)
+        );
+        renderManualRecipients(filtered);
+    }
+
+    function selectAllManualRecipients(select) {
+        document.querySelectorAll('#manualRecipientsList input[type="checkbox"]:not(:disabled)').forEach(cb => {
+            cb.checked = !!select;
+        });
+        updateManualRecipientsCount();
+    }
+
+    function loadManualRecipientsUsers() {
+        fetch('/admin/email-campaigns/manual-users', { credentials: 'include' })
+            .then(r => r.json())
+            .then(res => {
+                if (!res || !res.success) {
+                    alert('❌ Не удалось загрузить пользователей: ' + (res && res.error ? res.error : ''));
+                    return;
+                }
+                manualUsersCache = res.users || [];
+                renderManualRecipients(manualUsersCache);
+            })
+            .catch(err => alert('❌ Ошибка загрузки пользователей: ' + err));
+    }
+
+    function getSelectedManualRecipients() {
+        const selected = [];
+        document.querySelectorAll('#manualRecipientsList input[type="checkbox"]:checked').forEach(cb => {
+            selected.push({
+                user_id: cb.getAttribute('data-user-id'),
+                email: cb.getAttribute('data-email')
+            });
+        });
+        return selected;
     }
     
     function createCampaign() {
@@ -2641,6 +2720,7 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
         const htmlContent = document.getElementById('campaignHtmlContent').value.trim();
         const textContent = document.getElementById('campaignTextContent').value.trim();
         const recipientFilter = document.getElementById('campaignRecipients').value;
+        const manualRecipients = recipientFilter === 'manual' ? getSelectedManualRecipients() : null;
         
         if (!name || !subject || !htmlContent) {
             alert('Заполните все обязательные поля!');
@@ -2656,7 +2736,8 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 subject: subject,
                 html_content: htmlContent,
                 text_content: textContent,
-                recipient_filter: recipientFilter
+                recipient_filter: recipientFilter,
+                recipient_list: manualRecipients
             })
         })
         .then(r => r.json())
@@ -2723,6 +2804,24 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
     function loadRecipientsPreview() {
         const recipientFilter = document.getElementById('campaignRecipients').value;
         if (!recipientFilter) return;
+
+        if (recipientFilter === 'manual') {
+            const selected = getSelectedManualRecipients();
+            const el = document.getElementById('recipientsPreview');
+            const listEl = document.getElementById('recipientsList');
+            if (listEl) {
+                let html = `<p><strong>Количество выбранных получателей: ${selected.length}</strong></p>`;
+                html += '<ul style="list-style: none; padding: 0;">';
+                selected.slice(0, 50).forEach(r => {
+                    html += `<li style="padding: 5px; border-bottom: 1px solid #eee;">${r.email} (${r.user_id})</li>`;
+                });
+                if (selected.length > 50) html += `<li style="padding: 5px; color: #666;">... и еще ${selected.length - 50}</li>`;
+                html += '</ul>';
+                listEl.innerHTML = html;
+            }
+            if (el) el.style.display = 'block';
+            return;
+        }
         
         fetch('/admin/email-campaigns/recipients-preview?filter=' + recipientFilter, {credentials: 'include'})
             .then(r => r.json())
@@ -2754,6 +2853,26 @@ if (typeof clearGuestSearch === 'function') window.clearGuestSearch = clearGuest
                 document.getElementById('recipientsPreview').style.display = 'block';
             });
     }
+
+    // Показ/скрытие блока ручного выбора по селекту
+    document.addEventListener('DOMContentLoaded', function() {
+        const sel = document.getElementById('campaignRecipients');
+        const block = document.getElementById('manualRecipientsBlock');
+        const search = document.getElementById('manualRecipientSearch');
+        if (!sel || !block) return;
+
+        function syncManualBlock() {
+            const isManual = sel.value === 'manual';
+            block.style.display = isManual ? 'block' : 'none';
+            if (isManual) {
+                if (!manualUsersCache) loadManualRecipientsUsers();
+                if (search) search.addEventListener('input', filterManualRecipients);
+            }
+        }
+
+        sel.addEventListener('change', syncManualBlock);
+        syncManualBlock();
+    });
     
     function insertEmailTemplate() {
         const template = `<!DOCTYPE html>

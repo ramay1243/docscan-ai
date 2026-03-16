@@ -330,6 +330,7 @@ class EmailCampaign(db.Model):
     html_content = db.Column(db.Text, nullable=False)  # HTML-содержимое письма
     text_content = db.Column(db.Text, nullable=True)  # Текстовая версия
     recipient_filter = db.Column(db.String(50), nullable=False)  # Фильтр получателей: 'all', 'free', 'paid', 'verified'
+    recipient_list = db.Column(db.Text, nullable=True)  # JSON список получателей для ручного выбора
     status = db.Column(db.String(20), default='draft')  # Статус: 'draft', 'sending', 'sent', 'cancelled'
     created_at = db.Column(db.String(30), nullable=False)
     sent_at = db.Column(db.String(30), nullable=True)
@@ -343,6 +344,7 @@ class EmailCampaign(db.Model):
             'html_content': self.html_content,
             'text_content': self.text_content,
             'recipient_filter': self.recipient_filter,
+            'recipient_list': self.recipient_list,
             'status': self.status,
             'created_at': self.created_at,
             'sent_at': self.sent_at,
@@ -1399,9 +1401,28 @@ class SQLiteUserManager:
         
         logger.info(f"📧 Получено {len(recipients)} получателей для фильтра '{recipient_filter}'")
         return recipients
+
+    def get_registered_users_for_manual_selection(self):
+        """
+        Получить список зарегистрированных пользователей для ручного выбора получателей в админке.
+        Возвращает только минимально нужные поля (user_id, email, verified, subscribed, plan).
+        """
+        query = self.User.query.filter(
+            self.User.is_registered == True,
+            self.User.email.isnot(None),
+            self.User.email != ''
+        )
+        users = query.order_by(self.User.created_at.desc()).all()
+        return [{
+            'user_id': u.user_id,
+            'email': u.email,
+            'email_verified': bool(u.email_verified),
+            'email_subscribed': bool(u.email_subscribed),
+            'plan': u.plan
+        } for u in users]
     
-    def create_email_campaign(self, name, subject, html_content, text_content, 
-                             recipient_filter, created_by):
+    def create_email_campaign(self, name, subject, html_content, text_content,
+                             recipient_filter, created_by, recipient_list=None):
         """Создает новую email-рассылку"""
         from models.sqlite_users import EmailCampaign
         
@@ -1411,6 +1432,7 @@ class SQLiteUserManager:
             html_content=html_content,
             text_content=text_content,
             recipient_filter=recipient_filter,
+            recipient_list=recipient_list,
             status='draft',
             created_at=datetime.now().isoformat(),
             created_by=created_by

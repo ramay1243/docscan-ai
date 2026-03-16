@@ -23,6 +23,7 @@ class User(db.Model):
     ip_address = db.Column(db.String(50), default='Не определен')
     calculator_uses = db.Column(db.Integer, default=0)
     last_calculator_use = db.Column(db.String(30), nullable=True)
+    last_login_at = db.Column(db.String(30), nullable=True)  # Последний вход в аккаунт (ISO datetime)
     
     # Новые поля для регистрации и авторизации
     email = db.Column(db.String(255), unique=True, nullable=True)
@@ -52,6 +53,7 @@ class User(db.Model):
             'ip_address': self.ip_address,
             'calculator_uses': self.calculator_uses,
             'last_calculator_use': self.last_calculator_use,
+            'last_login_at': self.last_login_at,
             'email': self.email,
             'is_registered': self.is_registered,
             'free_analysis_used': self.free_analysis_used,
@@ -1371,7 +1373,11 @@ class SQLiteUserManager:
         if recipient_filter == 'free':
             query = query.filter(self.User.plan == 'free')
         elif recipient_filter == 'paid':
-            query = query.filter(self.User.plan.in_(['basic', 'premium', 'unlimited']))
+            # Платные тарифы в текущей системе
+            query = query.filter(self.User.plan.in_([
+                'standard', 'premium',
+                'business_start', 'business_pro', 'business_max', 'business_unlimited'
+            ]))
         elif recipient_filter == 'verified':
             query = query.filter(self.User.email_verified == True)
         # 'all' - без дополнительных фильтров

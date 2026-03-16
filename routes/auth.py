@@ -145,6 +145,15 @@ def login():
         session['user_id'] = user.user_id
         session['email'] = user.email
         session.permanent = True
+
+        # Фиксируем последний вход
+        try:
+            from datetime import datetime
+            user.last_login_at = datetime.now().isoformat()
+            db.session.commit()
+        except Exception as e:
+            logger.warning(f"⚠️ Не удалось сохранить last_login_at для {user.user_id}: {e}")
+            db.session.rollback()
         
         logger.info(f"✅ Пользователь вошел: {email}, user_id: {user.user_id}")
         

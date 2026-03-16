@@ -338,6 +338,22 @@ def send_email_campaign(campaign_id, user_manager, batch_size=10, delay_between_
             user_manager.db.session.commit()
             logger.warning(f"⚠️ Нет получателей для рассылки {campaign_id}")
             return {'success': False, 'error': 'Нет получателей для рассылки'}
+
+        # Идемпотентность: если рассылку запускают повторно, не отправляем тем,
+        # кому уже отправляли (чтобы не было дублей писем).
+        try:
+            from models.sqlite_users import EmailSend
+            already_processed = EmailSend.query.filter(
+                EmailSend.campaign_id == campaign_id,
+                EmailSend.status.in_(['sent', 'failed', 'bounced'])
+            ).with_entities(EmailSend.email).all()
+            already_processed_emails = set([row[0] for row in already_processed if row and row[0]])
+            if already_processed_emails:
+                before = len(recipients)
+                recipients = [r for r in recipients if r.get('email') not in already_processed_emails]
+                logger.info(f"📧 Идемпотентность: исключили {before - len(recipients)} получателей (уже обработаны ранее)")
+        except Exception as e:
+            logger.warning(f"⚠️ Не удалось применить идемпотентность рассылки {campaign_id}: {e}")
         
         logger.info(f"📧 Начинаем отправку рассылки {campaign.name} ({campaign_id}) получателям: {len(recipients)}")
         

@@ -1779,7 +1779,7 @@
                     return new Date(b.created_at) - new Date(a.created_at);
                 });
                 
-                html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px;"><table style="min-width: 1000px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф до</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Анализов всего</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сегодня (анализы)</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
+                html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px;"><table style="min-width: 1100px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Последний вход</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф до</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Анализов всего</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сегодня (анализы)</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
                 
                 usersArray.forEach(user => {
                     const createdDate = user.created_at ? (function() {
@@ -1789,6 +1789,13 @@
                             return user.created_at;
                         }
                     })() : 'Неизвестно';
+                    const lastLogin = user.last_login_at ? (function() {
+                        try {
+                            return new Date(user.last_login_at).toLocaleString('ru-RU');
+                        } catch(e) {
+                            return user.last_login_at;
+                        }
+                    })() : '—';
                     const planExpires = user.plan_expires ? (function() {
                         try {
                             return new Date(user.plan_expires).toLocaleDateString('ru-RU');
@@ -1801,6 +1808,7 @@
                             <td style="padding: 10px;"><strong>${user.userId}</strong></td>
                             <td style="padding: 10px;">${user.email || 'Не указан'}</td>
                             <td style="padding: 10px;">${createdDate}</td>
+                            <td style="padding: 10px;">${lastLogin}</td>
                             <td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td>
                             <td style="padding: 10px;">${planExpires}</td>
                             <td style="padding: 10px;">${user.total_used || 0}</td>

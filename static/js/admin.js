@@ -1779,7 +1779,7 @@
                     return new Date(b.created_at) - new Date(a.created_at);
                 });
                 
-                html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px;"><table style="min-width: 1000px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф до</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Анализов всего</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сегодня</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
+                html = '<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px;"><table style="min-width: 1000px; width: 100%; border-collapse: collapse;"><thead><tr style="background: #f7fafc;"><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">ID</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Email</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Дата регистрации</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Тариф до</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Анализов всего</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Сегодня (анализы)</th><th style="padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0;">Действия</th></tr></thead><tbody>';
                 
                 usersArray.forEach(user => {
                     const createdDate = user.created_at ? (function() {
@@ -1804,7 +1804,7 @@
                             <td style="padding: 10px;">${getPlanName(user.plan || 'free')}</td>
                             <td style="padding: 10px;">${planExpires}</td>
                             <td style="padding: 10px;">${user.total_used || 0}</td>
-                            <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}/${getPlanLimit(user.plan || 'free') === -1 ? '∞' : getPlanLimit(user.plan || 'free')}</td>
+                            <td style="padding: 10px;">${user.analyses_today !== undefined ? user.analyses_today : (user.used_today || 0)}</td>
                             <td style="padding: 10px;">
                                 ${isPaidPlan(user.plan) ? `<button class="disable-plan-btn" data-user-id="${user.userId || ''}" style="font-size: 0.85rem; padding: 5px 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">🔒 Отключить тариф</button>` : ''}
                                 <button class="set-plan-btn" data-user-id="${user.userId || ''}" data-plan="standard" style="font-size: 0.85rem; padding: 5px 10px; margin-right: 5px;">Стандарт</button>

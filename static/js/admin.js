@@ -476,6 +476,15 @@
                 }
                 document.getElementById('totalAnalyses').textContent = stats.total_analyses;
                 document.getElementById('todayAnalyses').textContent = stats.today_analyses;
+                
+                // /business-ip stats (если элементы есть на странице)
+                const elToday = document.getElementById('businessIpViewsToday');
+                if (elToday) elToday.textContent = stats.business_ip_views_today || 0;
+                const elTotal = document.getElementById('businessIpViewsTotal');
+                if (elTotal) elTotal.textContent = stats.business_ip_views_total || 0;
+                const elUniq = document.getElementById('businessIpUniqueToday');
+                if (elUniq) elUniq.textContent = stats.business_ip_unique_today || 0;
+                
                 document.getElementById('todayRevenue').textContent = (stats.today_revenue || 0).toFixed(2) + ' ₽';
                 document.getElementById('totalRevenue').textContent = (stats.total_revenue || 0).toFixed(2) + ' ₽';
                 document.getElementById('todayPayments').textContent = stats.today_payments || 0;

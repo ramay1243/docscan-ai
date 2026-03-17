@@ -527,6 +527,15 @@ def admin_panel():
                     <div id="todayAnalyses" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
                 </div>
                 <div class="stat-card">
+                    <h3>📄 /business-ip сегодня</h3>
+                    <div id="businessIpViewsToday" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                    <div style="margin-top: 6px; color: #718096;">Уникальных: <span id="businessIpUniqueToday">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <h3>📄 /business-ip всего</h3>
+                    <div id="businessIpViewsTotal" style="font-size: 2rem; font-weight: bold; color: #667eea; margin-top: 10px;">0</div>
+                </div>
+                <div class="stat-card">
                     <h3>💰 Доход сегодня</h3>
                     <div id="todayRevenue" style="font-size: 2rem; font-weight: bold; color: #48bb78; margin-top: 10px;">0 ₽</div>
                 </div>
@@ -5798,7 +5807,7 @@ def delete_news(news_id):
 def admin_stats():
     """Статистика для админ-панели"""
     from app import app
-    from models.sqlite_users import Guest, Payment, User
+    from models.sqlite_users import Guest, Payment, User, PageView
     from datetime import datetime, date, timedelta
     
     stats = app.user_manager.get_stats()
@@ -5846,6 +5855,27 @@ def admin_stats():
     # Количество успешных платежей
     stats['total_payments'] = len(all_payments)
     stats['today_payments'] = len(today_payments)
+
+    # ====== Статистика по /business-ip ======
+    try:
+        today_str = date.today().isoformat()
+        business_total = PageView.query.filter(PageView.path == '/business-ip').count()
+        business_today = PageView.query.filter(
+            PageView.path == '/business-ip',
+            PageView.created_at.like(f'{today_str}%')
+        ).count()
+        business_unique_today = PageView.query.filter(
+            PageView.path == '/business-ip',
+            PageView.created_at.like(f'{today_str}%')
+        ).with_entities(PageView.ip_address).distinct().count()
+
+        stats['business_ip_views_total'] = business_total
+        stats['business_ip_views_today'] = business_today
+        stats['business_ip_unique_today'] = business_unique_today
+    except Exception:
+        stats['business_ip_views_total'] = 0
+        stats['business_ip_views_today'] = 0
+        stats['business_ip_unique_today'] = 0
     
     return jsonify(stats)
         

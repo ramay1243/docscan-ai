@@ -115,6 +115,27 @@ class Guest(db.Model):
             'registered_user_id': self.registered_user_id
         }
 
+class PageView(db.Model):
+    """Просмотры страниц (минимальная веб-аналитика для админки)"""
+    __tablename__ = 'page_views'
+
+    id = db.Column(db.Integer, primary_key=True)
+    path = db.Column(db.String(255), nullable=False, index=True)
+    ip_address = db.Column(db.String(50), nullable=True, index=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.user_id'), nullable=True, index=True)
+    user_agent = db.Column(db.String(500), nullable=True)
+    created_at = db.Column(db.String(30), nullable=False, index=True)  # ISO datetime
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'path': self.path,
+            'ip_address': self.ip_address,
+            'user_id': self.user_id,
+            'user_agent': self.user_agent,
+            'created_at': self.created_at
+        }
+
 
 class SearchBot(db.Model):
     """Таблица для хранения поисковых ботов"""

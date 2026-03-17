@@ -41,6 +41,30 @@ def tariffs():
 @main_bp.route('/business-ip')
 def business_ip():
     """Интерактивный конструктор договоров (без ИИ)"""
+    try:
+        from datetime import datetime
+        from flask import session, request
+        from app import app
+        from models.sqlite_users import db, PageView
+
+        real_ip = app.ip_limit_manager.get_client_ip(request) if hasattr(app, 'ip_limit_manager') else request.remote_addr
+        user_agent = request.headers.get('User-Agent', '')
+        user_id = session.get('user_id')
+
+        db.session.add(PageView(
+            path='/business-ip',
+            ip_address=real_ip,
+            user_id=user_id,
+            user_agent=user_agent[:500] if user_agent else None,
+            created_at=datetime.now().isoformat()
+        ))
+        db.session.commit()
+    except Exception:
+        # Статистика не должна ломать страницу
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
     return render_template('business-ip.html')
 
 @main_bp.route('/api')
@@ -62,6 +86,7 @@ def sitemap():
         ('/news', 'weekly', '0.9'),
         ('/analiz-dokumentov', 'weekly', '0.9'),
         ('/proverka-dogovorov', 'weekly', '0.9'),
+        ('/business-ip', 'weekly', '0.8'),
         ('/articles', 'weekly', '0.9'),
         ('/questions', 'daily', '0.9'),
         ('/faq', 'monthly', '0.8'),

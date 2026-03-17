@@ -114,6 +114,10 @@ def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
     Ориентир: читаемо и аккуратно (заголовки, таблицы, подписи, 2 колонки сторон).
     """
     title = (contract.get("title") or "ДОГОВОР").strip()
+    meta = contract.get("meta") or {}
+    number = str(meta.get("number") or "").strip()
+    city = str(meta.get("city") or "").strip() or "г. ________"
+    sign_date = _ru_date(str(meta.get("signDate") or "").strip()) or "«___» __________ 20__ г."
     parties = contract.get("parties") or {}
     party_a = (parties.get("a") or {})
     party_b = (parties.get("b") or {})
@@ -182,12 +186,12 @@ def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
 
     story: List[Any] = []
     story.append(_p(title, h1))
+    if number:
+        story.append(_p(f"№ {number}", ParagraphStyle("Num", parent=small, alignment=TA_CENTER, spaceAfter=6)))
 
     # Шапка: город слева, дата справа
-    city = "г. ________"
-    date_line = "«___» __________ 20__ г."
     header_tbl = Table(
-        [[_p(city, small), _p(date_line, small)]],
+        [[_p(city, small), _p(sign_date, small)]],
         colWidths=[doc.width * 0.5, doc.width * 0.5],
     )
     header_tbl.setStyle(
@@ -211,6 +215,8 @@ def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
         inn = (p.get("inn") or "").strip()
         ogrn = (p.get("ogrn") or "").strip()
         address = (p.get("address") or "").strip()
+        rep = (p.get("rep") or "").strip()
+        basis = (p.get("basis") or "").strip()
         lines = [f"<b>{html.escape(name)}</b>"]
         if inn:
             lines.append(f"ИНН: {html.escape(inn)}")
@@ -218,6 +224,10 @@ def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
             lines.append(f"ОГРН/ОГРНИП: {html.escape(ogrn)}")
         if address:
             lines.append(f"Адрес: {html.escape(address)}")
+        if rep:
+            lines.append(f"Представитель: {html.escape(rep)}")
+        if basis:
+            lines.append(f"Основание: {html.escape(basis)}")
         return "<br/>".join(lines)
 
     parties_tbl = Table(
@@ -336,8 +346,60 @@ def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
         story.append(_p("8. Конфиденциальность", h2))
         story.append(_p("8.1. Стороны обязуются сохранять конфиденциальность информации, полученной в рамках договора.", normal))
 
+    # 9-12. Стандартные условия (чтобы договор был "полным")
+    story.append(_p("9. Ответственность", h2))
+    story.append(_p("9.1. Стороны несут ответственность за неисполнение или ненадлежащее исполнение обязательств по договору в соответствии с законодательством Российской Федерации.", normal))
+    story.append(_p("9.2. Уплата штрафных санкций не освобождает Стороны от исполнения обязательств.", normal))
+
+    story.append(_p("10. Форс-мажор", h2))
+    story.append(_p("10.1. Стороны освобождаются от ответственности за частичное или полное неисполнение обязательств, если оно явилось следствием обстоятельств непреодолимой силы (форс-мажор).", normal))
+    story.append(_p("10.2. Сторона, для которой наступили такие обстоятельства, обязана уведомить другую Сторону в разумный срок.", normal))
+
+    story.append(_p("11. Разрешение споров", h2))
+    story.append(_p("11.1. Споры и разногласия решаются путем переговоров. При недостижении соглашения спор подлежит рассмотрению в суде в порядке, установленном законодательством РФ.", normal))
+
+    story.append(_p("12. Заключительные положения", h2))
+    story.append(_p("12.1. Договор вступает в силу с даты подписания и действует до полного исполнения обязательств Сторонами.", normal))
+    story.append(_p("12.2. Все изменения и дополнения действительны при оформлении в письменном виде и подписании обеими Сторонами.", normal))
+
+    # 13. Реквизиты (банк) — чтобы выглядело профессионально
+    def requisites_rows(p: Dict[str, Any]) -> List[List[Any]]:
+        def g(k: str) -> str:
+            return str(p.get(k) or "").strip()
+        rows = []
+        if g("bank"):
+            rows.append(["Банк", g("bank")])
+        if g("rs"):
+            rows.append(["Р/с", g("rs")])
+        if g("ks"):
+            rows.append(["К/с", g("ks")])
+        if g("bik"):
+            rows.append(["БИК", g("bik")])
+        return rows
+
+    story.append(_p("13. Реквизиты", h2))
+    req_a = requisites_rows(party_a)
+    req_b = requisites_rows(party_b)
+    if req_a or req_b:
+        # таблица 2 колонки: слева реквизиты стороны 1, справа стороны 2
+        def req_table_block(req_rows: List[List[Any]]) -> Paragraph:
+            if not req_rows:
+                return _p("—", small)
+            lines = [f"{html.escape(k)}: {html.escape(v)}" for k, v in req_rows]
+            return _p_rich("<br/>".join(lines), small)
+
+        req_tbl = Table(
+            [[
+                _p_rich(f"<b>Сторона 1</b><br/>{req_table_block(req_a).text}", small),
+                _p_rich(f"<b>Сторона 2</b><br/>{req_table_block(req_b).text}", small),
+            ]],
+            colWidths=[doc.width * 0.5, doc.width * 0.5],
+        )
+        req_tbl.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("TOPPADDING", (0, 0), (-1, -1), 6)]))
+        story.append(req_tbl)
+
     # 9. Подписи (2 колонки)
-    story.append(_p("9. Подписи Сторон", h2))
+    story.append(_p("14. Подписи Сторон", h2))
 
     left_name = (party_a.get("name") or "Сторона 1").strip() or "Сторона 1"
     right_name = (party_b.get("name") or "Сторона 2").strip() or "Сторона 2"

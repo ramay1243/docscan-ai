@@ -29,6 +29,11 @@
   const state = {
     step: 1,
     template: "",
+    meta: {
+      number: "",
+      city: "",
+      signDate: "",
+    },
     parties: {
       a: { name: "", inn: "", ogrn: "", address: "", bank: "", rs: "", ks: "", bik: "", rep: "", basis: "" },
       b: { name: "", inn: "", ogrn: "", address: "", bank: "", rs: "", ks: "", bik: "", rep: "", basis: "" },
@@ -119,6 +124,8 @@
     const required = [];
 
     required.push({ key: "template", ok: isFilled(state.template), label: "Выберите шаблон договора" });
+    required.push({ key: "city", ok: isFilled(state.meta.city), label: "Укажите город" });
+    required.push({ key: "signDate", ok: isFilled(state.meta.signDate), label: "Укажите дату подписания" });
     required.push({ key: "partyAName", ok: isFilled(state.parties.a.name), label: "Укажите Сторону 1 (название)" });
     required.push({ key: "partyBName", ok: isFilled(state.parties.b.name), label: "Укажите Сторону 2 (название)" });
 
@@ -173,6 +180,10 @@
     const title = tplDef ? tplDef.title : "ДОГОВОР";
     const subjectLabel = tplDef ? tplDef.subjectLabel : "Позиции";
 
+    const city = isFilled(state.meta.city) ? state.meta.city : missingSpan("город", htmlMode);
+    const signDate = russianDate(state.meta.signDate) || missingSpan("дата подписания", htmlMode);
+    const number = isFilled(state.meta.number) ? `№ ${state.meta.number}` : "";
+
     const warrantySection = state.options.warranty12
       ? `\n7. Гарантия\n7.1. Гарантия на результат/товар составляет 12 (двенадцать) месяцев с даты исполнения/передачи.\n`
       : "";
@@ -187,8 +198,9 @@
 
     return [
       title,
+      number,
       "",
-      `г. ________    "${new Date().getDate()}" ________ ${new Date().getFullYear()} г.`,
+      `${city}    ${signDate}`,
       "",
       `1. Стороны`,
       `1.1. ${partyAName} (далее — "Сторона 1") и ${partyBName} (далее — "Сторона 2") заключили настоящий договор.`,
@@ -209,6 +221,14 @@
       actSection ? actSection.trimEnd() : "",
       warrantySection ? warrantySection.trimEnd() : "",
       confSection ? confSection.trimEnd() : "",
+      `\n10. Ответственность`,
+      `10.1. Стороны несут ответственность за неисполнение или ненадлежащее исполнение обязательств в соответствии с законодательством РФ.`,
+      `\n11. Форс-мажор`,
+      `11.1. Стороны освобождаются от ответственности за неисполнение обязательств при наступлении обстоятельств непреодолимой силы.`,
+      `\n12. Разрешение споров`,
+      `12.1. Споры решаются путем переговоров, а при недостижении соглашения — в суде по месту нахождения ответчика.`,
+      `\n13. Заключительные положения`,
+      `13.1. Договор вступает в силу с даты подписания и действует до полного исполнения обязательств.`,
       `\n9. Реквизиты и подписи`,
       `Сторона 1: ${isFilled(a.name) ? a.name : "________"}`,
       `Сторона 2: ${isFilled(b.name) ? b.name : "________"}`,
@@ -223,6 +243,7 @@
     return {
       template: state.template,
       title: (getTemplateDef() ? getTemplateDef().title : "ДОГОВОР"),
+      meta: { ...state.meta },
       parties: state.parties,
       subject: {
         startDate: state.subject.startDate,
@@ -298,12 +319,29 @@
             ...TEMPLATE_DEFS.map((t) => ({ value: t.value, label: t.label })),
           ],
           value: state.template,
-          hint: "Шаблон влияет на заголовок и текстовые формулировки (в MVP — базово).",
+          hint: "Выбор шаблона влияет на заголовок и формулировки.",
         })}
+        <div class="grid-2">
+          ${fieldWrap({ id: "contractNumber", label: "№ договора (необязательно)", value: state.meta.number, placeholder: "Например: 12/03-2026" })}
+          ${fieldWrap({ id: "contractCity", label: "Город", required: true, value: state.meta.city, placeholder: "Например: Москва" })}
+        </div>
+        ${fieldWrap({ id: "signDate", label: "Дата подписания", required: true, type: "date", value: state.meta.signDate })}
       `;
 
       qs("template").addEventListener("change", (e) => {
         state.template = e.target.value;
+        renderPreviewAndValidation();
+      });
+      qs("contractNumber").addEventListener("input", (e) => {
+        state.meta.number = e.target.value;
+        renderPreviewAndValidation();
+      });
+      qs("contractCity").addEventListener("input", (e) => {
+        state.meta.city = e.target.value;
+        renderPreviewAndValidation();
+      });
+      qs("signDate").addEventListener("change", (e) => {
+        state.meta.signDate = e.target.value;
         renderPreviewAndValidation();
       });
       return;
@@ -318,6 +356,12 @@
             ${fieldWrap({ id: "a_inn", label: "ИНН", value: state.parties.a.inn })}
             ${fieldWrap({ id: "a_ogrn", label: "ОГРН/ОГРНИП", value: state.parties.a.ogrn })}
             ${fieldWrap({ id: "a_address", label: "Адрес", type: "textarea", value: state.parties.a.address })}
+            ${fieldWrap({ id: "a_bank", label: "Банк", value: state.parties.a.bank })}
+            ${fieldWrap({ id: "a_rs", label: "Р/с", value: state.parties.a.rs })}
+            ${fieldWrap({ id: "a_ks", label: "К/с", value: state.parties.a.ks })}
+            ${fieldWrap({ id: "a_bik", label: "БИК", value: state.parties.a.bik })}
+            ${fieldWrap({ id: "a_rep", label: "Представитель", value: state.parties.a.rep, placeholder: "ФИО, должность" })}
+            ${fieldWrap({ id: "a_basis", label: "Основание полномочий", value: state.parties.a.basis, placeholder: "Устав / доверенность №..." })}
           </div>
           <div>
             <h3 style="margin-bottom:8px; font-size:1rem;">Сторона 2</h3>
@@ -325,6 +369,12 @@
             ${fieldWrap({ id: "b_inn", label: "ИНН", value: state.parties.b.inn })}
             ${fieldWrap({ id: "b_ogrn", label: "ОГРН/ОГРНИП", value: state.parties.b.ogrn })}
             ${fieldWrap({ id: "b_address", label: "Адрес", type: "textarea", value: state.parties.b.address })}
+            ${fieldWrap({ id: "b_bank", label: "Банк", value: state.parties.b.bank })}
+            ${fieldWrap({ id: "b_rs", label: "Р/с", value: state.parties.b.rs })}
+            ${fieldWrap({ id: "b_ks", label: "К/с", value: state.parties.b.ks })}
+            ${fieldWrap({ id: "b_bik", label: "БИК", value: state.parties.b.bik })}
+            ${fieldWrap({ id: "b_rep", label: "Представитель", value: state.parties.b.rep, placeholder: "ФИО, должность" })}
+            ${fieldWrap({ id: "b_basis", label: "Основание полномочий", value: state.parties.b.basis, placeholder: "Устав / доверенность №..." })}
           </div>
         </div>
       `;
@@ -340,11 +390,23 @@
       bind("a_inn", () => state.parties.a.inn, (v) => (state.parties.a.inn = v));
       bind("a_ogrn", () => state.parties.a.ogrn, (v) => (state.parties.a.ogrn = v));
       bind("a_address", () => state.parties.a.address, (v) => (state.parties.a.address = v));
+      bind("a_bank", () => state.parties.a.bank, (v) => (state.parties.a.bank = v));
+      bind("a_rs", () => state.parties.a.rs, (v) => (state.parties.a.rs = v));
+      bind("a_ks", () => state.parties.a.ks, (v) => (state.parties.a.ks = v));
+      bind("a_bik", () => state.parties.a.bik, (v) => (state.parties.a.bik = v));
+      bind("a_rep", () => state.parties.a.rep, (v) => (state.parties.a.rep = v));
+      bind("a_basis", () => state.parties.a.basis, (v) => (state.parties.a.basis = v));
 
       bind("b_name", () => state.parties.b.name, (v) => (state.parties.b.name = v));
       bind("b_inn", () => state.parties.b.inn, (v) => (state.parties.b.inn = v));
       bind("b_ogrn", () => state.parties.b.ogrn, (v) => (state.parties.b.ogrn = v));
       bind("b_address", () => state.parties.b.address, (v) => (state.parties.b.address = v));
+      bind("b_bank", () => state.parties.b.bank, (v) => (state.parties.b.bank = v));
+      bind("b_rs", () => state.parties.b.rs, (v) => (state.parties.b.rs = v));
+      bind("b_ks", () => state.parties.b.ks, (v) => (state.parties.b.ks = v));
+      bind("b_bik", () => state.parties.b.bik, (v) => (state.parties.b.bik = v));
+      bind("b_rep", () => state.parties.b.rep, (v) => (state.parties.b.rep = v));
+      bind("b_basis", () => state.parties.b.basis, (v) => (state.parties.b.basis = v));
       return;
     }
 
@@ -490,6 +552,8 @@
     const invalid = new Set();
 
     if (!isFilled(state.template)) invalid.add("template");
+    if (!isFilled(state.meta.city)) invalid.add("contractCity");
+    if (!isFilled(state.meta.signDate)) invalid.add("signDate");
     if (!isFilled(state.parties.a.name)) invalid.add("a_name");
     if (!isFilled(state.parties.b.name)) invalid.add("b_name");
 
@@ -503,7 +567,7 @@
     if (!isFilled(state.payment.type)) invalid.add("paymentType");
 
     const visibleFieldIdsByStep = {
-      1: ["template"],
+      1: ["template", "contractCity", "signDate"],
       2: ["a_name", "b_name"],
       3: ["items", "startDate", "termDays"],
       4: ["paymentType"],

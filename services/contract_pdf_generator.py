@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from io import BytesIO
-from typing import Optional
+from typing import Any, Dict, List, Optional
 import html
 import logging
 import os
@@ -9,8 +9,9 @@ import platform
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
@@ -74,6 +75,286 @@ def _register_cyrillic_fonts() -> None:
 
 
 _register_cyrillic_fonts()
+
+def _fmt_money(v: Any) -> str:
+    try:
+        return f"{float(v):,.2f}".replace(",", " ").replace(".00", ".00")
+    except Exception:
+        return "0.00"
+
+
+def _ru_date(iso_date: str) -> str:
+    """
+    Преобразует YYYY-MM-DD -> DD.MM.YYYY.
+    Если формат другой — возвращает как есть (без падения).
+    """
+    if not iso_date:
+        return ""
+    s = str(iso_date).strip()
+    if len(s) >= 10 and s[4] == "-" and s[7] == "-":
+        return f"{s[8:10]}.{s[5:7]}.{s[0:4]}"
+    return s
+
+
+def _p(text: str, style: ParagraphStyle) -> Paragraph:
+    safe = html.escape(text or "").replace("\n", "<br/>")
+    return Paragraph(safe, style)
+
+
+def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
+    """
+    Генерирует "профессиональный" PDF договора из структурных данных конструктора.
+    Ориентир: читаемо и аккуратно (заголовки, таблицы, подписи, 2 колонки сторон).
+    """
+    title = (contract.get("title") or "ДОГОВОР").strip()
+    parties = contract.get("parties") or {}
+    party_a = (parties.get("a") or {})
+    party_b = (parties.get("b") or {})
+    subject = contract.get("subject") or {}
+    items = subject.get("items") or []
+
+    start_date = _ru_date(subject.get("startDate") or "")
+    end_date = _ru_date(subject.get("endDate") or "")
+    term_days = subject.get("termDays") or 0
+    total = subject.get("total") or 0
+
+    payment = contract.get("payment") or {}
+    pay_type = (payment.get("type") or "").strip()
+
+    options = contract.get("options") or {}
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=48,
+        leftMargin=48,
+        topMargin=48,
+        bottomMargin=48,
+        title=title or "Contract",
+        author="DocScan AI",
+    )
+
+    styles = getSampleStyleSheet()
+
+    h1 = ParagraphStyle(
+        "H1",
+        parent=styles["Heading1"],
+        fontName=FONT_BOLD,
+        fontSize=15.5,
+        alignment=TA_CENTER,
+        spaceAfter=10,
+    )
+    h2 = ParagraphStyle(
+        "H2",
+        parent=styles["Heading2"],
+        fontName=FONT_BOLD,
+        fontSize=12,
+        alignment=TA_LEFT,
+        spaceBefore=10,
+        spaceAfter=6,
+    )
+    normal = ParagraphStyle(
+        "NormalRU",
+        parent=styles["Normal"],
+        fontName=FONT_REGULAR,
+        fontSize=10.5,
+        leading=14,
+        alignment=TA_JUSTIFY,
+        spaceAfter=6,
+    )
+    small = ParagraphStyle(
+        "SmallRU",
+        parent=styles["Normal"],
+        fontName=FONT_REGULAR,
+        fontSize=9.5,
+        leading=12.5,
+        alignment=TA_LEFT,
+        spaceAfter=4,
+    )
+
+    story: List[Any] = []
+    story.append(_p(title, h1))
+
+    # Шапка: город слева, дата справа
+    city = "г. ________"
+    date_line = "«___» __________ 20__ г."
+    header_tbl = Table(
+        [[_p(city, small), _p(date_line, small)]],
+        colWidths=[doc.width * 0.5, doc.width * 0.5],
+    )
+    header_tbl.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("ALIGN", (0, 0), (0, 0), "LEFT"),
+                ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(header_tbl)
+    story.append(Spacer(1, 6))
+
+    # 1. Стороны (2 колонки)
+    story.append(_p("1. Стороны", h2))
+
+    def party_block(p: Dict[str, Any], fallback_name: str) -> str:
+        name = (p.get("name") or "").strip() or fallback_name
+        inn = (p.get("inn") or "").strip()
+        ogrn = (p.get("ogrn") or "").strip()
+        address = (p.get("address") or "").strip()
+        lines = [f"<b>{html.escape(name)}</b>"]
+        if inn:
+            lines.append(f"ИНН: {html.escape(inn)}")
+        if ogrn:
+            lines.append(f"ОГРН/ОГРНИП: {html.escape(ogrn)}")
+        if address:
+            lines.append(f"Адрес: {html.escape(address)}")
+        return "<br/>".join(lines)
+
+    parties_tbl = Table(
+        [[
+            Paragraph(party_block(party_a, "Сторона 1"), small),
+            Paragraph(party_block(party_b, "Сторона 2"), small),
+        ]],
+        colWidths=[doc.width * 0.5, doc.width * 0.5],
+    )
+    parties_tbl.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LINEBELOW", (0, 0), (-1, 0), 0.5, colors.HexColor("#e9ecef")),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+            ]
+        )
+    )
+    story.append(parties_tbl)
+    story.append(_p("1.1. Стороны заключили настоящий договор на условиях, изложенных ниже.", normal))
+
+    # 2. Предмет
+    story.append(_p("2. Предмет договора", h2))
+    story.append(_p("2.1. Сторона 1 обязуется исполнить обязательства по настоящему договору, а Сторона 2 — принять результат и оплатить его на условиях договора.", normal))
+
+    # Таблица позиций
+    if items:
+        rows = [["№", "Наименование", "Кол-во", "Цена, руб.", "Сумма, руб."]]
+        total_calc = 0.0
+        for idx, it in enumerate(items, 1):
+            title_it = str(it.get("title") or "").strip()
+            qty = float(it.get("qty") or 0)
+            price = float(it.get("price") or 0)
+            line_sum = max(0.0, qty) * max(0.0, price)
+            total_calc += line_sum
+            rows.append([str(idx), title_it or "—", str(int(qty) if qty.is_integer() else qty), _fmt_money(price), _fmt_money(line_sum)])
+
+        tbl = Table(
+            rows,
+            colWidths=[doc.width * 0.06, doc.width * 0.46, doc.width * 0.12, doc.width * 0.18, doc.width * 0.18],
+            hAlign="LEFT",
+        )
+        tbl.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f8f9fa")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#212529")),
+                    ("FONTNAME", (0, 0), (-1, 0), FONT_BOLD),
+                    ("FONTSIZE", (0, 0), (-1, 0), 9.5),
+                    ("FONTNAME", (0, 1), (-1, -1), FONT_REGULAR),
+                    ("FONTSIZE", (0, 1), (-1, -1), 9.5),
+                    ("ALIGN", (0, 0), (0, -1), "CENTER"),
+                    ("ALIGN", (2, 1), (4, -1), "RIGHT"),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#e9ecef")),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+                    ("TOPPADDING", (0, 0), (-1, 0), 6),
+                    ("TOPPADDING", (0, 1), (-1, -1), 4),
+                    ("BOTTOMPADDING", (0, 1), (-1, -1), 4),
+                ]
+            )
+        )
+        story.append(tbl)
+        story.append(Spacer(1, 6))
+
+        # Итого справа
+        total_tbl = Table(
+            [[_p("Итого:", small), _p(f"<b>{_fmt_money(total_calc if total_calc else total)} руб.</b>", small)]],
+            colWidths=[doc.width * 0.75, doc.width * 0.25],
+        )
+        total_tbl.setStyle(
+            TableStyle(
+                [
+                    ("ALIGN", (0, 0), (0, 0), "RIGHT"),
+                    ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 2),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
+        story.append(total_tbl)
+    else:
+        story.append(_p("2.2. Перечень работ/услуг/товаров согласуется Сторонами дополнительно.", normal))
+
+    # 3. Сроки
+    story.append(_p("3. Сроки", h2))
+    story.append(_p(f"3.1. Дата начала: {start_date or '________'}. Срок выполнения: {term_days or '___'} дней.", normal))
+    story.append(_p(f"3.2. Дата окончания (расчётная): {end_date or '________'}.", normal))
+
+    # 4. Цена
+    story.append(_p("4. Цена договора", h2))
+    story.append(_p(f"4.1. Общая стоимость по договору составляет { _fmt_money(total) } руб.", normal))
+
+    # 5. Оплата
+    story.append(_p("5. Порядок оплаты", h2))
+    if pay_type == "prepay30":
+        story.append(_p("5.1. Оплата производится на условиях предоплаты 30% и последующей постоплаты 70%.", normal))
+    elif pay_type == "postpay":
+        story.append(_p("5.1. Оплата производится после исполнения обязательств и подписания подтверждающих документов.", normal))
+    elif pay_type == "equal":
+        story.append(_p("5.1. Оплата производится равными платежами по согласованному графику.", normal))
+    else:
+        story.append(_p("5.1. Порядок оплаты определяется соглашением Сторон.", normal))
+
+    # 6-8. Опции
+    if options.get("acceptanceAct"):
+        story.append(_p("6. Приёмка и акт", h2))
+        story.append(_p("6.1. По факту исполнения Стороны подписывают акт приёмки.", normal))
+    if options.get("warranty12"):
+        story.append(_p("7. Гарантия", h2))
+        story.append(_p("7.1. Гарантийный срок составляет 12 (двенадцать) месяцев.", normal))
+    if options.get("confidentiality"):
+        story.append(_p("8. Конфиденциальность", h2))
+        story.append(_p("8.1. Стороны обязуются сохранять конфиденциальность информации, полученной в рамках договора.", normal))
+
+    # 9. Подписи (2 колонки)
+    story.append(_p("9. Подписи Сторон", h2))
+
+    left_name = (party_a.get("name") or "Сторона 1").strip() or "Сторона 1"
+    right_name = (party_b.get("name") or "Сторона 2").strip() or "Сторона 2"
+    sig_tbl = Table(
+        [
+            [
+                _p(f"<b>{left_name}</b><br/><br/>____________________ /_____________/", small),
+                _p(f"<b>{right_name}</b><br/><br/>____________________ /_____________/", small),
+            ]
+        ],
+        colWidths=[doc.width * 0.5, doc.width * 0.5],
+    )
+    sig_tbl.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+            ]
+        )
+    )
+    story.append(sig_tbl)
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 
 def generate_contract_pdf(*, title: str, text: str) -> bytes:

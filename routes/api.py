@@ -10,7 +10,7 @@ from services.file_processing import extract_text_from_file, validate_file
 from services.analysis import analyze_text
 from services.pdf_generator import generate_analysis_pdf
 from services.export_generator import generate_analysis_word, generate_analysis_excel
-from services.contract_pdf_generator import generate_contract_pdf
+from services.contract_pdf_generator import generate_contract_pdf, generate_contract_pdf_from_data
 from config import PLANS, CHAT_LIMITS
 from flask_cors import cross_origin, CORS
 from io import BytesIO
@@ -653,16 +653,22 @@ def download_analysis():
 @api_bp.route('/contracts/generate-pdf', methods=['POST'])
 @cross_origin()
 def generate_contract_pdf_endpoint():
-    """Генерация PDF договора из текста (для конструктора /business-ip)."""
+    """Генерация PDF договора (для конструктора /business-ip)."""
     try:
         data = request.get_json(force=True) or {}
+        contract = data.get('contract')
         title = (data.get('title') or 'Договор').strip()
         text = (data.get('text') or '').strip()
 
-        if not text or len(text) < 20:
-            return jsonify({'error': 'Нет текста договора для генерации PDF'}), 400
+        # Новый режим: структурные данные
+        if isinstance(contract, dict):
+            pdf_bytes = generate_contract_pdf_from_data(contract)
+        else:
+            # Legacy режим: текст
+            if not text or len(text) < 20:
+                return jsonify({'error': 'Нет текста договора для генерации PDF'}), 400
 
-        pdf_bytes = generate_contract_pdf(title=title, text=text)
+            pdf_bytes = generate_contract_pdf(title=title, text=text)
 
         from flask import make_response
         response = make_response(pdf_bytes)

@@ -106,8 +106,8 @@
     return `${rub} руб. ${String(kop).padStart(2, "0")} коп.`;
   }
 
-  function missingSpan(label) {
-    return `<span class="missing">${label}</span>`;
+  function missingSpan(label, htmlMode) {
+    return htmlMode ? `<span class="missing">${label}</span>` : `__${label}__`;
   }
 
   function isFilled(v) {
@@ -133,18 +133,18 @@
     return { ok: problems.length === 0, problems };
   }
 
-  function buildContractText() {
+  function buildContractText({ htmlMode } = { htmlMode: true }) {
     const { total } = calcTotals();
-    const start = russianDate(state.subject.startDate) || missingSpan("дата начала");
+    const start = russianDate(state.subject.startDate) || missingSpan("дата начала", htmlMode);
     const term = (Number(state.subject.termDays) || 0) > 0 ? `${Number(state.subject.termDays)} дней` : missingSpan("срок");
     const endIso = addDays(state.subject.startDate, Number(state.subject.termDays) || 0);
-    const end = russianDate(endIso) || missingSpan("дата окончания");
+    const end = russianDate(endIso) || missingSpan("дата окончания", htmlMode);
 
     const a = state.parties.a;
     const b = state.parties.b;
 
-    const partyAName = isFilled(a.name) ? a.name : missingSpan("Сторона 1");
-    const partyBName = isFilled(b.name) ? b.name : missingSpan("Сторона 2");
+    const partyAName = isFilled(a.name) ? a.name : missingSpan("Сторона 1", htmlMode);
+    const partyBName = isFilled(b.name) ? b.name : missingSpan("Сторона 2", htmlMode);
 
     const itemsLines = state.subject.items
       .filter((it) => isFilled(it.title))
@@ -155,10 +155,10 @@
         return `${idx + 1}. ${it.title} — ${qty} × ${fmtMoney(price)} = ${fmtMoney(sum)} руб.`;
       });
 
-    const itemsBlock = itemsLines.length ? itemsLines.join("\n") : missingSpan("позиции предмета договора");
+    const itemsBlock = itemsLines.length ? itemsLines.join("\n") : missingSpan("позиции предмета договора", htmlMode);
     const totalWords = sumToWordsRu(total);
 
-    let paymentText = missingSpan("условия оплаты");
+    let paymentText = missingSpan("условия оплаты", htmlMode);
     if (state.payment.type === "prepay30") {
       const pre = total * 0.3;
       const post = total - pre;
@@ -215,6 +215,30 @@
     ]
       .filter((x) => x !== "")
       .join("\n");
+  }
+
+  function buildContractPayload() {
+    const totals = calcTotals();
+    const endIso = addDays(state.subject.startDate, Number(state.subject.termDays) || 0);
+    return {
+      template: state.template,
+      title: (getTemplateDef() ? getTemplateDef().title : "ДОГОВОР"),
+      parties: state.parties,
+      subject: {
+        startDate: state.subject.startDate,
+        termDays: Number(state.subject.termDays) || 0,
+        endDate: endIso,
+        items: state.subject.items.map((it) => ({
+          title: String(it.title || "").trim(),
+          qty: Number(it.qty) || 0,
+          price: Number(it.price) || 0,
+        })),
+        total: totals.total,
+      },
+      payment: state.payment,
+      options: state.options,
+      text_plain: buildContractText({ htmlMode: false }),
+    };
   }
 
   function renderStepPills() {
@@ -516,7 +540,7 @@
   }
 
   function renderPreviewAndValidation() {
-    const text = buildContractText();
+    const text = buildContractText({ htmlMode: true });
     els.previewText.innerHTML = text;
 
     const v = validate();
@@ -534,9 +558,8 @@
     if (!v.ok) return;
 
     const payload = {
-      title: "Договор",
-      text: buildContractText(),
       filename: "contract.pdf",
+      contract: buildContractPayload(),
     };
 
     els.btnPdf.disabled = true;
@@ -570,7 +593,7 @@
   }
 
   async function copyText() {
-    const text = buildContractText();
+    const text = buildContractText({ htmlMode: false });
     try {
       await navigator.clipboard.writeText(text);
       els.btnCopy.textContent = "Скопировано";

@@ -95,6 +95,124 @@
         }
         .cta-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25); }
 
+        /* Burger menu (как на главной) */
+        .burger-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: none;
+        }
+        .burger-icon {
+            background: white;
+            padding: 12px 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            position: relative;
+        }
+        .burger-icon:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(67, 97, 238, 0.3);
+        }
+        .burger-line {
+            width: 22px;
+            height: 3px;
+            background: var(--dark);
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .burger-icon:hover .burger-line { background: white; }
+        .burger-icon.active .burger-line:nth-child(1) { transform: rotate(45deg) translate(7px, 7px); }
+        .burger-icon.active .burger-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .burger-icon.active .burger-line:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: none;
+            backdrop-filter: blur(3px);
+        }
+        .menu-overlay.active { display: block; }
+        .menu-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            width: 280px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            transform: translateY(-10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .menu-dropdown.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        .menu-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .menu-header h3 { margin: 0; font-size: 1.2rem; }
+        .menu-content { padding: 15px; }
+        .menu-content a {
+            display: block;
+            padding: 12px 15px;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        .menu-content a:hover { background: var(--light); color: var(--primary); transform: translateX(5px); }
+
+        /* Footer (как на главной) */
+        .main-footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 60px;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-links { display: flex; flex-direction: column; gap: 10px; }
+        .footer-link { color: rgba(255,255,255,0.7); text-decoration: none; transition: all 0.3s ease; }
+        .footer-link:hover { color: white; transform: translateX(5px); }
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+
         /* Page */
         .page-wrap { padding: 28px 0 50px; }
         .hero {
@@ -266,6 +384,7 @@
         @media (max-width: 980px) {
             .builder { grid-template-columns: 1fr; }
             .nav-links { display: none; }
+            .burger-menu { display: block; }
         }
     </style>
 </head>
@@ -340,6 +459,98 @@
         </div>
     </div>
 
+    <!-- Burger Menu (Mobile) -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+    <div class="burger-menu">
+        <div class="burger-icon" id="burgerIcon" onclick="toggleMenu()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <div class="menu-header">
+                <div class="logo-icon">🤖</div>
+                <h3>Меню</h3>
+            </div>
+            <div class="menu-content">
+                <a href="/">🏠 Главная</a>
+                <a href="/news">📰 Новости</a>
+                <a href="/calculator-penalty">🧮 Калькулятор</a>
+                <a href="/questions">❓ Вопросы</a>
+                <a href="/articles">📚 Статьи</a>
+                <a href="/faq">💬 FAQ</a>
+                <a href="/chat">💬 Чат ИИ</a>
+                <a href="/contact">📞 Контакты</a>
+                <div id="mobileAuthButtons">
+                    <a href="/login">🔐 Войти</a>
+                    <a href="/register">📝 Регистрация</a>
+                </div>
+                <div id="mobileUserMenu" style="display: none;">
+                    <a href="/cabinet">👤 Личный кабинет</a>
+                    <a href="/logout">🚪 Выход</a>
+                </div>
+                <a href="https://t.me/docscan_ai" target="_blank">📢 Telegram</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="/" class="logo" style="color: white; margin-bottom: 20px;">
+                        <div class="logo-icon">🤖</div>
+                        DocScan AI
+                    </a>
+                    <p style="opacity: 0.7; max-width: 300px;">
+                        Проверка документов онлайн бесплатно с ИИ. Автоматическая проверка документов и договоров с искусственным интеллектом за 60 секунд.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Сервисы</h4>
+                    <div class="footer-links">
+                        <a href="/proverka-dokumentov-onlayn" class="footer-link">Проверка документов онлайн</a>
+                        <a href="/news" class="footer-link">Новости</a>
+                        <a href="/proverka-dogovorov" class="footer-link">Проверка договоров</a>
+                        <a href="/articles" class="footer-link">База знаний</a>
+                        <a href="/calculator-penalty" class="footer-link">Калькулятор неустойки</a>
+                        <a href="/mobile-app" class="footer-link">Приложение</a>
+                        <a href="/contact" class="footer-link">Техподдержка</a>
+                        <a href="/faq" class="footer-link">FAQ</a>
+                        <a href="/questions" class="footer-link">Спросить онлайн</a>
+                        <a href="/chat" class="footer-link">Чат ИИ</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Документы</h4>
+                    <div class="footer-links">
+                        <a href="/terms" class="footer-link">Пользовательское соглашение</a>
+                        <a href="/privacy" class="footer-link">Политика конфиденциальности</a>
+                        <a href="/offer" class="footer-link">Публичная оферта</a>
+                        <a href="/partners" class="footer-link">Партнерская программа</a>
+                        <a href="/tariffs" class="footer-link">Тарифы</a>
+                        <a href="/api" class="footer-link">API</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 20px;">Контакты</h4>
+                    <div class="footer-links">
+                        <a href="mailto:docscanhelp@gmail.com" class="footer-link">docscanhelp@gmail.com</a>
+                        <a href="https://t.me/docscan_ai" class="footer-link">Telegram: @docscan_ai</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 DocScan AI. Все права защищены.
+            </div>
+        </div>
+    </footer>
+
     <script src="/static/js/business_ip.js"></script>
     <script>
         // Header auth toggle (как на других страницах)
@@ -350,12 +561,70 @@
                 if (data && data.authenticated) {
                     document.getElementById('authButtons').style.display = 'none';
                     document.getElementById('userMenu').style.display = 'flex';
+                    const m1 = document.getElementById('mobileAuthButtons');
+                    const m2 = document.getElementById('mobileUserMenu');
+                    if (m1) m1.style.display = 'none';
+                    if (m2) m2.style.display = 'block';
                 } else {
                     document.getElementById('authButtons').style.display = 'flex';
                     document.getElementById('userMenu').style.display = 'none';
+                    const m1 = document.getElementById('mobileAuthButtons');
+                    const m2 = document.getElementById('mobileUserMenu');
+                    if (m1) m1.style.display = 'block';
+                    if (m2) m2.style.display = 'none';
                 }
             } catch (e) {}
         })();
+
+        // Burger menu toggle (как на главной)
+        function toggleMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            const overlay = document.getElementById('menuOverlay');
+            const burgerIcon = document.getElementById('burgerIcon');
+            const isOpen = dropdown.classList.contains('show');
+            
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        }
+        
+        function openMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            const overlay = document.getElementById('menuOverlay');
+            const burgerIcon = document.getElementById('burgerIcon');
+            
+            dropdown.classList.add('show');
+            overlay.classList.add('active');
+            burgerIcon.classList.add('active');
+            document.body.classList.add('menu-open');
+        }
+        
+        function closeMenu() {
+            const dropdown = document.getElementById('menuDropdown');
+            const overlay = document.getElementById('menuOverlay');
+            const burgerIcon = document.getElementById('burgerIcon');
+            
+            dropdown.classList.remove('show');
+            overlay.classList.remove('active');
+            burgerIcon.classList.remove('active');
+            document.body.classList.remove('menu-open');
+        }
+
+        // Закрытие меню по Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeMenu();
+            }
+        });
+        
+        // Закрытие меню при клике на пункт меню
+        document.querySelectorAll('.menu-dropdown a').forEach(link => {
+            link.addEventListener('click', function() {
+                setTimeout(closeMenu, 200);
+            });
+        });
     </script>
 </body>
 </html>

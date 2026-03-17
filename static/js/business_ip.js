@@ -7,6 +7,25 @@
     { id: 5, title: "Шаг 5: Опции" },
   ];
 
+  const TEMPLATE_DEFS = [
+    { value: "services", label: "Оказание услуг", title: "ДОГОВОР ОКАЗАНИЯ УСЛУГ", subjectLabel: "Услуги" },
+    { value: "work", label: "Подряд (выполнение работ)", title: "ДОГОВОР ПОДРЯДА", subjectLabel: "Работы" },
+    { value: "supply", label: "Поставка", title: "ДОГОВОР ПОСТАВКИ", subjectLabel: "Товары" },
+    { value: "sale", label: "Купля-продажа", title: "ДОГОВОР КУПЛИ-ПРОДАЖИ", subjectLabel: "Товары" },
+    { value: "rent", label: "Аренда", title: "ДОГОВОР АРЕНДЫ", subjectLabel: "Объект аренды" },
+    { value: "subrent", label: "Субаренда", title: "ДОГОВОР СУБАРЕНДЫ", subjectLabel: "Объект субаренды" },
+    { value: "lease", label: "Лизинг", title: "ДОГОВОР ЛИЗИНГА", subjectLabel: "Предмет лизинга" },
+    { value: "agency", label: "Агентский", title: "АГЕНТСКИЙ ДОГОВОР", subjectLabel: "Услуги/обязательства" },
+    { value: "commission", label: "Комиссия", title: "ДОГОВОР КОМИССИИ", subjectLabel: "Предмет комиссии" },
+    { value: "mandate", label: "Поручение", title: "ДОГОВОР ПОРУЧЕНИЯ", subjectLabel: "Поручение" },
+    { value: "loan", label: "Займ", title: "ДОГОВОР ЗАЙМА", subjectLabel: "Сумма займа" },
+    { value: "nda", label: "NDA (конфиденциальность)", title: "СОГЛАШЕНИЕ О КОНФИДЕНЦИАЛЬНОСТИ (NDA)", subjectLabel: "Обязательства" },
+  ];
+
+  function getTemplateDef() {
+    return TEMPLATE_DEFS.find((t) => t.value === state.template) || null;
+  }
+
   const state = {
     step: 1,
     template: "",
@@ -150,12 +169,9 @@
       paymentText = "Равными платежами: оплата производится равными частями по согласованному графику.";
     }
 
-    const tpl = state.template || "";
-    const title =
-      tpl === "services" ? "ДОГОВОР ОКАЗАНИЯ УСЛУГ" :
-      tpl === "supply" ? "ДОГОВОР ПОСТАВКИ" :
-      tpl === "rent" ? "ДОГОВОР АРЕНДЫ" :
-      "ДОГОВОР";
+    const tplDef = getTemplateDef();
+    const title = tplDef ? tplDef.title : "ДОГОВОР";
+    const subjectLabel = tplDef ? tplDef.subjectLabel : "Позиции";
 
     const warrantySection = state.options.warranty12
       ? `\n7. Гарантия\n7.1. Гарантия на результат/товар составляет 12 (двенадцать) месяцев с даты исполнения/передачи.\n`
@@ -178,7 +194,7 @@
       `1.1. ${partyAName} (далее — "Сторона 1") и ${partyBName} (далее — "Сторона 2") заключили настоящий договор.`,
       "",
       `2. Предмет договора`,
-      `2.1. Позиции:`,
+      `2.1. ${subjectLabel}:`,
       `${itemsBlock}`,
       "",
       `3. Сроки`,
@@ -255,9 +271,7 @@
           required: true,
           options: [
             { value: "", label: "— выберите —" },
-            { value: "services", label: "Оказание услуг" },
-            { value: "supply", label: "Поставка" },
-            { value: "rent", label: "Аренда" },
+            ...TEMPLATE_DEFS.map((t) => ({ value: t.value, label: t.label })),
           ],
           value: state.template,
           hint: "Шаблон влияет на заголовок и текстовые формулировки (в MVP — базово).",
@@ -579,7 +593,14 @@
     renderStep();
 
     els.btnPrev.disabled = state.step === 1;
-    els.btnNext.disabled = state.step === 5;
+    // На последнем шаге "Далее" превращаем в "Готово" (чтобы не выглядело как баг)
+    if (state.step === 5) {
+      els.btnNext.disabled = false;
+      els.btnNext.textContent = "Готово";
+    } else {
+      els.btnNext.disabled = false;
+      els.btnNext.textContent = "Далее →";
+    }
 
     renderPreviewAndValidation();
   }
@@ -595,7 +616,14 @@
     els.validationHint = qs("validationHint");
 
     els.btnPrev.addEventListener("click", () => go(-1));
-    els.btnNext.addEventListener("click", () => go(1));
+    els.btnNext.addEventListener("click", () => {
+      if (state.step === 5) {
+        // Ничего "дальше" нет — просто фокусируем пользователя на превью/PDF
+        els.previewText.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      go(1);
+    });
     els.btnPdf.addEventListener("click", createPdf);
     els.btnCopy.addEventListener("click", copyText);
 

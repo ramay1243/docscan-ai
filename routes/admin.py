@@ -4,7 +4,6 @@ import uuid
 import os
 import subprocess
 import sys
-import json
 from datetime import datetime
 from functools import wraps
 from config import ADMINS

@@ -38,6 +38,11 @@ def tariffs():
     RussianLogger.log_page_view("Тарифы")
     return render_template('tariffs.html')
 
+@main_bp.route('/business-ip')
+def business_ip():
+    """Интерактивный конструктор договоров (без ИИ)"""
+    return render_template('business-ip.html')
+
 @main_bp.route('/api')
 def api_docs():
     """Страница документации API"""

@@ -10,6 +10,7 @@ from services.file_processing import extract_text_from_file, validate_file
 from services.analysis import analyze_text
 from services.pdf_generator import generate_analysis_pdf
 from services.export_generator import generate_analysis_word, generate_analysis_excel
+from services.contract_pdf_generator import generate_contract_pdf
 from config import PLANS, CHAT_LIMITS
 from flask_cors import cross_origin, CORS
 from io import BytesIO
@@ -647,6 +648,32 @@ def download_analysis():
         error_trace = traceback.format_exc()
         logger.error(f"Полная трассировка: {error_trace}")
         return jsonify({'error': f'Внутренняя ошибка сервера: {str(e)}'}), 500
+
+
+@api_bp.route('/contracts/generate-pdf', methods=['POST'])
+@cross_origin()
+def generate_contract_pdf_endpoint():
+    """Генерация PDF договора из текста (для конструктора /business-ip)."""
+    try:
+        data = request.get_json(force=True) or {}
+        title = (data.get('title') or 'Договор').strip()
+        text = (data.get('text') or '').strip()
+
+        if not text or len(text) < 20:
+            return jsonify({'error': 'Нет текста договора для генерации PDF'}), 400
+
+        pdf_bytes = generate_contract_pdf(title=title, text=text)
+
+        from flask import make_response
+        response = make_response(pdf_bytes)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'attachment; filename="contract.pdf"'
+        response.headers['Content-Length'] = str(len(pdf_bytes))
+        return response
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка генерации PDF договора: {e}")
+        return jsonify({'error': f'Ошибка генерации PDF: {str(e)}'}), 500
 
 @api_bp.route('/')
 def api_info():

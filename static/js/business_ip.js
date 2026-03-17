@@ -82,7 +82,7 @@
     const d = new Date(isoDate + "T00:00:00");
     if (Number.isNaN(d.getTime())) return "";
     d.setDate(d.getDate() + (Number(days) || 0));
-    const yyyy = d.getFullYear();
+    const yyyy = String(d.getFullYear()).padStart(4, "0");
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;

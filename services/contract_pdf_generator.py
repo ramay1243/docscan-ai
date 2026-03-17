@@ -100,6 +100,13 @@ def _p(text: str, style: ParagraphStyle) -> Paragraph:
     safe = html.escape(text or "").replace("\n", "<br/>")
     return Paragraph(safe, style)
 
+def _p_rich(rich_text: str, style: ParagraphStyle) -> Paragraph:
+    """
+    Paragraph с reportlab-markup (<b>, <br/>) без экранирования.
+    Важно: rich_text должен быть уже безопасным (вставки пользователя предварительно html.escape()).
+    """
+    return Paragraph(rich_text or "", style)
+
 
 def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
     """
@@ -214,10 +221,12 @@ def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
         return "<br/>".join(lines)
 
     parties_tbl = Table(
-        [[
-            Paragraph(party_block(party_a, "Сторона 1"), small),
-            Paragraph(party_block(party_b, "Сторона 2"), small),
-        ]],
+        [
+            [
+                _p_rich(f"<b>Сторона 1</b><br/>{party_block(party_a, 'Сторона 1')}", small),
+                _p_rich(f"<b>Сторона 2</b><br/>{party_block(party_b, 'Сторона 2')}", small),
+            ]
+        ],
         colWidths=[doc.width * 0.5, doc.width * 0.5],
     )
     parties_tbl.setStyle(
@@ -278,7 +287,7 @@ def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
 
         # Итого справа
         total_tbl = Table(
-            [[_p("Итого:", small), _p(f"<b>{_fmt_money(total_calc if total_calc else total)} руб.</b>", small)]],
+            [[_p("Итого:", small), _p_rich(f"<b>{html.escape(_fmt_money(total_calc if total_calc else total))} руб.</b>", small)]],
             colWidths=[doc.width * 0.75, doc.width * 0.25],
         )
         total_tbl.setStyle(
@@ -332,11 +341,15 @@ def generate_contract_pdf_from_data(contract: Dict[str, Any]) -> bytes:
 
     left_name = (party_a.get("name") or "Сторона 1").strip() or "Сторона 1"
     right_name = (party_b.get("name") or "Сторона 2").strip() or "Сторона 2"
+    left_name_safe = html.escape(left_name)
+    right_name_safe = html.escape(right_name)
+    sig_left = f"<b>{left_name_safe}</b><br/><br/>____________________ /_____________/"
+    sig_right = f"<b>{right_name_safe}</b><br/><br/>____________________ /_____________/"
     sig_tbl = Table(
         [
             [
-                _p(f"<b>{left_name}</b><br/><br/>____________________ /_____________/", small),
-                _p(f"<b>{right_name}</b><br/><br/>____________________ /_____________/", small),
+                _p_rich(sig_left, small),
+                _p_rich(sig_right, small),
             ]
         ],
         colWidths=[doc.width * 0.5, doc.width * 0.5],

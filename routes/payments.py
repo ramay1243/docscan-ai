@@ -337,34 +337,66 @@ def yukassa_webhook():
             user_id = metadata.get('user_id')
             plan_type = metadata.get('plan_type')
             amount = data.get('object', {}).get('amount', {}).get('value')
+            operation_id = data.get('object', {}).get('id')
             
             if user_id and plan_type:
                 # Сохраняем платеж в БД
                 try:
                     from models.sqlite_users import Payment, db
+                    from datetime import datetime
                     
-                    payment = Payment(
-                        user_id=user_id,
-                        email=None,
-                        plan_type=plan_type,
-                        amount=float(amount) if amount else 0,
-                        currency='RUB',
-                        provider='yukassa',
-                        status='success',
-                        operation_id=data.get('object', {}).get('id'),
-                        label=f"{user_id}_{plan_type}",
-                        created_at=datetime.now().isoformat(),
-                        raw_data=json.dumps(data)
-                    )
-                    db.session.add(payment)
-                    db.session.commit()
-                    logger.info(f"💰 Платеж ЮKassa сохранен в БД: {user_id}")
-                    
-                    # Активируем тариф (используем существующую функцию)
-                    activate_plan(user_id, plan_type)
-                    
+                    # Идемпотентность: если такой платеж уже сохранен - не создаем дубль
+                    if operation_id:
+                        existing = Payment.query.filter_by(operation_id=operation_id, provider='yukassa').first()
+                        if existing:
+                            logger.info(f"ℹ️ Платеж ЮKassa уже сохранен (operation_id={operation_id}), пропускаем создание")
+                        else:
+                            payment = Payment(
+                                user_id=user_id,
+                                email=None,
+                                plan_type=plan_type,
+                                amount=float(amount) if amount else 0,
+                                currency='RUB',
+                                provider='yukassa',
+                                status='success',
+                                operation_id=operation_id,
+                                label=f"{user_id}_{plan_type}",
+                                created_at=datetime.now().isoformat(),
+                                raw_data=json.dumps(data, ensure_ascii=False)
+                            )
+                            db.session.add(payment)
+                            db.session.commit()
+                            logger.info(f"💰 Платеж ЮKassa сохранен в БД: {user_id} (operation_id={operation_id})")
+                    else:
+                        # fallback если внезапно нет operation_id
+                        payment = Payment(
+                            user_id=user_id,
+                            email=None,
+                            plan_type=plan_type,
+                            amount=float(amount) if amount else 0,
+                            currency='RUB',
+                            provider='yukassa',
+                            status='success',
+                            operation_id=None,
+                            label=f"{user_id}_{plan_type}",
+                            created_at=datetime.now().isoformat(),
+                            raw_data=json.dumps(data, ensure_ascii=False)
+                        )
+                        db.session.add(payment)
+                        db.session.commit()
+                        logger.info(f"💰 Платеж ЮKassa сохранен в БД: {user_id} (operation_id отсутствует)")
                 except Exception as e:
                     logger.error(f"❌ Ошибка сохранения платежа: {e}")
+                    try:
+                        db.session.rollback()
+                    except Exception:
+                        pass
+                
+                # Активируем тариф даже если запись платежа упала
+                try:
+                    activate_plan(user_id, plan_type)
+                except Exception as e:
+                    logger.error(f"❌ Ошибка активации тарифа после webhook ЮKassa: {e}")
                 
                 return jsonify({'success': True})
         

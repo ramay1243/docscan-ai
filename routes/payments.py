@@ -106,8 +106,8 @@ def payment_webhook():
             if label and '_' in label:
                 parts = label.split('_')
                 user_id = parts[0]
-                plan_type = parts[-1]
-                
+                plan_type = '_'.join(parts[1:])
+
                 # Получаем email пользователя
                 from app import app
                 user = app.user_manager.get_user(user_id)

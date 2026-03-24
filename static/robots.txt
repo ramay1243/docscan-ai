@@ -6,6 +6,8 @@ Disallow: /cabinet/
 Disallow: /api/
 Disallow: /login
 Disallow: /register
+Disallow: /verify-email/
+Disallow: /*?etext=
 
 Sitemap: https://docscan-ai.ru/sitemap.xml
 
